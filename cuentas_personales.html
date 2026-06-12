@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuentas Personales</title>
+  
+  <!-- Tailwind CSS para el diseño -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Librerías para Exportar a PDF y Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    body {
+      background-color: #0f1115;
+      color: #f3f4f6;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    /* Ocultar flechas en inputs numéricos */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+
+    /* ESTILOS AÑADIDOS PARA EL MODO CLARO SIN ROMPER EL CÓDIGO ORIGINAL */
+    body.light-theme {
+      background-color: #f3f4f6 !important;
+      color: #1f2937 !important;
+    }
+    body.light-theme .bg-gray-800\/50,
+    body.light-theme .bg-gray-800\/40 { background-color: rgba(255, 255, 255, 0.9) !important; }
+    body.light-theme .bg-gray-800 { background-color: #ffffff !important; }
+    body.light-theme .bg-gray-900\/50 { background-color: rgba(243, 244, 246, 0.9) !important; }
+    body.light-theme .bg-gray-900 { background-color: #f9fafb !important; }
+    body.light-theme .bg-black\/60 { background-color: rgba(0, 0, 0, 0.4) !important; }
+    
+    body.light-theme .border-gray-700\/50 { border-color: rgba(229, 231, 235, 0.8) !important; }
+    body.light-theme .border-gray-700 { border-color: #e5e7eb !important; }
+    body.light-theme .border-gray-600 { border-color: #d1d5db !important; }
+    
+    body.light-theme .text-gray-400,
+    body.light-theme .text-gray-500 { color: #6b7280 !important; }
+    body.light-theme .text-gray-300 { color: #4b5563 !important; }
+    body.light-theme .text-gray-200 { color: #374151 !important; }
+    body.light-theme .text-white { color: #111827 !important; }
+    
+    body.light-theme input, 
+    body.light-theme select {
+      background-color: #ffffff !important;
+      color: #111827 !important;
+      border-color: #d1d5db !important;
+    }
+    body.light-theme option { background-color: #ffffff !important; color: #111827 !important; }
+    
+    body.light-theme .hover\:bg-gray-700:hover { background-color: #f3f4f6 !important; }
+    body.light-theme .hover\:bg-gray-700\/50:hover { background-color: #e5e7eb !important; }
+    body.light-theme .hover\:bg-gray-600:hover { background-color: #d1d5db !important; }
+    
+    body.light-theme #calendar-grid > button { border-color: #e5e7eb !important; color: #4b5563 !important; }
+    body.light-theme #calendar-grid > button:hover { border-color: #d1d5db !important; background-color: #f9fafb !important; }
+    body.light-theme #calendar-grid > button.bg-blue-600\/20 { 
+        background-color: rgba(37, 99, 235, 0.1) !important; 
+        color: #2563eb !important; 
+        border-color: rgba(37, 99, 235, 0.3) !important; 
+    }
+    
+    body.light-theme .bg-gray-700\/50 { background-color: #ffffff !important; color: #374151 !important; }
+    
+    body.light-theme .divide-gray-700\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(229, 231, 235, 0.8) !important; }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-blue-500/30 p-4 md:p-8">
+
+  <!-- PANTALLA DE INICIO DE SESIÓN -->
+  <div id="login-screen" class="fixed inset-0 bg-[#0f1115] z-[100] flex items-center justify-center p-4 transition-opacity duration-500">
+    <div class="bg-gray-800/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-sm text-center">
+      <div class="inline-flex p-3 bg-blue-600/20 text-blue-400 rounded-xl mb-4">
+        <i data-lucide="lock" class="w-8 h-8"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-white mb-2">Iniciar Sesión</h2>
+      <p class="text-gray-400 text-sm mb-6">Ingresa la contraseña para acceder</p>
+      
+      <form id="login-form" class="space-y-4">
+        <div>
+          <input type="password" id="login-password" placeholder="••••" class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-center text-2xl focus:border-blue-500 focus:outline-none text-white tracking-widest" required>
+        </div>
+        <p id="login-error" class="text-rose-500 text-sm hidden">Contraseña incorrecta</p>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg transition-colors">
+          Entrar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONTENEDOR PRINCIPAL DE LA APP -->
+  <div id="app-container" class="max-w-6xl mx-auto space-y-8 hidden">
+    
+    <!-- HEADER -->
+    <header class="flex items-center gap-4 mb-8">
+      <div class="p-3 bg-blue-600/20 text-blue-400 rounded-xl">
+        <i data-lucide="calendar" class="w-7 h-7"></i>
+      </div>
+      <div class="flex-1">
+        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+          Cuentas Personales
+        </h1>
+        <p class="text-gray-400 text-sm">Dashboard Financiero Sincronizado</p>
+      </div>
+      <!-- BOTÓN PARA MODO CLARO / OSCURO AÑADIDO -->
+      <button id="theme-toggle" class="p-2 md:p-3 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 transition-colors text-gray-400 shadow-sm" title="Alternar tema">
+        <i data-lucide="sun" id="theme-icon" class="w-6 h-6"></i>
+      </button>
+    </header>
+
+    <main class="space-y-8">
+      
+      <!-- SECCIÓN SUPERIOR: CALENDARIO Y RESUMEN MENSUAL -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- CALENDARIO -->
+        <section class="lg:col-span-2 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 p-6 shadow-xl">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            
+            <div class="flex items-center gap-3">
+              <h2 class="text-xl font-semibold flex items-center gap-2">Calendario</h2>
+              <button id="btn-today" class="px-3 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 rounded-lg text-sm font-medium transition-colors cursor-pointer shadow-sm">
+                Hoy
+              </button>
+            </div>
+
+            <div class="flex items-center gap-1 sm:gap-2 bg-gray-900/50 rounded-lg p-1 border border-gray-700/50">
+              <button id="btn-prev-month" class="p-1 sm:p-2 hover:bg-gray-700 rounded-md transition-colors">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+              </button>
+              
+              <!-- Menús desplegables de Mes y Año -->
+              <div class="flex items-center gap-1 bg-gray-800 rounded-md px-2 py-1">
+                <select id="month-select" class="bg-transparent border-none text-sm sm:text-base font-medium text-gray-200 focus:outline-none cursor-pointer outline-none hover:text-white transition-colors">
+                  <option value="0" class="bg-gray-800 text-white">Enero</option>
+                  <option value="1" class="bg-gray-800 text-white">Febrero</option>
+                  <option value="2" class="bg-gray-800 text-white">Marzo</option>
+                  <option value="3" class="bg-gray-800 text-white">Abril</option>
+                  <option value="4" class="bg-gray-800 text-white">Mayo</option>
+                  <option value="5" class="bg-gray-800 text-white">Junio</option>
+                  <option value="6" class="bg-gray-800 text-white">Julio</option>
+                  <option value="7" class="bg-gray-800 text-white">Agosto</option>
+                  <option value="8" class="bg-gray-800 text-white">Septiembre</option>
+                  <option value="9" class="bg-gray-800 text-white">Octubre</option>
+                  <option value="10" class="bg-gray-800 text-white">Noviembre</option>
+                  <option value="11" class="bg-gray-800 text-white">Diciembre</option>
+                </select>
+                <select id="year-select" class="bg-transparent border-none text-sm sm:text-base font-medium text-gray-200 focus:outline-none cursor-pointer outline-none hover:text-white transition-colors">
+                  <!-- Años llenados por JS -->
+                </select>
+              </div>
+
+              <button id="btn-next-month" class="p-1 sm:p-2 hover:bg-gray-700 rounded-md transition-colors">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-7 gap-2 mb-2 text-center text-sm font-medium text-gray-400 pb-2">
+            <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+          </div>
+
+          <div id="calendar-grid" class="grid grid-cols-7 gap-2">
+            <!-- Los días se renderizarán aquí vía JS -->
+          </div>
+        </section>
+
+        <!-- RESUMEN MENSUAL Y GRÁFICA -->
+        <section class="bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 p-6 shadow-xl flex flex-col">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold">Resumen del Mes</h2>
+            <div class="flex items-center gap-2">
+              <button id="btn-print" class="flex items-center gap-2 px-3 py-1.5 bg-gray-700/50 hover:bg-gray-600 border border-gray-600 rounded-lg text-sm font-medium transition-colors cursor-pointer text-gray-200 shadow-sm print:hidden" title="Imprimir pantalla">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+              </button>
+              <div class="relative">
+                <button id="btn-export-menu" class="flex items-center gap-2 px-3 py-1.5 bg-gray-700/50 hover:bg-gray-600 border border-gray-600 rounded-lg text-sm font-medium transition-colors cursor-pointer text-gray-200 shadow-sm print:hidden">
+                  <i data-lucide="download" class="w-4 h-4"></i> Exportar
+                </button>
+                <!-- Dropdown Exportar -->
+                <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-32 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-10 overflow-hidden">
+                  <button id="btn-export-pdf" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2 border-b border-gray-700/50 transition-colors">
+                    <i data-lucide="file-text" class="w-4 h-4"></i> PDF
+                  </button>
+                  <button id="btn-export-excel" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
+                    <i data-lucide="sheet" class="w-4 h-4"></i> Excel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-center mb-8">
+            <div id="donut-chart" class="w-48 h-48 rounded-full flex items-center justify-center shadow-lg relative border-4 border-gray-700 transition-all duration-500">
+              <div class="w-36 h-36 bg-gray-800 rounded-full flex flex-col items-center justify-center absolute">
+                 <span class="text-xs text-gray-400">Total Mensual</span>
+                 <span id="donut-total" class="text-lg font-bold text-white">$0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="month-summary-list" class="space-y-4 mt-auto">
+            <!-- Resumen se renderizará aquí -->
+          </div>
+        </section>
+
+      </div>
+
+      <!-- SECCIÓN INFERIOR: CONSULTA HISTÓRICA Y BÚSQUEDA -->
+      <section class="bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 p-6 shadow-xl transition-all">
+        <!-- HEADER PLEGABLE -->
+        <div id="toggle-history-btn" class="flex justify-between items-center cursor-pointer group">
+          <h2 class="text-xl font-semibold group-hover:text-blue-400 transition-colors">Consultas y Totales Históricos</h2>
+          <button class="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors text-gray-400 group-hover:text-white">
+            <i data-lucide="chevron-down" id="history-chevron" class="w-5 h-5 transition-transform duration-300"></i>
+          </button>
+        </div>
+
+        <!-- CONTENIDO PLEGABLE (Oculto por defecto) -->
+        <div id="history-content" class="hidden mt-6 space-y-6">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            
+            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+              <select id="search-year" class="bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-sm focus:border-blue-500 focus:outline-none text-white cursor-pointer hover:bg-gray-800 transition-colors">
+                <!-- Años se renderizarán aquí -->
+              </select>
+              
+              <!-- NUEVO: Selector de Mes -->
+              <select id="search-month" class="bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-sm focus:border-blue-500 focus:outline-none text-white cursor-pointer hover:bg-gray-800 transition-colors">
+                <option value="all">Todo el año</option>
+                <option value="0">Enero</option>
+                <option value="1">Febrero</option>
+                <option value="2">Marzo</option>
+                <option value="3">Abril</option>
+                <option value="4">Mayo</option>
+                <option value="5">Junio</option>
+                <option value="6">Julio</option>
+                <option value="7">Agosto</option>
+                <option value="8">Septiembre</option>
+                <option value="9">Octubre</option>
+                <option value="10">Noviembre</option>
+                <option value="11">Diciembre</option>
+              </select>
+            </div>
+
+            <div class="relative flex-1 w-full md:w-64">
+              <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+              <input 
+                type="text" 
+                id="search-input"
+                placeholder="Buscar concepto o monto..."
+                class="w-full bg-gray-900 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:outline-none text-white"
+              />
+            </div>
+          </div>
+
+          <!-- Mini Resumen Anual/Mensual -->
+          <div id="year-summary-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Totales anuales aquí -->
+          </div>
+
+          <!-- Lista de Movimientos Filtrados -->
+          <div class="overflow-x-auto border border-gray-700/50 rounded-xl">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-gray-800/80">
+                <tr class="border-b border-gray-700 text-gray-400 text-sm">
+                  <th class="py-3 px-4 font-medium">Fecha</th>
+                  <th class="py-3 px-4 font-medium">Tipo</th>
+                  <th class="py-3 px-4 font-medium">Concepto</th>
+                  <th class="py-3 px-4 font-medium text-right">Monto</th>
+                  <th class="py-3 px-4 font-medium text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="table-body" class="text-sm divide-y divide-gray-700/50 bg-gray-900/30">
+                <!-- Movimientos aquí -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO -->
+    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+      <div class="bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
+        
+        <div class="flex justify-between items-center p-5 border-b border-gray-700">
+          <h3 class="text-lg font-semibold flex items-center gap-2">
+            <i data-lucide="calendar" class="w-5 h-5 text-blue-400"></i>
+            <span id="modal-title-text">Añadir Movimiento</span>
+            <span id="modal-date-label" class="text-sm font-normal text-gray-400 bg-gray-900 px-2 py-0.5 rounded ml-2"></span>
+          </h3>
+          <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <form id="movement-form" class="p-5 space-y-5">
+          
+          <!-- Selector de Tipo -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Tipo de movimiento</label>
+            <div class="grid grid-cols-3 gap-3" id="type-selectors">
+              <!-- Botones de tipo generados por JS -->
+            </div>
+          </div>
+
+          <!-- Cantidad -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Cantidad</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">$</span>
+              <input type="number" id="form-amount" step="0.01" required min="0" placeholder="0.00" class="w-full bg-gray-900 border border-gray-700 rounded-xl pl-8 pr-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-lg text-white transition-colors" />
+            </div>
+          </div>
+
+          <!-- Concepto -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Concepto / Descripción</label>
+            <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-white transition-colors" />
+          </div>
+
+          <!-- Botón Guardar -->
+          <button type="submit" id="btn-save-movement" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3 rounded-xl shadow-lg transition-all active:scale-[0.98]">
+            Guardar Movimiento
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT PRINCIPAL CON FIREBASE -->
+  <script type="module">
+    // 1. IMPORTAR SDKs DE FIREBASE v11
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // 2. CONFIGURACIÓN EXACTA
+    const firebaseConfig = {
+      apiKey: "AIzaSyCC84-VtL9XAq-Zzi2eWRaQpvpJOBPlffw",
+      authDomain: "cuentaspersonales-95a75.firebaseapp.com",
+      projectId: "cuentaspersonales-95a75",
+      storageBucket: "cuentaspersonales-95a75.firebasestorage.app",
+      messagingSenderId: "1080262607029",
+      appId: "1:1080262607029:web:8cb120ea1bbc8844753efc",
+      measurementId: "G-6T5RWEP3Y1"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const APP_ID = "cuentas-personales-app";
+
+    // 3. ESTADO GLOBAL
+    let movements = [];
+    let currentDate = new Date();
+    let selectedDateStr = null;
+    let editingId = null; 
+    let formType = 'gasto';
+    let searchYear = new Date().getFullYear();
+    let searchMonth = new Date().getMonth().toString();
+    let searchQuery = '';
+
+    const CATEGORIES = {
+      ingreso: { label: 'Ingreso', emoji: '📈', color: '#10b981', bgClass: 'bg-emerald-500/10', textClass: 'text-emerald-400', borderClass: 'border-emerald-500/50' },
+      gasto: { label: 'Gasto', emoji: '📉', color: '#f43f5e', bgClass: 'bg-rose-500/10', textClass: 'text-rose-400', borderClass: 'border-rose-500/50' },
+      ahorro: { label: 'Ahorro', emoji: '💰', color: '#3b82f6', bgClass: 'bg-blue-500/10', textClass: 'text-blue-400', borderClass: 'border-blue-500/50' }
+    };
+
+    // Formateador de moneda
+    const formatCurrency = (amount) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
+
+    // --- AUTENTICACIÓN INVISIBLE ---
+    async function initInvisibleAuth() {
+      try {
+        await signInAnonymously(auth);
+      } catch (error) {
+        console.error("Error al conectar de forma invisible:", error);
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadMovements(); // Cuando hay conexión, cargamos los datos
+      }
+    });
+
+    initInvisibleAuth();
+
+    // 5. CARGAR DATOS DESDE FIRESTORE
+    function loadMovements() {
+      const q = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'));
+      
+      onSnapshot(q, (snapshot) => {
+        movements = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        // Ordenar descendentemente
+        movements.sort((a, b) => new Date(b.date) - new Date(a.date));
+        renderApp();
+      }, (error) => {
+        console.error("Error al cargar datos:", error);
+      });
+    }
+
+    // 6. RENDERIZADO PRINCIPAL
+    function renderApp() {
+      renderCalendar();
+      renderMonthSummary();
+      renderYearSummary();
+      renderTable();
+      lucide.createIcons(); // Recargar iconos tras manipular el DOM
+    }
+
+    // --- RENDERIZADO DEL CALENDARIO ---
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const today = new Date();
+      
+      // Actualizar selectores de mes y año directamente
+      document.getElementById('month-select').value = month;
+      document.getElementById('year-select').value = year;
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+
+      // Cajas vacías
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'h-20 md:h-24 rounded-xl bg-gray-800/20 border border-transparent';
+        grid.appendChild(emptyDiv);
+      }
+
+      // Días del mes
+      for (let day = 1; day <= daysInMonth; day++) {
+        const formattedMonth = String(month + 1).padStart(2, '0');
+        const formattedDay = String(day).padStart(2, '0');
+        const dateStr = `${year}-${formattedMonth}-${formattedDay}`;
+        
+        const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+        const dayMovements = movements.filter(m => m.date === dateStr);
+        
+        const btn = document.createElement('button');
+        btn.onclick = () => openModal(dateStr);
+        
+        // Se cambió h-16 por h-20 en móvil y se ajustó py para distribuir mejor el espacio interno
+        let baseClass = `relative h-20 md:h-24 rounded-xl border flex flex-col items-center py-1.5 md:py-2 transition-all hover:bg-gray-700/50 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer overflow-hidden `;
+        if (isToday) {
+          baseClass += 'bg-blue-600/20 border-blue-500/50 text-blue-400 font-bold';
+        } else {
+          baseClass += 'bg-gray-800/40 border-gray-700/50 text-gray-300 hover:border-gray-500';
+        }
+        btn.className = baseClass;
+
+        let innerHTML = `<span class="text-sm md:text-base leading-none">${day}</span>`;
+
+        if (dayMovements.length > 0) {
+          // Ajustamos tamaño de iconos y usamos mt-auto para empujarlos al fondo sin "absolute"
+          let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[11px] md:text-sm leading-none" title="${CATEGORIES[m.type].label}: ${formatCurrency(m.amount)}">${CATEGORIES[m.type].emoji}</span>`).join('');
+          if (dayMovements.length > 3) emojisHtml += `<span class="text-[9px] md:text-[11px] text-gray-400 font-bold self-center leading-none ml-0.5">+${dayMovements.length - 3}</span>`;
+          
+          innerHTML += `<div class="mt-auto flex flex-wrap justify-center items-center gap-0.5 md:gap-1 w-full px-0.5 pb-0.5">${emojisHtml}</div>`;
+        }
+        
+        btn.innerHTML = innerHTML;
+        grid.appendChild(btn);
+      }
+    }
+
+    // --- RENDERIZADO DEL RESUMEN MENSUAL Y PORCENTAJES ---
+    function renderMonthSummary() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      const monthMovements = movements.filter(m => {
+        const d = new Date(m.date + 'T00:00:00');
+        return d.getFullYear() === year && d.getMonth() === month;
+      });
+
+      let totals = { ingreso: 0, gasto: 0, ahorro: 0, total: 0 };
+      monthMovements.forEach(m => {
+        totals[m.type] += m.amount;
+        totals.total += m.amount; // Este es el volumen total de movimientos
+      });
+
+      // Actualizar Gráfica
+      const donutEl = document.getElementById('donut-chart');
+      if (totals.total === 0) {
+        donutEl.style.background = 'transparent';
+        donutEl.classList.remove('border-transparent');
+        donutEl.classList.add('border-gray-700');
+      } else {
+        const pIngreso = (totals.ingreso / totals.total) * 100;
+        const pGasto = (totals.gasto / totals.total) * 100;
+        const conicGradient = `conic-gradient(
+          ${CATEGORIES.ingreso.color} 0% ${pIngreso}%,
+          ${CATEGORIES.gasto.color} ${pIngreso}% ${pIngreso + pGasto}%,
+          ${CATEGORIES.ahorro.color} ${pIngreso + pGasto}% 100%
+        )`;
+        donutEl.style.background = conicGradient;
+        donutEl.classList.add('border-transparent');
+        donutEl.classList.remove('border-gray-700');
+      }
+
+      document.getElementById('donut-total').textContent = formatCurrency(totals.ingreso - totals.gasto);
+
+      // Actualizar Lista de Totales con PORCENTAJES AÑADIDOS
+      const listContainer = document.getElementById('month-summary-list');
+      listContainer.innerHTML = '';
+      
+      Object.keys(CATEGORIES).forEach(type => {
+        const cat = CATEGORIES[type];
+        const percentage = totals.total > 0 ? ((totals[type] / totals.total) * 100).toFixed(1) : '0.0';
+        
+        listContainer.innerHTML += `
+          <div class="flex items-center justify-between p-3 rounded-xl border ${cat.borderClass} ${cat.bgClass}">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">${cat.emoji}</span>
+              <span class="font-medium text-gray-200">
+                ${cat.label} 
+                <span class="text-xs text-gray-400 font-normal ml-1">(${percentage}%)</span>
+              </span>
+            </div>
+            <span class="font-bold ${cat.textClass}">${formatCurrency(totals[type])}</span>
+          </div>
+        `;
+      });
+    }
+
+    // --- RENDERIZADO DEL RESUMEN ANUAL Y TABLA ---
+    function renderYearSummary() {
+      const yearMovements = movements.filter(m => {
+        const d = new Date(m.date + 'T00:00:00');
+        const matchYear = d.getFullYear() === searchYear;
+        const matchMonth = searchMonth === 'all' || d.getMonth() === parseInt(searchMonth);
+        return matchYear && matchMonth;
+      });
+
+      let totals = { ingreso: 0, gasto: 0, ahorro: 0 };
+      yearMovements.forEach(m => {
+        totals[m.type] += m.amount;
+      });
+
+      const gridContainer = document.getElementById('year-summary-grid');
+      gridContainer.innerHTML = '';
+      
+      const labelTime = searchMonth === 'all' ? 'Anual' : 'del Mes';
+
+      Object.keys(CATEGORIES).forEach(type => {
+        const cat = CATEGORIES[type];
+        gridContainer.innerHTML += `
+          <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-700 flex flex-col items-center text-center">
+            <span class="text-sm text-gray-400 mb-1">${cat.emoji} ${cat.label} ${labelTime}</span>
+            <span class="text-xl font-bold ${cat.textClass}">${formatCurrency(totals[type])}</span>
+          </div>
+        `;
+      });
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+
+      const lowerQuery = searchQuery.toLowerCase();
+      const filtered = movements.filter(m => {
+        const d = new Date(m.date + 'T00:00:00');
+        const matchYear = d.getFullYear() === searchYear;
+        const matchMonth = searchMonth === 'all' || d.getMonth() === parseInt(searchMonth);
+        const matchQuery = m.concept.toLowerCase().includes(lowerQuery) || 
+                           m.amount.toString().includes(lowerQuery) ||
+                           CATEGORIES[m.type].label.toLowerCase().includes(lowerQuery);
+        return matchYear && matchMonth && matchQuery;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-500">No hay movimientos registrados.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(m => {
+        const cat = CATEGORIES[m.type];
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-700/20 transition-colors border-b border-gray-700/50 last:border-0';
+        tr.innerHTML = `
+          <td class="py-3 px-4">${m.date}</td>
+          <td class="py-3 px-4">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${cat.bgClass} ${cat.textClass} ${cat.borderClass}">
+              ${cat.emoji} ${cat.label}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-gray-300">${m.concept}</td>
+          <td class="py-3 px-4 text-right font-medium ${cat.textClass}">
+            ${m.type === 'gasto' ? '-' : '+'}${formatCurrency(m.amount)}
+          </td>
+          <td class="py-3 px-4 text-center">
+            <div class="flex items-center justify-center gap-2">
+              <button data-id="${m.id}" class="btn-edit p-1.5 text-gray-500 hover:text-blue-400 rounded-md hover:bg-blue-500/10 transition-colors" title="Editar">
+                <i data-lucide="edit-3" class="w-4 h-4 pointer-events-none"></i>
+              </button>
+              <button data-id="${m.id}" class="btn-delete p-1.5 text-gray-500 hover:text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors" title="Eliminar">
+                <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // --- MANEJO DE EVENTOS DE INTERFAZ ---
+    
+    // Toggle para Modo Claro / Oscuro
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+
+    themeToggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('light-theme');
+      const isLight = document.body.classList.contains('light-theme');
+      // Cambiar ícono según el tema actual
+      themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+      lucide.createIcons();
+    });
+
+    // Dropdown Exportar
+    const btnExportMenu = document.getElementById('btn-export-menu');
+    const exportDropdown = document.getElementById('export-dropdown');
+    
+    btnExportMenu.addEventListener('click', () => {
+      exportDropdown.classList.toggle('hidden');
+    });
+    
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (!btnExportMenu.contains(e.target) && !exportDropdown.contains(e.target)) {
+        exportDropdown.classList.add('hidden');
+      }
+    });
+
+    // Lógica de Exportación
+    function getMonthExportData() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const monthName = document.getElementById('month-select').options[month].text;
+      
+      const monthMovements = movements.filter(m => {
+        const d = new Date(m.date + 'T00:00:00');
+        return d.getFullYear() === year && d.getMonth() === month;
+      });
+      
+      return { year, monthName, monthMovements };
+    }
+
+    document.getElementById('btn-export-pdf').addEventListener('click', () => {
+      exportDropdown.classList.add('hidden');
+      const { year, monthName, monthMovements } = getMonthExportData();
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(18);
+      doc.text(`Resumen Mensual - ${monthName} ${year}`, 14, 22);
+      
+      const tableData = monthMovements.map(m => [
+        m.date,
+        CATEGORIES[m.type].label,
+        m.concept,
+        (m.type === 'gasto' ? '-' : '+') + formatCurrency(m.amount)
+      ]);
+      
+      let totalIngresos = 0, totalGastos = 0, totalAhorros = 0;
+      monthMovements.forEach(m => {
+        if(m.type === 'ingreso') totalIngresos += m.amount;
+        if(m.type === 'gasto') totalGastos += m.amount;
+        if(m.type === 'ahorro') totalAhorros += m.amount;
+      });
+      
+      doc.autoTable({
+        startY: 30,
+        head: [['Fecha', 'Tipo', 'Concepto', 'Monto']],
+        body: tableData,
+        foot: [
+          ['', '', 'Total Ingresos:', formatCurrency(totalIngresos)],
+          ['', '', 'Total Gastos:', formatCurrency(totalGastos)],
+          ['', '', 'Total Ahorros:', formatCurrency(totalAhorros)],
+          ['', '', 'Balance Final:', formatCurrency(totalIngresos - totalGastos)]
+        ],
+        theme: 'grid',
+        headStyles: { fillColor: [59, 130, 246] },
+        footStyles: { fillColor: [243, 244, 246], textColor: [15, 23, 42], fontStyle: 'bold' }
+      });
+      
+      doc.save(`Resumen_${monthName}_${year}.pdf`);
+    });
+
+    document.getElementById('btn-export-excel').addEventListener('click', () => {
+      exportDropdown.classList.add('hidden');
+      const { year, monthName, monthMovements } = getMonthExportData();
+      
+      const wsData = [
+        ['Fecha', 'Tipo', 'Concepto', 'Monto']
+      ];
+      
+      let totalIngresos = 0, totalGastos = 0, totalAhorros = 0;
+      
+      monthMovements.forEach(m => {
+        wsData.push([m.date, CATEGORIES[m.type].label, m.concept, (m.type === 'gasto' ? -m.amount : m.amount)]);
+        if(m.type === 'ingreso') totalIngresos += m.amount;
+        if(m.type === 'gasto') totalGastos += m.amount;
+        if(m.type === 'ahorro') totalAhorros += m.amount;
+      });
+      
+      wsData.push([]);
+      wsData.push(['', '', 'Total Ingresos:', totalIngresos]);
+      wsData.push(['', '', 'Total Gastos:', -totalGastos]);
+      wsData.push(['', '', 'Total Ahorros:', totalAhorros]);
+      wsData.push(['', '', 'Balance Final:', totalIngresos - totalGastos]);
+      
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Resumen");
+      
+      XLSX.writeFile(wb, `Resumen_${monthName}_${year}.xlsx`);
+    });
+
+    // Lógica para Imprimir Pantalla
+    document.getElementById('btn-print').addEventListener('click', () => {
+      window.print();
+    });
+
+    // Llenar selector de años (Desde 2020 hasta 5 años al futuro del año actual)
+    const yearSelect = document.getElementById('year-select');
+    const baseYear = new Date().getFullYear();
+    for (let y = 2020; y <= baseYear + 5; y++) {
+      yearSelect.innerHTML += `<option value="${y}" class="bg-gray-800 text-white">${y}</option>`;
+    }
+    
+    // Botón Hoy
+    document.getElementById('btn-today').addEventListener('click', () => {
+      currentDate = new Date();
+      renderApp();
+    });
+
+    // Selectores de Mes y Año
+    document.getElementById('month-select').addEventListener('change', (e) => {
+      currentDate = new Date(currentDate.getFullYear(), parseInt(e.target.value), 1);
+      renderApp();
+    });
+
+    document.getElementById('year-select').addEventListener('change', (e) => {
+      currentDate = new Date(parseInt(e.target.value), currentDate.getMonth(), 1);
+      renderApp();
+    });
+
+    // Navegación de Meses con las flechitas
+    document.getElementById('btn-prev-month').addEventListener('click', () => {
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+      renderApp();
+    });
+    document.getElementById('btn-next-month').addEventListener('click', () => {
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+      renderApp();
+    });
+
+    // Filtros Anuales (Parte inferior)
+    const selectYearBottom = document.getElementById('search-year');
+    for (let i = 0; i < 5; i++) {
+      const y = baseYear - 2 + i;
+      selectYearBottom.innerHTML += `<option value="${y}" ${y === searchYear ? 'selected' : ''}>${y}</option>`;
+    }
+    selectYearBottom.addEventListener('change', (e) => {
+      searchYear = Number(e.target.value);
+      renderYearSummary();
+      renderTable();
+      lucide.createIcons();
+    });
+
+    // NUEVO: Selector de Mes
+    const selectMonthBottom = document.getElementById('search-month');
+    selectMonthBottom.value = searchMonth;
+    selectMonthBottom.addEventListener('change', (e) => {
+      searchMonth = e.target.value;
+      renderYearSummary();
+      renderTable();
+      lucide.createIcons();
+    });
+
+    // NUEVO: Lógica del Acordeón para Consultas Históricas
+    const toggleHistoryBtn = document.getElementById('toggle-history-btn');
+    const historyContent = document.getElementById('history-content');
+    const historyChevron = document.getElementById('history-chevron');
+
+    toggleHistoryBtn.addEventListener('click', () => {
+      historyContent.classList.toggle('hidden');
+      historyChevron.classList.toggle('rotate-180');
+    });
+
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderTable();
+      lucide.createIcons();
+    });
+
+    // Lógica del Modal
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modal-content');
+    
+    function renderTypeSelectors() {
+      const container = document.getElementById('type-selectors');
+      container.innerHTML = '';
+      Object.keys(CATEGORIES).forEach(t => {
+        const cat = CATEGORIES[t];
+        const isSelected = formType === t;
+        const btnClass = isSelected 
+          ? `${cat.borderClass} ${cat.bgClass} ${cat.textClass}` 
+          : `border-gray-700 bg-gray-900/50 text-gray-400 hover:bg-gray-700`;
+        
+        container.innerHTML += `
+          <button type="button" onclick="window.selectType('${t}')" class="py-2 px-1 rounded-xl border text-sm font-medium transition-all flex flex-col items-center gap-1 cursor-pointer ${btnClass}">
+            <span class="text-lg">${cat.emoji}</span>
+            ${cat.label}
+          </button>
+        `;
+      });
+    }
+
+    window.selectType = function(t) {
+      formType = t;
+      renderTypeSelectors();
+    }
+
+    window.openModal = function(dateStr, existingMovement = null) {
+      selectedDateStr = dateStr;
+      document.getElementById('modal-date-label').textContent = dateStr;
+      
+      if (existingMovement) {
+        editingId = existingMovement.id;
+        document.getElementById('modal-title-text').textContent = 'Editar Movimiento';
+        document.getElementById('form-amount').value = existingMovement.amount;
+        document.getElementById('form-concept').value = existingMovement.concept;
+        formType = existingMovement.type;
+        document.getElementById('btn-save-movement').textContent = 'Actualizar Movimiento';
+      } else {
+        editingId = null;
+        document.getElementById('modal-title-text').textContent = 'Añadir Movimiento';
+        document.getElementById('form-amount').value = '';
+        document.getElementById('form-concept').value = '';
+        formType = 'gasto';
+        document.getElementById('btn-save-movement').textContent = 'Guardar Movimiento';
+      }
+
+      renderTypeSelectors();
+      
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modalContent.classList.remove('scale-95');
+      }, 10);
+    }
+
+    function closeModal() {
+      modal.classList.add('opacity-0');
+      modalContent.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+
+    document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+
+    // Guardar o Actualizar en Firestore
+    document.getElementById('movement-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!selectedDateStr) return;
+
+      const amount = parseFloat(document.getElementById('form-amount').value);
+      const concept = document.getElementById('form-concept').value;
+
+      const movementData = {
+        date: selectedDateStr,
+        type: formType,
+        amount: amount,
+        concept: concept,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        if (editingId) {
+          // Actualizar documento existente
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', editingId), movementData);
+        } else {
+          // Crear nuevo documento
+          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+        }
+        closeModal();
+      } catch (error) {
+        console.error("Error al guardar/actualizar:", error);
+      }
+    });
+
+    // Acciones de la Tabla (Editar y Eliminar)
+    document.getElementById('table-body').addEventListener('click', async (e) => {
+      const btnDelete = e.target.closest('.btn-delete');
+      const btnEdit = e.target.closest('.btn-edit');
+
+      // Acción de Eliminar
+      if (btnDelete) {
+        const id = btnDelete.getAttribute('data-id');
+        try {
+          await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id));
+        } catch (error) {
+          console.error("Error al borrar:", error);
+        }
+      }
+
+      // Acción de Editar
+      if (btnEdit) {
+        const id = btnEdit.getAttribute('data-id');
+        const movementToEdit = movements.find(m => m.id === id);
+        if (movementToEdit) {
+          window.openModal(movementToEdit.date, movementToEdit);
+        }
+      }
+    });
+
+    // Inicializar Iconos y Render Base
+    lucide.createIcons();
+    renderApp();
+
+    // --- LÓGICA DE INICIO DE SESIÓN ---
+    const loginScreen = document.getElementById('login-screen');
+    const loginForm = document.getElementById('login-form');
+    const appContainer = document.getElementById('app-container');
+    const loginError = document.getElementById('login-error');
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pwd = document.getElementById('login-password').value;
+      
+      if (pwd === '2527') {
+        // Transición de desvanecimiento
+        loginScreen.style.opacity = '0';
+        setTimeout(() => {
+          loginScreen.classList.add('hidden');
+          appContainer.classList.remove('hidden');
+        }, 500);
+      } else {
+        // Mostrar error y reiniciar input
+        loginError.classList.remove('hidden');
+        document.getElementById('login-password').value = '';
+        document.getElementById('login-password').focus();
+      }
+    });
+
+  </script>
+</body>
+</html>
