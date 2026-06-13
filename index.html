@@ -17,7 +17,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
-    /* Estilos base con paleta futurista neorretro (Synthwave / Cyberpunk) */
     body {
       background-color: #050409;
       color: #f3f4f6;
@@ -27,6 +26,25 @@
         radial-gradient(at 100% 100%, rgba(255, 0, 127, 0.06) 0px, transparent 50%);
       background-attachment: fixed;
       transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
+    }
+
+    /* Animaciones Generales Fluidas (NUEVO) */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8) translateY(15px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-pop {
+      opacity: 0;
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
 
     /* Ocultar flechas en inputs numéricos */
@@ -81,6 +99,7 @@
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(112, 0, 255, 0.15);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
     }
 
     /* Animación de sacudida para errores */
@@ -93,67 +112,159 @@
       animation: shake 0.3s ease-in-out;
     }
 
-    /* MODO CLARO INTELECTUAL (VAPORWAVE PASTEL) */
     body.light-theme {
-      background-color: #f0eff5 !important;
+      background-color: #f5f4fa !important;
       color: #1a1528 !important;
       background-image: 
-        radial-gradient(at 0% 0%, rgba(112, 0, 255, 0.05) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(0, 240, 255, 0.05) 0px, transparent 50%) !important;
+        radial-gradient(at 0% 0%, rgba(112, 0, 255, 0.04) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 240, 255, 0.04) 0px, transparent 50%) !important;
     }
     body.light-theme .glass-card {
-      background: rgba(255, 255, 255, 0.8) !important;
+      background: rgba(255, 255, 255, 0.75) !important;
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(112, 0, 255, 0.1) !important;
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05) !important;
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(112, 0, 255, 0.12) !important;
+      box-shadow: 0 8px 32px 0 rgba(112, 0, 255, 0.05) !important;
     }
-    body.light-theme .bg-gray-800\/50,
-    body.light-theme .bg-gray-800\/40,
-    body.light-theme .bg-gray-800\/80 { background-color: rgba(255, 255, 255, 0.85) !important; }
-    body.light-theme .bg-gray-800 { background-color: #ffffff !important; }
-    body.light-theme .bg-gray-900\/50 { background-color: rgba(240, 235, 245, 0.8) !important; }
-    body.light-theme .bg-gray-900 { background-color: #f7f6fb !important; }
+    
+    /* Reemplazos de fondos de color gris oscuro para el modo claro */
+    body.light-theme .bg-gray-950\/90 { 
+      background-color: rgba(255, 255, 255, 0.95) !important; 
+      border: 1px solid rgba(112, 0, 255, 0.1) !important;
+    }
+    body.light-theme .bg-gray-950\/85 { background-color: rgba(255, 255, 255, 0.9) !important; }
     body.light-theme .bg-gray-950 { background-color: #ffffff !important; border-color: #e2e0eb !important; }
-    body.light-theme .bg-gray-950\/40 { background-color: rgba(255, 255, 255, 0.5) !important; }
-    body.light-theme .bg-black\/60 { background-color: rgba(15, 10, 25, 0.4) !important; }
+    body.light-theme .bg-gray-900\/40 { 
+      background-color: rgba(255, 255, 255, 0.7) !important; 
+      border-color: rgba(112, 0, 255, 0.1) !important;
+    }
+    body.light-theme .bg-gray-900\/50 { 
+      background-color: rgba(255, 255, 255, 0.5) !important; 
+      border-color: rgba(112, 0, 255, 0.08) !important;
+    }
+    body.light-theme .bg-gray-900\/30 { 
+      background-color: rgba(255, 255, 255, 0.7) !important; 
+      border-color: rgba(112, 0, 255, 0.1) !important;
+    }
+    body.light-theme .bg-gray-900 { 
+      background-color: #fbfbfe !important; 
+      border-color: #e2e0eb !important;
+    }
+    body.light-theme .bg-gray-950\/80 {
+      background-color: rgba(255, 255, 255, 0.9) !important;
+      border-color: rgba(112, 0, 255, 0.1) !important;
+    }
+    body.light-theme .border-gray-800 { 
+      border-color: #e2e0eb !important; 
+    }
     
-    body.light-theme .border-gray-700\/50,
-    body.light-theme .border-gray-800\/80,
-    body.light-theme .border-gray-700 { border-color: #e2e0eb !important; }
-    body.light-theme .border-gray-600 { border-color: #cbd5e1 !important; }
-    
-    body.light-theme .text-gray-400,
-    body.light-theme .text-gray-500 { color: #7c728e !important; }
-    body.light-theme .text-gray-300 { color: #4a3e5c !important; }
-    body.light-theme .text-gray-200 { color: #322744 !important; }
+    /* Corrección de color de fuentes en modo claro */
+    body.light-theme .text-gray-400 { color: #4a3e5c !important; }
+    body.light-theme .text-gray-500 { color: #6e6183 !important; }
+    body.light-theme .text-gray-300 { color: #1a1528 !important; }
+    body.light-theme .text-gray-200 { color: #1a1528 !important; }
     body.light-theme .text-white { color: #1a1528 !important; }
     
+    /* Inputs y selectores transparentes sobre contenedor para un look limpio */
     body.light-theme input, 
     body.light-theme select {
       background-color: #ffffff !important;
       color: #1a1528 !important;
       border-color: #d2cbdc !important;
     }
-    body.light-theme option { background-color: #ffffff !important; color: #1a1528 !important; }
-    
-    body.light-theme .hover\:bg-gray-700:hover { background-color: #f0eff5 !important; }
-    body.light-theme .hover\:bg-gray-700\/50:hover { background-color: #e5e2ee !important; }
-    body.light-theme .hover\:bg-gray-600:hover { background-color: #cbd5e1 !important; }
-    
-    body.light-theme #calendar-grid > button { border-color: #e2e0eb !important; color: #4a3e5c !important; }
-    body.light-theme #calendar-grid > button:hover { border-color: #cbd5e1 !important; background-color: #f7f6fb !important; }
-    body.light-theme #calendar-grid > button.bg-blue-600\/20 { 
-        background-color: rgba(112, 0, 255, 0.08) !important; 
-        color: #7000ff !important; 
-        border-color: rgba(112, 0, 255, 0.25) !important; 
+    body.light-theme select {
+      background-color: transparent !important;
     }
-    body.light-theme .bg-gray-700\/50 { background-color: #ffffff !important; color: #4a3e5c !important; }
-    body.light-theme .divide-gray-700\/50 > :not([hidden]) ~ :not([hidden]) { border-color: #e2e0eb !important; }
+    body.light-theme option { background-color: #ffffff !important; color: #1a1528 !important; }
+    body.light-theme .hover\:bg-gray-800\/50:hover { background-color: rgba(112, 0, 255, 0.05) !important; }
+    body.light-theme .hover\:bg-gray-900:hover { background-color: #f5f4fa !important; }
+    
+    /* Configuración del calendario OVALADO en modo claro */
+    body.light-theme #calendar-grid > button { 
+      background-color: rgba(255, 255, 255, 0.8) !important; 
+      border-color: rgba(112, 0, 255, 0.1) !important; 
+    }
+    body.light-theme #calendar-grid > button span { 
+      color: #1a1528 !important; 
+    }
+    body.light-theme #calendar-grid > button:hover { 
+      background-color: rgba(112, 0, 255, 0.05) !important; 
+      border-color: rgba(112, 0, 255, 0.25) !important;
+    }
+    body.light-theme #calendar-grid > button.bg-\[\#7000ff\]\/10 { 
+      background-color: rgba(112, 0, 255, 0.1) !important; 
+      color: #7000ff !important; 
+      border-color: rgba(112, 0, 255, 0.35) !important; 
+    }
+
+    /* Gráfico de dona optimizado para el modo claro */
+    body.light-theme #donut-chart {
+      border-color: rgba(112, 0, 255, 0.1) !important;
+      box-shadow: 0 4px 20px rgba(112, 0, 255, 0.05) !important;
+    }
+
+    /* Jewel tones (Colores joya con alta legibilidad para el modo claro) */
+    body.light-theme .text-cyan-400 { color: #00818d !important; }
+    body.light-theme .text-pink-400 { color: #c40062 !important; }
+    body.light-theme .text-purple-400 { color: #5000be !important; }
+
+    /* Renglones del desglose bajo el gráfico de dona en modo claro */
+    body.light-theme .bg-cyan-500\/10 { 
+      background-color: rgba(0, 129, 141, 0.06) !important; 
+      border-color: rgba(0, 129, 141, 0.15) !important; 
+    }
+    body.light-theme .bg-pink-500\/10 { 
+      background-color: rgba(196, 0, 98, 0.06) !important; 
+      border-color: rgba(196, 0, 98, 0.15) !important; 
+    }
+    body.light-theme .bg-purple-500\/10 { 
+      background-color: rgba(80, 0, 190, 0.06) !important; 
+      border-color: rgba(80, 0, 190, 0.15) !important; 
+    }
+    
+    /* Configuración de listas y modales de subcategorías */
+    body.light-theme .bg-gray-900\/60 {
+      background-color: rgba(255, 255, 255, 0.8) !important;
+      border-color: rgba(112, 0, 255, 0.1) !important;
+    }
+    body.light-theme .border-gray-850 {
+      border-color: rgba(112, 0, 255, 0.12) !important;
+    }
+    body.light-theme .divide-gray-850 > :not([hidden]) ~ :not([hidden]) {
+      border-color: rgba(112, 0, 255, 0.12) !important;
+    }
+    body.light-theme .bg-gray-950\/20 {
+      background-color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    /* Scrollbar minimalista lila en modo claro */
+    body.light-theme::-webkit-scrollbar-track {
+      background: #f5f4fa;
+    }
+    body.light-theme ::-webkit-scrollbar-track {
+      background: #f5f4fa;
+    }
+    body.light-theme::-webkit-scrollbar-thumb {
+      background: #7000ff;
+      box-shadow: 0 0 5px rgba(112, 0, 255, 0.2);
+    }
+    body.light-theme ::-webkit-scrollbar-thumb {
+      background: #7000ff;
+      box-shadow: 0 0 5px rgba(112, 0, 255, 0.2);
+    }
+
+    /* Gráfico interactivo animado */
+    #donut-chart {
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.5s ease;
+    }
+    #donut-chart:hover {
+      transform: scale(1.05) rotate(5deg);
+    }
 
     /* Adaptaciones de altura para móviles */
     @media (max-width: 640px) {
-      #calendar-grid > button {
-        height: 4.5rem !important;
+      #calendar-grid > button, #calendar-grid > div {
+        height: 5.5rem !important; /* Más altos para hacerlos óvalos más pronunciados */
         padding-top: 0.25rem !important;
         padding-bottom: 0.25rem !important;
       }
@@ -167,12 +278,12 @@
 
   <!-- PANTALLA DE INICIO DE SESIÓN -->
   <div id="login-screen" class="fixed inset-0 bg-[#040307] z-[100] flex items-center justify-center p-4 transition-all duration-700 ease-out">
-    <div class="absolute inset-0 bg-gradient-to-tr from-[#7000ff]/10 via-transparent to-[#ff007f]/5 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-gradient-to-tr from-[#7000ff]/10 via-transparent to-[#00f0ff]/5 pointer-events-none"></div>
     <div class="absolute w-80 h-80 bg-[#00f0ff]/5 rounded-full blur-3xl -top-12 -left-12 pointer-events-none"></div>
-    <div class="absolute w-80 h-80 bg-[#ff007f]/5 rounded-full blur-3xl -bottom-12 -right-12 pointer-events-none"></div>
+    <div class="absolute w-80 h-80 bg-[#7000ff]/5 rounded-full blur-3xl -bottom-12 -right-12 pointer-events-none"></div>
 
-    <div class="glass-card p-8 rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.2)] border border-[#7000ff]/30 w-full max-w-sm text-center relative z-10">
-      <div class="inline-flex p-4 bg-gradient-to-br from-[#7000ff]/20 to-[#ff007f]/5 text-[#00f0ff] rounded-2xl mb-6 border border-[#00f0ff]/30 shadow-lg shadow-[#00f0ff]/10">
+    <div class="glass-card p-8 rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.2)] border border-[#7000ff]/30 w-full max-w-sm text-center relative z-10 animate-fade-in">
+      <div class="inline-flex p-4 bg-gradient-to-br from-[#7000ff]/20 to-[#00f0ff]/5 text-[#00f0ff] rounded-2xl mb-6 border border-[#00f0ff]/30 shadow-lg shadow-[#00f0ff]/10">
         <i data-lucide="lock" class="w-8 h-8 animate-pulse text-[#00f0ff] filter drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]"></i>
       </div>
       <h2 class="text-3xl font-extrabold text-white tracking-tight mb-2 neon-text-cyan">Bóveda Patrimonial</h2>
@@ -202,12 +313,15 @@
           <span>Contraseña incorrecta</span>
         </div>
 
-        <button type="submit" class="w-full bg-gradient-to-r from-[#7000ff] via-[#ff007f] to-[#00f0ff] hover:brightness-110 text-white font-bold py-4 rounded-2xl shadow-lg shadow-[#7000ff]/20 transition-all duration-300 active:scale-[0.98]">
-          Desbloquear Dashboard
-        </button>
+        <!-- BOTÓN DE ACCESO CIRCULAR TRANSLÚCIDO -->
+        <div class="flex justify-center pt-2">
+          <button type="submit" class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#00f0ff]/10 via-[#7000ff]/15 to-[#00f0ff]/25 backdrop-blur-md border border-[#00f0ff]/40 hover:border-[#00f0ff]/80 hover:scale-110 active:scale-95 text-[#00f0ff] flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.15)] hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all duration-300 group focus:outline-none" title="Desbloquear Bóveda">
+            <i data-lucide="arrow-right" class="w-8 h-8 group-hover:translate-x-1.5 transition-transform filter drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]"></i>
+          </button>
+        </div>
       </form>
 
-      <div id="biometric-login-container" class="hidden mt-4 pt-4 border-t border-gray-900/50">
+      <div id="biometric-login-container" class="hidden mt-6 pt-4 border-t border-gray-900/50">
         <button type="button" id="btn-biometric-login" class="w-full flex items-center justify-center gap-2 py-3 bg-gray-950/85 border border-gray-800 hover:border-[#00f0ff]/40 hover:bg-gray-900 rounded-2xl text-sm font-semibold text-gray-300 transition-all active:scale-[0.98]">
           <i data-lucide="fingerprint" class="w-5 h-5 text-[#00f0ff] filter drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]"></i>
           <span>Acceder con Face ID / Touch ID</span>
@@ -217,10 +331,10 @@
   </div>
 
   <!-- CONTENEDOR PRINCIPAL DE LA APP -->
-  <div id="app-container" class="max-w-6xl mx-auto space-y-8 hidden">
+  <div id="app-container" class="max-w-6xl mx-auto space-y-8 hidden animate-fade-in">
     
     <!-- HEADER -->
-    <header class="flex items-center justify-between gap-4 mb-8 glass-card p-4 md:p-6 rounded-2xl border border-[#7000ff]/15">
+    <header class="relative z-40 flex items-center justify-between gap-4 mb-8 glass-card p-4 md:p-6 rounded-2xl border border-[#7000ff]/15">
       <div class="flex items-center gap-4">
         <div class="p-3 bg-[#7000ff]/15 text-[#00f0ff] rounded-xl border border-[#00f0ff]/20 shadow-md shadow-[#00f0ff]/5">
           <i data-lucide="wallet-cards" class="w-7 h-7 filter drop-shadow-[0_0_5px_rgba(0,240,255,0.5)]"></i>
@@ -242,7 +356,7 @@
 
         <!-- DROPDOWN DE USUARIO EN LUGAR DE BOTÓN SIMPLE -->
         <div class="relative">
-          <button id="profile-dropdown-btn" class="flex items-center gap-2.5 p-1.5 bg-gray-950/80 border border-gray-800 hover:border-[#ff007f]/30 rounded-xl transition-all focus:outline-none">
+          <button id="profile-dropdown-btn" class="flex items-center gap-2.5 p-1.5 bg-gray-950/80 border border-gray-800 hover:border-[#7000ff]/40 rounded-xl transition-all focus:outline-none">
             <!-- Avatar por defecto o subido -->
             <img id="user-avatar-img" src="https://placehold.co/100x100/7000ff/ffffff?text=MM" class="w-8 h-8 rounded-lg object-cover border border-[#7000ff]/30 shadow-md" alt="Avatar">
             <span id="user-display-name" class="hidden md:inline text-sm font-semibold text-gray-250 pr-2">Milton Montoya</span>
@@ -250,7 +364,7 @@
           </button>
 
           <!-- Menú Flotante de Usuario -->
-          <div id="profile-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 glass-card rounded-2xl border border-[#7000ff]/25 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-[60] overflow-hidden">
+          <div id="profile-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 glass-card rounded-2xl border border-[#7000ff]/25 shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-[60] overflow-hidden animate-pop">
             <div class="p-4 border-b border-gray-800/80 text-center">
               <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Mi Perfil</span>
               <div class="relative inline-block group cursor-pointer mb-2" onclick="openProfileSettingsModal()">
@@ -279,13 +393,13 @@
       </div>
     </header>
 
-    <main class="space-y-8">
+    <main class="space-y-8 relative z-20">
       
       <!-- SECCIÓN SUPERIOR: CALENDARIO Y RESUMEN MENSUAL -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- CALENDARIO -->
-        <section class="lg:col-span-2 glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl">
+        <section class="lg:col-span-2 glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl hover:shadow-[0_10px_40px_rgba(112,0,255,0.08)]">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             
             <div class="flex items-center gap-3">
@@ -334,13 +448,13 @@
             <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
           </div>
 
-          <div id="calendar-grid" class="grid grid-cols-7 gap-2">
+          <div id="calendar-grid" class="grid grid-cols-7 gap-2 pt-2">
             <!-- Renderizado dinámico -->
           </div>
         </section>
 
         <!-- RESUMEN MENSUAL Y GRÁFICA -->
-        <section class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl flex flex-col">
+        <section class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl flex flex-col hover:shadow-[0_10px_40px_rgba(112,0,255,0.08)]">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-white">Resumen Mensual</h2>
             <div class="flex items-center gap-2">
@@ -352,7 +466,7 @@
                   <i data-lucide="download" class="w-4 h-4 text-[#00f0ff]"></i> Exportar
                 </button>
                 <!-- Dropdown Exportar -->
-                <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-32 glass-card rounded-lg shadow-xl z-10 overflow-hidden border border-[#7000ff]/20">
+                <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-32 glass-card rounded-lg shadow-xl z-10 overflow-hidden border border-[#7000ff]/20 animate-pop">
                   <button id="btn-export-pdf" class="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-gray-950 hover:text-white flex items-center gap-2 border-b border-gray-800/80 transition-colors">
                     <i data-lucide="file-text" class="w-4 h-4 text-[#ff007f]"></i> PDF
                   </button>
@@ -365,7 +479,7 @@
           </div>
           
           <div class="flex justify-center mb-8 relative">
-            <div id="donut-chart" class="w-48 h-48 rounded-full flex items-center justify-center shadow-lg relative transition-all duration-500 overflow-hidden shadow-[#7000ff]/10 border border-gray-900">
+            <div id="donut-chart" class="w-48 h-48 rounded-full flex items-center justify-center shadow-lg relative overflow-hidden shadow-[#7000ff]/10 border border-gray-900 cursor-pointer">
               <div class="absolute inset-5 bg-gray-950/90 rounded-full flex flex-col items-center justify-center z-10 shadow-inner">
                  <span class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Total Mensual</span>
                  <span id="donut-total" class="text-xl font-black text-white">$0.00</span>
@@ -380,8 +494,8 @@
 
       </div>
 
-      <!-- SECCIÓN COLAPSABLE DE MIS CUENTAS Y CARTERAS (ABAJO Y MINIMALISTA) -->
-      <section id="accounts-section" class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl transition-all duration-350">
+      <!-- SECCIÓN COLAPSABLE DE MIS CUENTAS Y CARTERAS -->
+      <section id="accounts-section" class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl transition-all duration-300">
         <!-- HEADER PLEGABLE -->
         <div id="toggle-accounts-btn" class="flex justify-between items-center cursor-pointer group">
           <div class="flex items-center gap-3">
@@ -398,8 +512,8 @@
           </div>
         </div>
 
-        <!-- CONTENIDO PLEGABLE (Oculto por defecto) -->
-        <div id="accounts-content" class="hidden mt-6">
+        <!-- CONTENIDO PLEGABLE -->
+        <div id="accounts-content" class="hidden mt-6 animate-fade-in">
           <div id="accounts-deck" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <!-- Tarjetas de cuentas se cargarán aquí por JS -->
           </div>
@@ -419,8 +533,8 @@
           </button>
         </div>
 
-        <!-- CONTENIDO PLEGABLE (Oculto por defecto) -->
-        <div id="history-content" class="hidden mt-6 space-y-6">
+        <!-- CONTENIDO PLEGABLE -->
+        <div id="history-content" class="hidden mt-6 space-y-6 animate-fade-in">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
@@ -492,8 +606,8 @@
     </main>
 
     <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO -->
-    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800/80 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
+    <div id="modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="modal-content">
         
         <div class="flex justify-between items-center p-6 border-b border-gray-800">
           <h3 class="text-lg font-bold flex items-center gap-2">
@@ -566,8 +680,8 @@
     </div>
 
     <!-- MODAL PARA GESTIONAR CUENTAS -->
-    <div id="accounts-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800/80 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="accounts-modal-content">
+    <div id="accounts-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="accounts-modal-content">
         <div class="flex justify-between items-center p-6 border-b border-gray-800">
           <h3 class="text-lg font-bold flex items-center gap-2">
             <i data-lucide="wallet" class="text-[#00f0ff] w-5 h-5"></i>
@@ -653,8 +767,8 @@
     </div>
 
     <!-- MODAL DETALLE DE LA CUENTA -->
-    <div id="account-details-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-850 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="account-details-content">
+    <div id="account-details-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="account-details-content">
         <!-- Header -->
         <div class="flex justify-between items-center p-6 border-b border-gray-800">
           <div class="flex items-center gap-3">
@@ -714,8 +828,8 @@
     </div>
 
     <!-- MODAL GESTOR DE SUBCATEGORÍAS -->
-    <div id="subcategories-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800/80 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="subcategories-modal-content">
+    <div id="subcategories-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="subcategories-modal-content">
         <div class="flex justify-between items-center p-6 border-b border-gray-800">
           <h3 class="text-lg font-semibold flex items-center gap-2">
             <i data-lucide="tag" class="text-[#00f0ff] w-5 h-5"></i>
@@ -769,8 +883,8 @@
     </div>
 
     <!-- MODAL DE AJUSTES DE PERFIL -->
-    <div id="profile-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-850 w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300" id="profile-settings-content">
+    <div id="profile-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="profile-settings-content">
         <div class="flex justify-between items-center p-6 border-b border-gray-800">
           <h3 class="text-lg font-bold flex items-center gap-2">
             <i data-lucide="user" class="text-[#7000ff] w-5 h-5"></i>
@@ -809,12 +923,12 @@
     </div>
 
     <!-- MODAL DE AJUSTES DE CONTRASEÑA -->
-    <div id="password-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-850 w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300" id="password-settings-content">
+    <div id="password-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="password-settings-content">
         <div class="flex justify-between items-center p-6 border-b border-gray-800">
           <h3 class="text-lg font-bold flex items-center gap-2">
             <i data-lucide="key" class="text-[#ff007f] w-5 h-5"></i>
-            <span class="text-white">Cambiar Contraseña</span>
+            <span class="text-white">Contraseña y Seguridad</span>
           </h3>
           <button onclick="closePasswordSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
             <i data-lucide="x" class="w-5 h-5"></i>
@@ -824,27 +938,16 @@
         <form id="password-settings-form" class="p-6 space-y-4">
           <!-- Password Actual -->
           <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Contraseña Actual</label>
-            <input type="password" id="settings-current-pwd" required placeholder="••••" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cambiar Contraseña</label>
+            <input type="password" id="settings-current-pwd" required placeholder="Contraseña Actual" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
           </div>
           <!-- Password Nueva -->
           <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Contraseña Nueva</label>
             <input type="password" id="settings-new-pwd" required placeholder="Ingresa clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
           </div>
           <!-- Confirmar Password Nueva -->
           <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Confirmar Contraseña</label>
             <input type="password" id="settings-confirm-pwd" required placeholder="Repite la clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
-          </div>
-
-          <div id="biometric-settings-section" class="hidden pt-4 border-t border-gray-900 space-y-2">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Acceso Rápido Biométrico</label>
-            <button type="button" id="btn-toggle-biometrics" class="w-full flex items-center justify-center gap-2 py-3 bg-gray-950 hover:bg-gray-900 text-gray-300 rounded-2xl border border-gray-800 text-xs font-semibold transition-colors">
-              <i data-lucide="fingerprint" class="w-4 h-4 text-[#00f0ff]"></i>
-              <span id="biometrics-btn-text">Cargando soporte...</span>
-            </button>
-            <p class="text-[10px] text-gray-500 text-center">Permite desbloquear de forma rápida usando la huella o rostro configurados en este dispositivo.</p>
           </div>
 
           <div id="password-settings-error" class="text-rose-500 text-xs font-medium flex items-center gap-2 bg-rose-500/10 py-2.5 px-3 rounded-xl border border-rose-500/20 hidden">
@@ -856,24 +959,34 @@
             Actualizar Clave
           </button>
         </form>
+
+        <div id="biometric-settings-section" class="px-6 pb-6 pt-2 space-y-2">
+          <div class="h-px w-full bg-gray-800/80 my-4"></div>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Acceso Rápido Biométrico</label>
+          <button type="button" id="btn-toggle-biometrics" class="w-full flex items-center justify-center gap-2 py-3 bg-gray-950 hover:bg-gray-900 text-gray-300 rounded-2xl border border-gray-800 text-xs font-semibold transition-colors shadow-sm">
+            <i data-lucide="fingerprint" class="w-4 h-4 text-[#00f0ff]"></i>
+            <span id="biometrics-btn-text">Cargando soporte...</span>
+          </button>
+          <p class="text-[10px] text-gray-500 text-center">Permite desbloquear tu bóveda de forma instantánea usando Face ID o Touch ID en este dispositivo.</p>
+        </div>
       </div>
     </div>
 
-    <!-- CONFIRMACIÓN DE ELIMINACIÓN -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-850 w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300" id="confirm-content">
+    <!-- CONFIRMACIÓN DE ELIMINACIÓN Y ALERTAS -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-[120] hidden opacity-0 transition-all duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="confirm-content">
         <div class="p-6 text-center space-y-4">
-          <div class="inline-flex p-3 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20">
-            <i data-lucide="alert-triangle" class="w-6 h-6 animate-bounce"></i>
+          <div id="confirm-icon-box" class="inline-flex p-3 bg-[#00f0ff]/10 text-[#00f0ff] rounded-2xl border border-[#00f0ff]/20">
+            <i id="confirm-icon" data-lucide="check-circle" class="w-6 h-6 animate-pulse"></i>
           </div>
-          <h3 id="confirm-title" class="text-lg font-bold text-white">¿Estás seguro?</h3>
+          <h3 id="confirm-title" class="text-lg font-bold text-white">Aviso</h3>
           <p id="confirm-text" class="text-xs text-gray-400 leading-relaxed px-2"></p>
           
-          <div class="flex gap-3 pt-2">
+          <div class="flex gap-3 pt-2" id="confirm-buttons">
             <button onclick="window.closeConfirm()" class="flex-1 bg-gray-850 hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold py-3 rounded-2xl text-xs transition-colors">
-              Cancelar
+              Cerrar
             </button>
-            <button onclick="window.triggerConfirm()" class="flex-1 bg-gradient-to-r from-rose-600 to-rose-500 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md">
+            <button id="confirm-action-btn" onclick="window.triggerConfirm()" class="hidden flex-1 bg-gradient-to-r from-rose-600 to-rose-500 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md">
               Sí, eliminar
             </button>
           </div>
@@ -924,7 +1037,7 @@
     let confirmCallback = null; 
 
     // Guardado de la clave maestra cargada de Firestore
-    let vaultPassword = '2527'; // Contraseña por defecto
+    let vaultPassword = '2527'; 
 
     async function checkBiometricsSupport() {
       if (!window.PublicKeyCredential) return false;
@@ -964,7 +1077,6 @@
         const credential = await navigator.credentials.create({ publicKey: creationOptions });
         if (credential) {
           const rawId = new Uint8Array(credential.rawId);
-          // Convertir de forma segura a String Base64 para almacenar en el dispositivo
           const base64Id = btoa(String.fromCharCode.apply(null, rawId));
           localStorage.setItem('vault_biometric_id', base64Id);
           return true;
@@ -1031,7 +1143,6 @@
       }
     }
 
-    // Formateador de moneda MXN
     const formatCurrency = (amount) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
 
     const DEFAULT_ACCOUNTS = [
@@ -1078,7 +1189,6 @@
       }
     }
 
-    // CONEXIÓN INVISIBLE DE FIREBASE
     async function initInvisibleAuth() {
       try {
         await signInAnonymously(auth);
@@ -1097,7 +1207,6 @@
     initInvisibleAuth();
 
     function loadData() {
-      // 1. Cargar Movimientos
       const qMovements = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'));
       onSnapshot(qMovements, (snapshot) => {
         movements = snapshot.docs.map(doc => ({
@@ -1108,7 +1217,6 @@
         renderApp();
       }, (error) => console.error("Error cargando movimientos:", error));
 
-      // 2. Cargar Cuentas
       const qAccounts = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'accounts'));
       onSnapshot(qAccounts, async (snapshot) => {
         const loadedAccounts = snapshot.docs.map(doc => ({
@@ -1134,7 +1242,6 @@
         renderApp();
       }, (error) => console.error("Error cargando cuentas:", error));
 
-      // 3. Cargar Subcategorías
       const qSubcats = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories'));
       onSnapshot(qSubcats, (snapshot) => {
         const loadedSubcats = snapshot.docs.map(doc => ({
@@ -1151,7 +1258,6 @@
       const user = auth.currentUser;
       if (!user) return;
 
-      // Cargar Perfil (Nombre por defecto cambiado a Milton Montoya, Avatar)
       const profileDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'profile');
       try {
         const profileSnap = await getDoc(profileDocRef);
@@ -1165,7 +1271,6 @@
         console.error("Error al cargar perfil:", e);
       }
 
-      // Cargar Seguridad (Clave Maestra)
       const securityDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'security');
       try {
         const securitySnap = await getDoc(securityDocRef);
@@ -1180,6 +1285,7 @@
       }
       
       updateBiometricLoginUI();
+      updateBiometricSettingsUI();
     }
 
     function updateUserProfileUI(name, avatarBase64) {
@@ -1201,7 +1307,6 @@
       });
     }
 
-    // RENDER PRINCIPAL DE LA APP
     function renderApp() {
       renderCalendar();
       renderMonthSummary();
@@ -1230,7 +1335,7 @@
 
       for (let i = 0; i < firstDayIndex; i++) {
         const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'h-24 md:h-28 rounded-xl bg-gray-800/10 border border-transparent';
+        emptyDiv.className = 'h-24 md:h-28 rounded-[2.5rem] bg-gray-800/10 border border-transparent';
         grid.appendChild(emptyDiv);
       }
 
@@ -1245,21 +1350,22 @@
         const btn = document.createElement('button');
         btn.onclick = () => window.openModal(dateStr);
         
-        let baseClass = `relative h-24 md:h-28 rounded-xl border flex flex-col justify-between items-center p-2 transition-all hover:bg-gray-800/50 focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer `;
+        let baseClass = `relative h-24 md:h-28 rounded-[2.5rem] border flex flex-col justify-between items-center p-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer animate-pop `;
         if (isToday) {
-          baseClass += 'bg-[#7000ff]/10 border-[#7000ff]/40 text-[#00f0ff] font-bold shadow-[0_0_10px_rgba(112,0,255,0.15)]';
+          baseClass += 'bg-[#7000ff]/15 border-[#7000ff]/50 text-[#00f0ff] font-bold shadow-[0_0_15px_rgba(112,0,255,0.2)]';
         } else {
-          baseClass += 'bg-gray-900/30 border-gray-800 text-gray-300 hover:border-gray-600';
+          baseClass += 'bg-gray-900/40 border-gray-800/80 text-gray-300 hover:border-gray-500 hover:bg-gray-800/60';
         }
         btn.className = baseClass;
+        btn.style.animationDelay = `${(day * 0.01).toFixed(2)}s`;
 
-        let innerHTML = `<span class="text-base md:text-lg font-bold w-full text-center mt-1">${day}</span>`;
+        let innerHTML = `<span class="text-base md:text-lg font-bold w-full text-center mt-2">${day}</span>`;
 
         if (dayMovements.length > 0) {
           let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[11px] md:text-sm" title="${m.subcategory || CATEGORIES[m.type].label}: ${formatCurrency(m.amount)}">${m.subcategoryEmoji || CATEGORIES[m.type].emoji}</span>`).join('');
           if (dayMovements.length > 3) emojisHtml += `<span class="text-[10px] text-gray-400 font-bold">+${dayMovements.length - 3}</span>`;
           
-          innerHTML += `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full px-0.5">${emojisHtml}</div>`;
+          innerHTML += `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full px-1 pb-1">${emojisHtml}</div>`;
         }
         
         btn.innerHTML = innerHTML;
@@ -1313,12 +1419,12 @@
           const percentage = totals.total > 0 ? ((totals[type] / totals.total) * 100).toFixed(1) : '0.0';
           
           listContainer.innerHTML += `
-            <div class="flex items-center justify-between p-3 rounded-xl border ${cat.borderClass} ${cat.bgClass}">
+            <div class="flex items-center justify-between p-3 rounded-xl border ${cat.borderClass} ${cat.bgClass} transition-transform duration-300 hover:scale-[1.02]">
               <div class="flex items-center gap-3">
                 <span class="text-xl">${cat.emoji}</span>
                 <span class="font-medium text-gray-200">
                   ${cat.label} 
-                  <span class="text-xs text-gray-400 font-normal ml-1">(${percentage}%)</span>
+                  <span class="text-xs text-gray-500 font-bold ml-1">(${percentage}%)</span>
                 </span>
               </div>
               <span class="font-bold ${cat.textClass}">${formatCurrency(totals[type])}</span>
@@ -1365,7 +1471,7 @@
       Object.keys(CATEGORIES).forEach(type => {
         const cat = CATEGORIES[type];
         gridContainer.innerHTML += `
-          <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800 flex flex-col items-center text-center">
+          <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800 flex flex-col items-center text-center transition-transform hover:scale-[1.02]">
             <span class="text-sm text-gray-400 mb-1">${cat.emoji} ${cat.label} ${labelTime}</span>
             <span class="text-xl font-bold ${cat.textClass}">${formatCurrency(totals[type])}</span>
           </div>
@@ -1374,7 +1480,7 @@
 
       if (initialAssets > 0) {
         const assetPill = document.createElement('div');
-        assetPill.className = "col-span-1 md:col-span-3 bg-[#7000ff]/10 p-3 rounded-xl border border-[#7000ff]/20 text-center text-xs text-[#00f0ff] font-semibold";
+        assetPill.className = "col-span-1 md:col-span-3 bg-[#7000ff]/10 p-3 rounded-xl border border-[#7000ff]/20 text-center text-xs text-[#00f0ff] font-semibold transition-transform hover:scale-[1.02]";
         assetPill.innerHTML = `💼 Patrimonio Inicial Preexistente registrado en este período: <span class="font-extrabold text-white text-sm ml-1">${formatCurrency(initialAssets)}</span>`;
         gridContainer.appendChild(assetPill);
       }
@@ -1409,7 +1515,7 @@
         const accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-800/25 transition-colors border-b border-gray-850 last:border-0';
+        tr.className = 'hover:bg-gray-800/30 transition-colors border-b border-gray-850 last:border-0';
         tr.innerHTML = `
           <td class="py-3 px-4 whitespace-nowrap">${m.date}</td>
           <td class="py-3 px-4">
@@ -1482,7 +1588,6 @@
       }
     }
 
-    // RENDER DE TARJETAS DE CARTERAS
     function renderAccountsSection() {
       const deck = document.getElementById('accounts-deck');
       if (!deck) return;
@@ -1573,7 +1678,6 @@
         }
       }
 
-      // Filtrar historial completo para la cuenta
       const btnFilterHistory = document.getElementById('btn-detail-filter-history');
       if (btnFilterHistory) {
         btnFilterHistory.onclick = () => {
@@ -1638,12 +1742,30 @@
       if (nameInput) nameInput.value = name;
     }
 
-    function showConfirm(title, text, callback) {
+    // Modal reutilizable de alertas/confirmación
+    function showConfirm(title, text, callback, isAlert = false) {
       const confirmTitle = document.getElementById('confirm-title');
       const confirmText = document.getElementById('confirm-text');
+      const confirmIconBox = document.getElementById('confirm-icon-box');
+      const confirmIcon = document.getElementById('confirm-icon');
+      const actionBtn = document.getElementById('confirm-action-btn');
+
       if (confirmTitle) confirmTitle.textContent = title;
       if (confirmText) confirmText.textContent = text;
       confirmCallback = callback;
+      
+      // Ajustar diseño si es alerta o confirmación (botón rojo)
+      if (isAlert) {
+        actionBtn.classList.add('hidden');
+        confirmIconBox.className = "inline-flex p-3 bg-[#00f0ff]/10 text-[#00f0ff] rounded-2xl border border-[#00f0ff]/20";
+        confirmIcon.setAttribute('data-lucide', 'check-circle');
+      } else {
+        actionBtn.classList.remove('hidden');
+        confirmIconBox.className = "inline-flex p-3 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20";
+        confirmIcon.setAttribute('data-lucide', 'alert-triangle');
+      }
+      lucide.createIcons();
+
       const modalElement = document.getElementById('confirm-modal');
       const content = document.getElementById('confirm-content');
       if (modalElement && content) {
@@ -1671,7 +1793,6 @@
       closeConfirm();
     }
 
-    // GESTIÓN DE CUENTAS EN MODAL
     function openAccountManager() {
       const modalElement = document.getElementById('accounts-modal');
       const modalContent = document.getElementById('accounts-modal-content');
@@ -1821,7 +1942,6 @@
               });
             }
             
-            // Renombrar cuentas de movimientos preexistentes
             movements.forEach(async (m) => {
               if (m.accountId === editingAccountId) {
                 await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', m.id), {
@@ -1873,11 +1993,11 @@
           } catch (error) {
             console.error("Error al borrar cuenta:", error);
           }
-        }
+        },
+        false // No es una alerta, es una confirmación destructiva
       );
     }
 
-    // GESTIÓN DE SUBCATEGORÍAS EN MODAL
     function openSubcategoryManager() {
       const modalElement = document.getElementById('subcategories-modal');
       const modalContent = document.getElementById('subcategories-modal-content');
@@ -1982,11 +2102,11 @@
           } catch (error) {
             console.error("Error al borrar subcategoría:", error);
           }
-        }
+        },
+        false // Destructive
       );
     }
 
-    // GESTIÓN DEL MENÚ DE PERFIL DROPDOWN
     const profileDropdownBtn = document.getElementById('profile-dropdown-btn');
     const profileDropdownMenu = document.getElementById('profile-dropdown-menu');
 
@@ -1995,20 +2115,14 @@
         e.stopPropagation();
         profileDropdownMenu.classList.toggle('hidden');
       });
-
-      document.addEventListener('click', () => {
-        profileDropdownMenu.classList.add('hidden');
-      });
     }
 
-    // GESTIÓN DE AJUSTES DE PERFIL MODAL
     function openProfileSettingsModal() {
       profileDropdownMenu.classList.add('hidden');
       const modalElement = document.getElementById('profile-settings-modal');
       const content = document.getElementById('profile-settings-content');
       
       const usernameInput = document.getElementById('settings-username');
-      const user = auth.currentUser;
       if (usernameInput) {
         usernameInput.value = document.getElementById('user-display-name').textContent;
       }
@@ -2032,7 +2146,6 @@
       }
     }
 
-    // PROCESAMIENTO DE SUBIDA DE IMAGEN (COMPRESIÓN MEDIANTE CANVAS)
     const avatarInput = document.getElementById('avatar-input');
     const settingsAvatarPreview = document.getElementById('settings-avatar-preview');
 
@@ -2045,7 +2158,6 @@
         reader.onload = (event) => {
           const img = new Image();
           img.onload = () => {
-            // Comprimir la imagen usando un canvas a 120x120px para ahorrar espacio
             const canvas = document.createElement('canvas');
             canvas.width = 120;
             canvas.height = 120;
@@ -2087,13 +2199,11 @@
       });
     }
 
-    // GESTIÓN DE CAMBIO DE CLAVE MAESTRA
     function openPasswordSettingsModal() {
       profileDropdownMenu.classList.add('hidden');
       const modalElement = document.getElementById('password-settings-modal');
       const content = document.getElementById('password-settings-content');
       
-      // Limpiar formulario y errores previos
       const form = document.getElementById('password-settings-form');
       if (form) form.reset();
       const errBox = document.getElementById('password-settings-error');
@@ -2139,7 +2249,6 @@
         const newVal = newInput.value;
         const confirmVal = confirmInput.value;
 
-        // Validaciones previas
         if (currentVal !== vaultPassword) {
           if (errBox && errText) {
             errText.textContent = "La contraseña actual es incorrecta.";
@@ -2187,11 +2296,15 @@
           localStorage.removeItem('vault_biometric_id');
           updateBiometricSettingsUI();
           updateBiometricLoginUI();
+          showConfirm("Biometría Desactivada", "Has desvinculado este dispositivo correctamente.", null, true);
         } else {
           const success = await enrollBiometrics();
           if (success) {
             updateBiometricSettingsUI();
             updateBiometricLoginUI();
+            showConfirm("¡Dispositivo Vinculado!", "Face ID / Touch ID activado correctamente para este dispositivo. Ya puedes usarlo para entrar.", null, true);
+          } else {
+            showConfirm("Fallo de Vinculación", "No se pudo activar. Asegúrate de tener una huella o rostro registrado en el sistema de tu teléfono y que estés abriendo la página web desde HTTPS.", null, true);
           }
         }
       });
@@ -2216,6 +2329,8 @@
     }
 
     function unlockVault() {
+      const loginScreen = document.getElementById('login-screen');
+      const appContainer = document.getElementById('app-container');
       if (loginScreen) {
         loginScreen.style.opacity = '0';
         loginScreen.style.transform = 'scale(1.05)';
@@ -2227,7 +2342,6 @@
       }, 500);
     }
 
-    // --- MANEJO DE EVENTOS DE INTERFAZ ---
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
 
@@ -2237,6 +2351,7 @@
         const isLight = document.body.classList.contains('light-theme');
         themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
         lucide.createIcons();
+        renderApp(); 
       });
     }
 
@@ -2244,14 +2359,9 @@
     const exportDropdown = document.getElementById('export-dropdown');
     
     if (btnExportMenu && exportDropdown) {
-      btnExportMenu.addEventListener('click', () => {
+      btnExportMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
         exportDropdown.classList.toggle('hidden');
-      });
-      
-      document.addEventListener('click', (e) => {
-        if (!btnExportMenu.contains(e.target) && !exportDropdown.contains(e.target)) {
-          exportDropdown.classList.add('hidden');
-        }
       });
     }
 
@@ -2361,7 +2471,6 @@
       });
     }
 
-    // IMPRESIÓN Y NAVEGACIÓN
     const btnPrint = document.getElementById('btn-print');
     if (btnPrint) {
       btnPrint.addEventListener('click', () => {
@@ -2450,7 +2559,6 @@
       });
     }
 
-    // ACCIÓN DEL ACORDEÓN DE CUENTAS
     const toggleAccountsBtn = document.getElementById('toggle-accounts-btn');
     const accountsContent = document.getElementById('accounts-content');
     const accountsChevron = document.getElementById('accounts-chevron');
@@ -2488,7 +2596,6 @@
       updateSubcategorySelectors();
     }
 
-    // GESTIÓN DEL MODAL PRINCIPAL
     function openModal(dateStr, existingMovement = null) {
       selectedDateStr = dateStr;
       const dateLabel = document.getElementById('modal-date-label');
@@ -2705,6 +2812,8 @@
     }
 
     function resetInactivityTimer() {
+      const loginScreen = document.getElementById('login-screen');
+      const appContainer = document.getElementById('app-container');
       if (loginScreen && loginScreen.classList.contains('hidden')) {
         clearTimeout(inactivityTimeout);
         inactivityTimeout = setTimeout(() => {
@@ -2715,8 +2824,58 @@
 
     window.addEventListener('mousemove', resetInactivityTimer);
     window.addEventListener('keypress', resetInactivityTimer);
-    window.addEventListener('click', resetInactivityTimer);
     window.addEventListener('scroll', resetInactivityTimer);
+
+    // Cierre de modales con Escape y Clic Fuera
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeAccountManager();
+        closeSubcategoryManager();
+        closeProfileSettingsModal();
+        closePasswordSettingsModal();
+        closeAccountDetails();
+        closeConfirm();
+        const profileMenu = document.getElementById('profile-dropdown-menu');
+        const exportMenu = document.getElementById('export-dropdown');
+        if (profileMenu) profileMenu.classList.add('hidden');
+        if (exportMenu) exportMenu.classList.add('hidden');
+      }
+    });
+
+    const modalContainers = [
+      { id: 'modal', closeFunc: closeModal },
+      { id: 'accounts-modal', closeFunc: closeAccountManager },
+      { id: 'subcategories-modal', closeFunc: closeSubcategoryManager },
+      { id: 'account-details-modal', closeFunc: closeAccountDetails },
+      { id: 'profile-settings-modal', closeFunc: closeProfileSettingsModal },
+      { id: 'password-settings-modal', closeFunc: closePasswordSettingsModal },
+      { id: 'confirm-modal', closeFunc: closeConfirm }
+    ];
+
+    modalContainers.forEach(modal => {
+      const el = document.getElementById(modal.id);
+      if (el) {
+        el.addEventListener('click', (e) => {
+          if (e.target === el) {
+            modal.closeFunc();
+          }
+        });
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      const exportMenu = document.getElementById('export-dropdown');
+      const exportBtn = document.getElementById('btn-export-menu');
+      if (exportMenu && exportBtn && !exportMenu.contains(e.target) && !exportBtn.contains(e.target)) {
+        exportMenu.classList.add('hidden');
+      }
+      const profileMenu = document.getElementById('profile-dropdown-menu');
+      const profileBtn = document.getElementById('profile-dropdown-btn');
+      if (profileMenu && profileBtn && !profileMenu.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileMenu.classList.add('hidden');
+      }
+    });
 
     window.editAccount = editAccount;
     window.deleteAccount = deleteAccount;
