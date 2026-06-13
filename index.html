@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cuentas Personales</title>
+  <title>Cuentas Personales - Milton Montoya</title>
   
   <!-- Tailwind CSS para el diseño -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,11 +18,15 @@
 
   <style>
     body {
-      background-color: #0f1115;
+      background-color: #060713;
       color: #f3f4f6;
       font-family: ui-sans-serif, system-ui, sans-serif;
       transition: background-color 0.3s ease, color 0.3s ease;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(112, 0, 255, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 240, 255, 0.05) 0px, transparent 50%);
     }
+    
     /* Ocultar flechas en inputs numéricos */
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
@@ -30,68 +34,75 @@
       margin: 0; 
     }
 
-    /* Estilos para scrollbar estético */
+    /* Estilos para scrollbar estético futurista */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: transparent;
+      background: rgba(6, 7, 19, 0.5);
     }
     ::-webkit-scrollbar-thumb {
-      background: #374151;
+      background: #7000ff;
       border-radius: 10px;
+      box-shadow: 0 0 10px rgba(112, 0, 255, 0.5);
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #4b5563;
+      background: #00f0ff;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
     }
 
-    /* ESTILOS DE MODO CLARO INTELIGENTE */
+    /* ESTILOS DE MODO CLARO INTELIGENTE (ESTILO VAPORWAVE / NEOPASTEL) */
     body.light-theme {
-      background-color: #f3f4f6 !important;
-      color: #1f2937 !important;
+      background-color: #f0f2f9 !important;
+      color: #1a1b2f !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(255, 0, 127, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 240, 255, 0.08) 0px, transparent 50%) !important;
     }
     body.light-theme .bg-gray-800\/50,
-    body.light-theme .bg-gray-800\/40 { background-color: rgba(255, 255, 255, 0.9) !important; }
+    body.light-theme .bg-gray-800\/40 { background-color: rgba(255, 255, 255, 0.8) !important; }
     body.light-theme .bg-gray-800 { background-color: #ffffff !important; }
-    body.light-theme .bg-gray-900\/50 { background-color: rgba(243, 244, 246, 0.9) !important; }
-    body.light-theme .bg-gray-900 { background-color: #f9fafb !important; }
-    body.light-theme .bg-black\/60 { background-color: rgba(0, 0, 0, 0.4) !important; }
+    body.light-theme .bg-gray-900\/50 { background-color: rgba(240, 242, 249, 0.8) !important; }
+    body.light-theme .bg-gray-900 { background-color: #f7f9fc !important; }
+    body.light-theme .bg-black\/60 { background-color: rgba(6, 7, 19, 0.4) !important; }
     
-    body.light-theme .border-gray-700\/50 { border-color: rgba(229, 231, 235, 0.8) !important; }
-    body.light-theme .border-gray-700 { border-color: #e5e7eb !important; }
-    body.light-theme .border-gray-600 { border-color: #d1d5db !important; }
+    body.light-theme .border-gray-700\/50 { border-color: rgba(219, 224, 239, 0.8) !important; }
+    body.light-theme .border-gray-700 { border-color: #e2e8f0 !important; }
+    body.light-theme .border-gray-600 { border-color: #cbd5e1 !important; }
+    body.light-theme .border-gray-800 { border-color: #e2e8f0 !important; }
     
     body.light-theme .text-gray-400,
-    body.light-theme .text-gray-500 { color: #6b7280 !important; }
-    body.light-theme .text-gray-300 { color: #4b5563 !important; }
-    body.light-theme .text-gray-200 { color: #374151 !important; }
-    body.light-theme .text-white { color: #111827 !important; }
+    body.light-theme .text-gray-500 { color: #64748b !important; }
+    body.light-theme .text-gray-300 { color: #475569 !important; }
+    body.light-theme .text-gray-200 { color: #334155 !important; }
+    body.light-theme .text-white { color: #0f172a !important; }
     
     body.light-theme input, 
     body.light-theme select {
       background-color: #ffffff !important;
-      color: #111827 !important;
-      border-color: #d1d5db !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
     }
-    body.light-theme option { background-color: #ffffff !important; color: #111827 !important; }
+    body.light-theme option { background-color: #ffffff !important; color: #0f172a !important; }
     
-    body.light-theme .hover\:bg-gray-700:hover { background-color: #f3f4f6 !important; }
-    body.light-theme .hover\:bg-gray-700\/50:hover { background-color: #e5e7eb !important; }
-    body.light-theme .hover\:bg-gray-600:hover { background-color: #d1d5db !important; }
+    body.light-theme .hover\:bg-gray-700:hover { background-color: #f1f5f9 !important; }
+    body.light-theme .hover\:bg-gray-700\/50:hover { background-color: #e2e8f0 !important; }
+    body.light-theme .hover\:bg-gray-600:hover { background-color: #cbd5e1 !important; }
+    body.light-theme .hover\:bg-gray-800:hover { background-color: #f1f5f9 !important; }
     
-    body.light-theme #calendar-grid > button { border-color: #e5e7eb !important; color: #4b5563 !important; }
-    body.light-theme #calendar-grid > button:hover { border-color: #d1d5db !important; background-color: #f9fafb !important; }
+    body.light-theme #calendar-grid > button { border-color: #cbd5e1 !important; color: #475569 !important; }
+    body.light-theme #calendar-grid > button:hover { border-color: #94a3b8 !important; background-color: #f8fafc !important; }
     body.light-theme #calendar-grid > button.bg-blue-600\/20 { 
-        background-color: rgba(37, 99, 235, 0.1) !important; 
-        color: #2563eb !important; 
-        border-color: rgba(37, 99, 235, 0.3) !important; 
+        background-color: rgba(0, 240, 255, 0.1) !important; 
+        color: #0984e3 !important; 
+        border-color: rgba(0, 240, 255, 0.4) !important; 
     }
     
-    body.light-theme .bg-gray-700\/50 { background-color: #ffffff !important; color: #374151 !important; }
-    body.light-theme .divide-gray-700\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(229, 231, 235, 0.8) !important; }
+    body.light-theme .bg-gray-700\/50 { background-color: #ffffff !important; color: #334155 !important; }
+    body.light-theme .divide-gray-700\/50 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(226, 232, 240, 0.8) !important; }
+    body.light-theme .divide-gray-800 > :not([hidden]) ~ :not([hidden]) { border-color: #e2e8f0 !important; }
     
-    /* Adaptaciones de altura estéticas para el móvil en vista de cuadrícula de días */
     @media (max-width: 640px) {
       #calendar-grid > button {
         height: 4.5rem !important;
@@ -104,20 +115,20 @@
     }
   </style>
 </head>
-<body class="min-h-screen selection:bg-blue-500/30 p-4 md:p-8">
+<body class="min-h-screen selection:bg-purple-500/30 p-4 md:p-8">
 
-  <!-- PANTALLA DE INICIO DE SESIÓN CON DISEÑO ULTRA ESTÉTICO -->
-  <div id="login-screen" class="fixed inset-0 bg-[#07080a] z-[100] flex items-center justify-center p-4 transition-all duration-700 ease-out">
-    <div class="absolute inset-0 bg-gradient-to-tr from-blue-900/20 via-transparent to-emerald-900/10 pointer-events-none"></div>
-    <div class="absolute w-72 h-72 bg-blue-500/10 rounded-full blur-3xl -top-12 -left-12 pointer-events-none"></div>
-    <div class="absolute w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl -bottom-12 -right-12 pointer-events-none"></div>
+  <!-- PANTALLA DE INICIO DE SESIÓN CON DISEÑO ULTRA ESTÉTICO NEORRETRO -->
+  <div id="login-screen" class="fixed inset-0 bg-[#03040b] z-[100] flex items-center justify-center p-4 transition-all duration-700 ease-out">
+    <div class="absolute inset-0 bg-gradient-to-tr from-[#7000ff]/10 via-transparent to-[#00f0ff]/5 pointer-events-none"></div>
+    <div class="absolute w-72 h-72 bg-[#7000ff]/10 rounded-full blur-3xl -top-12 -left-12 pointer-events-none"></div>
+    <div class="absolute w-72 h-72 bg-[#00f0ff]/10 rounded-full blur-3xl -bottom-12 -right-12 pointer-events-none"></div>
 
-    <div class="bg-gray-900/65 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-gray-800/80 w-full max-w-sm text-center relative z-10 transform transition-all duration-500 scale-100">
-      <div class="inline-flex p-4 bg-gradient-to-br from-blue-600/20 to-blue-500/5 text-blue-400 rounded-2xl mb-6 border border-blue-500/20 shadow-lg shadow-blue-500/5">
+    <div class="bg-gray-950/60 backdrop-blur-xl p-8 rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.15)] border border-[#7000ff]/30 w-full max-w-sm text-center relative z-10 transform transition-all duration-500 scale-100">
+      <div class="inline-flex p-4 bg-gradient-to-br from-[#7000ff]/20 to-[#00f0ff]/5 text-[#00f0ff] rounded-2xl mb-6 border border-[#00f0ff]/20 shadow-[0_0_15px_rgba(0,240,255,0.2)]">
         <i data-lucide="lock" class="w-8 h-8 animate-pulse"></i>
       </div>
-      <h2 class="text-3xl font-extrabold text-white tracking-tight mb-2">Bienvenido</h2>
-      <p class="text-gray-400 text-sm mb-8">Ingresa la contraseña para desbloquear tu bóveda financiera</p>
+      <h2 class="text-3xl font-extrabold text-white tracking-tight mb-2">Bóveda Milton</h2>
+      <p class="text-gray-400 text-sm mb-8">Ingresa la clave para desbloquear tu dashboard neorretro</p>
       
       <form id="login-form" class="space-y-6">
         <div class="relative">
@@ -125,10 +136,9 @@
             type="password" 
             id="login-password" 
             placeholder="Contraseña" 
-            class="w-full bg-gray-950/80 border border-gray-800 rounded-2xl pl-5 pr-14 py-4 text-center text-lg font-medium focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none text-white tracking-wide transition-all placeholder:text-gray-600 shadow-inner" 
+            class="w-full bg-gray-950/90 border border-gray-800 rounded-2xl pl-5 pr-14 py-4 text-center text-lg font-medium focus:border-[#00f0ff] focus:ring-2 focus:ring-[#00f0ff]/20 focus:outline-none text-white tracking-wide transition-all placeholder:text-gray-700 shadow-inner" 
             required
           >
-          <!-- Botón para ver/ocultar contraseña -->
           <button 
             type="button" 
             id="toggle-login-password" 
@@ -144,7 +154,7 @@
           <span>Contraseña incorrecta</span>
         </div>
 
-        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-500/10 transition-all duration-300 hover:shadow-blue-500/20 active:scale-[0.98]">
+        <button type="submit" class="w-full bg-gradient-to-r from-[#7000ff] via-[#ff007f] to-[#00f0ff] hover:brightness-110 text-white font-bold py-4 rounded-2xl shadow-lg shadow-[#7000ff]/20 transition-all duration-300 active:scale-[0.98]">
           Desbloquear Dashboard
         </button>
       </form>
@@ -156,26 +166,57 @@
     
     <!-- HEADER -->
     <header class="flex items-center gap-4 mb-8">
-      <div class="p-3 bg-blue-600/20 text-blue-400 rounded-xl">
+      <div class="p-3 bg-gradient-to-br from-[#7000ff]/20 to-[#00f0ff]/20 text-[#00f0ff] rounded-xl border border-[#00f0ff]/20 shadow-[0_0_10px_rgba(0,240,255,0.1)]">
         <i data-lucide="wallet" class="w-7 h-7"></i>
       </div>
       <div class="flex-1">
-        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+        <!-- El espectacular degradado neorretro en el título -->
+        <h1 class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-[#00f0ff] via-[#ff007f] to-[#7000ff] bg-clip-text text-transparent tracking-tight">
           Cuentas Personales
         </h1>
         <p class="text-gray-400 text-sm">Dashboard Financiero Inteligente</p>
       </div>
       
       <!-- CONTROLES DEL HEADER -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
         <!-- BOTÓN PARA MODO CLARO / OSCURO -->
-        <button id="theme-toggle" class="p-2.5 md:p-3 bg-gray-800 border border-gray-700/50 rounded-xl hover:bg-gray-700 transition-colors text-gray-400 shadow-sm" title="Alternar tema">
+        <button id="theme-toggle" class="p-2.5 md:p-3 bg-gray-900/80 border border-gray-800/80 rounded-xl hover:bg-gray-800 transition-colors text-gray-400 shadow-sm" title="Alternar tema">
           <i data-lucide="sun" id="theme-icon" class="w-5 h-5"></i>
         </button>
-        <!-- BOTÓN DE CIERRE DE SESIÓN MANUAL -->
-        <button id="logout-btn" class="p-2.5 md:p-3 bg-gray-800 border border-gray-700/50 rounded-xl hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30 transition-colors text-gray-400 shadow-sm" title="Cerrar sesión">
-          <i data-lucide="log-out" class="w-5 h-5"></i>
-        </button>
+
+        <!-- MENU DE PERFIL COMPACTO DROPDOWN -->
+        <div class="relative inline-block text-left" id="profile-dropdown-container">
+          <button id="profile-dropdown-btn" class="flex items-center gap-2 p-1.5 bg-gray-900/80 border border-gray-800 rounded-full hover:border-[#00f0ff]/40 transition-all shadow-sm focus:outline-none">
+            <img id="profile-avatar-img" src="https://placehold.co/40x40/7000ff/ffffff?text=M" class="w-8 h-8 rounded-full object-cover border border-[#7000ff]/30 shadow-[0_0_8px_rgba(112,0,255,0.3)]" alt="Avatar">
+            <span id="profile-name-span" class="text-xs font-bold px-1.5 hidden md:block text-gray-300">Milton Montoya</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 pr-1 hidden md:block"></i>
+          </button>
+
+          <!-- DROPDOWN CONTENT -->
+          <div id="profile-dropdown-content" class="hidden absolute right-0 mt-2 w-56 bg-gray-950 border border-[#7000ff]/20 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-gray-900">
+            <!-- Mini panel de usuario -->
+            <div class="p-4 flex flex-col items-center text-center">
+              <img id="dropdown-avatar-img" src="https://placehold.co/80x80/7000ff/ffffff?text=M" class="w-14 h-14 rounded-full object-cover border-2 border-[#7000ff] shadow-[0_0_12px_rgba(112,0,255,0.4)] mb-2" alt="Avatar">
+              <h4 id="dropdown-profile-name" class="text-sm font-bold text-white">Milton Montoya</h4>
+              <span class="text-[10px] text-[#00f0ff] uppercase tracking-wider font-semibold">Bóveda Protegida</span>
+            </div>
+            <!-- Acciones -->
+            <div class="p-1.5 space-y-0.5">
+              <button onclick="window.openProfileSettingsModal()" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-gray-900 hover:text-white rounded-lg flex items-center gap-2 transition-colors">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Editar Perfil
+              </button>
+              <button onclick="window.openPasswordSettingsModal()" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-gray-900 hover:text-white rounded-lg flex items-center gap-2 transition-colors">
+                <i data-lucide="lock-keyhole" class="w-3.5 h-3.5 text-[#ff007f]"></i> Contraseña
+              </button>
+            </div>
+            <!-- Cierre de sesión -->
+            <div class="p-1.5">
+              <button onclick="window.logout()" class="w-full text-left px-3 py-2 text-xs text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 rounded-lg flex items-center gap-2 transition-colors">
+                <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -185,43 +226,43 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- CALENDARIO -->
-        <section class="lg:col-span-2 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 p-6 shadow-xl">
+        <section class="lg:col-span-2 bg-gray-900/30 backdrop-blur-md rounded-2xl border border-gray-800/80 p-6 shadow-[0_0_30px_rgba(0,0,0,0.3)]">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             
             <div class="flex items-center gap-3">
               <h2 class="text-xl font-semibold flex items-center gap-2">Calendario</h2>
-              <button id="btn-today" class="px-3 py-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 rounded-lg text-sm font-medium transition-colors cursor-pointer shadow-sm">
+              <button id="btn-today" class="px-3 py-1 bg-[#7000ff]/10 text-[#00f0ff] border border-[#00f0ff]/20 hover:bg-[#7000ff]/20 rounded-lg text-sm font-medium transition-colors cursor-pointer shadow-sm">
                 Hoy
               </button>
             </div>
 
-            <div class="flex items-center gap-1 sm:gap-2 bg-gray-900/50 rounded-lg p-1 border border-gray-700/50">
-              <button id="btn-prev-month" class="p-1 sm:p-2 hover:bg-gray-700 rounded-md transition-colors">
+            <div class="flex items-center gap-1 sm:gap-2 bg-gray-950/60 rounded-lg p-1 border border-gray-800">
+              <button id="btn-prev-month" class="p-1 sm:p-2 hover:bg-gray-800 rounded-md transition-colors">
                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
               </button>
               
-              <!-- Menús desplegables de Mes y Año -->
-              <div class="flex items-center gap-1 bg-gray-800 rounded-md px-2 py-1">
+              <!-- Menús de Mes y Año -->
+              <div class="flex items-center gap-1 bg-gray-900 rounded-md px-2 py-1">
                 <select id="month-select" class="bg-transparent border-none text-sm sm:text-base font-medium text-gray-200 focus:outline-none cursor-pointer outline-none hover:text-white transition-colors">
-                  <option value="0" class="bg-gray-800 text-white">Enero</option>
-                  <option value="1" class="bg-gray-800 text-white">Febrero</option>
-                  <option value="2" class="bg-gray-800 text-white">Marzo</option>
-                  <option value="3" class="bg-gray-800 text-white">Abril</option>
-                  <option value="4" class="bg-gray-800 text-white">Mayo</option>
-                  <option value="5" class="bg-gray-800 text-white">Junio</option>
-                  <option value="6" class="bg-gray-800 text-white">Julio</option>
-                  <option value="7" class="bg-gray-800 text-white">Agosto</option>
-                  <option value="8" class="bg-gray-800 text-white">Septiembre</option>
-                  <option value="9" class="bg-gray-800 text-white">Octubre</option>
-                  <option value="10" class="bg-gray-800 text-white">Noviembre</option>
-                  <option value="11" class="bg-gray-800 text-white">Diciembre</option>
+                  <option value="0" class="bg-gray-950 text-white">Enero</option>
+                  <option value="1" class="bg-gray-950 text-white">Febrero</option>
+                  <option value="2" class="bg-gray-950 text-white">Marzo</option>
+                  <option value="3" class="bg-gray-950 text-white">Abril</option>
+                  <option value="4" class="bg-gray-950 text-white">Mayo</option>
+                  <option value="5" class="bg-gray-950 text-white">Junio</option>
+                  <option value="6" class="bg-gray-950 text-white">Julio</option>
+                  <option value="7" class="bg-gray-950 text-white">Agosto</option>
+                  <option value="8" class="bg-gray-950 text-white">Septiembre</option>
+                  <option value="9" class="bg-gray-950 text-white">Octubre</option>
+                  <option value="10" class="bg-gray-950 text-white">Noviembre</option>
+                  <option value="11" class="bg-gray-950 text-white">Diciembre</option>
                 </select>
                 <select id="year-select" class="bg-transparent border-none text-sm sm:text-base font-medium text-gray-200 focus:outline-none cursor-pointer outline-none hover:text-white transition-colors">
                   <!-- Años llenados por JS -->
                 </select>
               </div>
 
-              <button id="btn-next-month" class="p-1 sm:p-2 hover:bg-gray-700 rounded-md transition-colors">
+              <button id="btn-next-month" class="p-1 sm:p-2 hover:bg-gray-800 rounded-md transition-colors">
                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
               </button>
             </div>
@@ -238,23 +279,23 @@
         </section>
 
         <!-- RESUMEN MENSUAL Y GRÁFICA -->
-        <section class="bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 p-6 shadow-xl flex flex-col">
+        <section class="bg-gray-900/30 backdrop-blur-md rounded-2xl border border-gray-800/80 p-6 shadow-[0_0_30px_rgba(0,0,0,0.3)] flex flex-col">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-semibold">Resumen del Mes</h2>
             <div class="flex items-center gap-2">
-              <button id="btn-print" class="flex items-center gap-2 px-3 py-1.5 bg-gray-700/50 hover:bg-gray-600 border border-gray-600 rounded-lg text-sm font-medium transition-colors cursor-pointer text-gray-200 shadow-sm print:hidden" title="Imprimir pantalla">
+              <button id="btn-print" class="flex items-center gap-2 px-3 py-1.5 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg text-sm font-medium transition-colors cursor-pointer text-gray-200 shadow-sm print:hidden" title="Imprimir pantalla">
                 <i data-lucide="printer" class="w-4 h-4"></i>
               </button>
               <div class="relative">
-                <button id="btn-export-menu" class="flex items-center gap-2 px-3 py-1.5 bg-gray-700/50 hover:bg-gray-600 border border-gray-600 rounded-lg text-sm font-medium transition-colors cursor-pointer text-gray-200 shadow-sm print:hidden">
+                <button id="btn-export-menu" class="flex items-center gap-2 px-3 py-1.5 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg text-sm font-medium transition-colors cursor-pointer text-gray-200 shadow-sm print:hidden">
                   <i data-lucide="download" class="w-4 h-4"></i> Exportar
                 </button>
                 <!-- Dropdown Exportar -->
-                <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-32 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-10 overflow-hidden">
-                  <button id="btn-export-pdf" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2 border-b border-gray-700/50 transition-colors">
+                <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-32 bg-gray-950 border border-gray-800 rounded-lg shadow-xl z-10 overflow-hidden">
+                  <button id="btn-export-pdf" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 border-b border-gray-900 transition-colors">
                     <i data-lucide="file-text" class="w-4 h-4"></i> PDF
                   </button>
-                  <button id="btn-export-excel" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
+                  <button id="btn-export-excel" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white flex items-center gap-2 transition-colors">
                     <i data-lucide="sheet" class="w-4 h-4"></i> Excel
                   </button>
                 </div>
@@ -263,8 +304,9 @@
           </div>
           
           <div class="flex justify-center mb-8">
-            <div id="donut-chart" class="w-48 h-48 rounded-full flex items-center justify-center shadow-lg relative border-4 border-gray-700 transition-all duration-500 overflow-hidden">
-              <div class="absolute inset-5 bg-gray-800 rounded-full flex flex-col items-center justify-center z-10 shadow-inner">
+            <!-- Gráfica tipo dona futurista -->
+            <div id="donut-chart" class="w-48 h-48 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(112,0,255,0.15)] relative border-4 border-gray-800 transition-all duration-500 overflow-hidden">
+              <div class="absolute inset-5 bg-[#060713] rounded-full flex flex-col items-center justify-center z-10 shadow-inner">
                  <span class="text-xs text-gray-400">Total Mensual</span>
                  <span id="donut-total" class="text-lg font-bold text-white">$0.00</span>
               </div>
@@ -278,20 +320,19 @@
 
       </div>
 
-      <!-- NUEVO: SECCIÓN COLAPSABLE DE MIS CUENTAS Y CARTERAS (ABAJO Y MINIMALISTA) -->
-      <section id="accounts-section" class="bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 p-6 shadow-xl transition-all duration-350">
+      <!-- SECCIÓN COLAPSABLE DE MIS CUENTAS Y CARTERAS -->
+      <section id="accounts-section" class="bg-gray-900/30 backdrop-blur-md rounded-2xl border border-gray-800/80 p-6 shadow-[0_0_30px_rgba(0,0,0,0.3)] transition-all duration-350">
         <!-- HEADER PLEGABLE -->
         <div id="toggle-accounts-btn" class="flex justify-between items-center cursor-pointer group">
           <div class="flex items-center gap-3">
-            <i data-lucide="wallet-cards" class="w-5 h-5 text-emerald-400"></i>
-            <h2 class="text-xl font-semibold group-hover:text-blue-400 transition-colors">Mis Cuentas y Carteras</h2>
+            <i data-lucide="wallet-cards" class="w-5 h-5 text-[#00f0ff] filter drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]"></i>
+            <h2 class="text-xl font-semibold group-hover:text-[#00f0ff] transition-colors">Mis Cuentas y Carteras</h2>
           </div>
           <div class="flex items-center gap-3">
-            <!-- Detener la propagación de eventos para que el clic en "Gestionar" no pliegue el acordeón -->
-            <button onclick="event.stopPropagation(); openAccountManager()" class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-sm">
+            <button onclick="event.stopPropagation(); window.openAccountManager()" class="flex items-center gap-1.5 px-3 py-1.5 bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#00f0ff]/20 rounded-xl text-xs font-semibold transition-colors cursor-pointer shadow-sm">
               <i data-lucide="settings" class="w-3.5 h-3.5"></i> Gestionar
             </button>
-            <button class="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors text-gray-400 group-hover:text-white">
+            <button class="p-2 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg transition-colors text-gray-400 group-hover:text-white">
               <i data-lucide="chevron-down" id="accounts-chevron" class="w-5 h-5 transition-transform duration-300"></i>
             </button>
           </div>
@@ -306,11 +347,14 @@
       </section>
 
       <!-- SECCIÓN INFERIOR: CONSULTA HISTÓRICA Y BÚSQUEDA -->
-      <section id="historical-section" class="bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 p-6 shadow-xl transition-all">
+      <section id="historical-section" class="bg-gray-900/30 backdrop-blur-md rounded-2xl border border-gray-800/80 p-6 shadow-[0_0_30px_rgba(0,0,0,0.3)] transition-all">
         <!-- HEADER PLEGABLE -->
         <div id="toggle-history-btn" class="flex justify-between items-center cursor-pointer group">
-          <h2 class="text-xl font-semibold group-hover:text-blue-400 transition-colors">Consultas y Totales Históricos</h2>
-          <button class="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors text-gray-400 group-hover:text-white">
+          <div class="flex items-center gap-2">
+            <i data-lucide="search" class="w-5 h-5 text-[#ff007f] filter drop-shadow-[0_0_8px_rgba(255,0,127,0.4)]"></i>
+            <h2 class="text-xl font-semibold group-hover:text-[#ff007f] transition-colors">Consultas y Totales Históricos</h2>
+          </div>
+          <button class="p-2 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-lg transition-colors text-gray-400 group-hover:text-white">
             <i data-lucide="chevron-down" id="history-chevron" class="w-5 h-5 transition-transform duration-300"></i>
           </button>
         </div>
@@ -320,12 +364,12 @@
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-              <select id="search-year" class="bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-sm focus:border-blue-500 focus:outline-none text-white cursor-pointer hover:bg-gray-800 transition-colors">
+              <select id="search-year" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
                 <!-- Años se renderizarán aquí -->
               </select>
               
               <!-- Selector de Mes -->
-              <select id="search-month" class="bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-sm focus:border-blue-500 focus:outline-none text-white cursor-pointer hover:bg-gray-800 transition-colors">
+              <select id="search-month" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
                 <option value="all">Todo el año</option>
                 <option value="0">Enero</option>
                 <option value="1">Febrero</option>
@@ -342,19 +386,19 @@
               </select>
               
               <!-- Selector de Cuenta para filtrado -->
-              <select id="search-account" class="bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-sm focus:border-blue-500 focus:outline-none text-white cursor-pointer hover:bg-gray-800 transition-colors">
+              <select id="search-account" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
                 <option value="all">Todas las cuentas</option>
                 <!-- Cuentas inyectadas dinámicamente -->
               </select>
             </div>
 
             <div class="relative flex-1 w-full md:w-64">
-              <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+              <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4"></i>
               <input 
                 type="text" 
                 id="search-input"
                 placeholder="Buscar concepto o monto..."
-                class="w-full bg-gray-900 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:outline-none text-white"
+                class="w-full bg-gray-950 border border-gray-800 rounded-lg pl-10 pr-4 py-2 text-sm focus:border-[#00f0ff] focus:outline-none text-white"
               />
             </div>
           </div>
@@ -365,10 +409,10 @@
           </div>
 
           <!-- Lista de Movimientos Filtrados -->
-          <div class="overflow-x-auto border border-gray-700/50 rounded-xl">
+          <div class="overflow-x-auto border border-gray-800 rounded-xl">
             <table class="w-full text-left border-collapse">
-              <thead class="bg-gray-800/80">
-                <tr class="border-b border-gray-700 text-gray-400 text-sm">
+              <thead class="bg-gray-950/80">
+                <tr class="border-b border-gray-800 text-gray-400 text-sm">
                   <th class="py-3 px-4 font-medium">Fecha</th>
                   <th class="py-3 px-4 font-medium">Tipo y Subcategoría</th>
                   <th class="py-3 px-4 font-medium">Cuenta</th>
@@ -377,7 +421,7 @@
                   <th class="py-3 px-4 font-medium text-center">Acción</th>
                 </tr>
               </thead>
-              <tbody id="table-body" class="text-sm divide-y divide-gray-700/50 bg-gray-900/30">
+              <tbody id="table-body" class="text-sm divide-y divide-gray-800 bg-gray-950/20">
                 <!-- Movimientos aquí -->
               </tbody>
             </table>
@@ -387,15 +431,15 @@
 
     </main>
 
-    <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO (DISEÑO ULTRA MINIMALISTA) -->
-    <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800/80 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
+    <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO -->
+    <div id="modal" class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.2)] border border-[#7000ff]/30 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
         
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <div class="flex justify-between items-center p-6 border-b border-gray-900">
           <h3 class="text-lg font-semibold flex items-center gap-2">
-            <i data-lucide="calendar" class="w-5 h-5 text-blue-400"></i>
+            <i data-lucide="calendar" class="w-5 h-5 text-[#00f0ff] filter drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]"></i>
             <span id="modal-title-text" class="text-white">Añadir Movimiento</span>
-            <span id="modal-date-label" class="text-xs font-semibold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-lg ml-2"></span>
+            <span id="modal-date-label" class="text-xs font-semibold text-[#00f0ff] bg-[#00f0ff]/10 px-2.5 py-1 rounded-lg ml-2 border border-[#00f0ff]/20"></span>
           </h3>
           <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
             <i data-lucide="x" class="w-5 h-5"></i>
@@ -405,14 +449,14 @@
         <form id="movement-form" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           
           <!-- SELECTOR DE TIPO (ESTILO PÍLDORA SEGMENTADA) -->
-          <div class="p-1 bg-gray-950/80 rounded-2xl border border-gray-850 flex relative">
-            <button type="button" onclick="window.selectType('ingreso')" id="btn-type-ingreso" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+          <div class="p-1 bg-gray-950/90 rounded-2xl border border-gray-900 flex relative">
+            <button type="button" onclick="window.selectType('ingreso')" id="btn-type-ingreso" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all duration-300 focus:outline-none text-gray-500">
               📈 Ingreso
             </button>
-            <button type="button" onclick="window.selectType('gasto')" id="btn-type-gasto" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+            <button type="button" onclick="window.selectType('gasto')" id="btn-type-gasto" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all duration-300 focus:outline-none text-gray-500">
               📉 Gasto
             </button>
-            <button type="button" onclick="window.selectType('ahorro')" id="btn-type-ahorro" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+            <button type="button" onclick="window.selectType('ahorro')" id="btn-type-ahorro" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all duration-300 focus:outline-none text-gray-500">
               💰 Ahorro
             </button>
           </div>
@@ -421,11 +465,11 @@
           <div class="space-y-1.5">
             <div class="flex justify-between items-center">
               <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Subcategoría</label>
-              <button type="button" onclick="openSubcategoryManager()" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors">
+              <button type="button" onclick="window.openSubcategoryManager()" class="text-xs text-[#00f0ff] hover:text-[#00f0ff]/80 flex items-center gap-1 transition-colors">
                 <i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Gestionar
               </button>
             </div>
-            <select id="form-subcategory" required class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-white text-sm transition-colors cursor-pointer">
+            <select id="form-subcategory" required class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
               <!-- Subcategorías inyectadas dinámicamente -->
             </select>
           </div>
@@ -433,7 +477,7 @@
           <!-- Selector de Cuenta / Origen del dinero -->
           <div class="space-y-1.5">
             <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta / Cartera</label>
-            <select id="form-account" required class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-white text-sm transition-colors cursor-pointer">
+            <select id="form-account" required class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
               <!-- Cuentas inyectadas dinámicamente -->
             </select>
           </div>
@@ -443,92 +487,92 @@
             <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cantidad</label>
             <div class="relative">
               <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
-              <input type="number" id="form-amount" step="0.01" required min="0" placeholder="0.00" class="w-full bg-gray-950 border border-gray-800 rounded-2xl pl-10 pr-4 py-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none text-xl font-bold text-white transition-colors" />
+              <input type="number" id="form-amount" step="0.01" required min="0" placeholder="0.00" class="w-full bg-gray-950 border border-gray-800 rounded-2xl pl-10 pr-4 py-4 focus:border-[#00f0ff] focus:ring-2 focus:ring-[#00f0ff]/10 outline-none text-xl font-bold text-white transition-colors" />
             </div>
           </div>
 
           <!-- Concepto -->
           <div class="space-y-1.5">
             <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Concepto / Descripción</label>
-            <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-white text-sm transition-colors placeholder:text-gray-600" />
+            <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] outline-none text-white text-sm transition-colors placeholder:text-gray-700" />
           </div>
 
           <!-- Botón Guardar -->
-          <button type="submit" id="btn-save-movement" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-500/10 transition-all active:scale-[0.98]">
+          <button type="submit" id="btn-save-movement" class="w-full bg-gradient-to-r from-[#7000ff] to-[#ff007f] hover:brightness-110 text-white font-bold py-4 rounded-2xl shadow-xl shadow-[#7000ff]/20 transition-all active:scale-[0.98]">
             Guardar Movimiento
           </button>
         </form>
       </div>
     </div>
 
-    <!-- MODAL PARA GESTIONAR CUENTAS (EDITABLES Y ELIMINABLES CON SALDO INICIAL COHERENTE) -->
-    <div id="accounts-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800/80 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="accounts-modal-content">
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
+    <!-- MODAL PARA GESTIONAR CUENTAS -->
+    <div id="accounts-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.2)] border border-[#7000ff]/30 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="accounts-modal-content">
+        <div class="flex justify-between items-center p-6 border-b border-gray-900">
           <h3 class="text-lg font-semibold flex items-center gap-2">
-            <i data-lucide="wallet-cards" class="text-emerald-400 w-5 h-5"></i>
+            <i data-lucide="wallet-cards" class="text-[#00f0ff] w-5 h-5 filter drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]"></i>
             <span class="text-white">Gestionar Cuentas</span>
           </h3>
-          <button onclick="closeAccountManager()" class="text-gray-400 hover:text-white transition-colors">
+          <button onclick="window.closeAccountManager()" class="text-gray-400 hover:text-white transition-colors">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
         
         <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           <!-- Formulario Agregar / Editar Cuenta -->
-          <form id="new-account-form" class="space-y-4 bg-gray-955 bg-gray-950/50 p-4 rounded-2xl border border-gray-800/80">
+          <form id="new-account-form" class="space-y-4 bg-gray-950/50 p-4 rounded-2xl border border-gray-900">
             <h4 id="account-form-title" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Cuenta</h4>
             
             <div class="space-y-1.5">
               <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Marcas Populares</label>
               <div class="flex flex-wrap gap-1.5">
-                <button type="button" onclick="applyBrandTemplate('🏦', 'BBVA')" class="px-2.5 py-1 bg-blue-900/30 text-blue-300 border border-blue-500/20 hover:bg-blue-900/50 rounded-lg text-xs font-semibold transition-colors">
+                <button type="button" onclick="window.applyBrandTemplate('🏦', 'BBVA')" class="px-2.5 py-1 bg-blue-900/30 text-blue-300 border border-blue-500/20 hover:bg-blue-900/50 rounded-lg text-xs font-semibold transition-colors">
                   🏦 BBVA
                 </button>
-                <button type="button" onclick="applyBrandTemplate('💜', 'Nu')" class="px-2.5 py-1 bg-purple-900/30 text-purple-300 border border-purple-500/20 hover:bg-purple-900/50 rounded-lg text-xs font-semibold transition-colors">
+                <button type="button" onclick="window.applyBrandTemplate('💜', 'Nu')" class="px-2.5 py-1 bg-purple-900/30 text-purple-300 border border-purple-500/20 hover:bg-purple-900/50 rounded-lg text-xs font-semibold transition-colors">
                   💜 Nu
                 </button>
-                <button type="button" onclick="applyBrandTemplate('🧡', 'DiDi')" class="px-2.5 py-1 bg-orange-900/30 text-orange-300 border border-orange-500/20 hover:bg-orange-900/50 rounded-lg text-xs font-semibold transition-colors">
+                <button type="button" onclick="window.applyBrandTemplate('🧡', 'DiDi')" class="px-2.5 py-1 bg-orange-900/30 text-orange-300 border border-orange-500/20 hover:bg-orange-900/50 rounded-lg text-xs font-semibold transition-colors">
                   🧡 DiDi
                 </button>
-                <button type="button" onclick="applyBrandTemplate('💳', 'Revolut')" class="px-2.5 py-1 bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors">
+                <button type="button" onclick="window.applyBrandTemplate('💳', 'Revolut')" class="px-2.5 py-1 bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors">
                   💳 Revolut
                 </button>
               </div>
             </div>
 
             <div class="grid grid-cols-4 gap-3">
-              <input type="text" id="new-acc-emoji" placeholder="💵" required class="col-span-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-blue-500 text-white">
-              <input type="text" id="new-acc-name" placeholder="Ej. MercadoLibre" required class="col-span-3 bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-600">
+              <input type="text" id="new-acc-emoji" placeholder="💵" required class="col-span-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-[#7000ff] text-white">
+              <input type="text" id="new-acc-name" placeholder="Ej. MercadoLibre" required class="col-span-3 bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#7000ff] text-white placeholder:text-gray-750">
             </div>
 
             <div class="grid grid-cols-2 gap-3 pt-1">
               <div class="space-y-1">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Saldo Inicial ($)</label>
-                <input type="number" id="new-acc-balance" step="0.01" min="0" placeholder="0.00" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-blue-500 text-white">
+                <input type="number" id="new-acc-balance" step="0.01" min="0" placeholder="0.00" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] text-white">
               </div>
               <div class="space-y-1">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fecha de Registro</label>
-                <input type="date" id="new-acc-date" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-blue-500 text-white">
+                <input type="date" id="new-acc-date" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] text-white">
               </div>
             </div>
 
-            <div class="space-y-2 pt-1 border-t border-gray-800/40">
+            <div class="space-y-2 pt-1 border-t border-gray-900">
               <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">¿Cómo registrar el saldo?</label>
               <div class="flex gap-4">
                 <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
-                  <input type="radio" name="acc-init-mode" value="preexistente" checked class="accent-blue-500">
+                  <input type="radio" name="acc-init-mode" value="preexistente" checked class="accent-[#7000ff]">
                   <span>Ya lo tenía (Preexistente)</span>
                 </label>
                 <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
-                  <input type="radio" name="acc-init-mode" value="ingreso" class="accent-blue-500">
+                  <input type="radio" name="acc-init-mode" value="ingreso" class="accent-[#7000ff]">
                   <span>Ingreso nuevo</span>
                 </label>
               </div>
             </div>
 
             <div class="flex gap-3 pt-2">
-              <button type="submit" id="btn-save-account" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors shadow-md shadow-blue-600/10">
+              <button type="submit" id="btn-save-account" class="flex-1 bg-[#7000ff] hover:bg-[#7000ff]/80 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors shadow-md shadow-[#7000ff]/20">
                 + Agregar Cuenta
               </button>
               <button type="button" id="btn-cancel-account-edit" class="hidden px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-semibold py-2.5 rounded-xl text-xs transition-colors">
@@ -548,13 +592,13 @@
       </div>
     </div>
 
-    <!-- NUEVO: MODAL DETALLE DE LA CUENTA (INTERACTIVO Y HERMOSO) -->
-    <div id="account-details-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800/85 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="account-details-content">
+    <!-- MODAL DETALLE DE LA CUENTA -->
+    <div id="account-details-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.2)] border border-[#7000ff]/30 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="account-details-content">
         <!-- Header -->
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <div class="flex justify-between items-center p-6 border-b border-gray-900">
           <div class="flex items-center gap-3">
-            <span id="detail-acc-emoji" class="text-3xl p-2 bg-gray-800 rounded-2xl border border-gray-750"></span>
+            <span id="detail-acc-emoji" class="text-3xl p-2 bg-gray-900 rounded-2xl border border-gray-800"></span>
             <div>
               <h3 id="detail-acc-name" class="text-lg font-bold text-white"></h3>
               <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">Cartera</span>
@@ -569,12 +613,12 @@
         <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           <!-- Tarjetas de Información -->
           <div class="grid grid-cols-2 gap-3">
-            <div class="bg-gray-950/40 p-3 rounded-2xl border border-gray-850">
+            <div class="bg-gray-900/50 p-3 rounded-2xl border border-gray-800">
               <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Saldo Inicial</span>
               <p id="detail-acc-init" class="text-sm font-bold text-gray-200"></p>
               <span id="detail-acc-init-date" class="text-[9px] text-gray-500"></span>
             </div>
-            <div class="bg-gray-950/40 p-3 rounded-2xl border border-gray-850">
+            <div class="bg-gray-900/50 p-3 rounded-2xl border border-gray-800">
               <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Saldo Actual</span>
               <p id="detail-acc-current" class="text-base font-extrabold text-white"></p>
             </div>
@@ -598,10 +642,10 @@
 
           <!-- Acciones -->
           <div class="flex gap-3 pt-2">
-            <button id="btn-detail-filter-history" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3.5 rounded-2xl text-xs transition-all flex items-center justify-center gap-2 shadow-xl shadow-blue-500/10">
+            <button id="btn-detail-filter-history" class="flex-1 bg-gradient-to-r from-[#7000ff] to-[#00f0ff] hover:brightness-110 text-white font-bold py-3.5 rounded-2xl text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#7000ff]/10">
               <i data-lucide="search" class="w-4 h-4"></i> Ver Historial Completo
             </button>
-            <button id="btn-detail-edit-acc" class="px-5 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-1.5">
+            <button id="btn-detail-edit-acc" class="px-5 bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-800 font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-1.5">
               <i data-lucide="edit-3" class="w-4 h-4"></i> Editar
             </button>
           </div>
@@ -609,38 +653,38 @@
       </div>
     </div>
 
-    <!-- MODAL GESTOR DE SUBCATEGORÍAS (DISEÑO LIMPIO Y MINIMALISTA) -->
-    <div id="subcategories-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800/80 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="subcategories-modal-content">
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
+    <!-- MODAL GESTOR DE SUBCATEGORÍAS -->
+    <div id="subcategories-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.2)] border border-[#7000ff]/30 w-full max-w-md overflow-hidden transform scale-95 transition-transform duration-300" id="subcategories-modal-content">
+        <div class="flex justify-between items-center p-6 border-b border-gray-900">
           <h3 class="text-lg font-semibold flex items-center gap-2">
-            <i data-lucide="tag" class="text-blue-400 w-5 h-5"></i>
+            <i data-lucide="tag" class="text-[#ff007f] w-5 h-5 filter drop-shadow-[0_0_5px_rgba(255,0,127,0.4)]"></i>
             <span class="text-white">Personalizar Subcategorías</span>
           </h3>
-          <button onclick="closeSubcategoryManager()" class="text-gray-400 hover:text-white transition-colors">
+          <button onclick="window.closeSubcategoryManager()" class="text-gray-400 hover:text-white transition-colors">
             <i data-lucide="x" class="w-5 h-5"></i>
           </button>
         </div>
         
         <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           <!-- Formulario Agregar Subcategoría -->
-          <form id="new-subcat-form" class="space-y-4 bg-gray-950/50 p-4 rounded-2xl border border-gray-800/80">
+          <form id="new-subcat-form" class="space-y-4 bg-gray-950/50 p-4 rounded-2xl border border-gray-900">
             <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Subcategoría</h4>
             
             <div class="space-y-3">
-              <select id="new-subcat-type" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-3 text-xs focus:outline-none focus:border-blue-500 text-white cursor-pointer">
+              <select id="new-subcat-type" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-3 text-xs focus:outline-none focus:border-[#7000ff] text-white cursor-pointer">
                 <option value="ingreso">Para Ingresos (📈)</option>
                 <option value="gasto" selected>Para Gastos (📉)</option>
                 <option value="ahorro">Para Ahorros (💰)</option>
               </select>
               
               <div class="grid grid-cols-4 gap-3">
-                <input type="text" id="new-subcat-emoji" placeholder="🍔" required class="col-span-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-blue-500 text-white">
-                <input type="text" id="new-subcat-name" placeholder="Ej. Comida, Ropa..." required class="col-span-3 bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white placeholder:text-gray-600">
+                <input type="text" id="new-subcat-emoji" placeholder="🍔" required class="col-span-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-[#7000ff] text-white">
+                <input type="text" id="new-subcat-name" placeholder="Ej. Comida, Ropa..." required class="col-span-3 bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#7000ff] text-white placeholder:text-gray-750">
               </div>
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md shadow-blue-600/10">
+            <button type="submit" class="w-full bg-[#7000ff] hover:bg-[#7000ff]/80 text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md shadow-[#7000ff]/20">
               + Agregar Subcategoría
             </button>
           </form>
@@ -650,11 +694,11 @@
             <div class="flex justify-between items-center">
               <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lista de Subcategorías</h4>
               <!-- Selector rápido para filtrar lista de gestión -->
-              <select id="subcat-filter" class="bg-transparent border-none text-xs text-blue-400 focus:outline-none cursor-pointer font-bold hover:text-blue-300 transition-colors">
-                <option value="all" class="bg-gray-900 text-white">Ver todas</option>
-                <option value="ingreso" class="bg-gray-900 text-white">Ingresos</option>
-                <option value="gasto" class="bg-gray-900 text-white">Gastos</option>
-                <option value="ahorro" class="bg-gray-900 text-white">Ahorros</option>
+              <select id="subcat-filter" class="bg-transparent border-none text-xs text-[#00f0ff] focus:outline-none cursor-pointer font-bold hover:text-[#00f0ff]/80 transition-colors">
+                <option value="all" class="bg-gray-950 text-white">Ver todas</option>
+                <option value="ingreso" class="bg-gray-950 text-white">Ingresos</option>
+                <option value="gasto" class="bg-gray-950 text-white">Gastos</option>
+                <option value="ahorro" class="bg-gray-950 text-white">Ahorros</option>
               </select>
             </div>
             <div id="subcategories-manager-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -665,21 +709,102 @@
       </div>
     </div>
 
-    <!-- NUEVO: CONFIRMACIÓN PREMIUM PERSONALIZADA (REEMPLAZA CONFIRM NATIVO) -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-opacity duration-300">
-      <div class="bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800/85 w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300" id="confirm-content">
+    <!-- MODAL DE CONFIGURACIÓN DE PERFIL -->
+    <div id="profile-settings-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.2)] border border-[#7000ff]/30 w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300" id="profile-settings-content">
+        <div class="flex justify-between items-center p-6 border-b border-gray-900">
+          <h3 class="text-lg font-semibold flex items-center gap-2">
+            <i data-lucide="user-cog" class="text-[#00f0ff] w-5 h-5 filter drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]"></i>
+            <span class="text-white">Editar Perfil</span>
+          </h3>
+          <button onclick="window.closeProfileSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        
+        <form id="profile-settings-form" class="p-6 space-y-5">
+          <!-- Preview y Selección de Avatar -->
+          <div class="flex flex-col items-center gap-3">
+            <div class="relative group">
+              <img id="settings-avatar-preview" src="https://placehold.co/96x96/7000ff/ffffff?text=M" class="w-24 h-24 rounded-full object-cover border-4 border-[#7000ff] shadow-[0_0_15px_rgba(112,0,255,0.4)]" alt="Vista previa avatar">
+              <label for="avatar-file-input" class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+              </label>
+              <input type="file" id="avatar-file-input" accept="image/*" class="hidden">
+            </div>
+            <span class="text-[10px] text-gray-400">Toca el círculo para subir foto de perfil</span>
+          </div>
+
+          <!-- Nombre de usuario -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre del Usuario</label>
+            <input type="text" id="settings-user-name" required placeholder="Milton Montoya" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm transition-colors" />
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-[#7000ff] to-[#ff007f] hover:brightness-110 text-white font-bold py-3.5 rounded-2xl shadow-xl shadow-[#7000ff]/20 transition-all active:scale-[0.98]">
+            Guardar Cambios
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL DE CAMBIO DE CONTRASEÑA -->
+    <div id="password-settings-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(112,0,255,0.2)] border border-[#7000ff]/30 w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300" id="password-settings-content">
+        <div class="flex justify-between items-center p-6 border-b border-gray-900">
+          <h3 class="text-lg font-semibold flex items-center gap-2">
+            <i data-lucide="lock-keyhole" class="text-[#ff007f] w-5 h-5 filter drop-shadow-[0_0_5px_rgba(255,0,127,0.4)]"></i>
+            <span class="text-white">Cambiar Contraseña</span>
+          </h3>
+          <button onclick="window.closePasswordSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        
+        <form id="password-settings-form" class="p-6 space-y-4">
+          <!-- Password Actual -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Contraseña Actual</label>
+            <input type="password" id="settings-current-pwd" required placeholder="••••" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
+          </div>
+          <!-- Password Nueva -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Contraseña Nueva</label>
+            <input type="password" id="settings-new-pwd" required placeholder="Ingresa clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
+          </div>
+          <!-- Confirmar Password Nueva -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Confirmar Contraseña</label>
+            <input type="password" id="settings-confirm-pwd" required placeholder="Repite la clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
+          </div>
+
+          <div id="password-settings-error" class="text-rose-500 text-xs font-medium flex items-center gap-2 bg-rose-500/10 py-2.5 px-3 rounded-xl border border-rose-500/20 hidden">
+            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+            <span id="password-settings-error-text">Datos incorrectos</span>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-[#ff007f] to-[#7000ff] hover:brightness-110 text-white font-bold py-3.5 rounded-2xl shadow-xl shadow-[#ff007f]/20 transition-all active:scale-[0.98]">
+            Actualizar Clave
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- CONFIRMACIÓN PREMIUM PERSONALIZADA -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-opacity duration-300">
+      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-[0_0_50px_rgba(255,0,0,0.15)] border border-rose-500/30 w-full max-w-sm overflow-hidden transform scale-95 transition-transform duration-300" id="confirm-content">
         <div class="p-6 text-center space-y-4">
-          <div class="inline-flex p-3 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20">
+          <div class="inline-flex p-3 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20 shadow-[0_0_10px_rgba(255,0,0,0.2)]">
             <i data-lucide="alert-triangle" class="w-6 h-6 animate-bounce"></i>
           </div>
           <h3 id="confirm-title" class="text-lg font-bold text-white">¿Estás seguro?</h3>
           <p id="confirm-text" class="text-xs text-gray-400 leading-relaxed px-2"></p>
           
           <div class="flex gap-3 pt-2">
-            <button onclick="window.closeConfirm()" class="flex-1 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-bold py-3 rounded-2xl text-xs transition-colors">
+            <button onclick="window.closeConfirm()" class="flex-1 bg-gray-900 hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold py-3 rounded-2xl text-xs transition-colors">
               Cancelar
             </button>
-            <button onclick="window.triggerConfirm()" class="flex-1 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-xl shadow-rose-500/10">
+            <button onclick="window.triggerConfirm()" class="flex-1 bg-gradient-to-r from-rose-600 to-rose-500 hover:brightness-110 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-xl shadow-rose-500/10">
               Sí, eliminar
             </button>
           </div>
@@ -693,7 +818,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, query, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // Configuration Firebase
     const firebaseConfig = {
@@ -729,7 +854,10 @@
     let inactivityTimeout;
     let confirmCallback = null; 
 
-    // Definición de formateador de moneda de manera global dentro del módulo para evitar ReferenceError
+    // Guardado de la clave maestra cargada de Firestore
+    let vaultPassword = '2527'; // Contraseña por defecto
+
+    // Formateador de moneda MXN
     const formatCurrency = (amount) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
 
     // Valores por defecto
@@ -755,10 +883,11 @@
       { id: 'sub_viaje', type: 'ahorro', name: 'Viajes', emoji: '✈️', isDefault: true }
     ];
 
+    // Secciones de categorías adaptadas a colores de neón
     const CATEGORIES = {
-      ingreso: { label: 'Ingreso', emoji: '📈', color: '#10b981', bgClass: 'bg-emerald-500/10', textClass: 'text-emerald-400', borderClass: 'border-emerald-500/50' },
-      gasto: { label: 'Gasto', emoji: '📉', color: '#f43f5e', bgClass: 'bg-rose-500/10', textClass: 'text-rose-400', borderClass: 'border-rose-500/50' },
-      ahorro: { label: 'Ahorro', emoji: '💰', color: '#3b82f6', bgClass: 'bg-blue-500/10', textClass: 'text-blue-400', borderClass: 'border-blue-500/50' }
+      ingreso: { label: 'Ingreso', emoji: '📈', color: '#00ff88', bgClass: 'bg-[#00ff88]/10', textClass: 'text-[#00ff88]', borderClass: 'border-[#00ff88]/30' },
+      gasto: { label: 'Gasto', emoji: '📉', color: '#ff007f', bgClass: 'bg-[#ff007f]/10', textClass: 'text-[#ff007f]', borderClass: 'border-[#ff007f]/30' },
+      ahorro: { label: 'Ahorro', emoji: '💰', color: '#00f0ff', bgClass: 'bg-[#00f0ff]/10', textClass: 'text-[#00f0ff]', borderClass: 'border-[#00f0ff]/30' }
     };
 
     // Llenar selectores de años al inicio
@@ -768,7 +897,7 @@
     
     if (yearSelect) {
       for (let y = 2020; y <= baseYear + 5; y++) {
-        yearSelect.innerHTML += `<option value="${y}" class="bg-gray-800 text-white">${y}</option>`;
+        yearSelect.innerHTML += `<option value="${y}" class="bg-gray-950 text-white">${y}</option>`;
       }
     }
     if (selectYearBottom) {
@@ -790,6 +919,7 @@
     onAuthStateChanged(auth, (user) => {
       if (user) {
         loadData();
+        loadUserProfileAndSecurity();
       }
     });
 
@@ -846,6 +976,59 @@
       }, (error) => console.error("Error cargando subcategorías:", error));
     }
 
+    async function loadUserProfileAndSecurity() {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      // Cargar Perfil (Nombre por defecto cambiado a Milton Montoya, Avatar)
+      const profileDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'profile');
+      try {
+        const profileSnap = await getDoc(profileDocRef);
+        if (profileSnap.exists()) {
+          const profileData = profileSnap.data();
+          updateUserProfileUI(profileData.name || 'Milton Montoya', profileData.avatar || '');
+        } else {
+          updateUserProfileUI('Milton Montoya', '');
+        }
+      } catch (e) {
+        console.error("Error al cargar perfil:", e);
+      }
+
+      // Cargar Seguridad (Clave Maestra)
+      const securityDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'security');
+      try {
+        const securitySnap = await getDoc(securityDocRef);
+        if (securitySnap.exists()) {
+          const securityData = securitySnap.data();
+          if (securityData.password) {
+            vaultPassword = securityData.password;
+          }
+        }
+      } catch (e) {
+        console.error("Error al cargar clave de seguridad:", e);
+      }
+    }
+
+    function updateUserProfileUI(name, avatarBase64) {
+      const finalAvatar = avatarBase64 || `https://placehold.co/80x80/7000ff/ffffff?text=${encodeURIComponent(name.charAt(0).toUpperCase())}`;
+      const headerAvatar = `https://placehold.co/40x40/7000ff/ffffff?text=${encodeURIComponent(name.charAt(0).toUpperCase())}`;
+
+      const avatarHeaderImg = document.getElementById('profile-avatar-img');
+      const avatarDropdownImg = document.getElementById('dropdown-avatar-img');
+      const avatarPreviewImg = document.getElementById('settings-avatar-preview');
+      const nameSpan = document.getElementById('profile-name-span');
+      const nameDropdown = document.getElementById('dropdown-profile-name');
+      const nameInput = document.getElementById('settings-user-name');
+
+      if (avatarHeaderImg) avatarHeaderImg.src = avatarBase64 || headerAvatar;
+      if (avatarDropdownImg) avatarDropdownImg.src = finalAvatar;
+      if (avatarPreviewImg) avatarPreviewImg.src = finalAvatar;
+      
+      if (nameSpan) nameSpan.textContent = name;
+      if (nameDropdown) nameDropdown.textContent = name;
+      if (nameInput) nameInput.value = name;
+    }
+
     // --- RENDER COMPLETO DE APP ---
     function renderApp() {
       renderCalendar();
@@ -875,7 +1058,7 @@
 
       for (let i = 0; i < firstDayIndex; i++) {
         const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'h-24 md:h-28 rounded-xl bg-gray-800/20 border border-transparent';
+        emptyDiv.className = 'h-24 md:h-28 rounded-xl bg-gray-950/20 border border-transparent';
         grid.appendChild(emptyDiv);
       }
 
@@ -890,11 +1073,11 @@
         const btn = document.createElement('button');
         btn.onclick = () => window.openModal(dateStr);
         
-        let baseClass = `relative h-24 md:h-28 rounded-xl border flex flex-col justify-between items-center p-2 transition-all hover:bg-gray-700/50 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer `;
+        let baseClass = `relative h-24 md:h-28 rounded-xl border flex flex-col justify-between items-center p-2 transition-all hover:bg-gray-800/40 focus:ring-2 focus:ring-[#00f0ff] focus:outline-none cursor-pointer `;
         if (isToday) {
-          baseClass += 'bg-blue-600/20 border-blue-500/50 text-blue-400 font-bold';
+          baseClass += 'bg-[#7000ff]/20 border-[#00f0ff] text-[#00f0ff] font-bold shadow-[0_0_15px_rgba(0,240,255,0.25)]';
         } else {
-          baseClass += 'bg-gray-800/40 border-gray-700/50 text-gray-300 hover:border-gray-500';
+          baseClass += 'bg-gray-950/20 border-gray-800 text-gray-300 hover:border-gray-700';
         }
         btn.className = baseClass;
 
@@ -930,7 +1113,7 @@
       const donutEl = document.getElementById('donut-chart');
       if (donutEl) {
         const isLight = document.body.classList.contains('light-theme');
-        const emptyColor = isLight ? '#d1d5db' : '#374151'; 
+        const emptyColor = isLight ? '#cbd5e1' : '#1e1b4b'; 
 
         if (totals.total === 0) {
           donutEl.style.background = `conic-gradient(${emptyColor} 0% 100%)`;
@@ -958,7 +1141,7 @@
           const percentage = totals.total > 0 ? ((totals[type] / totals.total) * 100).toFixed(1) : '0.0';
           
           listContainer.innerHTML += `
-            <div class="flex items-center justify-between p-3 rounded-xl border ${cat.borderClass} ${cat.bgClass}">
+            <div class="flex items-center justify-between p-3 rounded-xl border ${cat.borderClass} ${cat.bgClass} shadow-sm backdrop-blur-md">
               <div class="flex items-center gap-3">
                 <span class="text-xl">${cat.emoji}</span>
                 <span class="font-medium text-gray-200">
@@ -1010,7 +1193,7 @@
       Object.keys(CATEGORIES).forEach(type => {
         const cat = CATEGORIES[type];
         gridContainer.innerHTML += `
-          <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-700 flex flex-col items-center text-center">
+          <div class="bg-gray-950/60 rounded-xl p-4 border border-gray-800/80 flex flex-col items-center text-center shadow-md">
             <span class="text-sm text-gray-400 mb-1">${cat.emoji} ${cat.label} ${labelTime}</span>
             <span class="text-xl font-bold ${cat.textClass}">${formatCurrency(totals[type])}</span>
           </div>
@@ -1019,7 +1202,7 @@
 
       if (initialAssets > 0) {
         const assetPill = document.createElement('div');
-        assetPill.className = "col-span-1 md:col-span-3 bg-blue-500/10 p-3 rounded-xl border border-blue-500/30 text-center text-xs text-blue-300 font-semibold";
+        assetPill.className = "col-span-1 md:col-span-3 bg-[#00f0ff]/10 p-3 rounded-xl border border-[#00f0ff]/30 text-center text-xs text-[#00f0ff] font-semibold shadow-[0_0_10px_rgba(0,240,255,0.05)]";
         assetPill.innerHTML = `💼 Patrimonio Inicial Preexistente registrado en este período: <span class="font-extrabold text-white text-sm ml-1">${formatCurrency(initialAssets)}</span>`;
         gridContainer.appendChild(assetPill);
       }
@@ -1054,12 +1237,12 @@
         const accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-700/20 transition-colors border-b border-gray-700/50 last:border-0';
+        tr.className = 'hover:bg-gray-800/20 transition-colors border-b border-gray-900 last:border-0';
         tr.innerHTML = `
           <td class="py-3 px-4 whitespace-nowrap">${m.date}</td>
           <td class="py-3 px-4">
             <div class="flex flex-col">
-              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${cat.bgClass} ${cat.textClass} ${cat.borderClass} w-max mb-1">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${cat.bgClass} ${cat.textClass} ${cat.borderClass} w-max mb-1 shadow-sm">
                 ${cat.emoji} ${cat.label}
               </span>
               <span class="text-xs text-gray-400 font-medium">
@@ -1074,10 +1257,10 @@
           </td>
           <td class="py-3 px-4 text-center">
             <div class="flex items-center justify-center gap-2">
-              <button data-id="${m.id}" class="btn-edit p-1.5 text-gray-500 hover:text-blue-400 rounded-md hover:bg-blue-500/10 transition-colors" title="Editar">
+              <button data-id="${m.id}" class="btn-edit p-1.5 text-gray-500 hover:text-[#00f0ff] rounded-md hover:bg-[#00f0ff]/10 transition-all hover:scale-105" title="Editar">
                 <i data-lucide="edit-3" class="w-4 h-4 pointer-events-none"></i>
               </button>
-              <button data-id="${m.id}" class="btn-delete p-1.5 text-gray-500 hover:text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors" title="Eliminar">
+              <button data-id="${m.id}" class="btn-delete p-1.5 text-gray-500 hover:text-[#ff007f] rounded-md hover:bg-[#ff007f]/10 transition-all hover:scale-105" title="Eliminar">
                 <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
               </button>
             </div>
@@ -1108,7 +1291,6 @@
       formAccSelect.value = formVal && accounts.some(a => a.id === formVal) ? formVal : (accounts[0]?.id || '');
     }
 
-    // DECLARACIÓN INTERNA DE TODAS LAS FUNCIONES CLAVE
     function updateSubcategorySelectors() {
       const subcatSelect = document.getElementById('form-subcategory');
       if (!subcatSelect) return;
@@ -1144,8 +1326,8 @@
         });
 
         deck.innerHTML += `
-          <div onclick="window.openAccountDetails('${acc.id}')" class="bg-gray-900/40 p-4 rounded-xl border border-gray-700/50 flex items-center gap-3 shadow-md cursor-pointer hover:scale-[1.03] active:scale-[0.98] hover:border-emerald-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/5">
-            <span class="text-3xl p-2 bg-gray-800 rounded-lg">${acc.emoji}</span>
+          <div onclick="window.openAccountDetails('${acc.id}')" class="bg-gray-950/60 p-4 rounded-xl border border-gray-800 flex items-center gap-3 shadow-md cursor-pointer hover:scale-[1.03] active:scale-[0.98] hover:border-[#00f0ff]/40 transition-all duration-300 hover:shadow-[0_0_15px_rgba(0,240,255,0.1)]">
+            <span class="text-3xl p-2 bg-gray-900 rounded-lg">${acc.emoji}</span>
             <div class="overflow-hidden">
               <h3 class="text-xs text-gray-400 font-medium truncate">${acc.name}</h3>
               <p class="text-lg font-bold tracking-tight text-white truncate">${formatCurrency(balance)}</p>
@@ -1198,13 +1380,13 @@
           recentListContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Sin movimientos registrados aún en esta cuenta.</p>`;
         } else {
           recentMovements.forEach(m => {
-            const typeBadgeColor = m.type === 'ingreso' ? 'text-emerald-400' : (m.type === 'gasto' ? 'text-rose-400' : 'text-blue-400');
+            const typeBadgeColor = m.type === 'ingreso' ? 'text-[#00ff88]' : (m.type === 'gasto' ? 'text-[#ff007f]' : 'text-[#00f0ff]');
             const prefix = m.type === 'ingreso' ? '+' : '-';
 
             recentListContainer.innerHTML += `
-              <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-950/40 border border-gray-850">
+              <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-950/40 border border-gray-900">
                 <div class="flex items-center gap-2.5 min-w-0">
-                  <span class="text-lg bg-gray-900 px-2 py-1 rounded-xl border border-gray-800/60">${m.subcategoryEmoji || '🏷️'}</span>
+                  <span class="text-lg bg-gray-900 px-2 py-1 rounded-xl border border-gray-800">${m.subcategoryEmoji || '🏷️'}</span>
                   <div class="flex flex-col truncate">
                     <span class="text-xs font-bold text-white truncate max-w-[150px]">${m.concept}</span>
                     <span class="text-[9px] text-gray-500">${m.date}</span>
@@ -1283,7 +1465,6 @@
       if (nameInput) nameInput.value = name;
     }
 
-    // --- CONFIRM PERSONALIZADO DE SEGURIDAD ---
     function showConfirm(title, text, callback) {
       const confirmTitle = document.getElementById('confirm-title');
       const confirmText = document.getElementById('confirm-text');
@@ -1375,19 +1556,19 @@
 
       accounts.forEach(acc => {
         container.innerHTML += `
-          <div class="flex items-center justify-between bg-gray-900/60 p-2.5 rounded-xl border border-gray-700/50">
+          <div class="flex items-center justify-between bg-gray-950/60 p-2.5 rounded-xl border border-gray-800">
             <div class="flex flex-col">
               <span class="text-sm font-semibold text-white flex items-center gap-2">
-                <span class="text-lg bg-gray-800 px-1.5 py-0.5 rounded">${acc.emoji}</span>
+                <span class="text-lg bg-gray-900 px-1.5 py-0.5 rounded">${acc.emoji}</span>
                 ${acc.name}
               </span>
               ${acc.initialBalance > 0 ? `<span class="text-[10px] text-gray-400 mt-1">S. Inicial: ${formatCurrency(acc.initialBalance)} (${acc.initialBalanceDate})</span>` : ''}
             </div>
             <div class="flex items-center gap-1">
-              <button onclick="window.editAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-blue-400 rounded-lg hover:bg-blue-500/10 transition-colors" title="Editar">
+              <button onclick="window.editAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-[#00f0ff] rounded-lg hover:bg-[#00f0ff]/10 transition-colors" title="Editar">
                 <i data-lucide="edit-3" class="w-4 h-4"></i>
               </button>
-              <button onclick="window.deleteAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors" title="Eliminar">
+              <button onclick="window.deleteAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-[#ff007f] rounded-lg hover:bg-[#ff007f]/10 transition-colors" title="Eliminar">
                 <i data-lucide="trash" class="w-4 h-4"></i>
               </button>
             </div>
@@ -1564,15 +1745,15 @@
       filtered.forEach(s => {
         const cat = CATEGORIES[s.type];
         container.innerHTML += `
-          <div class="flex items-center justify-between bg-gray-955 bg-gray-950/60 p-2.5 rounded-xl border border-gray-800/80">
+          <div class="flex items-center justify-between bg-gray-950/60 p-2.5 rounded-xl border border-gray-900">
             <div class="flex items-center gap-3">
-              <span class="text-lg bg-gray-900 px-2 py-1 rounded-lg border border-gray-800/50">${s.emoji}</span>
+              <span class="text-lg bg-gray-900 px-2 py-1 rounded-lg border border-gray-800">${s.emoji}</span>
               <div class="flex flex-col">
                 <span class="text-sm font-semibold text-white leading-none mb-1">${s.name}</span>
                 <span class="text-[9px] font-extrabold ${cat.textClass} uppercase tracking-wider">${cat.label}</span>
               </div>
             </div>
-            ${s.isDefault ? `<span class="text-[9px] text-gray-500 bg-gray-900 px-2 py-1 rounded-md font-bold border border-gray-800/40">Fijo</span>` : `
+            ${s.isDefault ? `<span class="text-[9px] text-gray-500 bg-gray-900 px-2 py-1 rounded-md font-bold border border-gray-800">Fijo</span>` : `
               <button onclick="window.deleteSubcategory('${s.id}')" class="p-1.5 text-gray-500 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors">
                 <i data-lucide="trash" class="w-4 h-4"></i>
               </button>
@@ -1631,6 +1812,190 @@
       );
     }
 
+    // --- NUEVAS FUNCIONES: CONFIGURACIÓN DE PERFIL ---
+    function openProfileSettingsModal() {
+      closeProfileDropdown();
+      const modalElement = document.getElementById('profile-settings-modal');
+      const content = document.getElementById('profile-settings-content');
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeProfileSettingsModal() {
+      const modalElement = document.getElementById('profile-settings-modal');
+      const content = document.getElementById('profile-settings-content');
+      if (modalElement && content) {
+        modalElement.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modalElement.classList.add('hidden'), 300);
+      }
+    }
+
+    // Compresión del avatar en Canvas para guardarlo de manera óptima en Firestore (< 20kb)
+    const avatarFileInput = document.getElementById('avatar-file-input');
+    if (avatarFileInput) {
+      avatarFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Forzar un tamaño de miniatura de 96x96 píxeles
+            canvas.width = 96;
+            canvas.height = 96;
+            
+            // Recorte cuadrado proporcional
+            const minSize = Math.min(img.width, img.height);
+            const startX = (img.width - minSize) / 2;
+            const startY = (img.height - minSize) / 2;
+            
+            ctx.drawImage(img, startX, startY, minSize, minSize, 0, 0, 96, 96);
+            
+            // Generar string Base64 con calidad optimizada
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+            
+            const preview = document.getElementById('settings-avatar-preview');
+            if (preview) preview.src = compressedBase64;
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const profileSettingsForm = document.getElementById('profile-settings-form');
+    if (profileSettingsForm) {
+      profileSettingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const nameInput = document.getElementById('settings-user-name');
+        const avatarPreview = document.getElementById('settings-avatar-preview');
+        
+        const newName = nameInput ? nameInput.value.trim() : 'Milton Montoya';
+        // Extraer src del preview, verificando si es una imagen real o el placeholder por defecto
+        let avatarSrc = avatarPreview ? avatarPreview.src : '';
+        if (avatarSrc.startsWith('https://placehold.co')) {
+          avatarSrc = ''; // No guardar el placeholder estático en la base de datos
+        }
+
+        try {
+          const profileDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'profile');
+          await setDoc(profileDocRef, {
+            name: newName,
+            avatar: avatarSrc,
+            timestamp: new Date().toISOString()
+          }, { merge: true });
+
+          updateUserProfileUI(newName, avatarSrc);
+          closeProfileSettingsModal();
+        } catch (error) {
+          console.error("Error al actualizar perfil:", error);
+        }
+      });
+    }
+
+    // --- NUEVAS FUNCIONES: CONFIGURACIÓN DE SEGURIDAD (CONTRASEÑA) ---
+    function openPasswordSettingsModal() {
+      closeProfileDropdown();
+      const modalElement = document.getElementById('password-settings-modal');
+      const content = document.getElementById('password-settings-content');
+      
+      // Limpiar formulario y errores previos
+      const form = document.getElementById('password-settings-form');
+      if (form) form.reset();
+      const errBox = document.getElementById('password-settings-error');
+      if (errBox) errBox.classList.add('hidden');
+
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closePasswordSettingsModal() {
+      const modalElement = document.getElementById('password-settings-modal');
+      const content = document.getElementById('password-settings-content');
+      if (modalElement && content) {
+        modalElement.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modalElement.classList.add('hidden'), 300);
+      }
+    }
+
+    const passwordSettingsForm = document.getElementById('password-settings-form');
+    if (passwordSettingsForm) {
+      passwordSettingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const currentInput = document.getElementById('settings-current-pwd');
+        const newInput = document.getElementById('settings-new-pwd');
+        const confirmInput = document.getElementById('settings-confirm-pwd');
+        const errBox = document.getElementById('password-settings-error');
+        const errText = document.getElementById('password-settings-error-text');
+
+        if (!currentInput || !newInput || !confirmInput) return;
+
+        const currentVal = currentInput.value;
+        const newVal = newInput.value;
+        const confirmVal = confirmInput.value;
+
+        // Validaciones previas
+        if (currentVal !== vaultPassword) {
+          if (errBox && errText) {
+            errText.textContent = "La contraseña actual es incorrecta.";
+            errBox.classList.remove('hidden');
+          }
+          return;
+        }
+
+        if (newVal !== confirmVal) {
+          if (errBox && errText) {
+            errText.textContent = "Las nuevas contraseñas no coinciden.";
+            errBox.classList.remove('hidden');
+          }
+          return;
+        }
+
+        if (newVal.length < 4) {
+          if (errBox && errText) {
+            errText.textContent = "La nueva contraseña debe tener mínimo 4 caracteres.";
+            errBox.classList.remove('hidden');
+          }
+          return;
+        }
+
+        try {
+          const securityDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'security');
+          await setDoc(securityDocRef, {
+            password: newVal,
+            timestamp: new Date().toISOString()
+          }, { merge: true });
+
+          vaultPassword = newVal;
+          closePasswordSettingsModal();
+        } catch (error) {
+          console.error("Error al actualizar la contraseña de la bóveda:", error);
+        }
+      });
+    }
+
     // --- MANEJO DE EVENTOS DE INTERFAZ ---
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeIcon = document.getElementById('theme-icon');
@@ -1651,26 +2016,35 @@
       btnExportMenu.addEventListener('click', () => {
         exportDropdown.classList.toggle('hidden');
       });
-      
-      document.addEventListener('click', (e) => {
-        if (!btnExportMenu.contains(e.target) && !exportDropdown.contains(e.target)) {
-          exportDropdown.classList.add('hidden');
-        }
+    }
+
+    // Lógica del Dropdown del Perfil de Usuario
+    const profileDropdownBtn = document.getElementById('profile-dropdown-btn');
+    const profileDropdownContent = document.getElementById('profile-dropdown-content');
+
+    if (profileDropdownBtn && profileDropdownContent) {
+      profileDropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdownContent.classList.toggle('hidden');
       });
     }
 
-    function getMonthExportData() {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-      const monthName = document.getElementById('month-select') ? document.getElementById('month-select').options[month].text : '';
-      
-      const monthMovements = movements.filter(m => {
-        const d = new Date(m.date + 'T00:00:00');
-        return d.getFullYear() === year && d.getMonth() === month;
-      });
-      
-      return { year, monthName, monthMovements };
+    function closeProfileDropdown() {
+      if (profileDropdownContent) {
+        profileDropdownContent.classList.add('hidden');
+      }
     }
+
+    // Cerrar dropdowns interactivos al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (btnExportMenu && exportDropdown && !btnExportMenu.contains(e.target) && !exportDropdown.contains(e.target)) {
+        exportDropdown.classList.add('hidden');
+      }
+      const profileContainer = document.getElementById('profile-dropdown-container');
+      if (profileContainer && !profileContainer.contains(e.target)) {
+        closeProfileDropdown();
+      }
+    });
 
     const btnExportPdf = document.getElementById('btn-export-pdf');
     if (btnExportPdf) {
@@ -1715,8 +2089,8 @@
             ['', '', '', '', 'Balance Final:', formatCurrency(totalIngresos - totalGastos)]
           ],
           theme: 'grid',
-          headStyles: { fillColor: [59, 130, 246] },
-          footStyles: { fillColor: [243, 244, 246], textColor: [15, 23, 42], fontStyle: 'bold' }
+          headStyles: { fillColor: [112, 0, 255] },
+          footStyles: { fillColor: [6, 7, 19], textColor: [255, 255, 255], fontStyle: 'bold' }
         });
         
         doc.save(`Resumen_${monthName}_${year}.pdf`);
@@ -1854,7 +2228,7 @@
       });
     }
 
-    // NUEVO: CONTROLADOR DEL ACORDEÓN DE CUENTAS
+    // CONTROLADOR DEL ACORDEÓN DE CUENTAS
     const toggleAccountsBtn = document.getElementById('toggle-accounts-btn');
     const accountsContent = document.getElementById('accounts-content');
     const accountsChevron = document.getElementById('accounts-chevron');
@@ -1883,7 +2257,7 @@
         const btn = document.getElementById(`btn-type-${type}`);
         if (btn) {
           if (type === t) {
-            btn.className = `flex-1 py-2.5 text-xs font-bold rounded-xl bg-gray-800 text-white shadow-md border border-gray-700/50`;
+            btn.className = `flex-1 py-2.5 text-xs font-bold rounded-xl bg-gray-900 border border-[#7000ff]/50 text-white shadow-md`;
           } else {
             btn.className = `flex-1 py-2.5 text-xs font-semibold rounded-xl text-gray-500 hover:text-gray-300 transition-colors`;
           }
@@ -1893,7 +2267,7 @@
       updateSubcategorySelectors();
     }
 
-    // FUNCIÓN OPENMODAL DECLARADA INTERNAMENTE PARA EVITAR REFERENCE_ERROR
+    // FUNCIÓN DE GESTIÓN DE MODALES PARA HISTORIAL
     function openModal(dateStr, existingMovement = null) {
       selectedDateStr = dateStr;
       const dateLabel = document.getElementById('modal-date-label');
@@ -2046,7 +2420,7 @@
       });
     }
 
-    // --- LÓGICA DE INICIO DE SESIÓN Y SEGURIDAD ---
+    // --- LÓGICA DE INICIO DE SESIÓN ---
     const loginScreen = document.getElementById('login-screen');
     const loginForm = document.getElementById('login-form');
     const appContainer = document.getElementById('app-container');
@@ -2069,7 +2443,7 @@
         e.preventDefault();
         const pwd = loginPasswordInput ? loginPasswordInput.value : '';
         
-        if (pwd === '2527') {
+        if (pwd === vaultPassword) {
           if (loginScreen) {
             loginScreen.style.opacity = '0';
             loginScreen.style.transform = 'scale(1.05)';
@@ -2093,12 +2467,8 @@
       });
     }
 
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', logout);
-    }
-
     function logout() {
+      closeProfileDropdown();
       if (loginPasswordInput) {
         loginPasswordInput.value = '';
         loginPasswordInput.type = 'password';
@@ -2123,7 +2493,7 @@
         clearTimeout(inactivityTimeout);
         inactivityTimeout = setTimeout(() => {
           logout();
-        }, 5 * 60 * 1000); 
+        }, 5 * 60 * 1000); // 5 minutos de inactividad
       }
     }
 
@@ -2132,13 +2502,34 @@
     window.addEventListener('click', resetInactivityTimer);
     window.addEventListener('scroll', resetInactivityTimer);
 
-    // --- EXPONER FUNCIONES DE ÁMBITO GLOBAL ---
+    // --- EXPONER FUNCIONES AL ÁMBITO GLOBAL ---
     window.editAccount = editAccount;
     window.deleteAccount = deleteAccount;
     window.deleteSubcategory = deleteSubcategory;
+    
     window.closeModal = closeModal; 
     window.openModal = openModal;
     window.selectType = selectType;
+
+    window.openAccountManager = openAccountManager;
+    window.closeAccountManager = closeAccountManager;
+    window.applyBrandTemplate = applyBrandTemplate;
+
+    window.openSubcategoryManager = openSubcategoryManager;
+    window.closeSubcategoryManager = closeSubcategoryManager;
+
+    window.openAccountDetails = openAccountDetails;
+    window.closeAccountDetails = closeAccountDetails;
+
+    window.showConfirm = showConfirm;
+    window.closeConfirm = closeConfirm;
+    window.triggerConfirm = triggerConfirm;
+
+    window.openProfileSettingsModal = openProfileSettingsModal;
+    window.closeProfileSettingsModal = closeProfileSettingsModal;
+    window.openPasswordSettingsModal = openPasswordSettingsModal;
+    window.closePasswordSettingsModal = closePasswordSettingsModal;
+    window.logout = logout;
 
     lucide.createIcons();
     renderApp();
