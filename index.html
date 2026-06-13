@@ -888,7 +888,7 @@
         const dayMovements = movements.filter(m => m.date === dateStr);
         
         const btn = document.createElement('button');
-        btn.onclick = () => openModal(dateStr);
+        btn.onclick = () => window.openModal(dateStr);
         
         let baseClass = `relative h-24 md:h-28 rounded-xl border flex flex-col justify-between items-center p-2 transition-all hover:bg-gray-700/50 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer `;
         if (isToday) {
@@ -1108,6 +1108,7 @@
       formAccSelect.value = formVal && accounts.some(a => a.id === formVal) ? formVal : (accounts[0]?.id || '');
     }
 
+    // DECLARACIÓN INTERNA DE TODAS LAS FUNCIONES CLAVE
     function updateSubcategorySelectors() {
       const subcatSelect = document.getElementById('form-subcategory');
       if (!subcatSelect) return;
@@ -1154,7 +1155,7 @@
       });
     }
 
-    window.openAccountDetails = function(accountId) {
+    function openAccountDetails(accountId) {
       const acc = accounts.find(a => a.id === accountId);
       if (!acc) return;
 
@@ -1263,9 +1264,9 @@
         }, 10);
       }
       lucide.createIcons();
-    };
+    }
 
-    window.closeAccountDetails = function() {
+    function closeAccountDetails() {
       const modalElement = document.getElementById('account-details-modal');
       const content = document.getElementById('account-details-content');
       if (modalElement && content) {
@@ -1273,17 +1274,17 @@
         content.classList.add('scale-95');
         setTimeout(() => modalElement.classList.add('hidden'), 300);
       }
-    };
+    }
 
-    window.applyBrandTemplate = function(emoji, name) {
+    function applyBrandTemplate(emoji, name) {
       const emojiInput = document.getElementById('new-acc-emoji');
       const nameInput = document.getElementById('new-acc-name');
       if (emojiInput) emojiInput.value = emoji;
       if (nameInput) nameInput.value = name;
-    };
+    }
 
     // --- CONFIRM PERSONALIZADO DE SEGURIDAD ---
-    window.showConfirm = function(title, text, callback) {
+    function showConfirm(title, text, callback) {
       const confirmTitle = document.getElementById('confirm-title');
       const confirmText = document.getElementById('confirm-text');
       if (confirmTitle) confirmTitle.textContent = title;
@@ -1300,7 +1301,7 @@
       }
     }
 
-    window.closeConfirm = function() {
+    function closeConfirm() {
       const modalElement = document.getElementById('confirm-modal');
       const modalContent = document.getElementById('confirm-content');
       if (modalElement && modalContent) {
@@ -1311,13 +1312,13 @@
       confirmCallback = null;
     }
 
-    window.triggerConfirm = function() {
+    function triggerConfirm() {
       if (confirmCallback) confirmCallback();
       window.closeConfirm();
     }
 
-    // --- OPERACIONES: GESTIÓN DE CUENTAS (CREAR, EDITAR, BORRAR) ---
-    window.openAccountManager = function() {
+    // --- OPERACIONES: GESTIÓN DE CUENTAS ---
+    function openAccountManager() {
       const modalElement = document.getElementById('accounts-modal');
       const modalContent = document.getElementById('accounts-modal-content');
       resetAccountForm();
@@ -1332,7 +1333,7 @@
       }
     }
 
-    window.closeAccountManager = function() {
+    function closeAccountManager() {
       const modalElement = document.getElementById('accounts-modal');
       const modalContent = document.getElementById('accounts-modal-content');
       if (modalElement && modalContent) {
@@ -1383,10 +1384,10 @@
               ${acc.initialBalance > 0 ? `<span class="text-[10px] text-gray-400 mt-1">S. Inicial: ${formatCurrency(acc.initialBalance)} (${acc.initialBalanceDate})</span>` : ''}
             </div>
             <div class="flex items-center gap-1">
-              <button onclick="editAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-blue-400 rounded-lg hover:bg-blue-500/10 transition-colors" title="Editar">
+              <button onclick="window.editAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-blue-400 rounded-lg hover:bg-blue-500/10 transition-colors" title="Editar">
                 <i data-lucide="edit-3" class="w-4 h-4"></i>
               </button>
-              <button onclick="deleteAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors" title="Eliminar">
+              <button onclick="window.deleteAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors" title="Eliminar">
                 <i data-lucide="trash" class="w-4 h-4"></i>
               </button>
             </div>
@@ -1396,7 +1397,7 @@
       lucide.createIcons();
     }
 
-    window.editAccount = function(id) {
+    function editAccount(id) {
       const acc = accounts.find(a => a.id === id);
       if (!acc) return;
       editingAccountId = id;
@@ -1505,7 +1506,7 @@
       });
     }
 
-    window.deleteAccount = function(id) {
+    function deleteAccount(id) {
       window.showConfirm(
         "¿Eliminar cuenta?", 
         "Los movimientos previos vinculados a ella podrían desvincularse o mostrarse incompletos. Esta acción no se puede deshacer.",
@@ -1522,7 +1523,7 @@
     }
 
     // --- OPERACIONES: GESTIÓN DE SUBCATEGORÍAS ---
-    window.openSubcategoryManager = function() {
+    function openSubcategoryManager() {
       const modalElement = document.getElementById('subcategories-modal');
       const modalContent = document.getElementById('subcategories-modal-content');
       renderSubcategoriesManagerList();
@@ -1536,7 +1537,7 @@
       }
     }
 
-    window.closeSubcategoryManager = function() {
+    function closeSubcategoryManager() {
       const modalElement = document.getElementById('subcategories-modal');
       const modalContent = document.getElementById('subcategories-modal-content');
       if (modalElement && modalContent) {
@@ -1572,7 +1573,7 @@
               </div>
             </div>
             ${s.isDefault ? `<span class="text-[9px] text-gray-500 bg-gray-900 px-2 py-1 rounded-md font-bold border border-gray-800/40">Fijo</span>` : `
-              <button onclick="deleteSubcategory('${s.id}')" class="p-1.5 text-gray-500 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors">
+              <button onclick="window.deleteSubcategory('${s.id}')" class="p-1.5 text-gray-500 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors">
                 <i data-lucide="trash" class="w-4 h-4"></i>
               </button>
             `}
@@ -1615,7 +1616,7 @@
       });
     }
 
-    window.deleteSubcategory = function(id) {
+    function deleteSubcategory(id) {
       window.showConfirm(
         "¿Eliminar subcategoría?",
         "Los movimientos previamente registrados con esta etiqueta mantendrán su nombre, pero la opción no estará disponible para futuros registros.",
@@ -1874,7 +1875,85 @@
       });
     }
 
-    // --- CORRECCIÓN: FUNCIÓN CLOSEMODAL RESTAURADA ---
+    // LÓGICA DE SELECCIÓN DE TIPO EN EL FORMULARIO
+    function selectType(t) {
+      formType = t;
+      
+      ['ingreso', 'gasto', 'ahorro'].forEach(type => {
+        const btn = document.getElementById(`btn-type-${type}`);
+        if (btn) {
+          if (type === t) {
+            btn.className = `flex-1 py-2.5 text-xs font-bold rounded-xl bg-gray-800 text-white shadow-md border border-gray-700/50`;
+          } else {
+            btn.className = `flex-1 py-2.5 text-xs font-semibold rounded-xl text-gray-500 hover:text-gray-300 transition-colors`;
+          }
+        }
+      });
+
+      updateSubcategorySelectors();
+    }
+
+    // FUNCIÓN OPENMODAL DECLARADA INTERNAMENTE PARA EVITAR REFERENCE_ERROR
+    function openModal(dateStr, existingMovement = null) {
+      selectedDateStr = dateStr;
+      const dateLabel = document.getElementById('modal-date-label');
+      if (dateLabel) dateLabel.textContent = dateStr;
+      
+      const titleText = document.getElementById('modal-title-text');
+      const amountInput = document.getElementById('form-amount');
+      const conceptInput = document.getElementById('form-concept');
+      const saveBtn = document.getElementById('btn-save-movement');
+
+      if (existingMovement) {
+        editingId = existingMovement.id;
+        if (titleText) titleText.textContent = 'Editar Movimiento';
+        if (amountInput) amountInput.value = existingMovement.amount;
+        if (conceptInput) conceptInput.value = existingMovement.concept;
+        formType = existingMovement.type;
+        if (saveBtn) saveBtn.textContent = 'Actualizar Movimiento';
+        
+        selectType(formType);
+        
+        const subcatObj = customSubcategories.find(s => s.name === existingMovement.subcategory && s.type === formType);
+        const subcatSelector = document.getElementById('form-subcategory');
+        if (subcatObj && subcatSelector) {
+          subcatSelector.value = subcatObj.id;
+        }
+
+        const accountSelector = document.getElementById('form-account');
+        if (existingMovement.accountId && accountSelector) {
+          accountSelector.value = existingMovement.accountId;
+        } else if (existingMovement.account && accountSelector) {
+          const matchedAcc = accounts.find(a => a.name === existingMovement.account);
+          if (matchedAcc) accountSelector.value = matchedAcc.id;
+        }
+      } else {
+        editingId = null;
+        if (titleText) titleText.textContent = 'Añadir Movimiento';
+        if (amountInput) amountInput.value = '';
+        if (conceptInput) conceptInput.value = '';
+        formType = 'gasto';
+        if (saveBtn) saveBtn.textContent = 'Guardar Movimiento';
+        
+        selectType(formType);
+        
+        const accountSelector = document.getElementById('form-account');
+        if (accounts.length > 0 && accountSelector) {
+          accountSelector.value = accounts[0].id;
+        }
+      }
+      
+      const modalElement = document.getElementById('modal');
+      const content = document.getElementById('modal-content');
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
     function closeModal() {
       const modalElement = document.getElementById('modal');
       const content = document.getElementById('modal-content');
@@ -2057,7 +2136,9 @@
     window.editAccount = editAccount;
     window.deleteAccount = deleteAccount;
     window.deleteSubcategory = deleteSubcategory;
-    window.closeModal = closeModal; // También se expone por seguridad
+    window.closeModal = closeModal; 
+    window.openModal = openModal;
+    window.selectType = selectType;
 
     lucide.createIcons();
     renderApp();
