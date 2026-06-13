@@ -466,11 +466,11 @@
       // Cajas vacías
       for (let i = 0; i < firstDayIndex; i++) {
         const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'h-24 md:h-28 rounded-xl bg-gray-800/20 border border-transparent';
+        emptyDiv.className = 'h-16 md:h-28 rounded-xl bg-gray-800/20 border border-transparent';
         grid.appendChild(emptyDiv);
       }
 
-      // Días del mes
+      // Días del mes (con proporciones más estéticas y compactas en celulares)
       for (let day = 1; day <= daysInMonth; day++) {
         const formattedMonth = String(month + 1).padStart(2, '0');
         const formattedDay = String(day).padStart(2, '0');
@@ -482,7 +482,8 @@
         const btn = document.createElement('button');
         btn.onclick = () => openModal(dateStr);
         
-        let baseClass = `relative h-24 md:h-28 rounded-xl border flex flex-col justify-between items-center p-2 transition-all hover:bg-gray-700/50 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer `;
+        // Reducimos la altura a h-16 en móvil para que se vea más estilizado
+        let baseClass = `relative h-16 md:h-28 rounded-xl border flex flex-col justify-between items-center p-1 md:p-2 transition-all hover:bg-gray-700/50 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer `;
         if (isToday) {
           baseClass += 'bg-blue-600/20 border-blue-500/50 text-blue-400 font-bold';
         } else {
@@ -490,15 +491,15 @@
         }
         btn.className = baseClass;
 
-        // Número centrado y grande en la parte superior
-        let innerHTML = `<span class="text-lg md:text-xl font-medium w-full text-center mt-1">${day}</span>`;
+        // Tamaño del número adaptado (text-sm en móvil, text-lg en desktop)
+        let innerHTML = `<span class="text-sm md:text-xl font-medium w-full text-center mt-0.5 md:mt-1">${day}</span>`;
 
         if (dayMovements.length > 0) {
-          let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[11px] md:text-sm" title="${CATEGORIES[m.type].label}: ${formatCurrency(m.amount)}">${CATEGORIES[m.type].emoji}</span>`).join('');
-          if (dayMovements.length > 3) emojisHtml += `<span class="text-[10px] text-gray-400">+${dayMovements.length - 3}</span>`;
+          // Adaptamos ligeramente el tamaño de los emojis para que queden perfectamente alineados abajo
+          let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[10px] md:text-sm leading-none" title="${CATEGORIES[m.type].label}: ${formatCurrency(m.amount)}">${CATEGORIES[m.type].emoji}</span>`).join('');
+          if (dayMovements.length > 3) emojisHtml += `<span class="text-[9px] md:text-[10px] text-gray-400 font-bold self-center leading-none ml-0.5">+${dayMovements.length - 3}</span>`;
           
-          // Iconos empujados hacia abajo de forma natural con mt-auto
-          innerHTML += `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full px-0.5">${emojisHtml}</div>`;
+          innerHTML += `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full px-0.5 pb-0.5">${emojisHtml}</div>`;
         }
         
         btn.innerHTML = innerHTML;
