@@ -204,8 +204,8 @@
           </div>
           
           <div class="flex justify-center mb-8">
-            <div id="donut-chart" class="w-48 h-48 rounded-full flex items-center justify-center shadow-lg relative border-4 border-gray-700 transition-all duration-500">
-              <div class="w-36 h-36 bg-gray-800 rounded-full flex flex-col items-center justify-center absolute">
+            <div id="donut-chart" class="w-48 h-48 rounded-full shadow-lg relative transition-all duration-500 overflow-hidden">
+              <div class="absolute inset-5 bg-gray-800 rounded-full flex flex-col items-center justify-center z-10 shadow-inner">
                  <span class="text-xs text-gray-400">Total Mensual</span>
                  <span id="donut-total" class="text-lg font-bold text-white">$0.00</span>
               </div>
@@ -466,11 +466,11 @@
       // Cajas vacías
       for (let i = 0; i < firstDayIndex; i++) {
         const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'h-16 md:h-28 rounded-xl bg-gray-800/20 border border-transparent';
+        emptyDiv.className = 'h-24 md:h-28 rounded-xl bg-gray-800/20 border border-transparent';
         grid.appendChild(emptyDiv);
       }
 
-      // Días del mes (con proporciones más estéticas y compactas en celulares)
+      // Días del mes
       for (let day = 1; day <= daysInMonth; day++) {
         const formattedMonth = String(month + 1).padStart(2, '0');
         const formattedDay = String(day).padStart(2, '0');
@@ -482,8 +482,7 @@
         const btn = document.createElement('button');
         btn.onclick = () => openModal(dateStr);
         
-        // Reducimos la altura a h-16 en móvil para que se vea más estilizado
-        let baseClass = `relative h-16 md:h-28 rounded-xl border flex flex-col justify-between items-center p-1 md:p-2 transition-all hover:bg-gray-700/50 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer `;
+        let baseClass = `relative h-24 md:h-28 rounded-xl border flex flex-col justify-between items-center p-2 transition-all hover:bg-gray-700/50 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer `;
         if (isToday) {
           baseClass += 'bg-blue-600/20 border-blue-500/50 text-blue-400 font-bold';
         } else {
@@ -491,15 +490,15 @@
         }
         btn.className = baseClass;
 
-        // Tamaño del número adaptado (text-sm en móvil, text-lg en desktop)
-        let innerHTML = `<span class="text-sm md:text-xl font-medium w-full text-center mt-0.5 md:mt-1">${day}</span>`;
+        // Número centrado y grande en la parte superior
+        let innerHTML = `<span class="text-lg md:text-xl font-medium w-full text-center mt-1">${day}</span>`;
 
         if (dayMovements.length > 0) {
-          // Adaptamos ligeramente el tamaño de los emojis para que queden perfectamente alineados abajo
-          let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[10px] md:text-sm leading-none" title="${CATEGORIES[m.type].label}: ${formatCurrency(m.amount)}">${CATEGORIES[m.type].emoji}</span>`).join('');
-          if (dayMovements.length > 3) emojisHtml += `<span class="text-[9px] md:text-[10px] text-gray-400 font-bold self-center leading-none ml-0.5">+${dayMovements.length - 3}</span>`;
+          let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[11px] md:text-sm" title="${CATEGORIES[m.type].label}: ${formatCurrency(m.amount)}">${CATEGORIES[m.type].emoji}</span>`).join('');
+          if (dayMovements.length > 3) emojisHtml += `<span class="text-[10px] text-gray-400">+${dayMovements.length - 3}</span>`;
           
-          innerHTML += `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full px-0.5 pb-0.5">${emojisHtml}</div>`;
+          // Iconos empujados hacia abajo de forma natural con mt-auto
+          innerHTML += `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full px-0.5">${emojisHtml}</div>`;
         }
         
         btn.innerHTML = innerHTML;
@@ -523,12 +522,13 @@
         totals.total += m.amount; // Este es el volumen total de movimientos
       });
 
-      // Actualizar Gráfica
+      // Actualizar Gráfica de Dona de manera perfectamente simétrica sin desfases de bordes
       const donutEl = document.getElementById('donut-chart');
+      const isLight = document.body.classList.contains('light-theme');
+      const emptyColor = isLight ? '#d1d5db' : '#374151'; // Color neutro según el tema activo
+
       if (totals.total === 0) {
-        donutEl.style.background = 'transparent';
-        donutEl.classList.remove('border-transparent');
-        donutEl.classList.add('border-gray-700');
+        donutEl.style.background = `conic-gradient(${emptyColor} 0% 100%)`;
       } else {
         const pIngreso = (totals.ingreso / totals.total) * 100;
         const pGasto = (totals.gasto / totals.total) * 100;
@@ -538,8 +538,6 @@
           ${CATEGORIES.ahorro.color} ${pIngreso + pGasto}% 100%
         )`;
         donutEl.style.background = conicGradient;
-        donutEl.classList.add('border-transparent');
-        donutEl.classList.remove('border-gray-700');
       }
 
       document.getElementById('donut-total').textContent = formatCurrency(totals.ingreso - totals.gasto);
