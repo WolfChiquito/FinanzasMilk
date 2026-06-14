@@ -15,6 +15,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
@@ -514,6 +517,19 @@
 
         <!-- CONTENIDO PLEGABLE -->
         <div id="accounts-content" class="hidden mt-6 animate-fade-in">
+          
+          <!-- RESUMEN DE PATRIMONIO Y GRÁFICA -->
+          <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-1 bg-gray-900/40 p-6 rounded-2xl border border-[#00f0ff]/20 flex flex-col justify-center items-center shadow-lg relative overflow-hidden group hover:border-[#00f0ff]/50 transition-colors duration-300">
+              <div class="absolute inset-0 bg-gradient-to-br from-[#00f0ff]/5 to-[#7000ff]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <span class="text-xs text-[#00f0ff] uppercase tracking-widest font-bold mb-2 z-10">Patrimonio Total</span>
+              <p id="total-net-worth" class="text-3xl lg:text-4xl font-black text-white z-10 tracking-tight">$0.00</p>
+            </div>
+            <div class="md:col-span-2 bg-gray-900/40 p-4 rounded-2xl border border-gray-800 shadow-lg h-56 relative">
+              <canvas id="accounts-chart"></canvas>
+            </div>
+          </div>
+
           <div id="accounts-deck" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <!-- Tarjetas de cuentas se cargarán aquí por JS -->
           </div>
@@ -1592,6 +1608,9 @@
       if (!deck) return;
       deck.innerHTML = '';
 
+      let totalNetWorth = 0;
+      let accountBalances = [];
+
       accounts.forEach(acc => {
         let balance = parseFloat(acc.initialBalance || 0);
         movements.forEach(m => {
@@ -1600,17 +1619,119 @@
             else if (m.type === 'gasto' || m.type === 'ahorro') balance -= m.amount;
           }
         });
+        
+        accountBalances.push({ ...acc, balance });
+      });
 
+      // Ordenar las cuentas de mayor a menor saldo
+      accountBalances.sort((a, b) => b.balance - a.balance);
+
+      accountBalances.forEach(acc => {
+        totalNetWorth += acc.balance;
         deck.innerHTML += `
           <div onclick="window.openAccountDetails('${acc.id}')" class="bg-gray-900/40 p-4 rounded-xl border border-gray-800 flex items-center gap-3 shadow-md cursor-pointer hover:scale-[1.03] active:scale-[0.98] hover:border-[#00f0ff]/30 transition-all duration-300">
             <span class="text-3xl p-2 bg-gray-950 rounded-lg">${acc.emoji}</span>
             <div class="overflow-hidden">
               <h3 class="text-xs text-gray-400 font-medium truncate">${acc.name}</h3>
-              <p class="text-lg font-bold tracking-tight text-white truncate">${formatCurrency(balance)}</p>
+              <p class="text-lg font-bold tracking-tight text-white truncate">${formatCurrency(acc.balance)}</p>
             </div>
           </div>
         `;
       });
+
+      const totalNetWorthEl = document.getElementById('total-net-worth');
+      if (totalNetWorthEl) {
+        totalNetWorthEl.textContent = formatCurrency(totalNetWorth);
+      }
+
+      updateAccountsChart(accountBalances);
+    }
+
+    function updateAccountsChart(accountBalances) {
+      const ctx = document.getElementById('accounts-chart');
+      if (!ctx) return;
+
+      const labels = accountBalances.map(a => a.name);
+      const data = accountBalances.map(a => a.balance);
+      
+      const isLight = document.body.classList.contains('light-theme');
+      const textColor = isLight ? '#1a1528' : '#9ca3af';
+      const gridColor = isLight ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+
+      const bgColors = accountBalances.map((_, i) => {
+        const colors = [
+          'rgba(0, 240, 255, 0.6)', 
+          'rgba(112, 0, 255, 0.6)', 
+          'rgba(255, 0, 127, 0.6)', 
+          'rgba(0, 255, 128, 0.6)', 
+          'rgba(255, 165, 0, 0.6)'
+        ];
+        return colors[i % colors.length];
+      });
+      const borderColors = bgColors.map(c => c.replace('0.6', '1'));
+
+      if (window.accountsChartInstance) {
+        window.accountsChartInstance.data.labels = labels;
+        window.accountsChartInstance.data.datasets[0].data = data;
+        window.accountsChartInstance.data.datasets[0].backgroundColor = bgColors;
+        window.accountsChartInstance.data.datasets[0].borderColor = borderColors;
+        window.accountsChartInstance.options.scales.x.ticks.color = textColor;
+        window.accountsChartInstance.options.scales.y.ticks.color = textColor;
+        window.accountsChartInstance.options.scales.y.grid.color = gridColor;
+        window.accountsChartInstance.update();
+      } else {
+        window.accountsChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Saldo',
+              data: data,
+              backgroundColor: bgColors,
+              borderColor: borderColors,
+              borderWidth: 1,
+              borderRadius: 6,
+              barPercentage: 0.5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(11, 8, 20, 0.95)',
+                titleColor: '#fff',
+                bodyColor: '#00f0ff',
+                borderColor: 'rgba(112, 0, 255, 0.3)',
+                borderWidth: 1,
+                padding: 10,
+                displayColors: false,
+                callbacks: {
+                  label: function(context) {
+                    return formatCurrency(context.raw);
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: gridColor, drawBorder: false },
+                ticks: {
+                  color: textColor,
+                  callback: function(value) { return '$' + value.toLocaleString('es-MX'); }
+                }
+              },
+              x: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: textColor, font: { size: 10 } }
+              }
+            },
+            animation: { duration: 800, easing: 'easeOutQuart' }
+          }
+        });
+      }
     }
 
     function openAccountDetails(accountId) {
@@ -2351,6 +2472,15 @@
         themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
         lucide.createIcons();
         renderApp(); 
+        
+        if (window.accountsChartInstance) {
+          const textColor = isLight ? '#1a1528' : '#9ca3af';
+          const gridColor = isLight ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+          window.accountsChartInstance.options.scales.x.ticks.color = textColor;
+          window.accountsChartInstance.options.scales.y.ticks.color = textColor;
+          window.accountsChartInstance.options.scales.y.grid.color = gridColor;
+          window.accountsChartInstance.update();
+        }
       });
     }
 
