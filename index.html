@@ -1269,35 +1269,28 @@
       }, (error) => console.error("Error cargando subcategorías:", error));
     }
 
-    async function loadUserProfileAndSecurity() {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      const profileDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'profile');
-      try {
-        const profileSnap = await getDoc(profileDocRef);
-        if (profileSnap.exists()) {
-          const profileData = profileSnap.data();
+    function loadUserProfileAndSecurity() {
+      // Sincronización en tiempo real del perfil (disponible en todos los dispositivos)
+      const profileDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'profile');
+      onSnapshot(profileDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const profileData = docSnap.data();
           updateUserProfileUI(profileData.name || 'Milton Montoya', profileData.avatar || '');
         } else {
           updateUserProfileUI('Milton Montoya', '');
         }
-      } catch (e) {
-        console.error("Error al cargar perfil:", e);
-      }
+      }, (error) => console.error("Error sincronizando perfil:", error));
 
-      const securityDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'security');
-      try {
-        const securitySnap = await getDoc(securityDocRef);
-        if (securitySnap.exists()) {
-          const securityData = securitySnap.data();
+      // Sincronización en tiempo real de la seguridad (contraseña)
+      const securityDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'security');
+      onSnapshot(securityDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const securityData = docSnap.data();
           if (securityData.password) {
             vaultPassword = securityData.password;
           }
         }
-      } catch (e) {
-        console.error("Error al cargar clave de seguridad:", e);
-      }
+      }, (error) => console.error("Error sincronizando clave:", error));
       
       updateBiometricLoginUI();
       updateBiometricSettingsUI();
@@ -2304,14 +2297,13 @@
         const avatar = settingsAvatarPreview ? settingsAvatarPreview.src : '';
 
         try {
-          const profileDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'profile');
+          const profileDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'profile');
           await setDoc(profileDocRef, {
             name: name,
             avatar: avatar,
             timestamp: new Date().toISOString()
           }, { merge: true });
 
-          updateUserProfileUI(name, avatar);
           closeProfileSettingsModal();
         } catch (error) {
           console.error("Error al actualizar perfil:", error);
@@ -2394,13 +2386,12 @@
         }
 
         try {
-          const securityDocRef = doc(db, 'artifacts', APP_ID, 'users', user.uid, 'settings', 'security');
+          const securityDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'security');
           await setDoc(securityDocRef, {
             password: newVal,
             timestamp: new Date().toISOString()
           }, { merge: true });
 
-          vaultPassword = newVal;
           closePasswordSettingsModal();
         } catch (error) {
           console.error("Error al actualizar la contraseña de la bóveda:", error);
