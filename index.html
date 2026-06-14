@@ -604,396 +604,395 @@
       </section>
 
     </main>
+  </div>
 
-    <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO -->
-    <div id="modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="modal-content">
+  <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO -->
+  <div id="modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="modal-content">
+      
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="calendar" class="w-5 h-5 text-[#00f0ff]"></i>
+          <span id="modal-title-text" class="text-white">Añadir Movimiento</span>
+          <span id="modal-date-label" class="text-xs font-semibold text-[#00f0ff] bg-[#00f0ff]/10 px-2.5 py-1 rounded-lg ml-2"></span>
+        </h3>
+        <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="movement-form" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
         
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
-          <h3 class="text-lg font-bold flex items-center gap-2">
-            <i data-lucide="calendar" class="w-5 h-5 text-[#00f0ff]"></i>
-            <span id="modal-title-text" class="text-white">Añadir Movimiento</span>
-            <span id="modal-date-label" class="text-xs font-semibold text-[#00f0ff] bg-[#00f0ff]/10 px-2.5 py-1 rounded-lg ml-2"></span>
-          </h3>
-          <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
-            <i data-lucide="x" class="w-5 h-5"></i>
+        <!-- SELECTOR DE TIPO (ESTILO PÍLDORA SEGMENTADA) -->
+        <div class="p-1 bg-gray-900 rounded-2xl border border-gray-800 flex relative">
+          <button type="button" onclick="window.selectType('ingreso')" id="btn-type-ingreso" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+            📈 Ingreso
+          </button>
+          <button type="button" onclick="window.selectType('gasto')" id="btn-type-gasto" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+            📉 Gasto
+          </button>
+          <button type="button" onclick="window.selectType('ahorro')" id="btn-type-ahorro" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+            💰 Ahorro
           </button>
         </div>
 
-        <form id="movement-form" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <!-- Selector de Subcategoría -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center">
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Subcategoría</label>
+            <button type="button" onclick="openSubcategoryManager()" class="text-xs text-[#00f0ff] hover:text-[#00f0ff]/80 flex items-center gap-1 transition-colors">
+              <i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Gestionar
+            </button>
+          </div>
+          <select id="form-subcategory" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
+            <!-- Subcategorías inyectadas dinámicamente -->
+          </select>
+        </div>
+
+        <!-- Selector de Cuenta -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta / Cartera</label>
+          <select id="form-account" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
+            <!-- Cuentas inyectadas dinámicamente -->
+          </select>
+        </div>
+
+        <!-- Cantidad -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cantidad</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
+            <input type="number" id="form-amount" step="0.01" required min="0" placeholder="0.00" class="w-full bg-gray-900 border border-gray-800 rounded-2xl pl-10 pr-4 py-4 focus:border-[#00f0ff] focus:ring-2 focus:ring-[#00f0ff]/10 outline-none text-xl font-bold text-white transition-colors" />
+          </div>
+        </div>
+
+        <!-- Concepto -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Concepto / Descripción</label>
+          <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none text-white text-sm transition-colors placeholder:text-gray-600" />
+        </div>
+
+        <!-- Botón Guardar -->
+        <button type="submit" id="btn-save-movement" class="w-full bg-gradient-to-r from-[#7000ff] to-[#ff007f] hover:brightness-110 text-white font-bold py-4 rounded-2xl shadow-xl transition-all active:scale-[0.98]">
+          Guardar Movimiento
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL PARA GESTIONAR CUENTAS -->
+  <div id="accounts-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="accounts-modal-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="wallet" class="text-[#00f0ff] w-5 h-5"></i>
+          <span class="text-white">Gestionar Cuentas</span>
+        </h3>
+        <button onclick="closeAccountManager()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <!-- Formulario Agregar / Editar Cuenta -->
+        <form id="new-account-form" class="space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-850">
+          <h4 id="account-form-title" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Cuenta</h4>
           
-          <!-- SELECTOR DE TIPO (ESTILO PÍLDORA SEGMENTADA) -->
-          <div class="p-1 bg-gray-900 rounded-2xl border border-gray-800 flex relative">
-            <button type="button" onclick="window.selectType('ingreso')" id="btn-type-ingreso" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
-              📈 Ingreso
-            </button>
-            <button type="button" onclick="window.selectType('gasto')" id="btn-type-gasto" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
-              📉 Gasto
-            </button>
-            <button type="button" onclick="window.selectType('ahorro')" id="btn-type-ahorro" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
-              💰 Ahorro
-            </button>
-          </div>
-
-          <!-- Selector de Subcategoría -->
           <div class="space-y-1.5">
-            <div class="flex justify-between items-center">
-              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Subcategoría</label>
-              <button type="button" onclick="openSubcategoryManager()" class="text-xs text-[#00f0ff] hover:text-[#00f0ff]/80 flex items-center gap-1 transition-colors">
-                <i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Gestionar
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Marcas Populares</label>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" onclick="applyBrandTemplate('🏦', 'BBVA')" class="px-2.5 py-1 bg-blue-900/20 text-blue-300 border border-blue-500/20 hover:bg-blue-900/40 rounded-lg text-xs font-semibold transition-colors">
+                🏦 BBVA
+              </button>
+              <button type="button" onclick="applyBrandTemplate('💜', 'Nu')" class="px-2.5 py-1 bg-purple-900/20 text-purple-300 border border-purple-500/20 hover:bg-purple-900/40 rounded-lg text-xs font-semibold transition-colors">
+                💜 Nu
+              </button>
+              <button type="button" onclick="applyBrandTemplate('🧡', 'DiDi')" class="px-2.5 py-1 bg-orange-900/20 text-orange-300 border border-orange-500/20 hover:bg-orange-900/40 rounded-lg text-xs font-semibold transition-colors">
+                🧡 DiDi
+              </button>
+              <button type="button" onclick="applyBrandTemplate('💳', 'Revolut')" class="px-2.5 py-1 bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors">
+                💳 Revolut
               </button>
             </div>
-            <select id="form-subcategory" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
-              <!-- Subcategorías inyectadas dinámicamente -->
-            </select>
           </div>
 
-          <!-- Selector de Cuenta -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta / Cartera</label>
-            <select id="form-account" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
-              <!-- Cuentas inyectadas dinámicamente -->
-            </select>
+          <div class="grid grid-cols-4 gap-3">
+            <input type="text" id="new-acc-emoji" placeholder="💵" required class="col-span-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-[#7000ff] text-white">
+            <input type="text" id="new-acc-name" placeholder="Ej. MercadoLibre" required class="col-span-3 bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#7000ff] text-white placeholder:text-gray-600">
           </div>
 
-          <!-- Cantidad -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cantidad</label>
-            <div class="relative">
-              <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
-              <input type="number" id="form-amount" step="0.01" required min="0" placeholder="0.00" class="w-full bg-gray-900 border border-gray-800 rounded-2xl pl-10 pr-4 py-4 focus:border-[#00f0ff] focus:ring-2 focus:ring-[#00f0ff]/10 outline-none text-xl font-bold text-white transition-colors" />
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div class="space-y-1">
+              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Saldo Inicial ($)</label>
+              <input type="number" id="new-acc-balance" step="0.01" min="0" placeholder="0.00" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] text-white">
+            </div>
+            <div class="space-y-1">
+              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fecha de Registro</label>
+              <input type="date" id="new-acc-date" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] text-white">
             </div>
           </div>
 
-          <!-- Concepto -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Concepto / Descripción</label>
-            <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none text-white text-sm transition-colors placeholder:text-gray-600" />
-          </div>
-
-          <!-- Botón Guardar -->
-          <button type="submit" id="btn-save-movement" class="w-full bg-gradient-to-r from-[#7000ff] to-[#ff007f] hover:brightness-110 text-white font-bold py-4 rounded-2xl shadow-xl transition-all active:scale-[0.98]">
-            Guardar Movimiento
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL PARA GESTIONAR CUENTAS -->
-    <div id="accounts-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="accounts-modal-content">
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
-          <h3 class="text-lg font-bold flex items-center gap-2">
-            <i data-lucide="wallet" class="text-[#00f0ff] w-5 h-5"></i>
-            <span class="text-white">Gestionar Cuentas</span>
-          </h3>
-          <button onclick="closeAccountManager()" class="text-gray-400 hover:text-white transition-colors">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-        
-        <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-          <!-- Formulario Agregar / Editar Cuenta -->
-          <form id="new-account-form" class="space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-850">
-            <h4 id="account-form-title" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Cuenta</h4>
-            
-            <div class="space-y-1.5">
-              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Marcas Populares</label>
-              <div class="flex flex-wrap gap-1.5">
-                <button type="button" onclick="applyBrandTemplate('🏦', 'BBVA')" class="px-2.5 py-1 bg-blue-900/20 text-blue-300 border border-blue-500/20 hover:bg-blue-900/40 rounded-lg text-xs font-semibold transition-colors">
-                  🏦 BBVA
-                </button>
-                <button type="button" onclick="applyBrandTemplate('💜', 'Nu')" class="px-2.5 py-1 bg-purple-900/20 text-purple-300 border border-purple-500/20 hover:bg-purple-900/40 rounded-lg text-xs font-semibold transition-colors">
-                  💜 Nu
-                </button>
-                <button type="button" onclick="applyBrandTemplate('🧡', 'DiDi')" class="px-2.5 py-1 bg-orange-900/20 text-orange-300 border border-orange-500/20 hover:bg-orange-900/40 rounded-lg text-xs font-semibold transition-colors">
-                  🧡 DiDi
-                </button>
-                <button type="button" onclick="applyBrandTemplate('💳', 'Revolut')" class="px-2.5 py-1 bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-700 rounded-lg text-xs font-semibold transition-colors">
-                  💳 Revolut
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-4 gap-3">
-              <input type="text" id="new-acc-emoji" placeholder="💵" required class="col-span-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-[#7000ff] text-white">
-              <input type="text" id="new-acc-name" placeholder="Ej. MercadoLibre" required class="col-span-3 bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#7000ff] text-white placeholder:text-gray-600">
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 pt-1">
-              <div class="space-y-1">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Saldo Inicial ($)</label>
-                <input type="number" id="new-acc-balance" step="0.01" min="0" placeholder="0.00" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] text-white">
-              </div>
-              <div class="space-y-1">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fecha de Registro</label>
-                <input type="date" id="new-acc-date" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] text-white">
-              </div>
-            </div>
-
-            <div class="space-y-2 pt-1 border-t border-gray-800/40">
-              <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">¿Cómo registrar el saldo?</label>
-              <div class="flex gap-4">
-                <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
-                  <input type="radio" name="acc-init-mode" value="preexistente" checked class="accent-[#7000ff]">
-                  <span>Ya lo tenía (Preexistente)</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
-                  <input type="radio" name="acc-init-mode" value="ingreso" class="accent-[#7000ff]">
-                  <span>Ingreso nuevo</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-              <button type="submit" id="btn-save-account" class="flex-1 bg-gradient-to-r from-[#7000ff] to-[#ff007f] text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-md">
-                + Agregar Cuenta
-              </button>
-              <button type="button" id="btn-cancel-account-edit" class="hidden px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-semibold py-2.5 rounded-xl text-xs transition-colors">
-                Cancelar
-              </button>
-            </div>
-          </form>
-
-          <!-- Listado de Cuentas Existentes -->
-          <div class="space-y-3">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Cuentas Activas</h4>
-            <div id="accounts-manager-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-              <!-- Elementos inyectados por JS -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL DETALLE DE LA CUENTA -->
-    <div id="account-details-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="account-details-content">
-        <!-- Header -->
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
-          <div class="flex items-center gap-3">
-            <span id="detail-acc-emoji" class="text-3xl p-2 bg-gray-900 rounded-2xl border border-gray-800"></span>
-            <div>
-              <h3 id="detail-acc-name" class="text-lg font-bold text-white"></h3>
-              <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">Cartera</span>
-            </div>
-          </div>
-          <button onclick="window.closeAccountDetails()" class="text-gray-400 hover:text-white transition-colors">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-        
-        <!-- Body -->
-        <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-          <!-- Tarjetas de Información -->
-          <div class="grid grid-cols-2 gap-3">
-            <div class="bg-gray-900 p-3 rounded-2xl border border-gray-800">
-              <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Saldo Inicial</span>
-              <p id="detail-acc-init" class="text-sm font-bold text-gray-200"></p>
-              <span id="detail-acc-init-date" class="text-[9px] text-gray-500"></span>
-            </div>
-            <div class="bg-gray-900 p-3 rounded-2xl border border-gray-800">
-              <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Saldo Actual</span>
-              <p id="detail-acc-current" class="text-base font-extrabold text-white"></p>
-            </div>
-            <div class="bg-emerald-500/5 p-3 rounded-2xl border border-emerald-500/10">
-              <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Ingresos</span>
-              <p id="detail-acc-income" class="text-sm font-bold text-emerald-400"></p>
-            </div>
-            <div class="bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10">
-              <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider block mb-1">Gastos</span>
-              <p id="detail-acc-expense" class="text-sm font-bold text-rose-400"></p>
+          <div class="space-y-2 pt-1 border-t border-gray-800/40">
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">¿Cómo registrar el saldo?</label>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
+                <input type="radio" name="acc-init-mode" value="preexistente" checked class="accent-[#7000ff]">
+                <span>Ya lo tenía (Preexistente)</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
+                <input type="radio" name="acc-init-mode" value="ingreso" class="accent-[#7000ff]">
+                <span>Ingreso nuevo</span>
+              </label>
             </div>
           </div>
 
-          <!-- Últimos Movimientos -->
-          <div class="space-y-3">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Últimos Movimientos</h4>
-            <div id="detail-recent-list" class="space-y-2">
-              <!-- Cargado dinámicamente -->
-            </div>
-          </div>
-
-          <!-- Acciones -->
           <div class="flex gap-3 pt-2">
-            <button id="btn-detail-filter-history" class="flex-1 bg-gradient-to-r from-[#7000ff] to-[#ff007f] text-white font-bold py-3.5 rounded-2xl text-xs transition-all flex items-center justify-center gap-2">
-              <i data-lucide="search" class="w-4 h-4"></i> Ver Historial Completo
+            <button type="submit" id="btn-save-account" class="flex-1 bg-gradient-to-r from-[#7000ff] to-[#ff007f] text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-md">
+              + Agregar Cuenta
             </button>
-            <button id="btn-detail-edit-acc" class="px-5 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-1.5">
-              <i data-lucide="edit-3" class="w-4 h-4"></i> Editar
+            <button type="button" id="btn-cancel-account-edit" class="hidden px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-semibold py-2.5 rounded-xl text-xs transition-colors">
+              Cancelar
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL GESTOR DE SUBCATEGORÍAS -->
-    <div id="subcategories-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="subcategories-modal-content">
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
-          <h3 class="text-lg font-semibold flex items-center gap-2">
-            <i data-lucide="tag" class="text-[#00f0ff] w-5 h-5"></i>
-            <span class="text-white">Personalizar Subcategorías</span>
-          </h3>
-          <button onclick="closeSubcategoryManager()" class="text-gray-400 hover:text-white transition-colors">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-        
-        <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-          <!-- Formulario Agregar Subcategoría -->
-          <form id="new-subcat-form" class="space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-850">
-            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Subcategoría</h4>
-            
-            <div class="space-y-3">
-              <select id="new-subcat-type" class="w-full bg-gray-950 border border-gray-850 rounded-xl px-3.5 py-3 text-xs focus:outline-none focus:border-[#7000ff] text-white cursor-pointer">
-                <option value="ingreso">Para Ingresos (📈)</option>
-                <option value="gasto" selected>Para Gastos (📉)</option>
-                <option value="ahorro">Para Ahorros (💰)</option>
-              </select>
-              
-              <div class="grid grid-cols-4 gap-3">
-                <input type="text" id="new-subcat-emoji" placeholder="🍔" required class="col-span-1 bg-gray-950 border border-gray-850 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-[#7000ff] text-white">
-                <input type="text" id="new-subcat-name" placeholder="Ej. Comida, Ropa..." required class="col-span-3 bg-gray-950 border border-gray-850 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#7000ff] text-white placeholder:text-gray-600">
-              </div>
-            </div>
-
-            <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md">
-              + Agregar Subcategoría
-            </button>
-          </form>
-
-          <!-- Listado de Subcategorías Existentes -->
-          <div class="space-y-3">
-            <div class="flex justify-between items-center">
-              <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lista de Subcategorías</h4>
-              <select id="subcat-filter" class="bg-transparent border-none text-xs text-[#00f0ff] focus:outline-none cursor-pointer font-bold hover:text-[#00f0ff]/80 transition-colors">
-                <option value="all" class="bg-gray-900 text-white">Ver todas</option>
-                <option value="ingreso" class="bg-gray-900 text-white">Ingresos</option>
-                <option value="gasto" class="bg-gray-900 text-white">Gastos</option>
-                <option value="ahorro" class="bg-gray-900 text-white">Ahorros</option>
-              </select>
-            </div>
-            <div id="subcategories-manager-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-              <!-- Elementos inyectados por JS -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL DE AJUSTES DE PERFIL -->
-    <div id="profile-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="profile-settings-content">
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
-          <h3 class="text-lg font-bold flex items-center gap-2">
-            <i data-lucide="user" class="text-[#7000ff] w-5 h-5"></i>
-            <span class="text-white">Perfil de Usuario</span>
-          </h3>
-          <button onclick="closeProfileSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-
-        <form id="profile-settings-form" class="p-6 space-y-5">
-          <!-- Modificar Imagen de Perfil -->
-          <div class="text-center space-y-2">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Foto de Perfil</label>
-            <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('avatar-input').click()">
-              <img id="settings-avatar-preview" src="https://placehold.co/100x100/7000ff/ffffff?text=MM" class="w-20 h-20 rounded-2xl object-cover border-2 border-[#7000ff] mx-auto shadow-lg" alt="Previsualizar">
-              <div class="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <i data-lucide="camera" class="w-5 h-5 text-white"></i>
-              </div>
-            </div>
-            <input type="file" id="avatar-input" accept="image/*" class="hidden">
-            <p class="text-[10px] text-gray-500">Haz clic en la imagen para subir una nueva foto.</p>
-          </div>
-
-          <!-- Modificar Nombre -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre del Propietario</label>
-            <input type="text" id="settings-username" required placeholder="Milton Montoya" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
-          </div>
-
-          <button type="submit" class="w-full bg-gradient-to-r from-[#7000ff] to-[#ff007f] text-white font-bold py-3.5 rounded-2xl text-xs transition-colors shadow-md">
-            Guardar Cambios
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL DE AJUSTES DE CONTRASEÑA -->
-    <div id="password-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="password-settings-content">
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
-          <h3 class="text-lg font-bold flex items-center gap-2">
-            <i data-lucide="key" class="text-[#ff007f] w-5 h-5"></i>
-            <span class="text-white">Contraseña y Seguridad</span>
-          </h3>
-          <button onclick="closePasswordSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-
-        <form id="password-settings-form" class="p-6 space-y-4">
-          <!-- Password Actual -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cambiar Contraseña</label>
-            <input type="password" id="settings-current-pwd" required placeholder="Contraseña Actual" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
-          </div>
-          <!-- Password Nueva -->
-          <div class="space-y-1.5">
-            <input type="password" id="settings-new-pwd" required placeholder="Ingresa clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
-          </div>
-          <!-- Confirmar Password Nueva -->
-          <div class="space-y-1.5">
-            <input type="password" id="settings-confirm-pwd" required placeholder="Repite la clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
-          </div>
-
-          <div id="password-settings-error" class="text-rose-500 text-xs font-medium flex items-center gap-2 bg-rose-500/10 py-2.5 px-3 rounded-xl border border-rose-500/20 hidden">
-            <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
-            <span id="password-settings-error-text">Las contraseñas no coinciden.</span>
-          </div>
-
-          <button type="submit" class="w-full bg-gradient-to-r from-[#ff007f] to-[#7000ff] text-white font-bold py-3.5 rounded-2xl text-xs transition-colors shadow-md">
-            Actualizar Clave
-          </button>
         </form>
 
-        <div id="biometric-settings-section" class="px-6 pb-6 pt-2 space-y-2">
-          <div class="h-px w-full bg-gray-800/80 my-4"></div>
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Acceso Rápido Biométrico</label>
-          <button type="button" id="btn-toggle-biometrics" class="w-full flex items-center justify-center gap-2 py-3 bg-gray-950 hover:bg-gray-900 text-gray-300 rounded-2xl border border-gray-800 text-xs font-semibold transition-colors shadow-sm">
-            <i data-lucide="fingerprint" class="w-4 h-4 text-[#00f0ff]"></i>
-            <span id="biometrics-btn-text">Cargando soporte...</span>
-          </button>
-          <p class="text-[10px] text-gray-500 text-center">Permite desbloquear tu bóveda de forma instantánea usando Face ID o Touch ID en este dispositivo.</p>
+        <!-- Listado de Cuentas Existentes -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Cuentas Activas</h4>
+          <div id="accounts-manager-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <!-- Elementos inyectados por JS -->
+          </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- CONFIRMACIÓN DE ELIMINACIÓN Y ALERTAS -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-[120] hidden opacity-0 transition-all duration-300">
-      <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="confirm-content">
-        <div class="p-6 text-center space-y-4">
-          <div id="confirm-icon-box" class="inline-flex p-3 bg-[#00f0ff]/10 text-[#00f0ff] rounded-2xl border border-[#00f0ff]/20">
-            <i id="confirm-icon" data-lucide="check-circle" class="w-6 h-6 animate-pulse"></i>
+  <!-- MODAL DETALLE DE LA CUENTA -->
+  <div id="account-details-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="account-details-content">
+      <!-- Header -->
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <div class="flex items-center gap-3">
+          <span id="detail-acc-emoji" class="text-3xl p-2 bg-gray-900 rounded-2xl border border-gray-800"></span>
+          <div>
+            <h3 id="detail-acc-name" class="text-lg font-bold text-white"></h3>
+            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">Cartera</span>
           </div>
-          <h3 id="confirm-title" class="text-lg font-bold text-white">Aviso</h3>
-          <p id="confirm-text" class="text-xs text-gray-400 leading-relaxed px-2"></p>
+        </div>
+        <button onclick="window.closeAccountDetails()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <!-- Body -->
+      <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+        <!-- Tarjetas de Información -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-gray-900 p-3 rounded-2xl border border-gray-800">
+            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Saldo Inicial</span>
+            <p id="detail-acc-init" class="text-sm font-bold text-gray-200"></p>
+            <span id="detail-acc-init-date" class="text-[9px] text-gray-500"></span>
+          </div>
+          <div class="bg-gray-900 p-3 rounded-2xl border border-gray-800">
+            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Saldo Actual</span>
+            <p id="detail-acc-current" class="text-base font-extrabold text-white"></p>
+          </div>
+          <div class="bg-emerald-500/5 p-3 rounded-2xl border border-emerald-500/10">
+            <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Ingresos</span>
+            <p id="detail-acc-income" class="text-sm font-bold text-emerald-400"></p>
+          </div>
+          <div class="bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10">
+            <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider block mb-1">Gastos</span>
+            <p id="detail-acc-expense" class="text-sm font-bold text-rose-400"></p>
+          </div>
+        </div>
+
+        <!-- Últimos Movimientos -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Últimos Movimientos</h4>
+          <div id="detail-recent-list" class="space-y-2">
+            <!-- Cargado dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex gap-3 pt-2">
+          <button id="btn-detail-filter-history" class="flex-1 bg-gradient-to-r from-[#7000ff] to-[#ff007f] text-white font-bold py-3.5 rounded-2xl text-xs transition-all flex items-center justify-center gap-2">
+            <i data-lucide="search" class="w-4 h-4"></i> Ver Historial Completo
+          </button>
+          <button id="btn-detail-edit-acc" class="px-5 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-bold py-3.5 rounded-2xl text-xs transition-colors flex items-center justify-center gap-1.5">
+            <i data-lucide="edit-3" class="w-4 h-4"></i> Editar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GESTOR DE SUBCATEGORÍAS -->
+  <div id="subcategories-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="subcategories-modal-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <i data-lucide="tag" class="text-[#00f0ff] w-5 h-5"></i>
+          <span class="text-white">Personalizar Subcategorías</span>
+        </h3>
+        <button onclick="closeSubcategoryManager()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        <!-- Formulario Agregar Subcategoría -->
+        <form id="new-subcat-form" class="space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-850">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Subcategoría</h4>
           
-          <div class="flex gap-3 pt-2" id="confirm-buttons">
-            <button onclick="window.closeConfirm()" class="flex-1 bg-gray-850 hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold py-3 rounded-2xl text-xs transition-colors">
-              Cerrar
-            </button>
-            <button id="confirm-action-btn" onclick="window.triggerConfirm()" class="hidden flex-1 bg-gradient-to-r from-rose-600 to-rose-500 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md">
-              Sí, eliminar
-            </button>
+          <div class="space-y-3">
+            <select id="new-subcat-type" class="w-full bg-gray-950 border border-gray-850 rounded-xl px-3.5 py-3 text-xs focus:outline-none focus:border-[#7000ff] text-white cursor-pointer">
+              <option value="ingreso">Para Ingresos (📈)</option>
+              <option value="gasto" selected>Para Gastos (📉)</option>
+              <option value="ahorro">Para Ahorros (💰)</option>
+            </select>
+            
+            <div class="grid grid-cols-4 gap-3">
+              <input type="text" id="new-subcat-emoji" placeholder="🍔" required class="col-span-1 bg-gray-950 border border-gray-850 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-[#7000ff] text-white">
+              <input type="text" id="new-subcat-name" placeholder="Ej. Comida, Ropa..." required class="col-span-3 bg-gray-950 border border-gray-850 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#7000ff] text-white placeholder:text-gray-600">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md">
+            + Agregar Subcategoría
+          </button>
+        </form>
+
+        <!-- Listado de Subcategorías Existentes -->
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lista de Subcategorías</h4>
+            <select id="subcat-filter" class="bg-transparent border-none text-xs text-[#00f0ff] focus:outline-none cursor-pointer font-bold hover:text-[#00f0ff]/80 transition-colors">
+              <option value="all" class="bg-gray-900 text-white">Ver todas</option>
+              <option value="ingreso" class="bg-gray-900 text-white">Ingresos</option>
+              <option value="gasto" class="bg-gray-900 text-white">Gastos</option>
+              <option value="ahorro" class="bg-gray-900 text-white">Ahorros</option>
+            </select>
+          </div>
+          <div id="subcategories-manager-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <!-- Elementos inyectados por JS -->
           </div>
         </div>
       </div>
     </div>
+  </div>
 
+  <!-- MODAL DE AJUSTES DE PERFIL -->
+  <div id="profile-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="profile-settings-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="user" class="text-[#7000ff] w-5 h-5"></i>
+          <span class="text-white">Perfil de Usuario</span>
+        </h3>
+        <button onclick="closeProfileSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="profile-settings-form" class="p-6 space-y-5">
+        <!-- Modificar Imagen de Perfil -->
+        <div class="text-center space-y-2">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Foto de Perfil</label>
+          <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('avatar-input').click()">
+            <img id="settings-avatar-preview" src="https://placehold.co/100x100/7000ff/ffffff?text=MM" class="w-20 h-20 rounded-2xl object-cover border-2 border-[#7000ff] mx-auto shadow-lg" alt="Previsualizar">
+            <div class="absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <i data-lucide="camera" class="w-5 h-5 text-white"></i>
+            </div>
+          </div>
+          <input type="file" id="avatar-input" accept="image/*" class="hidden">
+          <p class="text-[10px] text-gray-500">Haz clic en la imagen para subir una nueva foto.</p>
+        </div>
+
+        <!-- Modificar Nombre -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre del Propietario</label>
+          <input type="text" id="settings-username" required placeholder="Milton Montoya" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
+        </div>
+
+        <button type="submit" class="w-full bg-gradient-to-r from-[#7000ff] to-[#ff007f] text-white font-bold py-3.5 rounded-2xl text-xs transition-colors shadow-md">
+          Guardar Cambios
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE AJUSTES DE CONTRASEÑA -->
+  <div id="password-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="password-settings-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="key" class="text-[#ff007f] w-5 h-5"></i>
+          <span class="text-white">Contraseña y Seguridad</span>
+        </h3>
+        <button onclick="closePasswordSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="password-settings-form" class="p-6 space-y-4">
+        <!-- Password Actual -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cambiar Contraseña</label>
+          <input type="password" id="settings-current-pwd" required placeholder="Contraseña Actual" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
+        </div>
+        <!-- Password Nueva -->
+        <div class="space-y-1.5">
+          <input type="password" id="settings-new-pwd" required placeholder="Ingresa clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
+        </div>
+        <!-- Confirmar Password Nueva -->
+        <div class="space-y-1.5">
+          <input type="password" id="settings-confirm-pwd" required placeholder="Repite la clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
+        </div>
+
+        <div id="password-settings-error" class="text-rose-500 text-xs font-medium flex items-center gap-2 bg-rose-500/10 py-2.5 px-3 rounded-xl border border-rose-500/20 hidden">
+          <i data-lucide="alert-circle" class="w-3.5 h-3.5 flex-shrink-0"></i>
+          <span id="password-settings-error-text">Las contraseñas no coinciden.</span>
+        </div>
+
+        <button type="submit" class="w-full bg-gradient-to-r from-[#ff007f] to-[#7000ff] text-white font-bold py-3.5 rounded-2xl text-xs transition-colors shadow-md">
+          Actualizar Clave
+        </button>
+      </form>
+
+      <div id="biometric-settings-section" class="px-6 pb-6 pt-2 space-y-2">
+        <div class="h-px w-full bg-gray-800/80 my-4"></div>
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Acceso Rápido Biométrico</label>
+        <button type="button" id="btn-toggle-biometrics" class="w-full flex items-center justify-center gap-2 py-3 bg-gray-950 hover:bg-gray-900 text-gray-300 rounded-2xl border border-gray-800 text-xs font-semibold transition-colors shadow-sm">
+          <i data-lucide="fingerprint" class="w-4 h-4 text-[#00f0ff]"></i>
+          <span id="biometrics-btn-text">Cargando soporte...</span>
+        </button>
+        <p class="text-[10px] text-gray-500 text-center">Permite desbloquear tu bóveda de forma instantánea usando Face ID o Touch ID en este dispositivo.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRMACIÓN DE ELIMINACIÓN Y ALERTAS -->
+  <div id="confirm-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-[120] hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="confirm-content">
+      <div class="p-6 text-center space-y-4">
+        <div id="confirm-icon-box" class="inline-flex p-3 bg-[#00f0ff]/10 text-[#00f0ff] rounded-2xl border border-[#00f0ff]/20">
+          <i id="confirm-icon" data-lucide="check-circle" class="w-6 h-6 animate-pulse"></i>
+        </div>
+        <h3 id="confirm-title" class="text-lg font-bold text-white">Aviso</h3>
+        <p id="confirm-text" class="text-xs text-gray-400 leading-relaxed px-2"></p>
+        
+        <div class="flex gap-3 pt-2" id="confirm-buttons">
+          <button onclick="window.closeConfirm()" class="flex-1 bg-gray-850 hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold py-3 rounded-2xl text-xs transition-colors">
+            Cerrar
+          </button>
+          <button id="confirm-action-btn" onclick="window.triggerConfirm()" class="hidden flex-1 bg-gradient-to-r from-rose-600 to-rose-500 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md">
+            Sí, eliminar
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- SCRIPT PRINCIPAL DE LA APLICACIÓN -->
