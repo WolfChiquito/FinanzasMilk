@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cuentas Personales</title>
   
+  <!-- Icono de Favoritos -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  
   <!-- Tailwind CSS para el diseño -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -481,7 +485,7 @@
             </div>
           </div>
           
-          <div id="donut-chart-container" class="flex justify-center mb-8 relative w-full h-56 max-w-sm mx-auto cursor-pointer">
+          <div id="donut-chart-container" class="flex justify-center mb-8 relative w-full h-64 max-w-md mx-auto cursor-pointer">
             <canvas id="month-donut-canvas"></canvas>
             <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
                <span class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold mt-4">Total Mensual</span>
@@ -1408,11 +1412,13 @@
         const bgColors = totals.total === 0 ? [emptyColor] : [CATEGORIES.ingreso.color, CATEGORIES.gasto.color, CATEGORIES.ahorro.color];
         const borderColors = totals.total === 0 ? [emptyColor] : [CATEGORIES.ingreso.color, CATEGORIES.gasto.color, CATEGORIES.ahorro.color];
         const labels = totals.total === 0 ? ['Sin datos'] : ['Ingresos', 'Gastos', 'Ahorros'];
+        const offsetValues = dataValues.map(() => 0);
 
         if (window.monthDonutInstance) {
           window.monthDonutInstance.data.datasets[0].data = dataValues;
           window.monthDonutInstance.data.datasets[0].backgroundColor = bgColors;
           window.monthDonutInstance.data.datasets[0].borderColor = borderColors;
+          window.monthDonutInstance.data.datasets[0].offset = offsetValues; 
           window.monthDonutInstance.data.labels = labels;
           window.monthDonutInstance.update();
         } else {
@@ -1446,10 +1452,9 @@
                 const centerY = top + height / 2;
                 const angle = Math.atan2(y - centerY, x - centerX);
                 
-                const radius = Math.min(width, height) / 2;
-                const offset = 20; 
-                const endX = centerX + Math.cos(angle) * (radius + offset);
-                const endY = centerY + Math.sin(angle) * (radius + offset);
+                const lineLength = 25; 
+                const endX = x + Math.cos(angle) * lineLength;
+                const endY = y + Math.sin(angle) * lineLength;
 
                 ctx.beginPath();
                 ctx.moveTo(x, y);
@@ -1486,14 +1491,29 @@
                 backgroundColor: bgColors,
                 borderColor: borderColors,
                 borderWidth: 1,
-                cutout: '75%'
+                cutout: '70%',
+                offset: offsetValues,
+                hoverOffset: 5
               }]
             },
             options: {
               responsive: true,
               maintainAspectRatio: false,
               layout: {
-                padding: { left: 70, right: 70, top: 20, bottom: 20 }
+                padding: { left: 95, right: 95, top: 30, bottom: 30 } 
+              },
+              onClick: (event, activeElements, chart) => {
+                if (chart.data.labels[0] === 'Sin datos') return;
+                if (activeElements.length > 0) {
+                  const index = activeElements[0].index;
+                  const currentOffset = chart.data.datasets[0].offset || [0,0,0];
+                  const newOffset = currentOffset.map((val, i) => i === index ? (val === 20 ? 0 : 20) : 0);
+                  chart.data.datasets[0].offset = newOffset;
+                  chart.update();
+                } else {
+                  chart.data.datasets[0].offset = [0,0,0];
+                  chart.update();
+                }
               },
               plugins: {
                 legend: { display: false },
