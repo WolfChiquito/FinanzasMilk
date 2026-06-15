@@ -1421,40 +1421,58 @@
             afterDraw(chart) {
               if (chart.data.labels[0] === 'Sin datos') return;
               const { ctx, chartArea: { top, bottom, left, right, width, height } } = chart;
-              chart.data.datasets.forEach((dataset, i) => {
-                chart.getDatasetMeta(i).data.forEach((datapoint, index) => {
-                  const value = dataset.data[index];
-                  if(value === 0) return;
-                  
-                  const centerPoint = datapoint.tooltipPosition();
-                  const x = centerPoint.x;
-                  const y = centerPoint.y;
-                  
-                  const centerX = left + width / 2;
-                  const centerY = top + height / 2;
-                  const angle = Math.atan2(y - centerY, x - centerX);
-                  
-                  const radius = Math.min(width, height) / 2;
-                  const offset = 20; 
-                  const endX = centerX + Math.cos(angle) * (radius + offset);
-                  const endY = centerY + Math.sin(angle) * (radius + offset);
+              
+              const dataset = chart.data.datasets[0];
+              const meta = chart.getDatasetMeta(0);
+              if (!meta || !meta.data) return;
 
-                  ctx.beginPath();
-                  ctx.moveTo(x, y);
-                  ctx.lineTo(endX, endY);
-                  ctx.strokeStyle = dataset.borderColor[index];
-                  ctx.lineWidth = 1.5;
-                  ctx.stroke();
+              const currentTotal = dataset.data.reduce((a, b) => a + b, 0);
 
-                  ctx.fillStyle = dataset.borderColor[index];
-                  ctx.font = 'bold 11px sans-serif';
-                  ctx.textAlign = Math.cos(angle) > 0 ? 'left' : 'right';
-                  ctx.textBaseline = 'middle';
-                  
-                  const labelText = chart.data.labels[index];
-                  const padding = Math.cos(angle) > 0 ? 5 : -5;
-                  ctx.fillText(labelText, endX + padding, endY);
-                });
+              meta.data.forEach((datapoint, index) => {
+                const value = dataset.data[index];
+                if (!value || value === 0) return;
+                
+                let centerPoint;
+                try {
+                  centerPoint = datapoint.tooltipPosition();
+                } catch(e) {
+                  return;
+                }
+                
+                const x = centerPoint.x;
+                const y = centerPoint.y;
+                
+                const centerX = left + width / 2;
+                const centerY = top + height / 2;
+                const angle = Math.atan2(y - centerY, x - centerX);
+                
+                const radius = Math.min(width, height) / 2;
+                const offset = 20; 
+                const endX = centerX + Math.cos(angle) * (radius + offset);
+                const endY = centerY + Math.sin(angle) * (radius + offset);
+
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = dataset.borderColor[index];
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.textAlign = Math.cos(angle) > 0 ? 'left' : 'right';
+                ctx.textBaseline = 'middle';
+                const padding = Math.cos(angle) > 0 ? 5 : -5;
+                
+                // Etiqueta principal
+                ctx.fillStyle = dataset.borderColor[index];
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText(chart.data.labels[index], endX + padding, endY - 6);
+
+                // Etiqueta secundaria (porcentaje y monto)
+                const percent = currentTotal > 0 ? ((value / currentTotal) * 100).toFixed(1) : 0;
+                ctx.fillStyle = document.body.classList.contains('light-theme') ? '#6e6183' : '#9ca3af';
+                ctx.font = 'normal 9px sans-serif';
+                const formattedValue = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
+                ctx.fillText(`${percent}% | ${formattedValue}`, endX + padding, endY + 6);
               });
             }
           };
@@ -1475,7 +1493,7 @@
               responsive: true,
               maintainAspectRatio: false,
               layout: {
-                padding: { left: 40, right: 40, top: 20, bottom: 20 }
+                padding: { left: 70, right: 70, top: 20, bottom: 20 }
               },
               plugins: {
                 legend: { display: false },
