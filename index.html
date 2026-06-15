@@ -1414,6 +1414,12 @@
         const labels = totals.total === 0 ? ['Sin datos'] : ['Ingresos', 'Gastos', 'Ahorros'];
         const offsetValues = dataValues.map(() => 0);
 
+        if (!Chart.Tooltip.positioners.cursor) {
+          Chart.Tooltip.positioners.cursor = function(elements, eventPosition) {
+            return eventPosition ? { x: eventPosition.x, y: eventPosition.y } : false;
+          };
+        }
+
         if (window.monthDonutInstance) {
           window.monthDonutInstance.data.datasets[0].data = dataValues;
           window.monthDonutInstance.data.datasets[0].backgroundColor = bgColors;
@@ -1518,6 +1524,15 @@
               plugins: {
                 legend: { display: false },
                 tooltip: {
+                  enabled: true,
+                  position: 'cursor',
+                  backgroundColor: 'rgba(11, 8, 20, 0.95)',
+                  titleColor: '#ffffff',
+                  bodyColor: '#00f0ff',
+                  borderColor: 'rgba(112, 0, 255, 0.4)',
+                  borderWidth: 1,
+                  padding: 10,
+                  displayColors: false,
                   callbacks: {
                     label: function(context) {
                       if (context.label === 'Sin datos') return ' $0.00';
