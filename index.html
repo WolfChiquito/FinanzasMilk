@@ -257,11 +257,11 @@
     }
 
     /* Gráfico interactivo animado */
-    #donut-chart {
-      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.5s ease;
+    #donut-chart-container {
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    #donut-chart:hover {
-      transform: scale(1.05) rotate(5deg);
+    #donut-chart-container:hover {
+      transform: scale(1.05);
     }
 
     /* Adaptaciones de altura para móviles */
@@ -481,12 +481,11 @@
             </div>
           </div>
           
-          <div class="flex justify-center mb-8 relative">
-            <div id="donut-chart" class="w-48 h-48 rounded-full flex items-center justify-center shadow-lg relative overflow-hidden shadow-[#7000ff]/10 border border-gray-900 cursor-pointer">
-              <div class="absolute inset-5 bg-gray-950/90 rounded-full flex flex-col items-center justify-center z-10 shadow-inner">
-                 <span class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Total Mensual</span>
-                 <span id="donut-total" class="text-xl font-black text-white">$0.00</span>
-              </div>
+          <div id="donut-chart-container" class="flex justify-center mb-8 relative w-full h-56 max-w-sm mx-auto cursor-pointer">
+            <canvas id="month-donut-canvas"></canvas>
+            <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+               <span class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold mt-4">Total Mensual</span>
+               <span id="donut-total" class="text-xl font-black text-white">$0.00</span>
             </div>
           </div>
 
@@ -1320,6 +1319,7 @@
       renderMonthSummary();
       renderYearSummary();
       renderTable();
+      renderAccountsSection();
       lucide.createIcons();
     }
 
@@ -1396,27 +1396,103 @@
         totals.total += m.amount; 
       });
 
-      const donutEl = document.getElementById('donut-chart');
-      if (donutEl) {
+      const donutTotalEl = document.getElementById('donut-total');
+      if (donutTotalEl) donutTotalEl.textContent = formatCurrency(totals.ingreso + totals.ahorro - totals.gasto);
+
+      const ctx = document.getElementById('month-donut-canvas');
+      if (ctx) {
         const isLight = document.body.classList.contains('light-theme');
         const emptyColor = isLight ? '#e2e0eb' : '#141221'; 
 
-        if (totals.total === 0) {
-          donutEl.style.background = `conic-gradient(${emptyColor} 0% 100%)`;
+        const dataValues = totals.total === 0 ? [1] : [totals.ingreso, totals.gasto, totals.ahorro];
+        const bgColors = totals.total === 0 ? [emptyColor] : [CATEGORIES.ingreso.color, CATEGORIES.gasto.color, CATEGORIES.ahorro.color];
+        const borderColors = totals.total === 0 ? [emptyColor] : [CATEGORIES.ingreso.color, CATEGORIES.gasto.color, CATEGORIES.ahorro.color];
+        const labels = totals.total === 0 ? ['Sin datos'] : ['Ingresos', 'Gastos', 'Ahorros'];
+
+        if (window.monthDonutInstance) {
+          window.monthDonutInstance.data.datasets[0].data = dataValues;
+          window.monthDonutInstance.data.datasets[0].backgroundColor = bgColors;
+          window.monthDonutInstance.data.datasets[0].borderColor = borderColors;
+          window.monthDonutInstance.data.labels = labels;
+          window.monthDonutInstance.update();
         } else {
-          const pIngreso = (totals.ingreso / totals.total) * 100;
-          const pGasto = (totals.gasto / totals.total) * 100;
-          const conicGradient = `conic-gradient(
-            ${CATEGORIES.ingreso.color} 0% ${pIngreso}%,
-            ${CATEGORIES.gasto.color} ${pIngreso}% ${pIngreso + pGasto}%,
-            ${CATEGORIES.ahorro.color} ${pIngreso + pGasto}% 100%
-          )`;
-          donutEl.style.background = conicGradient;
+          const outlabelsPlugin = {
+            id: 'outlabels',
+            afterDraw(chart) {
+              if (chart.data.labels[0] === 'Sin datos') return;
+              const { ctx, chartArea: { top, bottom, left, right, width, height } } = chart;
+              chart.data.datasets.forEach((dataset, i) => {
+                chart.getDatasetMeta(i).data.forEach((datapoint, index) => {
+                  const value = dataset.data[index];
+                  if(value === 0) return;
+                  
+                  const centerPoint = datapoint.tooltipPosition();
+                  const x = centerPoint.x;
+                  const y = centerPoint.y;
+                  
+                  const centerX = left + width / 2;
+                  const centerY = top + height / 2;
+                  const angle = Math.atan2(y - centerY, x - centerX);
+                  
+                  const radius = Math.min(width, height) / 2;
+                  const offset = 20; 
+                  const endX = centerX + Math.cos(angle) * (radius + offset);
+                  const endY = centerY + Math.sin(angle) * (radius + offset);
+
+                  ctx.beginPath();
+                  ctx.moveTo(x, y);
+                  ctx.lineTo(endX, endY);
+                  ctx.strokeStyle = dataset.borderColor[index];
+                  ctx.lineWidth = 1.5;
+                  ctx.stroke();
+
+                  ctx.fillStyle = dataset.borderColor[index];
+                  ctx.font = 'bold 11px sans-serif';
+                  ctx.textAlign = Math.cos(angle) > 0 ? 'left' : 'right';
+                  ctx.textBaseline = 'middle';
+                  
+                  const labelText = chart.data.labels[index];
+                  const padding = Math.cos(angle) > 0 ? 5 : -5;
+                  ctx.fillText(labelText, endX + padding, endY);
+                });
+              });
+            }
+          };
+
+          window.monthDonutInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: labels,
+              datasets: [{
+                data: dataValues,
+                backgroundColor: bgColors,
+                borderColor: borderColors,
+                borderWidth: 1,
+                cutout: '75%'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              layout: {
+                padding: { left: 40, right: 40, top: 20, bottom: 20 }
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      if (context.label === 'Sin datos') return ' $0.00';
+                      return ' ' + formatCurrency(context.raw);
+                    }
+                  }
+                }
+              }
+            },
+            plugins: [outlabelsPlugin]
+          });
         }
       }
-
-      const donutTotalEl = document.getElementById('donut-total');
-      if (donutTotalEl) donutTotalEl.textContent = formatCurrency(totals.ingreso - totals.gasto);
 
       const listContainer = document.getElementById('month-summary-list');
       if (listContainer) {
@@ -1608,8 +1684,8 @@
         let balance = parseFloat(acc.initialBalance || 0);
         movements.forEach(m => {
           if (m.accountId === acc.id || m.account === acc.name) { 
-            if (m.type === 'ingreso') balance += m.amount;
-            else if (m.type === 'gasto' || m.type === 'ahorro') balance -= m.amount;
+            if (m.type === 'ingreso' || m.type === 'ahorro') balance += m.amount;
+            else if (m.type === 'gasto') balance -= m.amount;
           }
         });
         
@@ -1738,8 +1814,8 @@
       const accMovements = movements.filter(m => m.accountId === acc.id || m.account === acc.name);
       
       accMovements.forEach(m => {
-        if (m.type === 'ingreso') incomeTotal += m.amount;
-        else if (m.type === 'gasto' || m.type === 'ahorro') expenseTotal += m.amount; 
+        if (m.type === 'ingreso' || m.type === 'ahorro') incomeTotal += m.amount;
+        else if (m.type === 'gasto') expenseTotal += m.amount; 
       });
 
       const currentBalance = initialBalance + incomeTotal - expenseTotal;
