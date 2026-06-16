@@ -1422,13 +1422,13 @@
         const labels = totals.total === 0 ? ['Sin datos'] : ['Ingresos', 'Gastos', 'Ahorros'];
         const offsetValues = dataValues.map(() => 0);
 
-        // Configuración responsive dinámica para PC y celular
+        // Configuración responsive dinámica optimizada para evitar amontonamiento en PC y mantener legibilidad en celular
         const isPC = window.innerWidth >= 768;
-        const leftRightPadding = isPC ? 120 : 95;
-        const topBottomPadding = isPC ? 40 : 30;
-        const labelFontSize = isPC ? '13px' : '11px';
-        const subLabelFontSize = isPC ? '10px' : '9px';
-        const lineOffset = isPC ? 35 : 25;
+        const leftRightPadding = isPC ? 80 : 60; // Reducido en PC para agrandar significativamente el tamaño de la dona
+        const topBottomPadding = isPC ? 25 : 20;
+        const labelFontSize = isPC ? '12px' : '10px';
+        const subLabelFontSize = isPC ? '10px' : '8px';
+        const lineOffset = isPC ? 18 : 12; // Reducido para acercar las etiquetas y ahorrar espacio lateral
 
         if (!Chart.Tooltip.positioners.cursor) {
           Chart.Tooltip.positioners.cursor = function(elements, eventPosition) {
