@@ -1424,11 +1424,11 @@
 
         // Configuración responsive dinámica optimizada para evitar amontonamiento en PC y mantener legibilidad en celular
         const isPC = window.innerWidth >= 768;
-        const leftRightPadding = isPC ? 80 : 60; // Reducido en PC para agrandar significativamente el tamaño de la dona
-        const topBottomPadding = isPC ? 25 : 20;
+        const leftRightPadding = isPC ? 35 : 25; // Reducido considerablemente para que la dona crezca al máximo y no se amontone
+        const topBottomPadding = isPC ? 15 : 12;
         const labelFontSize = isPC ? '12px' : '10px';
         const subLabelFontSize = isPC ? '10px' : '8px';
-        const lineOffset = isPC ? 18 : 12; // Reducido para acercar las etiquetas y ahorrar espacio lateral
+        const lineOffset = isPC ? 10 : 8; // Más compacto para evitar colisiones periféricas en PC
 
         if (!Chart.Tooltip.positioners.cursor) {
           Chart.Tooltip.positioners.cursor = function(elements, eventPosition) {
@@ -1801,7 +1801,21 @@
       const textColor = isLight ? '#1a1528' : '#9ca3af';
       const gridColor = isLight ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)';
 
-      const bgColors = accountBalances.map((_, i) => {
+      const bgColors = accountBalances.map((acc, i) => {
+        const nameLower = acc.name.toLowerCase();
+        
+        // Identificar y asignar colores institucionales solicitados
+        if (nameLower.includes('nu')) {
+          return 'rgba(138, 5, 190, 0.65)'; // Morado Nu
+        } else if (nameLower.includes('mercadolibre') || nameLower.includes('mercado libre') || nameLower.includes('mercado')) {
+          return 'rgba(255, 230, 0, 0.7)'; // Amarillo MercadoLibre
+        } else if (nameLower.includes('bbva')) {
+          return 'rgba(0, 68, 129, 0.7)'; // Azul BBVA
+        } else if (nameLower.includes('revolut')) {
+          return 'rgba(180, 185, 195, 0.75)'; // Plateado Revolut
+        }
+        
+        // Colores por defecto elegantes si no coincide ninguna marca
         const colors = [
           'rgba(0, 240, 255, 0.6)', 
           'rgba(112, 0, 255, 0.6)', 
@@ -1811,7 +1825,7 @@
         ];
         return colors[i % colors.length];
       });
-      const borderColors = bgColors.map(c => c.replace('0.6', '1'));
+      const borderColors = bgColors.map(c => c.replace('0.65', '1').replace('0.7', '1').replace('0.75', '1').replace('0.6', '1'));
 
       if (window.accountsChartInstance) {
         window.accountsChartInstance.data.labels = labels;
