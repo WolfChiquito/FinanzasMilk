@@ -1424,11 +1424,11 @@
 
         // Configuración responsive dinámica optimizada para evitar amontonamiento en PC y mantener legibilidad en celular
         const isPC = window.innerWidth >= 768;
-        const leftRightPadding = isPC ? 140 : 35; // Ampliado significativamente para que los textos no se corten
-        const topBottomPadding = isPC ? 30 : 15;
+        const leftRightPadding = isPC ? 85 : 25; // Ajuste exacto para evitar el corte de texto lateral en PC
+        const topBottomPadding = isPC ? 15 : 12;
         const labelFontSize = isPC ? '12px' : '10px';
         const subLabelFontSize = isPC ? '10px' : '8px';
-        const lineOffset = isPC ? 45 : 15; // Línea más larga para separar las etiquetas de la gráfica
+        const lineOffset = isPC ? 10 : 8; // Más compacto para evitar colisiones periféricas en PC
 
         if (!Chart.Tooltip.positioners.cursor) {
           Chart.Tooltip.positioners.cursor = function(elements, eventPosition) {
