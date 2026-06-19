@@ -292,7 +292,7 @@
 <body class="min-h-screen selection:bg-[#ff007f]/30 p-4 md:p-8 relative">
 
   <!-- Imagen Flotante Tooltip -->
-  <img id="snoopy-hover-img" class="fixed z-[9999] hidden w-32 md:w-40 h-auto rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] pointer-events-none transform -translate-x-1/2 -translate-y-[110%] transition-opacity duration-200 opacity-0 border border-white/10 object-cover" src="" alt="Tooltip" onerror="this.onerror=null; this.style.display='none';" />
+  <img id="snoopy-hover-img" class="fixed z-[9999] hidden w-32 h-32 md:w-40 md:h-40 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.5)] pointer-events-none transform -translate-x-1/2 -translate-y-[110%] transition-opacity duration-200 opacity-0 border-2 border-white/20 object-cover" src="" alt="Tooltip" onerror="this.onerror=null; this.style.display='none';" />
 
   <!-- Pestaña lateral para imágenes flotantes -->
   <button id="btn-hover-images-settings" onclick="openHoverImagesModal()" class="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-gray-950/80 border border-gray-800 border-r-0 rounded-l-xl p-2 text-gray-500 hover:text-[#00f0ff] hover:bg-gray-900 backdrop-blur-md shadow-lg transition-all focus:outline-none" title="Personalizar Imágenes Flotantes">
@@ -1702,7 +1702,10 @@
               snoopyImg.src = hoverImagesData[type];
               snoopyImg.style.display = 'block';
               snoopyImg.classList.remove('hidden');
-              setTimeout(() => snoopyImg.classList.remove('opacity-0'), 10);
+              setTimeout(() => {
+                snoopyImg.classList.remove('opacity-0');
+                snoopyImg.classList.add('opacity-70');
+              }, 10);
             }
           });
           item.addEventListener('mousemove', (e) => {
@@ -1714,6 +1717,7 @@
           });
           item.addEventListener('mouseleave', () => {
             if (snoopyImg) {
+              snoopyImg.classList.remove('opacity-70');
               snoopyImg.classList.add('opacity-0');
               setTimeout(() => snoopyImg.classList.add('hidden'), 200);
             }
