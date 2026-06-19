@@ -289,7 +289,15 @@
     }
   </style>
 </head>
-<body class="min-h-screen selection:bg-[#ff007f]/30 p-4 md:p-8">
+<body class="min-h-screen selection:bg-[#ff007f]/30 p-4 md:p-8 relative">
+
+  <!-- Imagen Flotante Tooltip -->
+  <img id="snoopy-hover-img" class="fixed z-[9999] hidden w-32 md:w-40 h-auto rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] pointer-events-none transform -translate-x-1/2 -translate-y-[110%] transition-opacity duration-200 opacity-0 border border-white/10 object-cover" src="" alt="Tooltip" onerror="this.onerror=null; this.style.display='none';" />
+
+  <!-- Pestaña lateral para imágenes flotantes -->
+  <button id="btn-hover-images-settings" onclick="openHoverImagesModal()" class="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-gray-950/80 border border-gray-800 border-r-0 rounded-l-xl p-2 text-gray-500 hover:text-[#00f0ff] hover:bg-gray-900 backdrop-blur-md shadow-lg transition-all focus:outline-none" title="Personalizar Imágenes Flotantes">
+    <i data-lucide="image" class="w-5 h-5"></i>
+  </button>
 
   <!-- PANTALLA DE INICIO DE SESIÓN -->
   <div id="login-screen" class="fixed inset-0 bg-[#040307] z-[100] flex items-center justify-center p-4 transition-all duration-700 ease-out">
@@ -469,7 +477,7 @@
         </section>
 
         <!-- RESUMEN MENSUAL Y GRÁFICA -->
-        <section class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl flex flex-col hover:shadow-[0_10px_40px_rgba(112,0,255,0.08)]">
+        <section class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl flex flex-col hover:shadow-[0_10px_40px_rgba(112,0,255,0.08)] relative">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-white">Resumen Mensual</h2>
             <div class="flex items-center gap-2">
@@ -633,6 +641,63 @@
     </main>
   </div>
 
+  <!-- MODAL DE IMÁGENES FLOTANTES -->
+  <div id="hover-images-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="hover-images-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="image" class="text-[#00f0ff] w-5 h-5"></i>
+          <span class="text-white">Imágenes Flotantes</span>
+        </h3>
+        <button onclick="window.closeHoverImagesModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="hover-images-form" class="p-6 space-y-4">
+        <!-- Imagen Ingreso -->
+        <div class="text-center space-y-2 border border-gray-800 p-3 rounded-2xl bg-gray-900/50">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Ingresos</label>
+          <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('img-input-ingreso').click()">
+            <img id="preview-img-ingreso" src="" class="w-16 h-16 rounded-xl object-cover border border-[#00f0ff]/50 mx-auto shadow-sm bg-gray-950" alt="Ingreso">
+            <div class="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <i data-lucide="camera" class="w-4 h-4 text-white"></i>
+            </div>
+          </div>
+          <input type="file" id="img-input-ingreso" accept="image/*" class="hidden">
+        </div>
+
+        <!-- Imagen Gasto -->
+        <div class="text-center space-y-2 border border-gray-800 p-3 rounded-2xl bg-gray-900/50">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Gastos</label>
+          <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('img-input-gasto').click()">
+            <img id="preview-img-gasto" src="" class="w-16 h-16 rounded-xl object-cover border border-[#ff007f]/50 mx-auto shadow-sm bg-gray-950" alt="Gasto">
+            <div class="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <i data-lucide="camera" class="w-4 h-4 text-white"></i>
+            </div>
+          </div>
+          <input type="file" id="img-input-gasto" accept="image/*" class="hidden">
+        </div>
+
+        <!-- Imagen Ahorro -->
+        <div class="text-center space-y-2 border border-gray-800 p-3 rounded-2xl bg-gray-900/50">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Ahorros</label>
+          <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('img-input-ahorro').click()">
+            <img id="preview-img-ahorro" src="" class="w-16 h-16 rounded-xl object-cover border border-[#7000ff]/50 mx-auto shadow-sm bg-gray-950" alt="Ahorro">
+            <div class="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <i data-lucide="camera" class="w-4 h-4 text-white"></i>
+            </div>
+          </div>
+          <input type="file" id="img-input-ahorro" accept="image/*" class="hidden">
+        </div>
+
+        <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3.5 rounded-2xl text-xs transition-colors shadow-md mt-2">
+          Guardar Imágenes
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO -->
   <div id="modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
     <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="modal-content">
@@ -759,8 +824,23 @@
             </div>
           </div>
 
-          <div class="space-y-2 pt-1 border-t border-gray-800/40">
-            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">¿Cómo registrar el saldo?</label>
+          <!-- Tipo de Cuenta (Débito/Crédito) NUEVO -->
+          <div class="space-y-2 pt-1 border-t border-gray-800/40 mt-3">
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tipo de Cuenta</label>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
+                <input type="radio" name="acc-type" value="debito" checked class="accent-[#7000ff]">
+                <span>Débito / Regular</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
+                <input type="radio" name="acc-type" value="credito" class="accent-[#ff007f]">
+                <span>Crédito (Deuda)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-1">
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">¿Cómo registrar el saldo inicial?</label>
             <div class="flex gap-4">
               <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
                 <input type="radio" name="acc-init-mode" value="preexistente" checked class="accent-[#7000ff]">
@@ -768,7 +848,7 @@
               </label>
               <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-300">
                 <input type="radio" name="acc-init-mode" value="ingreso" class="accent-[#7000ff]">
-                <span>Ingreso nuevo</span>
+                <span>Como nuevo ingreso</span>
               </label>
             </div>
           </div>
@@ -803,7 +883,7 @@
           <span id="detail-acc-emoji" class="text-3xl p-2 bg-gray-900 rounded-2xl border border-gray-800"></span>
           <div>
             <h3 id="detail-acc-name" class="text-lg font-bold text-white"></h3>
-            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">Cartera</span>
+            <span id="detail-acc-type" class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">Cartera</span>
           </div>
         </div>
         <button onclick="window.closeAccountDetails()" class="text-gray-400 hover:text-white transition-colors">
@@ -825,11 +905,11 @@
             <p id="detail-acc-current" class="text-base font-extrabold text-white"></p>
           </div>
           <div class="bg-emerald-500/5 p-3 rounded-2xl border border-emerald-500/10">
-            <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Ingresos</span>
+            <span class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Abonos/Ingresos</span>
             <p id="detail-acc-income" class="text-sm font-bold text-emerald-400"></p>
           </div>
           <div class="bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10">
-            <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider block mb-1">Gastos</span>
+            <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider block mb-1">Cargos/Gastos</span>
             <p id="detail-acc-expense" class="text-sm font-bold text-rose-400"></p>
           </div>
         </div>
@@ -1065,6 +1145,13 @@
     // Guardado de la clave maestra cargada de Firestore
     let vaultPassword = '2527'; 
 
+    // Estado global para las imágenes flotantes sincronizadas con Firebase
+    let hoverImagesData = {
+      ingreso: '',
+      gasto: '',
+      ahorro: ''
+    };
+
     async function checkBiometricsSupport() {
       if (!window.PublicKeyCredential) return false;
       try {
@@ -1172,10 +1259,10 @@
     const formatCurrency = (amount) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
 
     const DEFAULT_ACCOUNTS = [
-      { id: 'acc_efectivo', name: 'Efectivo', emoji: '💵', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true },
-      { id: 'acc_tarjeta', name: 'Tarjeta', emoji: '💳', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true },
-      { id: 'acc_banco', name: 'Banco', emoji: '🏦', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true },
-      { id: 'acc_mercadolibre', name: 'MercadoLibre', emoji: '📦', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true }
+      { id: 'acc_efectivo', name: 'Efectivo', emoji: '💵', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' },
+      { id: 'acc_tarjeta', name: 'Tarjeta', emoji: '💳', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' },
+      { id: 'acc_banco', name: 'Banco', emoji: '🏦', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' },
+      { id: 'acc_mercadolibre', name: 'MercadoLibre', emoji: '📦', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' }
     ];
 
     const DEFAULT_SUBCATEGORIES = [
@@ -1257,6 +1344,7 @@
               initialBalance: acc.initialBalance || 0,
               initialBalanceDate: acc.initialBalanceDate || new Date().toISOString().split('T')[0],
               isDefault: false,
+              accountType: acc.accountType || 'debito',
               timestamp: new Date().toISOString()
             });
           }
@@ -1303,6 +1391,20 @@
         }
       }, (error) => console.error("Error sincronizando clave:", error));
       
+      // Sincronización en tiempo real de las imágenes flotantes en Firebase
+      const imagesDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'hoverImages');
+      onSnapshot(imagesDocRef, async (docSnap) => {
+        if (docSnap.exists()) {
+          hoverImagesData = docSnap.data();
+        } else {
+          try {
+            await setDoc(imagesDocRef, hoverImagesData);
+          } catch (e) {
+            console.error("Error guardando imágenes por defecto:", e);
+          }
+        }
+      }, (error) => console.error("Error sincronizando imágenes:", error));
+
       updateBiometricLoginUI();
       updateBiometricSettingsUI();
     }
@@ -1577,7 +1679,7 @@
           const percentage = totals.total > 0 ? ((totals[type] / totals.total) * 100).toFixed(1) : '0.0';
           
           listContainer.innerHTML += `
-            <div class="flex items-center justify-between p-3 rounded-xl border ${cat.borderClass} ${cat.bgClass} transition-transform duration-300 hover:scale-[1.02]">
+            <div class="summary-item cursor-pointer flex items-center justify-between p-3 rounded-xl border ${cat.borderClass} ${cat.bgClass} transition-transform duration-300 hover:scale-[1.02]" data-type="${type}">
               <div class="flex items-center gap-3">
                 <span class="text-xl">${cat.emoji}</span>
                 <span class="font-medium text-gray-200">
@@ -1588,6 +1690,34 @@
               <span class="font-bold ${cat.textClass}">${formatCurrency(totals[type])}</span>
             </div>
           `;
+        });
+        
+        // Adjuntar eventos de Hover Flotante Premium para el Tooltip con datos de Firebase
+        const snoopyImg = document.getElementById('snoopy-hover-img');
+        
+        document.querySelectorAll('.summary-item').forEach(item => {
+          item.addEventListener('mouseenter', (e) => {
+            const type = item.getAttribute('data-type');
+            if (hoverImagesData[type] && hoverImagesData[type] !== '' && snoopyImg) {
+              snoopyImg.src = hoverImagesData[type];
+              snoopyImg.style.display = 'block';
+              snoopyImg.classList.remove('hidden');
+              setTimeout(() => snoopyImg.classList.remove('opacity-0'), 10);
+            }
+          });
+          item.addEventListener('mousemove', (e) => {
+            if (snoopyImg) {
+              snoopyImg.style.left = e.clientX + 'px';
+              // Desfasar un poco para que flote agradablemente junto al cursor
+              snoopyImg.style.top = (e.clientY - 15) + 'px';
+            }
+          });
+          item.addEventListener('mouseleave', () => {
+            if (snoopyImg) {
+              snoopyImg.classList.add('opacity-0');
+              setTimeout(() => snoopyImg.classList.add('hidden'), 200);
+            }
+          });
         });
       }
     }
@@ -1771,12 +1901,17 @@
 
       accountBalances.forEach(acc => {
         totalNetWorth += acc.balance;
+        const badge = acc.accountType === 'credito' 
+          ? `<span class="text-[9px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded mt-1 uppercase block w-max">Crédito</span>` 
+          : '';
+          
         deck.innerHTML += `
           <div onclick="window.openAccountDetails('${acc.id}')" class="bg-gray-900/40 p-4 rounded-xl border border-gray-800 flex items-center gap-3 shadow-md cursor-pointer hover:scale-[1.03] active:scale-[0.98] hover:border-[#00f0ff]/30 transition-all duration-300">
             <span class="text-3xl p-2 bg-gray-950 rounded-lg">${acc.emoji}</span>
-            <div class="overflow-hidden">
-              <h3 class="text-xs text-gray-400 font-medium truncate">${acc.name}</h3>
-              <p class="text-lg font-bold tracking-tight text-white truncate">${formatCurrency(acc.balance)}</p>
+            <div class="overflow-hidden w-full">
+              <h3 class="text-xs text-gray-400 font-medium truncate w-full">${acc.name}</h3>
+              <p class="text-lg font-bold tracking-tight text-white truncate w-full">${formatCurrency(acc.balance)}</p>
+              ${badge}
             </div>
           </div>
         `;
@@ -1910,6 +2045,7 @@
 
       const detailAccEmoji = document.getElementById('detail-acc-emoji');
       const detailAccName = document.getElementById('detail-acc-name');
+      const detailAccType = document.getElementById('detail-acc-type');
       const detailAccInit = document.getElementById('detail-acc-init');
       const detailAccInitDate = document.getElementById('detail-acc-init-date');
       const detailAccCurrent = document.getElementById('detail-acc-current');
@@ -1918,6 +2054,17 @@
 
       if (detailAccEmoji) detailAccEmoji.textContent = acc.emoji;
       if (detailAccName) detailAccName.textContent = acc.name;
+      
+      if (detailAccType) {
+        if (acc.accountType === 'credito') {
+          detailAccType.textContent = 'Crédito';
+          detailAccType.className = 'text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider';
+        } else {
+          detailAccType.textContent = 'Cartera';
+          detailAccType.className = 'text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider';
+        }
+      }
+
       if (detailAccInit) detailAccInit.textContent = formatCurrency(initialBalance);
       if (detailAccInitDate) detailAccInitDate.textContent = acc.initialBalanceDate ? `Registrado: ${acc.initialBalanceDate}` : 'No especificado';
       if (detailAccCurrent) detailAccCurrent.textContent = formatCurrency(currentBalance);
@@ -2103,6 +2250,7 @@
       const name = document.getElementById('new-acc-name');
       const balance = document.getElementById('new-acc-balance');
       const date = document.getElementById('new-acc-date');
+      const typeRadio = document.querySelector('input[name="acc-type"][value="debito"]');
       const btn = document.getElementById('btn-save-account');
       const cancelBtn = document.getElementById('btn-cancel-account-edit');
 
@@ -2111,6 +2259,7 @@
       if (name) name.value = '';
       if (balance) balance.value = '';
       if (date) date.value = new Date().toISOString().split('T')[0];
+      if (typeRadio) typeRadio.checked = true;
       if (btn) btn.textContent = "+ Agregar Cuenta";
       if (cancelBtn) cancelBtn.classList.add('hidden');
     }
@@ -2126,12 +2275,16 @@
       container.innerHTML = '';
 
       accounts.forEach(acc => {
+        const typeBadge = acc.accountType === 'credito' 
+          ? `<span class="text-[9px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded ml-2 uppercase">Crédito</span>` 
+          : '';
+          
         container.innerHTML += `
           <div class="flex items-center justify-between bg-gray-900/60 p-2.5 rounded-xl border border-gray-800">
             <div class="flex flex-col">
               <span class="text-sm font-semibold text-white flex items-center gap-2">
                 <span class="text-lg bg-gray-850 px-1.5 py-0.5 rounded">${acc.emoji}</span>
-                ${acc.name}
+                ${acc.name} ${typeBadge}
               </span>
               ${acc.initialBalance > 0 ? `<span class="text-[10px] text-gray-400 mt-1">S. Inicial: ${formatCurrency(acc.initialBalance)} (${acc.initialBalanceDate})</span>` : ''}
             </div>
@@ -2159,6 +2312,7 @@
       const name = document.getElementById('new-acc-name');
       const balance = document.getElementById('new-acc-balance');
       const date = document.getElementById('new-acc-date');
+      const typeRadio = document.querySelector(`input[name="acc-type"][value="${acc.accountType || 'debito'}"]`);
       const btn = document.getElementById('btn-save-account');
       const cancelBtn = document.getElementById('btn-cancel-account-edit');
 
@@ -2167,6 +2321,7 @@
       if (name) name.value = acc.name;
       if (balance) balance.value = acc.initialBalance || '';
       if (date) date.value = acc.initialBalanceDate || new Date().toISOString().split('T')[0];
+      if (typeRadio) typeRadio.checked = true;
       if (btn) btn.textContent = "Actualizar Cuenta";
       if (cancelBtn) cancelBtn.classList.remove('hidden');
     }
@@ -2179,12 +2334,14 @@
         const nameInput = document.getElementById('new-acc-name');
         const balanceInput = document.getElementById('new-acc-balance');
         const dateInput = document.getElementById('new-acc-date');
+        const typeInput = document.querySelector('input[name="acc-type"]:checked');
         const initModeInput = document.querySelector('input[name="acc-init-mode"]:checked');
 
         const emoji = emojiInput ? emojiInput.value.trim() : '💳';
         const name = nameInput ? nameInput.value.trim() : '';
         const initialBalance = balanceInput ? (parseFloat(balanceInput.value) || 0) : 0;
         const initialBalanceDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
+        const accountType = typeInput ? typeInput.value : 'debito';
         const initMode = initModeInput ? initModeInput.value : 'preexistente';
 
         if (!name) return;
@@ -2208,14 +2365,16 @@
                 name: name,
                 emoji: emoji,
                 initialBalance: 0,
-                initialBalanceDate: initialBalanceDate
+                initialBalanceDate: initialBalanceDate,
+                accountType: accountType
               });
             } else {
               await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'accounts', editingAccountId), {
                 name: name,
                 emoji: emoji,
                 initialBalance: initialBalance,
-                initialBalanceDate: initialBalanceDate
+                initialBalanceDate: initialBalanceDate,
+                accountType: accountType
               });
             }
             
@@ -2233,6 +2392,7 @@
               initialBalance: initMode === 'preexistente' ? initialBalance : 0,
               initialBalanceDate: initialBalanceDate,
               isDefault: false,
+              accountType: accountType,
               timestamp: new Date().toISOString()
             });
 
@@ -3113,6 +3273,103 @@
       }
     }
 
+    // Funciones para manejar la carga de imágenes flotantes
+    function handleHoverImageUpload(inputId, previewId) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      if (input && preview) {
+        input.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const maxSize = 250; 
+              let width = img.width;
+              let height = img.height;
+              if (width > height) {
+                if (width > maxSize) {
+                  height *= maxSize / width;
+                  width = maxSize;
+                }
+              } else {
+                if (height > maxSize) {
+                  width *= maxSize / height;
+                  height = maxSize;
+                }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              preview.src = canvas.toDataURL('image/jpeg', 0.7);
+            };
+            img.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    handleHoverImageUpload('img-input-ingreso', 'preview-img-ingreso');
+    handleHoverImageUpload('img-input-gasto', 'preview-img-gasto');
+    handleHoverImageUpload('img-input-ahorro', 'preview-img-ahorro');
+
+    function openHoverImagesModal() {
+      const prevIn = document.getElementById('preview-img-ingreso');
+      const prevGa = document.getElementById('preview-img-gasto');
+      const prevAh = document.getElementById('preview-img-ahorro');
+      if (prevIn) prevIn.src = hoverImagesData.ingreso || '';
+      if (prevGa) prevGa.src = hoverImagesData.gasto || '';
+      if (prevAh) prevAh.src = hoverImagesData.ahorro || '';
+
+      const modalElement = document.getElementById('hover-images-modal');
+      const content = document.getElementById('hover-images-content');
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeHoverImagesModal() {
+      const modalElement = document.getElementById('hover-images-modal');
+      const content = document.getElementById('hover-images-content');
+      if (modalElement && content) {
+        modalElement.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modalElement.classList.add('hidden'), 300);
+      }
+    }
+
+    const hoverImagesForm = document.getElementById('hover-images-form');
+    if (hoverImagesForm) {
+      hoverImagesForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const prevIn = document.getElementById('preview-img-ingreso').src;
+        const prevGa = document.getElementById('preview-img-gasto').src;
+        const prevAh = document.getElementById('preview-img-ahorro').src;
+
+        const newImages = {
+           ingreso: prevIn !== window.location.href ? prevIn : hoverImagesData.ingreso,
+           gasto: prevGa !== window.location.href ? prevGa : hoverImagesData.gasto,
+           ahorro: prevAh !== window.location.href ? prevAh : hoverImagesData.ahorro
+        };
+
+        try {
+          const imagesDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'hoverImages');
+          await setDoc(imagesDocRef, newImages, { merge: true });
+          closeHoverImagesModal();
+        } catch (error) {
+          console.error("Error al actualizar imágenes flotantes:", error);
+        }
+      });
+    }
+
     window.addEventListener('mousemove', resetInactivityTimer);
     window.addEventListener('keypress', resetInactivityTimer);
     window.addEventListener('scroll', resetInactivityTimer);
@@ -3127,6 +3384,7 @@
         closePasswordSettingsModal();
         closeAccountDetails();
         closeConfirm();
+        closeHoverImagesModal();
         const profileMenu = document.getElementById('profile-dropdown-menu');
         const exportMenu = document.getElementById('export-dropdown');
         if (profileMenu) profileMenu.classList.add('hidden');
@@ -3141,7 +3399,8 @@
       { id: 'account-details-modal', closeFunc: closeAccountDetails },
       { id: 'profile-settings-modal', closeFunc: closeProfileSettingsModal },
       { id: 'password-settings-modal', closeFunc: closePasswordSettingsModal },
-      { id: 'confirm-modal', closeFunc: closeConfirm }
+      { id: 'confirm-modal', closeFunc: closeConfirm },
+      { id: 'hover-images-modal', closeFunc: closeHoverImagesModal }
     ];
 
     modalContainers.forEach(modal => {
@@ -3189,6 +3448,8 @@
     window.closeConfirm = closeConfirm;
     window.triggerConfirm = triggerConfirm;
     window.logout = logout;
+    window.openHoverImagesModal = openHoverImagesModal;
+    window.closeHoverImagesModal = closeHoverImagesModal;
 
     checkBiometricsSupport().then(supported => {
       if (supported) {
