@@ -222,6 +222,7 @@
     body.light-theme .text-cyan-400 { color: #00818d !important; }
     body.light-theme .text-pink-400 { color: #c40062 !important; }
     body.light-theme .text-purple-400 { color: #5000be !important; }
+    body.light-theme .text-amber-400 { color: #b45309 !important; }
 
     /* Renglones del desglose bajo el gráfico de dona en modo claro */
     body.light-theme .bg-cyan-500\/10 { 
@@ -235,6 +236,10 @@
     body.light-theme .bg-purple-500\/10 { 
       background-color: rgba(80, 0, 190, 0.06) !important; 
       border-color: rgba(80, 0, 190, 0.15) !important; 
+    }
+    body.light-theme .bg-amber-500\/10 { 
+      background-color: rgba(245, 158, 11, 0.06) !important; 
+      border-color: rgba(245, 158, 11, 0.15) !important; 
     }
     
     /* Configuración de listas y modales de subcategorías */
@@ -292,7 +297,7 @@
 <body class="min-h-screen selection:bg-[#ff007f]/30 p-4 md:p-8 relative">
 
   <!-- Imagen Flotante Tooltip -->
-  <img id="snoopy-hover-img" class="fixed z-[9999] hidden w-32 h-32 md:w-40 md:h-40 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.5)] pointer-events-none transform -translate-x-1/2 -translate-y-[110%] transition-opacity duration-200 opacity-0 border-2 border-white/20 object-cover" src="" alt="Tooltip" onerror="this.onerror=null; this.style.display='none';" />
+  <img id="snoopy-hover-img" class="fixed z-[9999] hidden w-32 md:w-40 h-auto rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] pointer-events-none transform -translate-x-1/2 -translate-y-[110%] transition-opacity duration-200 opacity-0 border border-white/10 object-cover" src="" alt="Tooltip" onerror="this.onerror=null; this.style.display='none';" />
 
   <!-- Pestaña lateral para imágenes flotantes -->
   <button id="btn-hover-images-settings" onclick="openHoverImagesModal()" class="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-gray-950/80 border border-gray-800 border-r-0 rounded-l-xl p-2 text-gray-500 hover:text-[#00f0ff] hover:bg-gray-900 backdrop-blur-md shadow-lg transition-all focus:outline-none" title="Personalizar Imágenes Flotantes">
@@ -555,6 +560,32 @@
         </div>
       </section>
 
+      <!-- SECCIÓN: COLECCIÓN DE DIECASTS -->
+      <section id="diecasts-section" class="glass-card rounded-2xl border border-amber-500/15 p-6 shadow-xl transition-all">
+        <!-- HEADER PLEGABLE -->
+        <div id="toggle-diecasts-btn" class="flex justify-between items-center cursor-pointer group">
+          <div class="flex items-center gap-3">
+            <i data-lucide="car-front" class="w-5 h-5 text-amber-500 filter drop-shadow-[0_0_5px_rgba(245,158,11,0.4)]"></i>
+            <h2 class="text-xl font-bold group-hover:text-amber-500 transition-colors text-white">Historial de DieCasts</h2>
+          </div>
+          <button class="p-2 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg transition-colors text-gray-400 group-hover:text-white">
+            <i data-lucide="chevron-down" id="diecasts-chevron" class="w-5 h-5 transition-transform duration-300"></i>
+          </button>
+        </div>
+
+        <!-- CONTENIDO PLEGABLE -->
+        <div id="diecasts-content" class="hidden mt-6 space-y-6 animate-fade-in">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-800/80 pb-4">
+            <h3 class="text-sm text-gray-400 font-bold uppercase tracking-wider" id="diecasts-month-label">Inversión en la Colección (Selección Actual)</h3>
+            <span class="text-2xl font-black text-amber-400 mt-2 md:mt-0" id="diecasts-month-total">$0.00</span>
+          </div>
+          
+          <div id="diecasts-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <!-- Tarjetas de DieCasts se cargarán aquí -->
+          </div>
+        </div>
+      </section>
+
       <!-- SECCIÓN INFERIOR: CONSULTA HISTÓRICA Y BÚSQUEDA -->
       <section id="historical-section" class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl transition-all">
         <!-- HEADER PLEGABLE -->
@@ -613,7 +644,7 @@
           </div>
 
           <!-- Mini Resumen Anual/Mensual -->
-          <div id="year-summary-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div id="year-summary-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <!-- Totales anuales aquí -->
           </div>
 
@@ -698,14 +729,14 @@
     </div>
   </div>
 
-  <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO -->
+  <!-- MODAL PARA AGREGAR/EDITAR MOVIMIENTO O DIECAST -->
   <div id="modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
     <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="modal-content">
       
       <div class="flex justify-between items-center p-6 border-b border-gray-800">
         <h3 class="text-lg font-bold flex items-center gap-2">
           <i data-lucide="calendar" class="w-5 h-5 text-[#00f0ff]"></i>
-          <span id="modal-title-text" class="text-white">Añadir Movimiento</span>
+          <span id="modal-title-text" class="text-white">Añadir Registro</span>
           <span id="modal-date-label" class="text-xs font-semibold text-[#00f0ff] bg-[#00f0ff]/10 px-2.5 py-1 rounded-lg ml-2"></span>
         </h3>
         <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
@@ -715,30 +746,49 @@
 
       <form id="movement-form" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
         
-        <!-- SELECTOR DE TIPO (ESTILO PÍLDORA SEGMENTADA) -->
-        <div class="p-1 bg-gray-900 rounded-2xl border border-gray-800 flex relative">
-          <button type="button" onclick="window.selectType('ingreso')" id="btn-type-ingreso" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+        <!-- SELECTOR DE TIPO (ESTILO PÍLDORA SEGMENTADA AMPLIADA) -->
+        <div class="p-1 bg-gray-900 rounded-2xl border border-gray-800 flex flex-wrap gap-1 relative">
+          <button type="button" onclick="window.selectType('ingreso')" id="btn-type-ingreso" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
             📈 Ingreso
           </button>
-          <button type="button" onclick="window.selectType('gasto')" id="btn-type-gasto" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+          <button type="button" onclick="window.selectType('gasto')" id="btn-type-gasto" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
             📉 Gasto
           </button>
-          <button type="button" onclick="window.selectType('ahorro')" id="btn-type-ahorro" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
+          <button type="button" onclick="window.selectType('ahorro')" id="btn-type-ahorro" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
             💰 Ahorro
+          </button>
+          <button type="button" onclick="window.selectType('diecast')" id="btn-type-diecast" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400 min-w-[70px]">
+            🚗 DieCast
           </button>
         </div>
 
-        <!-- Selector de Subcategoría -->
-        <div class="space-y-1.5">
+        <!-- Selector de Subcategoría (Oculto para DieCasts) -->
+        <div id="container-subcategory" class="space-y-1.5">
           <div class="flex justify-between items-center">
             <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Subcategoría</label>
             <button type="button" onclick="openSubcategoryManager()" class="text-xs text-[#00f0ff] hover:text-[#00f0ff]/80 flex items-center gap-1 transition-colors">
               <i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Gestionar
             </button>
           </div>
-          <select id="form-subcategory" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
+          <select id="form-subcategory" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
             <!-- Subcategorías inyectadas dinámicamente -->
           </select>
+        </div>
+
+        <!-- Foto del DieCast (Visible solo para DieCasts) -->
+        <div id="container-photo" class="space-y-1.5 hidden">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Foto del Modelo</label>
+          <div class="relative w-full h-32 border-2 border-dashed border-gray-800 rounded-2xl flex items-center justify-center bg-gray-950 hover:bg-gray-900 transition-colors cursor-pointer overflow-hidden group" onclick="document.getElementById('form-photo-input').click()">
+            <img id="form-photo-preview" src="" class="w-full h-full object-cover hidden">
+            <div id="form-photo-placeholder" class="text-gray-500 flex flex-col items-center group-hover:text-amber-500 transition-colors">
+              <i data-lucide="camera" class="w-6 h-6 mb-1"></i>
+              <span class="text-xs font-semibold">Subir Foto</span>
+            </div>
+            <div class="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+              <i data-lucide="edit-2" class="w-6 h-6 text-white"></i>
+            </div>
+          </div>
+          <input type="file" id="form-photo-input" accept="image/*" class="hidden">
         </div>
 
         <!-- Selector de Cuenta -->
@@ -751,7 +801,7 @@
 
         <!-- Cantidad -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cantidad</label>
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Monto / Costo</label>
           <div class="relative">
             <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
             <input type="number" id="form-amount" step="0.01" required min="0" placeholder="0.00" class="w-full bg-gray-900 border border-gray-800 rounded-2xl pl-10 pr-4 py-4 focus:border-[#00f0ff] focus:ring-2 focus:ring-[#00f0ff]/10 outline-none text-xl font-bold text-white transition-colors" />
@@ -760,7 +810,7 @@
 
         <!-- Concepto -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Concepto / Descripción</label>
+          <label id="label-concept" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Concepto / Descripción</label>
           <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none text-white text-sm transition-colors placeholder:text-gray-600" />
         </div>
 
@@ -1141,6 +1191,7 @@
     let searchQuery = '';
     let inactivityTimeout;
     let confirmCallback = null; 
+    let currentDieCastPhoto = ''; // Fotografía guardada del modal
 
     // Guardado de la clave maestra cargada de Firestore
     let vaultPassword = '2527'; 
@@ -1283,7 +1334,8 @@
     const CATEGORIES = {
       ingreso: { label: 'Ingreso', emoji: '📈', color: '#00f0ff', bgClass: 'bg-cyan-500/10', textClass: 'text-cyan-400', borderClass: 'border-cyan-500/50' },
       gasto: { label: 'Gasto', emoji: '📉', color: '#ff007f', bgClass: 'bg-pink-500/10', textClass: 'text-pink-400', borderClass: 'border-pink-500/50' },
-      ahorro: { label: 'Ahorro', emoji: '💰', color: '#7000ff', bgClass: 'bg-purple-500/10', textClass: 'text-purple-400', borderClass: 'border-purple-500/50' }
+      ahorro: { label: 'Ahorro', emoji: '💰', color: '#7000ff', bgClass: 'bg-purple-500/10', textClass: 'text-purple-400', borderClass: 'border-purple-500/50' },
+      diecast: { label: 'DieCast', emoji: '🚗', color: '#f59e0b', bgClass: 'bg-amber-500/10', textClass: 'text-amber-500', borderClass: 'border-amber-500/50' }
     };
 
     const yearSelect = document.getElementById('year-select');
@@ -1369,7 +1421,6 @@
     }
 
     function loadUserProfileAndSecurity() {
-      // Sincronización en tiempo real del perfil (disponible en todos los dispositivos)
       const profileDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'profile');
       onSnapshot(profileDocRef, (docSnap) => {
         if (docSnap.exists()) {
@@ -1380,7 +1431,6 @@
         }
       }, (error) => console.error("Error sincronizando perfil:", error));
 
-      // Sincronización en tiempo real de la seguridad (contraseña)
       const securityDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'security');
       onSnapshot(securityDocRef, (docSnap) => {
         if (docSnap.exists()) {
@@ -1391,7 +1441,6 @@
         }
       }, (error) => console.error("Error sincronizando clave:", error));
       
-      // Sincronización en tiempo real de las imágenes flotantes en Firebase
       const imagesDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'hoverImages');
       onSnapshot(imagesDocRef, async (docSnap) => {
         if (docSnap.exists()) {
@@ -1434,6 +1483,7 @@
       renderYearSummary();
       renderTable();
       renderAccountsSection();
+      renderDieCastsSection();
       lucide.createIcons();
     }
 
@@ -1484,7 +1534,7 @@
         let innerHTML = `<span class="text-base md:text-lg font-bold w-full text-center mt-2">${day}</span>`;
 
         if (dayMovements.length > 0) {
-          let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[11px] md:text-sm" title="${m.subcategory || CATEGORIES[m.type].label}: ${formatCurrency(m.amount)}">${m.subcategoryEmoji || CATEGORIES[m.type].emoji}</span>`).join('');
+          let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[11px] md:text-sm" title="${m.subcategory || CATEGORIES[m.type]?.label}: ${formatCurrency(m.amount)}">${m.subcategoryEmoji || (CATEGORIES[m.type] ? CATEGORIES[m.type].emoji : '🏷️')}</span>`).join('');
           if (dayMovements.length > 3) emojisHtml += `<span class="text-[10px] text-gray-400 font-bold">+${dayMovements.length - 3}</span>`;
           
           innerHTML += `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full px-1 pb-1">${emojisHtml}</div>`;
@@ -1504,33 +1554,34 @@
         return d.getFullYear() === year && d.getMonth() === month;
       });
 
-      let totals = { ingreso: 0, gasto: 0, ahorro: 0, total: 0 };
+      let totals = { ingreso: 0, gasto: 0, ahorro: 0, diecast: 0, total: 0 };
       monthMovements.forEach(m => {
-        totals[m.type] += m.amount;
-        totals.total += m.amount; 
+        if (totals[m.type] !== undefined) {
+          totals[m.type] += m.amount;
+          totals.total += m.amount; 
+        }
       });
 
       const donutTotalEl = document.getElementById('donut-total');
-      if (donutTotalEl) donutTotalEl.textContent = formatCurrency(totals.ingreso + totals.ahorro - totals.gasto);
+      if (donutTotalEl) donutTotalEl.textContent = formatCurrency(totals.ingreso + totals.ahorro - totals.gasto - totals.diecast);
 
       const ctx = document.getElementById('month-donut-canvas');
       if (ctx) {
         const isLight = document.body.classList.contains('light-theme');
         const emptyColor = isLight ? '#e2e0eb' : '#141221'; 
 
-        const dataValues = totals.total === 0 ? [1] : [totals.ingreso, totals.gasto, totals.ahorro];
-        const bgColors = totals.total === 0 ? [emptyColor] : [CATEGORIES.ingreso.color, CATEGORIES.gasto.color, CATEGORIES.ahorro.color];
-        const borderColors = totals.total === 0 ? [emptyColor] : [CATEGORIES.ingreso.color, CATEGORIES.gasto.color, CATEGORIES.ahorro.color];
-        const labels = totals.total === 0 ? ['Sin datos'] : ['Ingresos', 'Gastos', 'Ahorros'];
+        const dataValues = totals.total === 0 ? [1] : [totals.ingreso, totals.gasto, totals.ahorro, totals.diecast];
+        const bgColors = totals.total === 0 ? [emptyColor] : [CATEGORIES.ingreso.color, CATEGORIES.gasto.color, CATEGORIES.ahorro.color, CATEGORIES.diecast.color];
+        const borderColors = totals.total === 0 ? [emptyColor] : [CATEGORIES.ingreso.color, CATEGORIES.gasto.color, CATEGORIES.ahorro.color, CATEGORIES.diecast.color];
+        const labels = totals.total === 0 ? ['Sin datos'] : ['Ingresos', 'Gastos', 'Ahorros', 'DieCasts'];
         const offsetValues = dataValues.map(() => 0);
 
-        // Configuración responsive dinámica optimizada para evitar amontonamiento en PC y mantener legibilidad en celular
         const isPC = window.innerWidth >= 768;
-        const leftRightPadding = isPC ? 85 : 25; // Ajuste exacto para evitar el corte de texto lateral en PC
+        const leftRightPadding = isPC ? 85 : 25; 
         const topBottomPadding = isPC ? 15 : 12;
         const labelFontSize = isPC ? '12px' : '10px';
         const subLabelFontSize = isPC ? '10px' : '8px';
-        const lineOffset = isPC ? 10 : 8; // Más compacto para evitar colisiones periféricas en PC
+        const lineOffset = isPC ? 10 : 8; 
 
         if (!Chart.Tooltip.positioners.cursor) {
           Chart.Tooltip.positioners.cursor = function(elements, eventPosition) {
@@ -1596,12 +1647,10 @@
                 ctx.textBaseline = 'middle';
                 const padding = Math.cos(angle) > 0 ? 5 : -5;
                 
-                // Etiqueta principal
                 ctx.fillStyle = dataset.borderColor[index];
                 ctx.font = `bold ${labelFontSize} sans-serif`;
                 ctx.fillText(chart.data.labels[index], endX + padding, endY - 6);
 
-                // Etiqueta secundaria (porcentaje y monto)
                 const percent = currentTotal > 0 ? ((value / currentTotal) * 100).toFixed(1) : 0;
                 ctx.fillStyle = document.body.classList.contains('light-theme') ? '#6e6183' : '#9ca3af';
                 ctx.font = `normal ${subLabelFontSize} sans-serif`;
@@ -1635,12 +1684,12 @@
                 if (chart.data.labels[0] === 'Sin datos') return;
                 if (activeElements.length > 0) {
                   const index = activeElements[0].index;
-                  const currentOffset = chart.data.datasets[0].offset || [0,0,0];
+                  const currentOffset = chart.data.datasets[0].offset || [0,0,0,0];
                   const newOffset = currentOffset.map((val, i) => i === index ? (val === 20 ? 0 : 20) : 0);
                   chart.data.datasets[0].offset = newOffset;
                   chart.update();
                 } else {
-                  chart.data.datasets[0].offset = [0,0,0];
+                  chart.data.datasets[0].offset = [0,0,0,0];
                   chart.update();
                 }
               },
@@ -1676,7 +1725,8 @@
         
         Object.keys(CATEGORIES).forEach(type => {
           const cat = CATEGORIES[type];
-          const percentage = totals.total > 0 ? ((totals[type] / totals.total) * 100).toFixed(1) : '0.0';
+          const val = totals[type] || 0;
+          const percentage = totals.total > 0 ? ((val / totals.total) * 100).toFixed(1) : '0.0';
           
           listContainer.innerHTML += `
             <div class="summary-item cursor-pointer flex items-center justify-between p-3 rounded-xl border ${cat.borderClass} ${cat.bgClass} transition-transform duration-300 hover:scale-[1.02]" data-type="${type}">
@@ -1687,14 +1737,12 @@
                   <span class="text-xs text-gray-500 font-bold ml-1">(${percentage}%)</span>
                 </span>
               </div>
-              <span class="font-bold ${cat.textClass}">${formatCurrency(totals[type])}</span>
+              <span class="font-bold ${cat.textClass}">${formatCurrency(val)}</span>
             </div>
           `;
         });
         
-        // Adjuntar eventos de Hover Flotante Premium para el Tooltip con datos de Firebase
         const snoopyImg = document.getElementById('snoopy-hover-img');
-        
         document.querySelectorAll('.summary-item').forEach(item => {
           item.addEventListener('mouseenter', (e) => {
             const type = item.getAttribute('data-type');
@@ -1702,22 +1750,17 @@
               snoopyImg.src = hoverImagesData[type];
               snoopyImg.style.display = 'block';
               snoopyImg.classList.remove('hidden');
-              setTimeout(() => {
-                snoopyImg.classList.remove('opacity-0');
-                snoopyImg.classList.add('opacity-70');
-              }, 10);
+              setTimeout(() => snoopyImg.classList.remove('opacity-0'), 10);
             }
           });
           item.addEventListener('mousemove', (e) => {
             if (snoopyImg) {
               snoopyImg.style.left = e.clientX + 'px';
-              // Desfasar un poco para que flote agradablemente junto al cursor
               snoopyImg.style.top = (e.clientY - 15) + 'px';
             }
           });
           item.addEventListener('mouseleave', () => {
             if (snoopyImg) {
-              snoopyImg.classList.remove('opacity-70');
               snoopyImg.classList.add('opacity-0');
               setTimeout(() => snoopyImg.classList.add('hidden'), 200);
             }
@@ -1735,9 +1778,11 @@
         return matchYear && matchMonth && matchAcc;
       });
 
-      let totals = { ingreso: 0, gasto: 0, ahorro: 0 };
+      let totals = { ingreso: 0, gasto: 0, ahorro: 0, diecast: 0 };
       yearMovements.forEach(m => {
-        totals[m.type] += m.amount;
+        if (totals[m.type] !== undefined) {
+          totals[m.type] += m.amount;
+        }
       });
 
       let initialAssets = 0;
@@ -1772,7 +1817,7 @@
 
       if (initialAssets > 0) {
         const assetPill = document.createElement('div');
-        assetPill.className = "col-span-1 md:col-span-3 bg-[#7000ff]/10 p-3 rounded-xl border border-[#7000ff]/20 text-center text-xs text-[#00f0ff] font-semibold transition-transform hover:scale-[1.01]";
+        assetPill.className = "col-span-1 md:col-span-4 bg-[#7000ff]/10 p-3 rounded-xl border border-[#7000ff]/20 text-center text-xs text-[#00f0ff] font-semibold transition-transform hover:scale-[1.01]";
         assetPill.innerHTML = `💼 Patrimonio Inicial Preexistente registrado en este período: <span class="font-extrabold text-white text-sm ml-1">${formatCurrency(initialAssets)}</span>`;
         gridContainer.appendChild(assetPill);
       }
@@ -1789,10 +1834,11 @@
         const matchYear = d.getFullYear() === searchYear;
         const matchMonth = searchMonth === 'all' || d.getMonth() === parseInt(searchMonth);
         const matchAcc = searchAccount === 'all' || m.accountId === searchAccount;
+        const catLabel = CATEGORIES[m.type] ? CATEGORIES[m.type].label.toLowerCase() : '';
         const matchQuery = m.concept.toLowerCase().includes(lowerQuery) || 
                            m.amount.toString().includes(lowerQuery) ||
                            (m.subcategory && m.subcategory.toLowerCase().includes(lowerQuery)) ||
-                           CATEGORIES[m.type].label.toLowerCase().includes(lowerQuery);
+                           catLabel.includes(lowerQuery);
         return matchYear && matchMonth && matchAcc && matchQuery;
       });
 
@@ -1802,9 +1848,10 @@
       }
 
       filtered.forEach(m => {
-        const cat = CATEGORIES[m.type];
+        const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
         const assignedAcc = accounts.find(a => a.id === m.accountId);
         const accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
+        const isExpense = (m.type === 'gasto' || m.type === 'diecast');
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-800/30 transition-colors border-b border-gray-850 last:border-0';
@@ -1823,14 +1870,14 @@
           <td class="py-3 px-4 text-gray-300 font-medium whitespace-nowrap">${accountLabel}</td>
           <td class="py-3 px-4 text-gray-300 max-w-xs truncate">${m.concept}</td>
           <td class="py-3 px-4 text-right font-bold ${cat.textClass}">
-            ${m.type === 'gasto' ? '-' : '+'}${formatCurrency(m.amount)}
+            ${isExpense ? '-' : '+'}${formatCurrency(m.amount)}
           </td>
           <td class="py-3 px-4 text-center">
             <div class="flex items-center justify-center gap-2">
-              <button data-id="${m.id}" class="btn-edit p-1.5 text-gray-500 hover:text-[#00f0ff] rounded-md hover:bg-[#00f0ff]/10 transition-colors" title="Editar">
+              <button onclick="window.editMovement('${m.id}')" class="p-1.5 text-gray-500 hover:text-[#00f0ff] rounded-md hover:bg-[#00f0ff]/10 transition-colors" title="Editar">
                 <i data-lucide="edit-3" class="w-4 h-4 pointer-events-none"></i>
               </button>
-              <button data-id="${m.id}" class="btn-delete p-1.5 text-gray-500 hover:text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors" title="Eliminar">
+              <button onclick="window.deleteMovement('${m.id}')" class="p-1.5 text-gray-500 hover:text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors" title="Eliminar">
                 <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
               </button>
             </div>
@@ -1838,6 +1885,53 @@
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function renderDieCastsSection() {
+      const grid = document.getElementById('diecasts-grid');
+      const monthTotalEl = document.getElementById('diecasts-month-total');
+      if(!grid || !monthTotalEl) return;
+
+      const diecasts = movements.filter(m => m.type === 'diecast');
+      diecasts.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+      let monthTotal = 0;
+      diecasts.forEach(d => {
+        const dt = new Date(d.date + 'T00:00:00');
+        const matchYear = dt.getFullYear() === searchYear;
+        const matchMonth = searchMonth === 'all' || dt.getMonth() === parseInt(searchMonth);
+        const matchAcc = searchAccount === 'all' || d.accountId === searchAccount;
+        if (matchYear && matchMonth && matchAcc) {
+          monthTotal += d.amount;
+        }
+      });
+      monthTotalEl.textContent = formatCurrency(monthTotal);
+
+      grid.innerHTML = '';
+      if(diecasts.length === 0) {
+         grid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-4">No hay DieCasts registrados bajo estos filtros.</p>';
+         return;
+      }
+
+      diecasts.forEach(d => {
+         grid.innerHTML += `
+           <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 flex flex-col relative group shadow-md hover:shadow-amber-500/10 hover:border-amber-500/30 transition-all duration-300">
+             <div class="h-32 bg-gray-950 flex items-center justify-center overflow-hidden border-b border-gray-800">
+               ${d.photo ? `<img src="${d.photo}" class="w-full h-full object-cover">` : `<i data-lucide="image" class="w-8 h-8 text-gray-700"></i>`}
+             </div>
+             <div class="p-3 flex flex-col gap-1 bg-gray-900/60">
+               <span class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">${d.date}</span>
+               <span class="text-sm font-bold text-white truncate" title="${d.concept}">${d.concept}</span>
+               <span class="text-amber-400 font-black">${formatCurrency(d.amount)}</span>
+             </div>
+             <div class="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+               <button onclick="window.editMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-[#00f0ff]/20 text-gray-300 hover:text-[#00f0ff] rounded-lg backdrop-blur-md transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+               <button onclick="window.deleteMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-rose-500/20 text-gray-300 hover:text-rose-400 rounded-lg backdrop-blur-md transition-colors"><i data-lucide="trash" class="w-4 h-4"></i></button>
+             </div>
+           </div>
+         `;
+      });
+      lucide.createIcons();
     }
 
     function updateAccountsSelectors() {
@@ -1893,14 +1987,13 @@
         movements.forEach(m => {
           if (m.accountId === acc.id || m.account === acc.name) { 
             if (m.type === 'ingreso' || m.type === 'ahorro') balance += m.amount;
-            else if (m.type === 'gasto') balance -= m.amount;
+            else if (m.type === 'gasto' || m.type === 'diecast') balance -= m.amount;
           }
         });
         
         accountBalances.push({ ...acc, balance });
       });
 
-      // Ordenar las cuentas de mayor a menor saldo
       accountBalances.sort((a, b) => b.balance - a.balance);
 
       accountBalances.forEach(acc => {
@@ -1943,18 +2036,16 @@
       const bgColors = accountBalances.map((acc, i) => {
         const nameLower = acc.name.toLowerCase();
         
-        // Identificar y asignar colores institucionales solicitados
         if (nameLower.includes('nu')) {
-          return 'rgba(138, 5, 190, 0.65)'; // Morado Nu
+          return 'rgba(138, 5, 190, 0.65)'; 
         } else if (nameLower.includes('mercadolibre') || nameLower.includes('mercado libre') || nameLower.includes('mercado')) {
-          return 'rgba(255, 230, 0, 0.7)'; // Amarillo MercadoLibre
+          return 'rgba(255, 230, 0, 0.7)'; 
         } else if (nameLower.includes('bbva')) {
-          return 'rgba(0, 68, 129, 0.7)'; // Azul BBVA
+          return 'rgba(0, 68, 129, 0.7)'; 
         } else if (nameLower.includes('revolut')) {
-          return 'rgba(180, 185, 195, 0.75)'; // Plateado Revolut
+          return 'rgba(180, 185, 195, 0.75)'; 
         }
         
-        // Colores por defecto elegantes si no coincide ninguna marca
         const colors = [
           'rgba(0, 240, 255, 0.6)', 
           'rgba(112, 0, 255, 0.6)', 
@@ -2042,7 +2133,7 @@
       
       accMovements.forEach(m => {
         if (m.type === 'ingreso' || m.type === 'ahorro') incomeTotal += m.amount;
-        else if (m.type === 'gasto') expenseTotal += m.amount; 
+        else if (m.type === 'gasto' || m.type === 'diecast') expenseTotal += m.amount; 
       });
 
       const currentBalance = initialBalance + incomeTotal - expenseTotal;
@@ -2085,19 +2176,19 @@
           recentListContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Sin movimientos registrados aún en esta cuenta.</p>`;
         } else {
           recentMovements.forEach(m => {
-            const typeBadgeColor = m.type === 'ingreso' ? 'text-cyan-400' : (m.type === 'gasto' ? 'text-pink-400' : 'text-purple-400');
-            const prefix = m.type === 'ingreso' ? '+' : '-';
+            const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
+            const prefix = (m.type === 'gasto' || m.type === 'diecast') ? '-' : '+';
 
             recentListContainer.innerHTML += `
               <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-900 border border-gray-850">
                 <div class="flex items-center gap-2.5 min-w-0">
-                  <span class="text-lg bg-gray-950 px-2 py-1 rounded-xl border border-gray-800">${m.subcategoryEmoji || '🏷️'}</span>
+                  <span class="text-lg bg-gray-950 px-2 py-1 rounded-xl border border-gray-800">${m.subcategoryEmoji || cat.emoji}</span>
                   <div class="flex flex-col truncate">
                     <span class="text-xs font-bold text-white truncate max-w-[150px]">${m.concept}</span>
                     <span class="text-[9px] text-gray-500">${m.date}</span>
                   </div>
                 </div>
-                <span class="text-xs font-bold ${typeBadgeColor} whitespace-nowrap">
+                <span class="text-xs font-bold ${cat.textClass} whitespace-nowrap">
                   ${prefix}${formatCurrency(m.amount)}
                 </span>
               </div>
@@ -2170,7 +2261,6 @@
       if (nameInput) nameInput.value = name;
     }
 
-    // Modal reutilizable de alertas/confirmación
     function showConfirm(title, text, callback, isAlert = false) {
       const confirmTitle = document.getElementById('confirm-title');
       const confirmText = document.getElementById('confirm-text');
@@ -2182,7 +2272,6 @@
       if (confirmText) confirmText.textContent = text;
       confirmCallback = callback;
       
-      // Ajustar diseño si es alerta o confirmación (botón rojo)
       if (isAlert) {
         actionBtn.classList.add('hidden');
         confirmIconBox.className = "inline-flex p-3 bg-[#00f0ff]/10 text-[#00f0ff] rounded-2xl border border-[#00f0ff]/20";
@@ -2435,7 +2524,7 @@
             console.error("Error al borrar cuenta:", error);
           }
         },
-        false // No es una alerta, es una confirmación destructiva
+        false 
       );
     }
 
@@ -2479,6 +2568,7 @@
 
       filtered.forEach(s => {
         const cat = CATEGORIES[s.type];
+        if (!cat) return;
         container.innerHTML += `
           <div class="flex items-center justify-between bg-gray-900/60 p-2.5 rounded-xl border border-gray-800">
             <div class="flex items-center gap-3">
@@ -2544,7 +2634,7 @@
             console.error("Error al borrar subcategoría:", error);
           }
         },
-        false // Destructive
+        false 
       );
     }
 
@@ -2577,7 +2667,6 @@
       }
     }
 
-    // Adaptación del detector de cambios de tamaño en el viewport para refrescar proporciones de la gráfica en PC de manera dinámica.
     window.addEventListener('resize', () => {
       if (window.monthDonutInstance && movements.length > 0) {
         renderMonthSummary();
@@ -2846,23 +2935,25 @@
         doc.text(`Resumen Mensual - ${monthName} ${year}`, 14, 22);
         
         const tableData = monthMovements.map(m => {
+          const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
           const assignedAcc = accounts.find(a => a.id === m.accountId);
           const accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
           return [
             m.date,
-            CATEGORIES[m.type].label,
+            cat.label,
             m.subcategory || 'General',
             accountLabel,
             m.concept,
-            (m.type === 'gasto' ? '-' : '+') + formatCurrency(m.amount)
+            ((m.type === 'gasto' || m.type === 'diecast') ? '-' : '+') + formatCurrency(m.amount)
           ];
         });
         
-        let totalIngresos = 0, totalGastos = 0, totalAhorros = 0;
+        let totalIngresos = 0, totalGastos = 0, totalAhorros = 0, totalDieCasts = 0;
         monthMovements.forEach(m => {
           if(m.type === 'ingreso') totalIngresos += m.amount;
           if(m.type === 'gasto') totalGastos += m.amount;
           if(m.type === 'ahorro') totalAhorros += m.amount;
+          if(m.type === 'diecast') totalDieCasts += m.amount;
         });
         
         doc.autoTable({
@@ -2873,7 +2964,8 @@
             ['', '', '', '', 'Total Ingresos:', formatCurrency(totalIngresos)],
             ['', '', '', '', 'Total Gastos:', formatCurrency(totalGastos)],
             ['', '', '', '', 'Total Ahorros:', formatCurrency(totalAhorros)],
-            ['', '', '', '', 'Balance Final:', formatCurrency(totalIngresos - totalGastos)]
+            ['', '', '', '', 'Total DieCasts:', formatCurrency(totalDieCasts)],
+            ['', '', '', '', 'Balance Final:', formatCurrency(totalIngresos - totalGastos - totalDieCasts)]
           ],
           theme: 'grid',
           headStyles: { fillColor: [112, 0, 255] },
@@ -2894,29 +2986,32 @@
           ['Fecha', 'Tipo', 'Subcategoría', 'Cuenta', 'Concepto', 'Monto']
         ];
         
-        let totalIngresos = 0, totalGastos = 0, totalAhorros = 0;
+        let totalIngresos = 0, totalGastos = 0, totalAhorros = 0, totalDieCasts = 0;
         
         monthMovements.forEach(m => {
+          const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
           const assignedAcc = accounts.find(a => a.id === m.accountId);
           const accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
           wsData.push([
             m.date, 
-            CATEGORIES[m.type].label, 
+            cat.label, 
             m.subcategory || 'General',
             accountLabel,
             m.concept, 
-            (m.type === 'gasto' ? -m.amount : m.amount)
+            ((m.type === 'gasto' || m.type === 'diecast') ? -m.amount : m.amount)
           ]);
           if(m.type === 'ingreso') totalIngresos += m.amount;
           if(m.type === 'gasto') totalGastos += m.amount;
           if(m.type === 'ahorro') totalAhorros += m.amount;
+          if(m.type === 'diecast') totalDieCasts += m.amount;
         });
         
         wsData.push([]);
         wsData.push(['', '', '', '', 'Total Ingresos:', totalIngresos]);
         wsData.push(['', '', '', '', 'Total Gastos:', -totalGastos]);
         wsData.push(['', '', '', '', 'Total Ahorros:', totalAhorros]);
-        wsData.push(['', '', '', '', 'Balance Final:', totalIngresos - totalGastos]);
+        wsData.push(['', '', '', '', 'Total DieCasts:', -totalDieCasts]);
+        wsData.push(['', '', '', '', 'Balance Final:', totalIngresos - totalGastos - totalDieCasts]);
         
         const ws = XLSX.utils.aoa_to_sheet(wsData);
         const wb = XLSX.utils.book_new();
@@ -2978,6 +3073,7 @@
         searchYear = Number(e.target.value);
         renderYearSummary();
         renderTable();
+        renderDieCastsSection();
         lucide.createIcons();
       });
     }
@@ -2989,6 +3085,7 @@
         searchMonth = e.target.value;
         renderYearSummary();
         renderTable();
+        renderDieCastsSection();
         lucide.createIcons();
       });
     }
@@ -2999,6 +3096,7 @@
         searchAccount = e.target.value;
         renderYearSummary();
         renderTable();
+        renderDieCastsSection();
         lucide.createIcons();
       });
     }
@@ -3025,6 +3123,17 @@
       });
     }
 
+    const toggleDieCastsBtn = document.getElementById('toggle-diecasts-btn');
+    const dieCastsContent = document.getElementById('diecasts-content');
+    const dieCastsChevron = document.getElementById('diecasts-chevron');
+
+    if (toggleDieCastsBtn && dieCastsContent) {
+      toggleDieCastsBtn.addEventListener('click', () => {
+        dieCastsContent.classList.toggle('hidden');
+        if (dieCastsChevron) dieCastsChevron.classList.toggle('rotate-180');
+      });
+    }
+
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
@@ -3037,18 +3146,72 @@
     function selectType(t) {
       formType = t;
       
-      ['ingreso', 'gasto', 'ahorro'].forEach(type => {
+      ['ingreso', 'gasto', 'ahorro', 'diecast'].forEach(type => {
         const btn = document.getElementById(`btn-type-${type}`);
         if (btn) {
           if (type === t) {
-            btn.className = `flex-1 py-2.5 text-xs font-black rounded-xl bg-gradient-to-r from-[#7000ff]/20 to-[#ff007f]/20 text-white shadow-md border border-[#ff007f]/40`;
+            btn.className = `flex-1 py-2 text-xs font-black rounded-xl bg-gradient-to-r from-[#7000ff]/20 to-[#ff007f]/20 text-white shadow-md border border-[#ff007f]/40 min-w-[70px]`;
           } else {
-            btn.className = `flex-1 py-2.5 text-xs font-semibold rounded-xl text-gray-500 hover:text-gray-300 transition-colors`;
+            btn.className = `flex-1 py-2 text-xs font-semibold rounded-xl text-gray-500 hover:text-gray-300 transition-colors min-w-[70px]`;
           }
         }
       });
 
-      updateSubcategorySelectors();
+      const containerSubcategory = document.getElementById('container-subcategory');
+      const containerPhoto = document.getElementById('container-photo');
+      const labelConcept = document.getElementById('label-concept');
+
+      if (t === 'diecast') {
+        if (containerSubcategory) containerSubcategory.classList.add('hidden');
+        if (containerPhoto) containerPhoto.classList.remove('hidden');
+        if (labelConcept) labelConcept.textContent = "Nombre del Modelo / Descripción";
+      } else {
+        if (containerSubcategory) containerSubcategory.classList.remove('hidden');
+        if (containerPhoto) containerPhoto.classList.add('hidden');
+        if (labelConcept) labelConcept.textContent = "Concepto / Descripción";
+        updateSubcategorySelectors();
+      }
+    }
+
+    // Lógica para previsualizar foto al crear o editar DieCast
+    const formPhotoInput = document.getElementById('form-photo-input');
+    const formPhotoPreview = document.getElementById('form-photo-preview');
+    const formPhotoPlaceholder = document.getElementById('form-photo-placeholder');
+
+    if (formPhotoInput) {
+      formPhotoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxSize = 800;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+            } else {
+              if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            currentDieCastPhoto = canvas.toDataURL('image/jpeg', 0.7);
+            
+            if (formPhotoPreview && formPhotoPlaceholder) {
+              formPhotoPreview.src = currentDieCastPhoto;
+              formPhotoPreview.classList.remove('hidden');
+              formPhotoPlaceholder.classList.add('hidden');
+            }
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
     function openModal(dateStr, existingMovement = null) {
@@ -3061,15 +3224,32 @@
       const conceptInput = document.getElementById('form-concept');
       const saveBtn = document.getElementById('btn-save-movement');
 
+      currentDieCastPhoto = '';
+      if (formPhotoPreview && formPhotoPlaceholder) {
+        formPhotoPreview.src = '';
+        formPhotoPreview.classList.add('hidden');
+        formPhotoPlaceholder.classList.remove('hidden');
+      }
+      if (formPhotoInput) formPhotoInput.value = '';
+
       if (existingMovement) {
         editingId = existingMovement.id;
-        if (titleText) titleText.textContent = 'Editar Movimiento';
+        if (titleText) titleText.textContent = 'Editar Registro';
         if (amountInput) amountInput.value = existingMovement.amount;
         if (conceptInput) conceptInput.value = existingMovement.concept;
-        formType = existingMovement.type;
-        if (saveBtn) saveBtn.textContent = 'Actualizar Movimiento';
+        formType = existingMovement.type || 'gasto';
+        if (saveBtn) saveBtn.textContent = 'Actualizar Registro';
         
         selectType(formType);
+        
+        if (formType === 'diecast' && existingMovement.photo) {
+          currentDieCastPhoto = existingMovement.photo;
+          if (formPhotoPreview && formPhotoPlaceholder) {
+            formPhotoPreview.src = currentDieCastPhoto;
+            formPhotoPreview.classList.remove('hidden');
+            formPhotoPlaceholder.classList.add('hidden');
+          }
+        }
         
         const subcatObj = customSubcategories.find(s => s.name === existingMovement.subcategory && s.type === formType);
         const subcatSelector = document.getElementById('form-subcategory');
@@ -3086,11 +3266,11 @@
         }
       } else {
         editingId = null;
-        if (titleText) titleText.textContent = 'Añadir Movimiento';
+        if (titleText) titleText.textContent = 'Añadir Registro';
         if (amountInput) amountInput.value = '';
         if (conceptInput) conceptInput.value = '';
         formType = 'gasto';
-        if (saveBtn) saveBtn.textContent = 'Guardar Movimiento';
+        if (saveBtn) saveBtn.textContent = 'Guardar Registro';
         
         selectType(formType);
         
@@ -3152,12 +3332,19 @@
           type: formType,
           amount: amount,
           concept: concept,
-          subcategory: subcatObj ? subcatObj.name : 'General',
-          subcategoryEmoji: subcatObj ? subcatObj.emoji : '🏷️',
           accountId: accountId,
           account: accountObj ? accountObj.name : 'Efectivo', 
           timestamp: new Date().toISOString()
         };
+
+        if (formType === 'diecast') {
+          movementData.subcategory = 'Colección DieCast';
+          movementData.subcategoryEmoji = '🚗';
+          movementData.photo = currentDieCastPhoto;
+        } else {
+          movementData.subcategory = subcatObj ? subcatObj.name : 'General';
+          movementData.subcategoryEmoji = subcatObj ? subcatObj.emoji : '🏷️';
+        }
 
         try {
           if (editingId) {
@@ -3172,36 +3359,26 @@
       });
     }
 
-    const tableBody = document.getElementById('table-body');
-    if (tableBody) {
-      tableBody.addEventListener('click', (e) => {
-        const btnDelete = e.target.closest('.btn-delete');
-        const btnEdit = e.target.closest('.btn-edit');
+    window.editMovement = function(id) {
+      const movementToEdit = movements.find(m => m.id === id);
+      if (movementToEdit) {
+        openModal(movementToEdit.date, movementToEdit);
+      }
+    };
 
-        if (btnDelete) {
-          const id = btnDelete.getAttribute('data-id');
-          showConfirm(
-            "¿Eliminar movimiento?",
-            "Esta acción eliminará el registro de forma permanente de tu historial financiero. No se puede deshacer.",
-            async () => {
-              try {
-                await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id));
-              } catch (error) {
-                console.error("Error al borrar:", error);
-              }
-            }
-          );
-        }
-
-        if (btnEdit) {
-          const id = btnEdit.getAttribute('data-id');
-          const movementToEdit = movements.find(m => m.id === id);
-          if (movementToEdit) {
-            openModal(movementToEdit.date, movementToEdit);
+    window.deleteMovement = function(id) {
+      showConfirm(
+        "¿Eliminar registro?",
+        "Esta acción eliminará el registro de forma permanente de tu historial financiero. No se puede deshacer.",
+        async () => {
+          try {
+            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id));
+          } catch (error) {
+            console.error("Error al borrar:", error);
           }
         }
-      });
-    }
+      );
+    };
 
     const loginScreen = document.getElementById('login-screen');
     const loginForm = document.getElementById('login-form');
@@ -3277,7 +3454,6 @@
       }
     }
 
-    // Funciones para manejar la carga de imágenes flotantes
     function handleHoverImageUpload(inputId, previewId) {
       const input = document.getElementById(inputId);
       const preview = document.getElementById(previewId);
