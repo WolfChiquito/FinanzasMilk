@@ -317,7 +317,7 @@
         <i data-lucide="lock" class="w-8 h-8 animate-pulse text-[#00f0ff] filter drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]"></i>
       </div>
       <h2 id="login-title-text" class="text-3xl font-extrabold text-white tracking-tight mb-2 neon-text-cyan">Bóveda Patrimonial</h2>
-      <p class="text-gray-400 text-xs mb-8 leading-relaxed">Ingrese su clave de seguridad para acceder a su portafolio financiero</p>
+      <p id="login-subtitle-text" class="text-gray-400 text-xs mb-8 leading-relaxed">Ingrese su clave de seguridad para acceder a su portafolio financiero</p>
       
       <form id="login-form" class="space-y-6">
         <div class="relative">
@@ -1120,6 +1120,11 @@
         </div>
 
         <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Subtítulo del Inicio de Sesión</label>
+          <input type="text" id="settings-login-subtitle" required placeholder="Ingrese su clave de seguridad para acceder a su portafolio financiero" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm" />
+        </div>
+
+        <div class="space-y-1.5">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Título Principal</label>
           <input type="text" id="settings-main-title" required placeholder="Cuentas Personales" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm" />
         </div>
@@ -1248,6 +1253,7 @@
     let vaultPassword = '2527'; 
     const DEFAULT_LOGIN_TITLE = 'Bóveda Patrimonial';
     const DEFAULT_MAIN_TITLE = 'Cuentas Personales';
+    const DEFAULT_LOGIN_SUBTITLE = 'Ingrese su clave de seguridad para acceder a su portafolio financiero';
 
     // Estado global para las imágenes flotantes sincronizadas con Firebase
     let hoverImagesData = {
@@ -1480,10 +1486,14 @@
         if (docSnap.exists()) {
           const profileData = docSnap.data();
           updateUserProfileUI(profileData.name || 'Milton Montoya', profileData.avatar || '');
-          updateAppTitlesUI(profileData.loginTitle || DEFAULT_LOGIN_TITLE, profileData.mainTitle || DEFAULT_MAIN_TITLE);
+          updateAppTitlesUI(
+            profileData.loginTitle || DEFAULT_LOGIN_TITLE, 
+            profileData.mainTitle || DEFAULT_MAIN_TITLE,
+            profileData.loginSubtitle || DEFAULT_LOGIN_SUBTITLE
+          );
         } else {
           updateUserProfileUI('Milton Montoya', '');
-          updateAppTitlesUI(DEFAULT_LOGIN_TITLE, DEFAULT_MAIN_TITLE);
+          updateAppTitlesUI(DEFAULT_LOGIN_TITLE, DEFAULT_MAIN_TITLE, DEFAULT_LOGIN_SUBTITLE);
         }
       }, (error) => console.error("Error sincronizando perfil:", error));
 
@@ -1533,12 +1543,14 @@
       });
     }
 
-    function updateAppTitlesUI(loginTitle, mainTitle) {
+    function updateAppTitlesUI(loginTitle, mainTitle, loginSubtitle) {
       const loginTitleEl = document.getElementById('login-title-text');
       const mainTitleEl = document.getElementById('main-title-text');
+      const loginSubtitleEl = document.getElementById('login-subtitle-text');
 
       if (loginTitleEl) loginTitleEl.textContent = loginTitle;
       if (mainTitleEl) mainTitleEl.textContent = mainTitle;
+      if (loginSubtitleEl) loginSubtitleEl.textContent = loginSubtitle;
       document.title = mainTitle || DEFAULT_MAIN_TITLE;
     }
 
@@ -1991,7 +2003,7 @@
              </div>
              <div class="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                <button onclick="window.editMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-[#00f0ff]/20 text-gray-300 hover:text-[#00f0ff] rounded-lg backdrop-blur-md transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-               <button onclick="window.deleteMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-rose-500/20 text-gray-300 hover:text-rose-400 rounded-lg backdrop-blur-md transition-colors"><i data-lucide="trash" class="w-4 h-4"></i></button>
+               <button onclick="window.deleteMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-rose-500/20 text-gray-300 hover:text-rose-450 rounded-lg backdrop-blur-md transition-colors"><i data-lucide="trash" class="w-4 h-4"></i></button>
              </div>
            </div>
          `;
@@ -2064,7 +2076,7 @@
       accountBalances.forEach(acc => {
         totalNetWorth += acc.balance;
         const badge = acc.accountType === 'credito' 
-          ? `<span class="text-[9px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded mt-1 uppercase block w-max">Crédito</span>` 
+          ? `<span class="text-[9px] font-bold text-rose-450 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded mt-1 uppercase block w-max">Crédito</span>` 
           : '';
           
         deck.innerHTML += `
@@ -2219,7 +2231,7 @@
       if (detailAccType) {
         if (acc.accountType === 'credito') {
           detailAccType.textContent = 'Crédito';
-          detailAccType.className = 'text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider';
+          detailAccType.className = 'text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-450 border border-rose-500/20 uppercase tracking-wider';
         } else {
           detailAccType.textContent = 'Cartera';
           detailAccType.className = 'text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider';
@@ -2344,7 +2356,7 @@
         confirmIcon.setAttribute('data-lucide', 'check-circle');
       } else {
         actionBtn.classList.remove('hidden');
-        confirmIconBox.className = "inline-flex p-3 bg-rose-500/10 text-rose-400 rounded-2xl border border-rose-500/20";
+        confirmIconBox.className = "inline-flex p-3 bg-rose-500/10 text-rose-450 rounded-2xl border border-rose-500/20";
         confirmIcon.setAttribute('data-lucide', 'alert-triangle');
       }
       lucide.createIcons();
@@ -2435,14 +2447,14 @@
 
       accounts.forEach(acc => {
         const typeBadge = acc.accountType === 'credito' 
-          ? `<span class="text-[9px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded ml-2 uppercase">Crédito</span>` 
+          ? `<span class="text-[9px] font-bold text-rose-450 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded ml-2 uppercase">Crédito</span>` 
           : '';
           
         container.innerHTML += `
           <div class="flex items-center justify-between bg-gray-900/60 p-2.5 rounded-xl border border-gray-800">
             <div class="flex flex-col">
               <span class="text-sm font-semibold text-white flex items-center gap-2">
-                <span class="text-lg bg-gray-850 px-1.5 py-0.5 rounded">${acc.emoji}</span>
+                <span class="text-lg bg-gray-950 px-1.5 py-0.5 rounded">${acc.emoji}</span>
                 ${acc.name} ${typeBadge}
               </span>
               ${acc.initialBalance > 0 ? `<span class="text-[10px] text-gray-400 mt-1">S. Inicial: ${formatCurrency(acc.initialBalance)} (${acc.initialBalanceDate})</span>` : ''}
@@ -2451,7 +2463,7 @@
               <button onclick="window.editAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-[#00f0ff] rounded-lg hover:bg-cyan-500/10 transition-colors" title="Editar">
                 <i data-lucide="edit-3" class="w-4 h-4"></i>
               </button>
-              <button onclick="window.deleteAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors" title="Eliminar">
+              <button onclick="window.deleteAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors" title="Eliminar">
                 <i data-lucide="trash" class="w-4 h-4"></i>
               </button>
             </div>
@@ -2807,12 +2819,18 @@
       const content = document.getElementById('title-settings-content');
 
       const loginTitleInput = document.getElementById('settings-login-title');
+      const loginSubtitleInput = document.getElementById('settings-login-subtitle');
       const mainTitleInput = document.getElementById('settings-main-title');
+      
       const currentLoginTitle = document.getElementById('login-title-text');
+      const currentLoginSubtitle = document.getElementById('login-subtitle-text');
       const currentMainTitle = document.getElementById('main-title-text');
 
       if (loginTitleInput && currentLoginTitle) {
         loginTitleInput.value = currentLoginTitle.textContent.trim();
+      }
+      if (loginSubtitleInput && currentLoginSubtitle) {
+        loginSubtitleInput.value = currentLoginSubtitle.textContent.trim();
       }
       if (mainTitleInput && currentMainTitle) {
         mainTitleInput.value = currentMainTitle.textContent.trim();
@@ -2845,14 +2863,18 @@
         if (!user) return;
 
         const loginTitleInput = document.getElementById('settings-login-title');
+        const loginSubtitleInput = document.getElementById('settings-login-subtitle');
         const mainTitleInput = document.getElementById('settings-main-title');
+        
         const loginTitle = loginTitleInput ? (loginTitleInput.value.trim() || DEFAULT_LOGIN_TITLE) : DEFAULT_LOGIN_TITLE;
+        const loginSubtitle = loginSubtitleInput ? (loginSubtitleInput.value.trim() || DEFAULT_LOGIN_SUBTITLE) : DEFAULT_LOGIN_SUBTITLE;
         const mainTitle = mainTitleInput ? (mainTitleInput.value.trim() || DEFAULT_MAIN_TITLE) : DEFAULT_MAIN_TITLE;
 
         try {
           const profileDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'profile');
           await setDoc(profileDocRef, {
             loginTitle: loginTitle,
+            loginSubtitle: loginSubtitle,
             mainTitle: mainTitle,
             timestamp: new Date().toISOString()
           }, { merge: true });
@@ -3150,7 +3172,7 @@
       });
     }
 
-    const btnPrint = document.getElementById('btn-print');
+    const btnPrint = document.getElementById('btnPrint');
     if (btnPrint) {
       btnPrint.addEventListener('click', () => {
         window.print();
