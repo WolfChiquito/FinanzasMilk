@@ -100,12 +100,19 @@
       box-shadow: 0 0 10px rgba(112, 0, 255, 0.25), inset 0 0 5px rgba(112, 0, 255, 0.1);
       border: 1px solid rgba(112, 0, 255, 0.4);
     }
+    .neon-border-yellow {
+      box-shadow: 0 0 10px rgba(250, 255, 0, 0.25), inset 0 0 5px rgba(250, 255, 0, 0.1);
+      border: 1px solid rgba(250, 255, 0, 0.4);
+    }
 
     .neon-text-cyan {
       text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
     }
     .neon-text-pink {
       text-shadow: 0 0 8px rgba(255, 0, 127, 0.6);
+    }
+    .neon-text-yellow {
+      text-shadow: 0 0 8px rgba(250, 255, 0, 0.6);
     }
 
     /* Glassmorphism Premium */
@@ -309,7 +316,7 @@
       <div class="inline-flex p-4 bg-gradient-to-br from-[#7000ff]/20 to-[#00f0ff]/5 text-[#00f0ff] rounded-2xl mb-6 border border-[#00f0ff]/30 shadow-lg shadow-[#00f0ff]/10">
         <i data-lucide="lock" class="w-8 h-8 animate-pulse text-[#00f0ff] filter drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]"></i>
       </div>
-      <h2 class="text-3xl font-extrabold text-white tracking-tight mb-2 neon-text-cyan">Bóveda Patrimonial</h2>
+      <h2 id="login-title-text" class="text-3xl font-extrabold text-white tracking-tight mb-2 neon-text-cyan">Bóveda Patrimonial</h2>
       <p class="text-gray-400 text-xs mb-8 leading-relaxed">Ingrese su clave de seguridad para acceder a su portafolio financiero</p>
       
       <form id="login-form" class="space-y-6">
@@ -363,7 +370,7 @@
           <i data-lucide="wallet-cards" class="w-7 h-7 filter drop-shadow-[0_0_5px_rgba(0,240,255,0.5)]"></i>
         </div>
         <div>
-          <h1 class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-[#00f0ff] via-[#ff007f] to-[#7000ff] bg-clip-text text-transparent">
+          <h1 id="main-title-text" class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-[#00f0ff] via-[#ff007f] to-[#7000ff] bg-clip-text text-transparent">
             Cuentas Personales
           </h1>
           <p class="text-gray-400 text-xs tracking-wider uppercase font-semibold">Dashboard Patrimonial</p>
@@ -402,6 +409,9 @@
             <div class="p-1">
               <button onclick="openProfileSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#7000ff]/10 rounded-xl transition-colors">
                 <i data-lucide="user" class="w-4 h-4 text-[#7000ff]"></i> Ajustes de Perfil
+              </button>
+              <button onclick="openTitleSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#00f0ff]/10 rounded-xl transition-colors">
+                <i data-lucide="type" class="w-4 h-4 text-[#00f0ff]"></i> Títulos de la App
               </button>
               <button onclick="openPasswordSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#ff007f]/10 rounded-xl transition-colors">
                 <i data-lucide="key" class="w-4 h-4 text-[#ff007f]"></i> Contraseña de Bóveda
@@ -1090,6 +1100,37 @@
     </div>
   </div>
 
+  <!-- MODAL DE AJUSTES DE TÍTULOS -->
+  <div id="title-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="title-settings-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="type" class="text-[#00f0ff] w-5 h-5"></i>
+          <span class="text-white">Títulos de la App</span>
+        </h3>
+        <button onclick="closeTitleSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="title-settings-form" class="p-6 space-y-5">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Título del Inicio de Sesión</label>
+          <input type="text" id="settings-login-title" required placeholder="Bóveda Patrimonial" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Título Principal</label>
+          <input type="text" id="settings-main-title" required placeholder="Cuentas Personales" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm" />
+        </div>
+
+        <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3.5 rounded-2xl text-xs transition-colors shadow-md">
+          Guardar Títulos
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL DE AJUSTES DE CONTRASEÑA -->
   <div id="password-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
     <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="password-settings-content">
@@ -1205,6 +1246,8 @@
 
     // Guardado de la clave maestra cargada de Firestore
     let vaultPassword = '2527'; 
+    const DEFAULT_LOGIN_TITLE = 'Bóveda Patrimonial';
+    const DEFAULT_MAIN_TITLE = 'Cuentas Personales';
 
     // Estado global para las imágenes flotantes sincronizadas con Firebase
     let hoverImagesData = {
@@ -1437,8 +1480,10 @@
         if (docSnap.exists()) {
           const profileData = docSnap.data();
           updateUserProfileUI(profileData.name || 'Milton Montoya', profileData.avatar || '');
+          updateAppTitlesUI(profileData.loginTitle || DEFAULT_LOGIN_TITLE, profileData.mainTitle || DEFAULT_MAIN_TITLE);
         } else {
           updateUserProfileUI('Milton Montoya', '');
+          updateAppTitlesUI(DEFAULT_LOGIN_TITLE, DEFAULT_MAIN_TITLE);
         }
       }, (error) => console.error("Error sincronizando perfil:", error));
 
@@ -1486,6 +1531,15 @@
       avatarImgs.forEach(img => {
         if (img) img.src = finalAvatar;
       });
+    }
+
+    function updateAppTitlesUI(loginTitle, mainTitle) {
+      const loginTitleEl = document.getElementById('login-title-text');
+      const mainTitleEl = document.getElementById('main-title-text');
+
+      if (loginTitleEl) loginTitleEl.textContent = loginTitle;
+      if (mainTitleEl) mainTitleEl.textContent = mainTitle;
+      document.title = mainTitle || DEFAULT_MAIN_TITLE;
     }
 
     function renderApp() {
@@ -2061,6 +2115,7 @@
           'rgba(0, 240, 255, 0.6)', 
           'rgba(112, 0, 255, 0.6)', 
           'rgba(255, 0, 127, 0.6)', 
+          'rgba(250, 255, 0, 0.6)', 
           'rgba(0, 255, 128, 0.6)', 
           'rgba(255, 165, 0, 0.6)'
         ];
@@ -2742,6 +2797,69 @@
           closeProfileSettingsModal();
         } catch (error) {
           console.error("Error al actualizar perfil:", error);
+        }
+      });
+    }
+
+    function openTitleSettingsModal() {
+      profileDropdownMenu.classList.add('hidden');
+      const modalElement = document.getElementById('title-settings-modal');
+      const content = document.getElementById('title-settings-content');
+
+      const loginTitleInput = document.getElementById('settings-login-title');
+      const mainTitleInput = document.getElementById('settings-main-title');
+      const currentLoginTitle = document.getElementById('login-title-text');
+      const currentMainTitle = document.getElementById('main-title-text');
+
+      if (loginTitleInput && currentLoginTitle) {
+        loginTitleInput.value = currentLoginTitle.textContent.trim();
+      }
+      if (mainTitleInput && currentMainTitle) {
+        mainTitleInput.value = currentMainTitle.textContent.trim();
+      }
+
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeTitleSettingsModal() {
+      const modalElement = document.getElementById('title-settings-modal');
+      const content = document.getElementById('title-settings-content');
+      if (modalElement && content) {
+        modalElement.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modalElement.classList.add('hidden'), 300);
+      }
+    }
+
+    const titleSettingsForm = document.getElementById('title-settings-form');
+    if (titleSettingsForm) {
+      titleSettingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const loginTitleInput = document.getElementById('settings-login-title');
+        const mainTitleInput = document.getElementById('settings-main-title');
+        const loginTitle = loginTitleInput ? (loginTitleInput.value.trim() || DEFAULT_LOGIN_TITLE) : DEFAULT_LOGIN_TITLE;
+        const mainTitle = mainTitleInput ? (mainTitleInput.value.trim() || DEFAULT_MAIN_TITLE) : DEFAULT_MAIN_TITLE;
+
+        try {
+          const profileDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'profile');
+          await setDoc(profileDocRef, {
+            loginTitle: loginTitle,
+            mainTitle: mainTitle,
+            timestamp: new Date().toISOString()
+          }, { merge: true });
+
+          closeTitleSettingsModal();
+        } catch (error) {
+          console.error("Error al actualizar títulos:", error);
         }
       });
     }
@@ -3578,6 +3696,7 @@
         closeAccountManager();
         closeSubcategoryManager();
         closeProfileSettingsModal();
+        closeTitleSettingsModal();
         closePasswordSettingsModal();
         closeAccountDetails();
         closeConfirm();
@@ -3595,6 +3714,7 @@
       { id: 'subcategories-modal', closeFunc: closeSubcategoryManager },
       { id: 'account-details-modal', closeFunc: closeAccountDetails },
       { id: 'profile-settings-modal', closeFunc: closeProfileSettingsModal },
+      { id: 'title-settings-modal', closeFunc: closeTitleSettingsModal },
       { id: 'password-settings-modal', closeFunc: closePasswordSettingsModal },
       { id: 'confirm-modal', closeFunc: closeConfirm },
       { id: 'hover-images-modal', closeFunc: closeHoverImagesModal }
@@ -3632,6 +3752,8 @@
     window.selectType = selectType;
     window.openProfileSettingsModal = openProfileSettingsModal;
     window.closeProfileSettingsModal = closeProfileSettingsModal;
+    window.openTitleSettingsModal = openTitleSettingsModal;
+    window.closeTitleSettingsModal = closeTitleSettingsModal;
     window.openPasswordSettingsModal = openPasswordSettingsModal;
     window.closePasswordSettingsModal = closePasswordSettingsModal;
     window.openAccountDetails = openAccountDetails;
