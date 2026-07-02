@@ -296,7 +296,7 @@
         padding-bottom: 0.25rem !important;
       }
       #calendar-grid > button > span {
-        font-size: 0.875rem !important;
+        font-size: 1.25rem !important; /* Aumentado para mayor visibilidad */
       }
     }
   </style>
@@ -1608,7 +1608,7 @@
         btn.className = baseClass;
         btn.style.animationDelay = `${(day * 0.01).toFixed(2)}s`;
 
-        let innerHTML = `<span class="text-base md:text-lg font-bold w-full text-center mt-2">${day}</span>`;
+        let innerHTML = `<span class="text-xl md:text-2xl font-black tracking-tight w-full text-center mt-1 drop-shadow-sm">${day}</span>`;
 
         if (dayMovements.length > 0) {
           let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[11px] md:text-sm" title="${m.subcategory || CATEGORIES[m.type]?.label}: ${formatCurrency(m.amount)}">${m.subcategoryEmoji || (CATEGORIES[m.type] ? CATEGORIES[m.type].emoji : '🏷️')}</span>`).join('');
