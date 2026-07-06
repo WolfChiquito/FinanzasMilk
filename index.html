@@ -559,6 +559,12 @@
               <div class="absolute inset-0 bg-gradient-to-br from-[#00f0ff]/5 to-[#7000ff]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <span class="text-xs text-[#00f0ff] uppercase tracking-widest font-bold mb-2 z-10">Patrimonio Total</span>
               <p id="total-net-worth" class="text-3xl lg:text-4xl font-black text-white z-10 tracking-tight">$0.00</p>
+              
+              <!-- Contenedor Deuda -->
+              <div id="debt-container" class="w-full flex flex-col z-10 border-t border-gray-800/80 pt-4 mt-4 hidden">
+                <span class="text-[10px] text-center text-rose-400 uppercase tracking-widest font-bold mb-2">Deuda Activa</span>
+                <div id="debt-list" class="w-full space-y-2"></div>
+              </div>
             </div>
             <div class="md:col-span-2 bg-gray-900/40 p-4 rounded-2xl border border-gray-800 shadow-lg h-56 relative">
               <canvas id="accounts-chart"></canvas>
@@ -2069,6 +2075,7 @@
 
       let totalNetWorth = 0;
       let accountBalances = [];
+      let debts = [];
 
       accounts.forEach(acc => {
         let balance = parseFloat(acc.initialBalance || 0);
@@ -2085,7 +2092,12 @@
       accountBalances.sort((a, b) => b.balance - a.balance);
 
       accountBalances.forEach(acc => {
-        totalNetWorth += acc.balance;
+        if (acc.accountType === 'credito') {
+          debts.push(acc);
+        } else {
+          totalNetWorth += acc.balance;
+        }
+
         const badge = acc.accountType === 'credito' 
           ? `<span class="text-[9px] font-bold text-rose-450 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded mt-1 uppercase block w-max">Crédito</span>` 
           : '';
@@ -2107,6 +2119,25 @@
         totalNetWorthEl.textContent = formatCurrency(totalNetWorth);
       }
 
+      const debtContainer = document.getElementById('debt-container');
+      const debtList = document.getElementById('debt-list');
+      if (debtContainer && debtList) {
+        debtList.innerHTML = '';
+        if (debts.length > 0) {
+          debtContainer.classList.remove('hidden');
+          debts.forEach(d => {
+            debtList.innerHTML += `
+              <div class="flex justify-between items-center bg-gray-950/60 px-3 py-2 rounded-xl border border-rose-500/20 shadow-sm">
+                <span class="text-xs text-gray-300 font-medium truncate pr-2 flex items-center gap-1.5"><span class="text-sm">${d.emoji}</span> ${d.name}</span>
+                <span class="text-xs text-rose-400 font-bold whitespace-nowrap">-${formatCurrency(Math.abs(d.balance))}</span>
+              </div>
+            `;
+          });
+        } else {
+          debtContainer.classList.add('hidden');
+        }
+      }
+
       updateAccountsChart(accountBalances);
     }
 
@@ -2115,7 +2146,7 @@
       if (!ctx) return;
 
       const labels = accountBalances.map(a => a.name);
-      const data = accountBalances.map(a => a.balance);
+      const data = accountBalances.map(a => a.accountType === 'credito' ? -Math.abs(a.balance) : a.balance);
       
       const isLight = document.body.classList.contains('light-theme');
       const textColor = isLight ? '#1a1528' : '#9ca3af';
