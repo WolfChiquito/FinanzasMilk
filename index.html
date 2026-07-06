@@ -786,12 +786,15 @@
           <button type="button" onclick="window.selectType('ahorro')" id="btn-type-ahorro" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400">
             💰 Ahorro
           </button>
+          <button type="button" onclick="window.selectType('pago_tc')" id="btn-type-pago_tc" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400 min-w-[70px]">
+            💳 Pago TC
+          </button>
           <button type="button" onclick="window.selectType('diecast')" id="btn-type-diecast" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all duration-300 focus:outline-none text-gray-400 min-w-[70px]">
             🚗 DieCast
           </button>
         </div>
 
-        <!-- Selector de Subcategoría (Oculto para DieCasts) -->
+        <!-- Selector de Subcategoría (Oculto para DieCasts y Pago TC) -->
         <div id="container-subcategory" class="space-y-1.5">
           <div class="flex justify-between items-center">
             <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Subcategoría</label>
@@ -820,10 +823,18 @@
           <input type="file" id="form-photo-input" accept="image/*" class="hidden">
         </div>
 
-        <!-- Selector de Cuenta -->
+        <!-- Selector de Cuenta Origen -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta / Cartera</label>
+          <label id="label-account" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta / Cartera</label>
           <select id="form-account" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
+            <!-- Cuentas inyectadas dinámicamente -->
+          </select>
+        </div>
+
+        <!-- Selector de Cuenta Destino (Solo visible para Pago TC) -->
+        <div id="container-transfer" class="space-y-1.5 hidden">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider text-emerald-400">Cuenta Destino (A Pagar)</label>
+          <select id="form-to-account" class="w-full bg-gray-900 border border-emerald-500/50 rounded-2xl px-4 py-3.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 outline-none text-white text-sm transition-colors cursor-pointer">
             <!-- Cuentas inyectadas dinámicamente -->
           </select>
         </div>
@@ -1217,6 +1228,36 @@
     </div>
   </div>
 
+  <!-- MODAL DE VISUALIZACIÓN DE DIECASTS -->
+  <div id="diecast-view-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-amber-500/20 w-full max-w-lg overflow-hidden transform scale-95 transition-all duration-300" id="diecast-view-content">
+      <div class="flex justify-between items-center p-4 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2 text-white">
+          <i data-lucide="car-front" class="w-5 h-5 text-amber-500"></i> Detalle del Modelo
+        </h3>
+        <button onclick="window.closeDiecastView()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-0">
+        <div class="w-full bg-black flex items-center justify-center min-h-[250px] max-h-[60vh] overflow-hidden">
+          <img id="diecast-view-img" src="" class="w-full h-full object-contain">
+        </div>
+        <div class="p-6 bg-gray-900/80">
+          <div class="flex justify-between items-start gap-4">
+            <div>
+              <h4 id="diecast-view-concept" class="text-xl font-bold text-white mb-1"></h4>
+              <span id="diecast-view-date" class="text-xs text-gray-400 uppercase tracking-wider font-semibold"></span>
+            </div>
+            <span id="diecast-view-amount" class="text-2xl font-black text-amber-400"></span>
+          </div>
+          <div id="diecast-view-account" class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-gray-950 rounded-lg border border-gray-800 text-xs font-medium text-gray-300">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SCRIPT PRINCIPAL DE LA APLICACIÓN -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1404,7 +1445,8 @@
       ingreso: { label: 'Ingreso', emoji: '📈', color: '#00f0ff', bgClass: 'bg-cyan-500/10', textClass: 'text-cyan-400', borderClass: 'border-cyan-500/50' },
       gasto: { label: 'Gasto', emoji: '📉', color: '#ff007f', bgClass: 'bg-pink-500/10', textClass: 'text-pink-400', borderClass: 'border-pink-500/50' },
       ahorro: { label: 'Ahorro', emoji: '💰', color: '#7000ff', bgClass: 'bg-purple-500/10', textClass: 'text-purple-400', borderClass: 'border-purple-500/50' },
-      diecast: { label: 'DieCast', emoji: '🚗', color: '#f59e0b', bgClass: 'bg-amber-500/10', textClass: 'text-amber-500', borderClass: 'border-amber-500/50' }
+      diecast: { label: 'DieCast', emoji: '🚗', color: '#f59e0b', bgClass: 'bg-amber-500/10', textClass: 'text-amber-500', borderClass: 'border-amber-500/50' },
+      pago_tc: { label: 'Pago/Transfer', emoji: '💳', color: '#10b981', bgClass: 'bg-emerald-500/10', textClass: 'text-emerald-500', borderClass: 'border-emerald-500/50' }
     };
 
     const yearSelect = document.getElementById('year-select');
@@ -1554,9 +1596,7 @@
 
     function preserveEmojisInGradient(text) {
       if (!text) return '';
-      // Expresión regular para detectar emojis
       const emojiRegex = /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g;
-      // Resetea las propiedades conflictivas solo para los emojis
       return text.replace(emojiRegex, '<span style="-webkit-text-fill-color: initial; color: initial; background-clip: border-box; -webkit-background-clip: border-box;">$1</span>');
     }
 
@@ -1818,6 +1858,7 @@
         listContainer.innerHTML = '';
         
         Object.keys(CATEGORIES).forEach(type => {
+          if(type === 'pago_tc') return; 
           const cat = CATEGORIES[type];
           const val = totals[type] || 0;
           const percentage = totals.total > 0 ? ((val / totals.total) * 100).toFixed(1) : '0.0';
@@ -1874,7 +1915,7 @@
 
       let totals = { ingreso: 0, gasto: 0, ahorro: 0, diecast: 0 };
       yearMovements.forEach(m => {
-        if (totals[m.type] !== undefined) {
+        if (totals[m.type] !== undefined && m.type !== 'pago_tc') {
           totals[m.type] += m.amount;
         }
       });
@@ -1900,6 +1941,7 @@
       const labelTime = searchMonth === 'all' ? 'Anual' : 'del Mes';
 
       Object.keys(CATEGORIES).forEach(type => {
+        if(type === 'pago_tc') return; 
         const cat = CATEGORIES[type];
         gridContainer.innerHTML += `
           <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:border-[#7000ff]/30">
@@ -1927,7 +1969,7 @@
         const d = new Date(m.date + 'T00:00:00');
         const matchYear = d.getFullYear() === searchYear;
         const matchMonth = searchMonth === 'all' || d.getMonth() === parseInt(searchMonth);
-        const matchAcc = searchAccount === 'all' || m.accountId === searchAccount;
+        const matchAcc = searchAccount === 'all' || m.accountId === searchAccount || m.toAccountId === searchAccount;
         const catLabel = CATEGORIES[m.type] ? CATEGORIES[m.type].label.toLowerCase() : '';
         const matchQuery = m.concept.toLowerCase().includes(lowerQuery) || 
                            m.amount.toString().includes(lowerQuery) ||
@@ -1944,7 +1986,14 @@
       filtered.forEach(m => {
         const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
         const assignedAcc = accounts.find(a => a.id === m.accountId);
-        const accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
+        let accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
+        
+        if (m.type === 'pago_tc') {
+           const destAcc = accounts.find(a => a.id === m.toAccountId);
+           const destLabel = destAcc ? `${destAcc.emoji} ${destAcc.name}` : '💳 Tarjeta';
+           accountLabel = `<div class="flex items-center gap-1">${accountLabel} <i data-lucide="arrow-right" class="w-3 h-3 text-gray-500"></i> ${destLabel}</div>`;
+        }
+        
         const isExpense = (m.type === 'gasto' || m.type === 'diecast');
 
         const tr = document.createElement('tr');
@@ -1964,7 +2013,7 @@
           <td class="py-3 px-4 text-gray-300 font-medium whitespace-nowrap">${accountLabel}</td>
           <td class="py-3 px-4 text-gray-300 max-w-xs truncate">${m.concept}</td>
           <td class="py-3 px-4 text-right font-bold ${cat.textClass}">
-            ${isExpense ? '-' : '+'}${formatCurrency(m.amount)}
+            ${isExpense ? '-' : (m.type === 'pago_tc' ? '' : '+')}${formatCurrency(m.amount)}
           </td>
           <td class="py-3 px-4 text-center">
             <div class="flex items-center justify-center gap-2">
@@ -2019,8 +2068,9 @@
                <span class="text-amber-400 font-black">${formatCurrency(d.amount)}</span>
              </div>
              <div class="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-               <button onclick="window.editMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-[#00f0ff]/20 text-gray-300 hover:text-[#00f0ff] rounded-lg backdrop-blur-md transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-               <button onclick="window.deleteMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-rose-500/20 text-gray-300 hover:text-rose-450 rounded-lg backdrop-blur-md transition-colors"><i data-lucide="trash" class="w-4 h-4"></i></button>
+               <button onclick="window.viewDiecast('${d.id}')" class="p-1.5 bg-black/60 hover:bg-emerald-500/20 text-gray-300 hover:text-emerald-400 rounded-lg backdrop-blur-md transition-colors" title="Visualizar"><i data-lucide="eye" class="w-4 h-4"></i></button>
+               <button onclick="window.editMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-[#00f0ff]/20 text-gray-300 hover:text-[#00f0ff] rounded-lg backdrop-blur-md transition-colors" title="Editar"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+               <button onclick="window.deleteMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-rose-500/20 text-gray-300 hover:text-rose-450 rounded-lg backdrop-blur-md transition-colors" title="Eliminar"><i data-lucide="trash" class="w-4 h-4"></i></button>
              </div>
            </div>
          `;
@@ -2031,22 +2081,28 @@
     function updateAccountsSelectors() {
       const searchAccSelect = document.getElementById('search-account');
       const formAccSelect = document.getElementById('form-account');
-      if (!searchAccSelect || !formAccSelect) return;
+      const formToAccSelect = document.getElementById('form-to-account');
+      
+      if (!searchAccSelect || !formAccSelect || !formToAccSelect) return;
       
       const searchVal = searchAccSelect.value;
       const formVal = formAccSelect.value;
+      const toVal = formToAccSelect.value;
 
       searchAccSelect.innerHTML = '<option value="all">Todas las cuentas</option>';
       formAccSelect.innerHTML = '';
+      formToAccSelect.innerHTML = '';
 
       accounts.forEach(acc => {
         const optionHTML = `<option value="${acc.id}">${acc.emoji} ${acc.name}</option>`;
         searchAccSelect.innerHTML += optionHTML;
         formAccSelect.innerHTML += optionHTML;
+        formToAccSelect.innerHTML += optionHTML;
       });
 
       searchAccSelect.value = searchVal && accounts.some(a => a.id === searchVal) ? searchVal : 'all';
       formAccSelect.value = formVal && accounts.some(a => a.id === formVal) ? formVal : (accounts[0]?.id || '');
+      formToAccSelect.value = toVal && accounts.some(a => a.id === toVal) ? toVal : (accounts[0]?.id || '');
     }
 
     function updateSubcategorySelectors() {
@@ -2080,7 +2136,10 @@
       accounts.forEach(acc => {
         let balance = parseFloat(acc.initialBalance || 0);
         movements.forEach(m => {
-          if (m.accountId === acc.id || m.account === acc.name) { 
+          if (m.type === 'pago_tc') {
+             if (m.accountId === acc.id) balance -= m.amount;
+             if (m.toAccountId === acc.id) balance += m.amount;
+          } else if (m.accountId === acc.id || m.account === acc.name) { 
             if (m.type === 'ingreso' || m.type === 'ahorro') balance += m.amount;
             else if (m.type === 'gasto' || m.type === 'diecast') balance -= m.amount;
           }
@@ -2249,11 +2308,18 @@
       let incomeTotal = 0;
       let expenseTotal = 0;
 
-      const accMovements = movements.filter(m => m.accountId === acc.id || m.account === acc.name);
+      const accMovements = movements.filter(m => m.accountId === acc.id || m.toAccountId === acc.id || m.account === acc.name);
       
       accMovements.forEach(m => {
-        if (m.type === 'ingreso' || m.type === 'ahorro') incomeTotal += m.amount;
-        else if (m.type === 'gasto' || m.type === 'diecast') expenseTotal += m.amount; 
+        if (m.type === 'pago_tc') {
+          if (m.accountId === acc.id) expenseTotal += m.amount;
+          if (m.toAccountId === acc.id) incomeTotal += m.amount;
+        } else {
+          if (m.accountId === acc.id || m.account === acc.name) {
+            if (m.type === 'ingreso' || m.type === 'ahorro') incomeTotal += m.amount;
+            else if (m.type === 'gasto' || m.type === 'diecast') expenseTotal += m.amount; 
+          }
+        }
       });
 
       const currentBalance = initialBalance + incomeTotal - expenseTotal;
@@ -2297,7 +2363,16 @@
         } else {
           recentMovements.forEach(m => {
             const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
-            const prefix = (m.type === 'gasto' || m.type === 'diecast') ? '-' : '+';
+            let isOutflow = false;
+            
+            if (m.type === 'pago_tc') {
+               if (m.accountId === acc.id) isOutflow = true;
+            } else if (m.type === 'gasto' || m.type === 'diecast') {
+               isOutflow = true;
+            }
+            
+            const prefix = isOutflow ? '-' : '+';
+            const colorClass = isOutflow ? 'text-rose-400' : 'text-emerald-400';
 
             recentListContainer.innerHTML += `
               <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-900 border border-gray-850">
@@ -2308,7 +2383,7 @@
                     <span class="text-[9px] text-gray-500">${m.date}</span>
                   </div>
                 </div>
-                <span class="text-xs font-bold ${cat.textClass} whitespace-nowrap">
+                <span class="text-xs font-bold ${colorClass} whitespace-nowrap">
                   ${prefix}${formatCurrency(m.amount)}
                 </span>
               </div>
@@ -3130,14 +3205,21 @@
         const tableData = monthMovements.map(m => {
           const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
           const assignedAcc = accounts.find(a => a.id === m.accountId);
-          const accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
+          let accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
+          
+          if (m.type === 'pago_tc') {
+             const destAcc = accounts.find(a => a.id === m.toAccountId);
+             const destLabel = destAcc ? `${destAcc.emoji} ${destAcc.name}` : '💳 Tarjeta';
+             accountLabel = `${accountLabel} -> ${destLabel}`;
+          }
+
           return [
             m.date,
             cat.label,
             m.subcategory || 'General',
             accountLabel,
             m.concept,
-            ((m.type === 'gasto' || m.type === 'diecast') ? '-' : '+') + formatCurrency(m.amount)
+            ((m.type === 'gasto' || m.type === 'diecast' || m.type === 'pago_tc') ? '-' : '+') + formatCurrency(m.amount)
           ];
         });
         
@@ -3184,14 +3266,21 @@
         monthMovements.forEach(m => {
           const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
           const assignedAcc = accounts.find(a => a.id === m.accountId);
-          const accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
+          let accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
+          
+          if (m.type === 'pago_tc') {
+             const destAcc = accounts.find(a => a.id === m.toAccountId);
+             const destLabel = destAcc ? `${destAcc.emoji} ${destAcc.name}` : '💳 Tarjeta';
+             accountLabel = `${accountLabel} -> ${destLabel}`;
+          }
+
           wsData.push([
             m.date, 
             cat.label, 
             m.subcategory || 'General',
             accountLabel,
             m.concept, 
-            ((m.type === 'gasto' || m.type === 'diecast') ? -m.amount : m.amount)
+            ((m.type === 'gasto' || m.type === 'diecast' || m.type === 'pago_tc') ? -m.amount : m.amount)
           ]);
           if(m.type === 'ingreso') totalIngresos += m.amount;
           if(m.type === 'gasto') totalGastos += m.amount;
@@ -3339,7 +3428,7 @@
     function selectType(t) {
       formType = t;
       
-      ['ingreso', 'gasto', 'ahorro', 'diecast'].forEach(type => {
+      ['ingreso', 'gasto', 'ahorro', 'diecast', 'pago_tc'].forEach(type => {
         const btn = document.getElementById(`btn-type-${type}`);
         if (btn) {
           if (type === t) {
@@ -3352,16 +3441,28 @@
 
       const containerSubcategory = document.getElementById('container-subcategory');
       const containerPhoto = document.getElementById('container-photo');
+      const containerTransfer = document.getElementById('container-transfer');
       const labelConcept = document.getElementById('label-concept');
+      const labelAccount = document.getElementById('label-account');
 
       if (t === 'diecast') {
         if (containerSubcategory) containerSubcategory.classList.add('hidden');
         if (containerPhoto) containerPhoto.classList.remove('hidden');
+        if (containerTransfer) containerTransfer.classList.add('hidden');
         if (labelConcept) labelConcept.textContent = "Nombre del Modelo / Descripción";
+        if (labelAccount) labelAccount.textContent = "Cuenta / Cartera";
+      } else if (t === 'pago_tc') {
+        if (containerSubcategory) containerSubcategory.classList.add('hidden');
+        if (containerPhoto) containerPhoto.classList.add('hidden');
+        if (containerTransfer) containerTransfer.classList.remove('hidden');
+        if (labelConcept) labelConcept.textContent = "Concepto / Descripción";
+        if (labelAccount) labelAccount.textContent = "Cuenta Origen (Retiro)";
       } else {
         if (containerSubcategory) containerSubcategory.classList.remove('hidden');
         if (containerPhoto) containerPhoto.classList.add('hidden');
+        if (containerTransfer) containerTransfer.classList.add('hidden');
         if (labelConcept) labelConcept.textContent = "Concepto / Descripción";
+        if (labelAccount) labelAccount.textContent = "Cuenta / Cartera";
         updateSubcategorySelectors();
       }
     }
@@ -3441,6 +3542,13 @@
             formPhotoPreview.src = currentDieCastPhoto;
             formPhotoPreview.classList.remove('hidden');
             formPhotoPlaceholder.classList.add('hidden');
+          }
+        }
+
+        if (formType === 'pago_tc') {
+          const formToAcc = document.getElementById('form-to-account');
+          if (formToAcc && existingMovement.toAccountId) {
+            formToAcc.value = existingMovement.toAccountId;
           }
         }
         
@@ -3534,6 +3642,15 @@
           movementData.subcategory = 'Colección DieCast';
           movementData.subcategoryEmoji = '🚗';
           movementData.photo = currentDieCastPhoto;
+        } else if (formType === 'pago_tc') {
+          const toAccountIdInput = document.getElementById('form-to-account');
+          const toAccountId = toAccountIdInput ? toAccountIdInput.value : '';
+          const toAccountObj = accounts.find(a => a.id === toAccountId);
+          
+          movementData.subcategory = 'Pago de Tarjeta';
+          movementData.subcategoryEmoji = '💳';
+          movementData.toAccountId = toAccountId;
+          movementData.toAccount = toAccountObj ? toAccountObj.name : '';
         } else {
           movementData.subcategory = subcatObj ? subcatObj.name : 'General';
           movementData.subcategoryEmoji = subcatObj ? subcatObj.emoji : '🏷️';
@@ -3571,6 +3688,48 @@
           }
         }
       );
+    };
+
+    window.viewDiecast = function(id) {
+      const d = movements.find(m => m.id === id);
+      if (!d) return;
+
+      const imgEl = document.getElementById('diecast-view-img');
+      if (d.photo) {
+        imgEl.src = d.photo;
+        imgEl.classList.remove('hidden');
+      } else {
+        imgEl.src = '';
+        imgEl.classList.add('hidden');
+      }
+
+      document.getElementById('diecast-view-concept').textContent = d.concept;
+      document.getElementById('diecast-view-date').textContent = d.date;
+      document.getElementById('diecast-view-amount').textContent = formatCurrency(d.amount);
+      
+      const acc = accounts.find(a => a.id === d.accountId);
+      document.getElementById('diecast-view-account').innerHTML = acc ? `${acc.emoji} Comprado con ${acc.name}` : '💵 Comprado con Efectivo';
+
+      const modal = document.getElementById('diecast-view-modal');
+      const content = document.getElementById('diecast-view-content');
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    };
+
+    window.closeDiecastView = function() {
+      const modal = document.getElementById('diecast-view-modal');
+      const content = document.getElementById('diecast-view-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+      }
     };
 
     const loginScreen = document.getElementById('login-screen');
@@ -3765,6 +3924,7 @@
         closeAccountDetails();
         closeConfirm();
         closeHoverImagesModal();
+        closeDiecastView();
         const profileMenu = document.getElementById('profile-dropdown-menu');
         const exportMenu = document.getElementById('export-dropdown');
         if (profileMenu) profileMenu.classList.add('hidden');
@@ -3781,7 +3941,8 @@
       { id: 'title-settings-modal', closeFunc: closeTitleSettingsModal },
       { id: 'password-settings-modal', closeFunc: closePasswordSettingsModal },
       { id: 'confirm-modal', closeFunc: closeConfirm },
-      { id: 'hover-images-modal', closeFunc: closeHoverImagesModal }
+      { id: 'hover-images-modal', closeFunc: closeHoverImagesModal },
+      { id: 'diecast-view-modal', closeFunc: closeDiecastView }
     ];
 
     modalContainers.forEach(modal => {
@@ -3833,6 +3994,8 @@
     window.logout = logout;
     window.openHoverImagesModal = openHoverImagesModal;
     window.closeHoverImagesModal = closeHoverImagesModal;
+    window.viewDiecast = viewDiecast;
+    window.closeDiecastView = closeDiecastView;
 
     checkBiometricsSupport().then(supported => {
       if (supported) {
