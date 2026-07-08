@@ -135,6 +135,55 @@
       animation: shake 0.3s ease-in-out;
     }
 
+    /* Liquid Glass Menu (NUEVO ESTILO DE BARRA DE TIPOS DE REGISTRO) */
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    body.light-theme .glass-pill {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(112, 0, 255, 0.15);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 10px 30px rgba(112, 0, 255, 0.1);
+    }
+    .neon-ring-active {
+      background: linear-gradient(#050409, #050409) padding-box, linear-gradient(135deg, #faff00, #ff007f, #7000ff, #00f0ff) border-box !important;
+      border: 3px solid transparent;
+      box-shadow: 0 10px 20px rgba(112, 0, 255, 0.4);
+      transform: translateY(-16px) scale(1.15);
+      z-index: 20;
+    }
+    body.light-theme .neon-ring-active {
+      background: linear-gradient(#ffffff, #ffffff) padding-box, linear-gradient(135deg, #faff00, #ff007f, #7000ff, #00f0ff) border-box !important;
+      box-shadow: 0 10px 20px rgba(112, 0, 255, 0.2);
+    }
+    .neon-ring-inactive {
+      background: transparent;
+      border: 3px solid transparent;
+      transform: translateY(0) scale(1);
+      z-index: 10;
+    }
+    .neon-ring-inactive:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    body.light-theme .neon-ring-inactive:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .type-text-active {
+      opacity: 1 !important;
+      bottom: -20px !important;
+      color: #ffffff;
+    }
+    body.light-theme .type-text-active {
+      color: #1a1528;
+    }
+    .type-text-inactive {
+      opacity: 0 !important;
+      bottom: -4px !important;
+    }
+
     body.light-theme {
       background-color: #f5f4fa !important;
       color: #1a1528 !important;
@@ -775,16 +824,46 @@
 
       <form id="movement-form" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
         
-        <!-- SELECTOR DE TIPO (MINIMALISTA) -->
-        <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Tipo de Registro</label>
-          <select id="form-type-select" onchange="window.selectType(this.value)" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
-            <option value="ingreso">📈 Ingreso</option>
-            <option value="gasto">📉 Gasto</option>
-            <option value="ahorro">💰 Ahorro</option>
-            <option value="pago_tc">💳 Pago TC</option>
-            <option value="diecast">🚗 DieCast</option>
-          </select>
+        <!-- SELECTOR DE TIPO (LIQUID GLASS APPLE STYLE) -->
+        <div class="pt-4 pb-2">
+          <div class="relative flex items-center justify-between glass-pill rounded-full px-2 max-w-sm mx-auto h-16 w-full">
+            
+            <button type="button" onclick="window.selectType('ingreso')" id="btn-type-ingreso" class="relative flex flex-col items-center justify-center w-12 h-12 rounded-full outline-none group">
+              <div id="icon-container-ingreso" class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 neon-ring-inactive">
+                <span class="text-xl transition-transform duration-500 group-hover:scale-110">📈</span>
+              </div>
+              <span id="text-ingreso" class="text-[10px] font-bold absolute transition-all duration-500 whitespace-nowrap pointer-events-none type-text-inactive">Ingreso</span>
+            </button>
+
+            <button type="button" onclick="window.selectType('gasto')" id="btn-type-gasto" class="relative flex flex-col items-center justify-center w-12 h-12 rounded-full outline-none group">
+              <div id="icon-container-gasto" class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 neon-ring-inactive">
+                <span class="text-xl transition-transform duration-500 group-hover:scale-110">📉</span>
+              </div>
+              <span id="text-gasto" class="text-[10px] font-bold absolute transition-all duration-500 whitespace-nowrap pointer-events-none type-text-inactive">Gasto</span>
+            </button>
+
+            <button type="button" onclick="window.selectType('ahorro')" id="btn-type-ahorro" class="relative flex flex-col items-center justify-center w-12 h-12 rounded-full outline-none group">
+              <div id="icon-container-ahorro" class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 neon-ring-inactive">
+                <span class="text-xl transition-transform duration-500 group-hover:scale-110">💰</span>
+              </div>
+              <span id="text-ahorro" class="text-[10px] font-bold absolute transition-all duration-500 whitespace-nowrap pointer-events-none type-text-inactive">Ahorro</span>
+            </button>
+
+            <button type="button" onclick="window.selectType('pago_tc')" id="btn-type-pago_tc" class="relative flex flex-col items-center justify-center w-12 h-12 rounded-full outline-none group">
+              <div id="icon-container-pago_tc" class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 neon-ring-inactive">
+                <span class="text-xl transition-transform duration-500 group-hover:scale-110">💳</span>
+              </div>
+              <span id="text-pago_tc" class="text-[10px] font-bold absolute transition-all duration-500 whitespace-nowrap pointer-events-none type-text-inactive">Pago TC</span>
+            </button>
+
+            <button type="button" onclick="window.selectType('diecast')" id="btn-type-diecast" class="relative flex flex-col items-center justify-center w-12 h-12 rounded-full outline-none group">
+              <div id="icon-container-diecast" class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 neon-ring-inactive">
+                <span class="text-xl transition-transform duration-500 group-hover:scale-110">🚗</span>
+              </div>
+              <span id="text-diecast" class="text-[10px] font-bold absolute transition-all duration-500 whitespace-nowrap pointer-events-none type-text-inactive">DieCast</span>
+            </button>
+            
+          </div>
         </div>
 
         <!-- Selector de Subcategoría (Oculto para DieCasts y Pago TC) -->
@@ -3433,10 +3512,26 @@
     function selectType(t) {
       formType = t;
       
-      const typeSelect = document.getElementById('form-type-select');
-      if (typeSelect && typeSelect.value !== t) {
-        typeSelect.value = t;
-      }
+      const types = ['ingreso', 'gasto', 'ahorro', 'pago_tc', 'diecast'];
+      
+      types.forEach(type => {
+        const iconContainer = document.getElementById(`icon-container-${type}`);
+        const textSpan = document.getElementById(`text-${type}`);
+        
+        if (iconContainer && textSpan) {
+          if (type === t) {
+            iconContainer.classList.remove('neon-ring-inactive');
+            iconContainer.classList.add('neon-ring-active');
+            textSpan.classList.remove('type-text-inactive');
+            textSpan.classList.add('type-text-active');
+          } else {
+            iconContainer.classList.remove('neon-ring-active');
+            iconContainer.classList.add('neon-ring-inactive');
+            textSpan.classList.remove('type-text-active');
+            textSpan.classList.add('type-text-inactive');
+          }
+        }
+      });
 
       const containerSubcategory = document.getElementById('container-subcategory');
       const containerPhoto = document.getElementById('container-photo');
