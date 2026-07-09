@@ -342,12 +342,13 @@
     /* Adaptaciones de altura para móviles */
     @media (max-width: 640px) {
       #calendar-grid > button, #calendar-grid > div {
-        height: 5.5rem !important; /* Más altos para hacerlos óvalos más pronunciados */
+        height: 4.5rem !important; /* Altura reducida para que sean más uniformes y no tan alargados */
+        border-radius: 1.25rem !important; /* Bordes suaves acordes a la nueva altura */
         padding-top: 0.25rem !important;
         padding-bottom: 0.25rem !important;
       }
       #calendar-grid > button > span {
-        font-size: 1.25rem !important; /* Aumentado para mayor visibilidad */
+        font-size: 1.15rem !important; /* Mantiene el número visible sin saturar el espacio */
       }
     }
   </style>
