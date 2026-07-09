@@ -116,6 +116,44 @@
       text-shadow: 0 0 8px rgba(250, 255, 0, 0.6);
     }
 
+    /* Animación de destello para el día actual */
+    @keyframes today-glow {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(112, 0, 255, 0.4), 0 0 20px rgba(0, 240, 255, 0.2);
+        border-color: rgba(112, 0, 255, 0.6);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(112, 0, 255, 0.9), 0 0 35px rgba(0, 240, 255, 0.6), 0 0 15px rgba(250, 255, 0, 0.3);
+        border-color: rgba(0, 240, 255, 0.9);
+      }
+    }
+    .today-destello {
+      animation: today-glow 2s infinite ease-in-out;
+    }
+
+    /* Efecto Resaltador de Estudiante (Fluorescente, inclinado y dinámico) */
+    .student-highlight {
+      background: rgba(250, 255, 0, 0.25) !important;
+      border: 2px dashed #faff00 !important;
+      box-shadow: 0 0 20px rgba(250, 255, 0, 0.45), inset 0 0 10px rgba(250, 255, 0, 0.2) !important;
+      transform: scale(1.05) rotate(-2deg) !important;
+      z-index: 20;
+    }
+    .student-highlight span {
+      color: #faff00 !important;
+      text-shadow: 0 0 10px rgba(250, 255, 0, 0.9) !important;
+    }
+    body.light-theme .student-highlight {
+      background: rgba(250, 255, 0, 0.55) !important;
+      border: 2px dashed #d97706 !important;
+      box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3) !important;
+      transform: scale(1.05) rotate(-2deg) !important;
+    }
+    body.light-theme .student-highlight span {
+      color: #1a1528 !important;
+      text-shadow: none !important;
+    }
+
     /* Glassmorphism Premium */
     .glass-card {
       background: rgba(11, 8, 20, 0.6);
@@ -342,13 +380,24 @@
     /* Adaptaciones de altura para móviles */
     @media (max-width: 640px) {
       #calendar-grid > button, #calendar-grid > div {
-        height: 4.5rem !important; /* Altura reducida para que sean más uniformes y no tan alargados */
-        border-radius: 1.25rem !important; /* Bordes suaves acordes a la nueva altura */
-        padding-top: 0.25rem !important;
-        padding-bottom: 0.25rem !important;
+        aspect-ratio: 1 / 1 !important;
+        height: auto !important;
+        width: 100% !important;
+        border-radius: 9999px !important; /* Círculo perfecto */
+        padding: 0.2rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
       }
       #calendar-grid > button > span {
         font-size: 1.15rem !important; /* Mantiene el número visible sin saturar el espacio */
+        margin-top: 0 !important;
+        line-height: 1.1 !important;
+      }
+      #calendar-grid > button > div {
+        margin-top: 2px !important;
+        gap: 1px !important;
       }
     }
   </style>
@@ -465,6 +514,9 @@
               </button>
               <button onclick="openTitleSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#00f0ff]/10 rounded-xl transition-colors">
                 <i data-lucide="type" class="w-4 h-4 text-[#00f0ff]"></i> Títulos de la App
+              </button>
+              <button onclick="openNotificationSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#faff00]/10 rounded-xl transition-colors">
+                <i data-lucide="bell" class="w-4 h-4 text-[#faff00]"></i> Notificaciones Celular
               </button>
               <button onclick="openPasswordSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#ff007f]/10 rounded-xl transition-colors">
                 <i data-lucide="key" class="w-4 h-4 text-[#ff007f]"></i> Contraseña de Bóveda
@@ -612,8 +664,8 @@
               
               <!-- Contenedor Deuda -->
               <div id="debt-container" class="w-full flex flex-col z-10 border-t border-gray-800/80 pt-4 mt-4 hidden">
-                <span class="text-[10px] text-center text-rose-400 uppercase tracking-widest font-bold mb-2">Deuda Activa</span>
-                <div id="debt-list" class="w-full space-y-2"></div>
+                <span class="text-[10px] text-center text-rose-450 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded mt-1 uppercase block w-max mx-auto">Deuda Activa</span>
+                <div id="debt-list" class="w-full space-y-2 mt-2"></div>
               </div>
             </div>
             <div class="md:col-span-2 bg-gray-900/40 p-4 rounded-2xl border border-gray-800 shadow-lg h-56 relative">
@@ -924,7 +976,7 @@
         <!-- Concepto -->
         <div class="space-y-1.5">
           <label id="label-concept" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Concepto / Descripción</label>
-          <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none text-white text-sm transition-colors placeholder:text-gray-600" />
+          <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none text-white text-sm transition-colors placeholder:text-gray-650" />
         </div>
 
         <!-- Botón Guardar -->
@@ -1072,7 +1124,7 @@
             <p id="detail-acc-income" class="text-sm font-bold text-emerald-400"></p>
           </div>
           <div class="bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10">
-            <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider block mb-1">Cargos/Gastos</span>
+            <span class="text-[9px] text-rose-450 font-bold uppercase tracking-wider block mb-1">Cargos/Gastos</span>
             <p id="detail-acc-expense" class="text-sm font-bold text-rose-400"></p>
           </div>
         </div>
@@ -1081,7 +1133,7 @@
         <div class="space-y-3">
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Últimos Movimientos</h4>
           <div id="detail-recent-list" class="space-y-2">
-            <!-- Cargado dinámicamente -->
+            <!-- Cargo dinámico -->
           </div>
         </div>
 
@@ -1129,7 +1181,7 @@
             </div>
           </div>
 
-          <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md">
+          <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3=">
             + Agregar Subcategoría
           </button>
         </form>
@@ -1226,6 +1278,61 @@
           Guardar Títulos
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE NOTIFICACIONES CELULAR -->
+  <div id="notification-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="notification-settings-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="bell" class="text-[#faff00] w-5 h-5"></i>
+          <span class="text-white">Programar Notificación</span>
+        </h3>
+        <button onclick="closeNotificationSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="notification-settings-form" class="p-6 space-y-4">
+        <p class="text-[11px] text-gray-400">Solicitaremos permiso para enviar alertas del sistema a su teléfono o computadora.</p>
+        
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Fecha</label>
+          <input type="date" id="notify-date" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Hora</label>
+          <input type="time" id="notify-time" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Repetir Alerta</label>
+          <select id="notify-repeat" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none cursor-pointer">
+            <option value="once" class="bg-gray-950 text-white">No repetir (Solo una vez)</option>
+            <option value="monthly" class="bg-gray-950 text-white">Repetir cada mes (Mensual)</option>
+            <option value="annually" class="bg-gray-950 text-white">Repetir cada año (Anual)</option>
+          </select>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Motivo / Descripción</label>
+          <input type="text" id="notify-reason" required placeholder="Ej. Pagar tarjeta Nu, Revisar ahorros..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#faff00] outline-none text-white text-sm" />
+        </div>
+
+        <button type="submit" class="w-full bg-gradient-to-r from-[#faff00] to-[#7000ff] text-black font-bold py-3.5 rounded-2xl text-xs transition-colors shadow-md mt-2 hover:brightness-110">
+          Programar Alerta
+        </button>
+      </form>
+      
+      <!-- Lista de notificaciones pendientes -->
+      <div class="px-6 pb-6 pt-2 border-t border-gray-800/80">
+        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Alertas Pendientes</h4>
+        <div id="pending-notifications-list" class="space-y-2 max-h-32 overflow-y-auto pr-1">
+          <!-- Se inyectarán dinámicamente -->
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1358,6 +1465,7 @@
     let movements = [];
     let accounts = [];
     let customSubcategories = [];
+    let scheduledNotifications = [];
     
     let currentDate = new Date();
     let selectedDateStr = null;
@@ -1519,7 +1627,7 @@
       gasto: { label: 'Gasto', emoji: '📉', color: '#ff007f', bgClass: 'bg-pink-500/10', textClass: 'text-pink-400', borderClass: 'border-pink-500/50' },
       ahorro: { label: 'Ahorro', emoji: '💰', color: '#7000ff', bgClass: 'bg-purple-500/10', textClass: 'text-purple-400', borderClass: 'border-purple-500/50' },
       diecast: { label: 'DieCast', emoji: '🚗', color: '#f59e0b', bgClass: 'bg-amber-500/10', textClass: 'text-amber-500', borderClass: 'border-amber-500/50' },
-      pago_tc: { label: 'Pago/Transfer', emoji: '💳', color: '#10b981', bgClass: 'bg-emerald-500/10', textClass: 'text-emerald-500', borderClass: 'border-emerald-500/50' }
+      pago_tc: { label: 'Pago TC', emoji: '💳', color: '#10b981', bgClass: 'bg-emerald-500/10', textClass: 'text-emerald-500', borderClass: 'border-emerald-500/50' }
     };
 
     const yearSelect = document.getElementById('year-select');
@@ -1602,6 +1710,17 @@
         updateSubcategorySelectors();
         renderApp();
       }, (error) => console.error("Error cargando subcategorías:", error));
+
+      const qNotifications = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'));
+      onSnapshot(qNotifications, (snapshot) => {
+        scheduledNotifications = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        renderPendingNotifications();
+      }, (error) => console.error("Error cargando notificaciones:", error));
+
+      startNotificationTicker();
     }
 
     function loadUserProfileAndSecurity() {
@@ -1724,14 +1843,17 @@
         const dateStr = `${year}-${formattedMonth}-${formattedDay}`;
         
         const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+        const isSelected = selectedDateStr === dateStr;
         const dayMovements = movements.filter(m => m.date === dateStr);
         
         const btn = document.createElement('button');
         btn.onclick = () => window.openModal(dateStr);
         
         let baseClass = `relative h-24 md:h-28 rounded-[2.5rem] border flex flex-col justify-between items-center p-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer animate-pop `;
-        if (isToday) {
-          baseClass += 'bg-[#7000ff]/15 border-[#7000ff]/50 text-[#00f0ff] font-bold shadow-[0_0_15px_rgba(112,0,255,0.2)]';
+        if (isSelected) {
+          baseClass += 'student-highlight';
+        } else if (isToday) {
+          baseClass += 'bg-[#7000ff]/15 border-[#7000ff]/50 text-[#00f0ff] font-bold today-destello';
         } else {
           baseClass += 'bg-gray-900/40 border-gray-800/80 text-gray-300 hover:border-gray-500 hover:bg-gray-800/60';
         }
@@ -2457,7 +2579,7 @@
             }
             
             const prefix = isOutflow ? '-' : '+';
-            const colorClass = isOutflow ? 'text-rose-400' : 'text-emerald-400';
+            const colorClass = isOutflow ? 'text-rose-450' : 'text-emerald-400';
 
             recentListContainer.innerHTML += `
               <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-900 border border-gray-850">
@@ -3021,18 +3143,13 @@
       const content = document.getElementById('title-settings-content');
 
       const loginTitleInput = document.getElementById('settings-login-title');
-      const loginSubtitleInput = document.getElementById('settings-login-subtitle');
       const mainTitleInput = document.getElementById('settings-main-title');
       
       const currentLoginTitle = document.getElementById('login-title-text');
-      const currentLoginSubtitle = document.getElementById('login-subtitle-text');
       const currentMainTitle = document.getElementById('main-title-text');
 
       if (loginTitleInput && currentLoginTitle) {
         loginTitleInput.value = currentLoginTitle.textContent.trim();
-      }
-      if (loginSubtitleInput && currentLoginSubtitle) {
-        loginSubtitleInput.value = currentLoginSubtitle.textContent.trim();
       }
       if (mainTitleInput && currentMainTitle) {
         mainTitleInput.value = currentMainTitle.textContent.trim();
@@ -3065,18 +3182,15 @@
         if (!user) return;
 
         const loginTitleInput = document.getElementById('settings-login-title');
-        const loginSubtitleInput = document.getElementById('settings-login-subtitle');
         const mainTitleInput = document.getElementById('settings-main-title');
         
         const loginTitle = loginTitleInput ? (loginTitleInput.value.trim() || DEFAULT_LOGIN_TITLE) : DEFAULT_LOGIN_TITLE;
-        const loginSubtitle = loginSubtitleInput ? (loginSubtitleInput.value.trim() || DEFAULT_LOGIN_SUBTITLE) : DEFAULT_LOGIN_SUBTITLE;
         const mainTitle = mainTitleInput ? (mainTitleInput.value.trim() || DEFAULT_MAIN_TITLE) : DEFAULT_MAIN_TITLE;
 
         try {
           const profileDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'profile');
           await setDoc(profileDocRef, {
             loginTitle: loginTitle,
-            loginSubtitle: loginSubtitle,
             mainTitle: mainTitle,
             timestamp: new Date().toISOString()
           }, { merge: true });
@@ -3086,6 +3200,139 @@
           console.error("Error al actualizar títulos:", error);
         }
       });
+    }
+
+    // GESTIÓN DE NOTIFICACIONES
+    function openNotificationSettingsModal() {
+      profileDropdownMenu.classList.add('hidden');
+      const modalElement = document.getElementById('notification-settings-modal');
+      const content = document.getElementById('notification-settings-content');
+      
+      if ("Notification" in window) {
+        Notification.requestPermission();
+      }
+
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+      renderPendingNotifications();
+    }
+
+    function closeNotificationSettingsModal() {
+      const modalElement = document.getElementById('notification-settings-modal');
+      const content = document.getElementById('notification-settings-content');
+      if (modalElement && content) {
+        modalElement.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modalElement.classList.add('hidden'), 300);
+      }
+    }
+
+    const notifyForm = document.getElementById('notification-settings-form');
+    if (notifyForm) {
+      notifyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dateInput = document.getElementById('notify-date');
+        const timeInput = document.getElementById('notify-time');
+        const reasonInput = document.getElementById('notify-reason');
+        
+        if (!dateInput || !timeInput || !reasonInput) return;
+
+        const notifyData = {
+          date: dateInput.value,
+          time: timeInput.value,
+          reason: reasonInput.value.trim(),
+          triggered: false,
+          timestamp: new Date().toISOString()
+        };
+
+        try {
+          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), notifyData);
+          notifyForm.reset();
+          if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+          }
+        } catch (error) {
+          console.error("Error al programar notificación:", error);
+        }
+      });
+    }
+
+    function renderPendingNotifications() {
+      const container = document.getElementById('pending-notifications-list');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      const pending = scheduledNotifications.filter(n => !n.triggered);
+      if (pending.length === 0) {
+        container.innerHTML = '<p class="text-[10px] text-gray-500 text-center py-2">No hay alertas pendientes.</p>';
+        return;
+      }
+
+      pending.forEach(n => {
+        let repeatBadge = '';
+        if (n.repeat === 'monthly') {
+          repeatBadge = '<span class="text-[9px] bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/20 px-1.5 py-0.5 rounded-md font-extrabold uppercase ml-1.5">Mes</span>';
+        } else if (n.repeat === 'annually') {
+          repeatBadge = '<span class="text-[9px] bg-[#7000ff]/10 text-[#7000ff] border border-[#7000ff]/20 px-1.5 py-0.5 rounded-md font-extrabold uppercase ml-1.5">Año</span>';
+        }
+
+        container.innerHTML += `
+          <div class="flex items-center justify-between bg-gray-900/60 p-2 rounded-xl border border-gray-800">
+            <div class="flex flex-col text-left">
+              <span class="text-xs text-white font-semibold truncate max-w-[180px] flex items-center gap-1">
+                ${n.reason} ${repeatBadge}
+              </span>
+              <span class="text-[9px] text-gray-400">${n.date} a las ${n.time}</span>
+            </div>
+            <button onclick="window.deleteNotification('${n.id}')" class="p-1 text-gray-400 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    window.deleteNotification = async function(id) {
+      try {
+        await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', id));
+      } catch (e) {
+        console.error("Error al eliminar notificación:", e);
+      }
+    };
+
+    function startNotificationTicker() {
+      setInterval(() => {
+        const now = new Date();
+        scheduledNotifications.forEach(async (n) => {
+          if (!n.triggered) {
+            const schedDateTime = new Date(`${n.date}T${n.time}:00`);
+            if (now >= schedDateTime) {
+              if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("Cuentas Personales - Recordatorio", {
+                  body: n.reason,
+                  icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>"
+                });
+              } else {
+                showConfirm("Recordatorio Alerta", n.reason, null, true);
+              }
+              
+              try {
+                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
+                  triggered: true
+                });
+              } catch (e) {
+                console.error("Error al actualizar estado de notificación:", e);
+              }
+            }
+          }
+        });
+      }, 15000); // Comprobar cada 15 segundos
     }
 
     function openPasswordSettingsModal() {
@@ -3144,56 +3391,81 @@
             errBox.classList.remove('hidden');
           }
           return;
-        }
+    const notifyForm = document.getElementById('notification-settings-form');
+    if (notifyForm) {
+      notifyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dateInput = document.getElementById('notify-date');
+        const timeInput = document.getElementById('notify-time');
+        const reasonInput = document.getElementById('notify-reason');
+        const repeatInput = document.getElementById('notify-repeat');
+        
+        if (!dateInput || !timeInput || !reasonInput) return;
 
-        if (newVal !== confirmVal) {
-          if (errBox && errText) {
-            errText.textContent = "Las nuevas contraseñas no coinciden.";
-            errBox.classList.remove('hidden');
-          }
-          return;
-        }
-
-        if (newVal.length < 4) {
-          if (errBox && errText) {
-            errText.textContent = "La nueva contraseña debe tener mínimo 4 caracteres.";
-            errBox.classList.remove('hidden');
-          }
-          return;
-        }
+        const notifyData = {
+          date: dateInput.value,
+          time: timeInput.value,
+          reason: reasonInput.value.trim(),
+          repeat: repeatInput ? repeatInput.value : 'once',
+          triggered: false,
+          timestamp: new Date().toISOString()
+        };
 
         try {
-          const securityDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'security');
-          await setDoc(securityDocRef, {
-            password: newVal,
-            timestamp: new Date().toISOString()
-          }, { merge: true });
-
-          closePasswordSettingsModal();
+          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), notifyData);
+          notifyForm.reset();
+          if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+          }
         } catch (error) {
-          console.error("Error al actualizar la contraseña de la bóveda:", error);
+          console.error("Error al programar notificación:", error);
         }
       });
     }
-
-    const btnToggleBiometrics = document.getElementById('btn-toggle-biometrics');
-    if (btnToggleBiometrics) {
-      btnToggleBiometrics.addEventListener('click', async () => {
-        const hasEnrolled = !!localStorage.getItem('vault_biometric_id');
-        if (hasEnrolled) {
-          localStorage.removeItem('vault_biometric_id');
-          updateBiometricSettingsUI();
-          updateBiometricLoginUI();
-          showConfirm("Biometría Desactivada", "Has desvinculado este dispositivo correctamente.", null, true);
-        } else {
-          const success = await enrollBiometrics();
-          if (success) {
-            updateBiometricSettingsUI();
-            updateBiometricLoginUI();
-            showConfirm("¡Dispositivo Vinculado!", "Face ID / Touch ID activado correctamente para este dispositivo. Ya puedes usarlo para entrar.", null, true);
-          } else {
-            showConfirm("Fallo de Vinculación", "No se pudo activar. Asegúrate de tener una huella o rostro registrado en el sistema de tu teléfono y que estés abriendo la página web desde HTTPS.", null, true);
+    function startNotificationTicker() {
+      setInterval(() => {
+        const now = new Date();
+        scheduledNotifications.forEach(async (n) => {
+          if (!n.triggered) {
+            const schedDateTime = new Date(`${n.date}T${n.time}:00`);
+            if (now >= schedDateTime) {
+              if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("Cuentas Personales - Recordatorio", {
+                  body: n.reason,
+                  icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>"
+                });
+              } else {
+                showConfirm("Recordatorio Alerta", n.reason, null, true);
+              }
+              
+              try {
+                if (n.repeat === 'monthly') {
+                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
+                  currentSchedDate.setMonth(currentSchedDate.getMonth() + 1);
+                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
+                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
+                    date: newDateStr
+                  });
+                } else if (n.repeat === 'annually') {
+                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
+                  currentSchedDate.setFullYear(currentSchedDate.getFullYear() + 1);
+                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
+                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
+                    date: newDateStr
+                  });
+                } else {
+                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
+                    triggered: true
+                  });
+                }
+              } catch (e) {
+                console.error("Error al actualizar estado de notificación:", e);
+              }
+            }
           }
+        });
+      }, 15000); // Comprobar cada 15 segundos
+    }
         }
       });
     }
@@ -3605,6 +3877,8 @@
 
     function openModal(dateStr, existingMovement = null) {
       selectedDateStr = dateStr;
+      renderCalendar(); // Rerenderizar inmediatamente el calendario para destacar el día
+      
       const dateLabel = document.getElementById('modal-date-label');
       if (dateLabel) dateLabel.textContent = dateStr;
       
@@ -4037,7 +4311,8 @@
       { id: 'password-settings-modal', closeFunc: closePasswordSettingsModal },
       { id: 'confirm-modal', closeFunc: closeConfirm },
       { id: 'hover-images-modal', closeFunc: closeHoverImagesModal },
-      { id: 'diecast-view-modal', closeFunc: closeDiecastView }
+      { id: 'diecast-view-modal', closeFunc: closeDiecastView },
+      { id: 'notification-settings-modal', closeFunc: closeNotificationSettingsModal }
     ];
 
     modalContainers.forEach(modal => {
@@ -4091,6 +4366,8 @@
     window.closeHoverImagesModal = closeHoverImagesModal;
     window.viewDiecast = viewDiecast;
     window.closeDiecastView = closeDiecastView;
+    window.openNotificationSettingsModal = openNotificationSettingsModal;
+    window.closeNotificationSettingsModal = closeNotificationSettingsModal;
 
     checkBiometricsSupport().then(supported => {
       if (supported) {
