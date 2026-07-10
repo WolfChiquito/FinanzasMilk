@@ -7,7 +7,7 @@
   
   <!-- Icono de Favoritos -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
+  <link class="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
   
   <!-- Tailwind CSS para el diseño -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -37,7 +37,7 @@
       overflow-x: hidden;
     }
 
-    /* Animaciones Generales Fluidas (NUEVO) */
+    /* Animaciones Generales Fluidas */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -119,20 +119,37 @@
     /* Animación de destello para el día actual */
     @keyframes today-glow {
       0%, 100% {
-        box-shadow: 0 0 10px rgba(112, 0, 255, 0.4), 0 0 20px rgba(0, 240, 255, 0.2);
-        border-color: rgba(112, 0, 255, 0.6);
+        box-shadow: 0 0 12px rgba(250, 255, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
+        border-color: rgba(250, 255, 0, 0.8);
+        background-color: rgba(250, 255, 0, 0.15);
+        transform: scale(1);
       }
       50% {
-        box-shadow: 0 0 25px rgba(112, 0, 255, 0.9), 0 0 35px rgba(0, 240, 255, 0.6), 0 0 15px rgba(250, 255, 0, 0.3);
-        border-color: rgba(0, 240, 255, 0.9);
+        box-shadow: 0 0 25px rgba(250, 255, 0, 0.95), 0 0 35px rgba(0, 240, 255, 0.7), 0 0 15px rgba(250, 255, 0, 0.4);
+        border-color: rgba(250, 255, 0, 1);
+        background-color: rgba(250, 255, 0, 0.25);
+        transform: scale(1.03);
       }
     }
     .today-destello {
-      opacity: 1;
       animation: today-glow 2s infinite ease-in-out;
+      background-color: rgba(250, 255, 0, 0.15) !important;
+      border: 2px solid rgba(250, 255, 0, 0.7) !important;
+    }
+    .today-destello span {
+      color: #faff00 !important;
+      text-shadow: 0 0 10px rgba(250, 255, 0, 0.8) !important;
+    }
+    body.light-theme .today-destello {
+      background-color: rgba(217, 119, 6, 0.15) !important;
+      border: 2px solid rgba(217, 119, 6, 0.75) !important;
+    }
+    body.light-theme .today-destello span {
+      color: #b45309 !important;
+      text-shadow: none !important;
     }
 
-    /* Efecto Resaltador de Estudiante (Fluorescente, inclinado y dinámico) */
+    /* Efecto Resaltador de Estudiante */
     .student-highlight {
       background: rgba(250, 255, 0, 0.25) !important;
       border: 2px dashed #faff00 !important;
@@ -174,7 +191,7 @@
       animation: shake 0.3s ease-in-out;
     }
 
-    /* Liquid Glass Menu (NUEVO ESTILO DE BARRA DE TIPOS DE REGISTRO) */
+    /* Liquid Glass Menu */
     .glass-pill {
       background: rgba(255, 255, 255, 0.03);
       backdrop-filter: blur(24px);
@@ -239,7 +256,6 @@
       box-shadow: 0 8px 32px 0 rgba(112, 0, 255, 0.05) !important;
     }
     
-    /* Reemplazos de fondos de color gris oscuro para el modo claro */
     body.light-theme .bg-gray-950\/90 { 
       background-color: rgba(255, 255, 255, 0.95) !important; 
       border: 1px solid rgba(112, 0, 255, 0.1) !important;
@@ -270,14 +286,12 @@
       border-color: #e2e0eb !important; 
     }
     
-    /* Corrección de color de fuentes en modo claro */
     body.light-theme .text-gray-400 { color: #4a3e5c !important; }
     body.light-theme .text-gray-500 { color: #6e6183 !important; }
     body.light-theme .text-gray-300 { color: #1a1528 !important; }
     body.light-theme .text-gray-200 { color: #1a1528 !important; }
     body.light-theme .text-white { color: #1a1528 !important; }
     
-    /* Inputs y selectores transparentes sobre contenedor para un look limpio */
     body.light-theme input, 
     body.light-theme select {
       background-color: #ffffff !important;
@@ -291,7 +305,6 @@
     body.light-theme .hover\:bg-gray-800\/50:hover { background-color: rgba(112, 0, 255, 0.05) !important; }
     body.light-theme .hover\:bg-gray-900:hover { background-color: #f5f4fa !important; }
     
-    /* Configuración del calendario OVALADO en modo claro */
     body.light-theme #calendar-grid > button { 
       background-color: rgba(255, 255, 255, 0.8) !important; 
       border-color: rgba(112, 0, 255, 0.1) !important; 
@@ -303,25 +316,22 @@
       background-color: rgba(112, 0, 255, 0.05) !important; 
       border-color: rgba(112, 0, 255, 0.25) !important;
     }
-    body.light-theme #calendar-grid > button.bg-\[\#7000ff\]\/15 { 
+    body.light-theme #calendar-grid > button.bg-\[\#7000ff\]\/10 { 
       background-color: rgba(112, 0, 255, 0.1) !important; 
       color: #7000ff !important; 
       border-color: rgba(112, 0, 255, 0.35) !important; 
     }
 
-    /* Gráfico de dona optimizado para el modo claro */
     body.light-theme #donut-chart {
       border-color: rgba(112, 0, 255, 0.1) !important;
       box-shadow: 0 4px 20px rgba(112, 0, 255, 0.05) !important;
     }
 
-    /* Jewel tones (Colores joya con alta legibilidad para el modo claro) */
     body.light-theme .text-cyan-400 { color: #00818d !important; }
     body.light-theme .text-pink-400 { color: #c40062 !important; }
     body.light-theme .text-purple-400 { color: #5000be !important; }
     body.light-theme .text-amber-400 { color: #b45309 !important; }
 
-    /* Renglones del desglose bajo el gráfico de dona en modo claro */
     body.light-theme .bg-cyan-500\/10 { 
       background-color: rgba(0, 129, 141, 0.06) !important; 
       border-color: rgba(0, 129, 141, 0.15) !important; 
@@ -339,7 +349,6 @@
       border-color: rgba(245, 158, 11, 0.15) !important; 
     }
     
-    /* Configuración de listas y modales de subcategorías */
     body.light-theme .bg-gray-900\/60 {
       background-color: rgba(255, 255, 255, 0.8) !important;
       border-color: rgba(112, 0, 255, 0.1) !important;
@@ -354,7 +363,6 @@
       background-color: rgba(255, 255, 255, 0.3) !important;
     }
 
-    /* Scrollbar minimalista lila en modo claro */
     body.light-theme::-webkit-scrollbar-track {
       background: #f5f4fa;
     }
@@ -370,7 +378,6 @@
       box-shadow: 0 0 5px rgba(112, 0, 255, 0.2);
     }
 
-    /* Gráfico interactivo animado */
     #donut-chart-container {
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -378,13 +385,12 @@
       transform: scale(1.05);
     }
 
-    /* Adaptaciones de altura para móviles */
     @media (max-width: 640px) {
       #calendar-grid > button, #calendar-grid > div {
         aspect-ratio: 1 / 1 !important;
         height: auto !important;
         width: 100% !important;
-        border-radius: 9999px !important; /* Círculo perfecto */
+        border-radius: 9999px !important;
         padding: 0.2rem !important;
         display: flex !important;
         flex-direction: column !important;
@@ -392,7 +398,7 @@
         align-items: center !important;
       }
       #calendar-grid > button > span {
-        font-size: 1.15rem !important; /* Mantiene el número visible sin saturar el espacio */
+        font-size: 1.15rem !important;
         margin-top: 0 !important;
         line-height: 1.1 !important;
       }
@@ -446,7 +452,6 @@
           <span>Contraseña incorrecta</span>
         </div>
 
-        <!-- BOTÓN DE ACCESO CIRCULAR TRANSLÚCIDO -->
         <div class="flex justify-center pt-2">
           <button type="submit" class="w-20 h-20 rounded-full bg-gradient-to-tr from-[#00f0ff]/10 via-[#7000ff]/15 to-[#00f0ff]/25 backdrop-blur-md border border-[#00f0ff]/40 hover:border-[#00f0ff]/80 hover:scale-110 active:scale-95 text-[#00f0ff] flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.15)] hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] transition-all duration-300 group focus:outline-none" title="Desbloquear Bóveda">
             <i data-lucide="arrow-right" class="w-8 h-8 group-hover:translate-x-1.5 transition-transform filter drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]"></i>
@@ -482,15 +487,12 @@
       
       <!-- CONTROLES Y PERFIL DE USUARIO -->
       <div class="flex items-center gap-3">
-        <!-- BOTÓN PARA MODO CLARO / OSCURO -->
         <button id="theme-toggle" class="p-2.5 md:p-3 bg-gray-950/80 border border-gray-800 rounded-xl hover:border-[#00f0ff]/30 transition-colors text-gray-400 hover:text-[#00f0ff]" title="Alternar tema">
           <i data-lucide="sun" id="theme-icon" class="w-5 h-5"></i>
         </button>
 
-        <!-- DROPDOWN DE USUARIO EN LUGAR DE BOTÓN SIMPLE -->
         <div class="relative">
           <button id="profile-dropdown-btn" class="flex items-center gap-2.5 p-1.5 bg-gray-950/80 border border-gray-800 hover:border-[#7000ff]/40 rounded-xl transition-all focus:outline-none">
-            <!-- Avatar por defecto o subido -->
             <img id="user-avatar-img" src="https://placehold.co/400x400/7000ff/ffffff?text=MM" class="w-10 h-10 rounded-full object-cover border border-[#7000ff]/30 shadow-md" alt="Avatar">
             <span id="user-display-name" class="hidden md:inline text-sm font-semibold text-gray-250 pr-2">Milton Montoya</span>
             <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 mr-1"></i>
@@ -555,9 +557,8 @@
                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
               </button>
               
-              <!-- Menús desplegables de Mes y Año -->
               <div class="flex items-center gap-1 bg-gray-900 rounded-md px-2 py-1">
-                <select id="month-select" class="bg-transparent border-none text-sm font-bold text-gray-200 focus:outline-none cursor-pointer outline-none hover:text-white transition-colors">
+                <select id="month-select" class="bg-transparent border-none text-sm font-bold text-gray-250 focus:outline-none cursor-pointer outline-none hover:text-white transition-colors">
                   <option value="0" class="bg-gray-950 text-white">Enero</option>
                   <option value="1" class="bg-gray-950 text-white">Febrero</option>
                   <option value="2" class="bg-gray-950 text-white">Marzo</option>
@@ -571,8 +572,7 @@
                   <option value="10" class="bg-gray-950 text-white">Noviembre</option>
                   <option value="11" class="bg-gray-950 text-white">Diciembre</option>
                 </select>
-                <select id="year-select" class="bg-transparent border-none text-sm font-bold text-gray-200 focus:outline-none cursor-pointer outline-none hover:text-white transition-colors">
-                  <!-- Llenado dinámico -->
+                <select id="year-select" class="bg-transparent border-none text-sm font-bold text-gray-250 focus:outline-none cursor-pointer outline-none hover:text-white transition-colors">
                 </select>
               </div>
 
@@ -582,13 +582,11 @@
             </div>
           </div>
 
-          <!-- DÍAS DE LA SEMANA INICIANDO EN LUNES -->
           <div class="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-bold text-gray-400 pb-2 border-b border-gray-900/60 uppercase tracking-widest">
             <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
           </div>
 
           <div id="calendar-grid" class="grid grid-cols-7 gap-2 pt-2">
-            <!-- Renderizado dinámico -->
           </div>
         </section>
 
@@ -600,14 +598,13 @@
               <button id="btn-hover-images-settings" onclick="openHoverImagesModal()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden" title="Personalizar Imágenes Flotantes">
                 <i data-lucide="image" class="w-4 h-4 text-[#7000ff]"></i>
               </button>
-              <button id="btn-print" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden" title="Imprimir pantalla">
+              <button id="btn-print" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-850 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden" title="Imprimir pantalla">
                 <i data-lucide="printer" class="w-4 h-4 text-[#ff007f]"></i>
               </button>
               <div class="relative">
-                <button id="btn-export-menu" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden">
+                <button id="btn-export-menu" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-850 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden">
                   <i data-lucide="download" class="w-4 h-4 text-[#00f0ff]"></i> Exportar
                 </button>
-                <!-- Dropdown Exportar -->
                 <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-32 glass-card rounded-lg shadow-xl z-10 overflow-hidden border border-[#7000ff]/20 animate-pop">
                   <button id="btn-export-pdf" class="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-gray-950 hover:text-white flex items-center gap-2 border-b border-gray-800/80 transition-colors">
                     <i data-lucide="file-text" class="w-4 h-4 text-[#ff007f]"></i> PDF
@@ -623,13 +620,12 @@
           <div id="donut-chart-container" class="flex justify-center mb-8 relative w-full h-64 md:h-80 lg:h-96 max-w-md md:max-w-lg lg:max-w-xl mx-auto cursor-pointer">
             <canvas id="month-donut-canvas"></canvas>
             <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
-               <span class="text-[10px] md:text-xs text-gray-400 uppercase tracking-widest font-semibold mt-4">Total Mensual</span>
+               <span id="donut-center-label" class="text-[10px] md:text-xs text-gray-400 uppercase tracking-widest font-semibold mt-4">Balance Mensual</span>
                <span id="donut-total" class="text-xl md:text-3xl font-black text-white">$0.00</span>
             </div>
           </div>
 
           <div id="month-summary-list" class="space-y-4 mt-auto">
-            <!-- Resumen se renderizará aquí -->
           </div>
         </section>
 
@@ -637,7 +633,6 @@
 
       <!-- SECCIÓN COLAPSABLE DE MIS CUENTAS Y CARTERAS -->
       <section id="accounts-section" class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl transition-all duration-300">
-        <!-- HEADER PLEGABLE -->
         <div id="toggle-accounts-btn" class="flex justify-between items-center cursor-pointer group">
           <div class="flex items-center gap-3">
             <i data-lucide="wallet" class="w-5 h-5 text-[#00f0ff] filter drop-shadow-[0_0_5px_rgba(0,240,255,0.4)]"></i>
@@ -653,17 +648,13 @@
           </div>
         </div>
 
-        <!-- CONTENIDO PLEGABLE -->
         <div id="accounts-content" class="hidden mt-6 animate-fade-in">
-          
-          <!-- RESUMEN DE PATRIMONIO Y GRÁFICA -->
           <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="md:col-span-1 bg-gray-900/40 p-6 rounded-2xl border border-[#00f0ff]/20 flex flex-col justify-center items-center shadow-lg relative overflow-hidden group hover:border-[#00f0ff]/50 transition-colors duration-300">
               <div class="absolute inset-0 bg-gradient-to-br from-[#00f0ff]/5 to-[#7000ff]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <span class="text-xs text-[#00f0ff] uppercase tracking-widest font-bold mb-2 z-10">Patrimonio Total</span>
               <p id="total-net-worth" class="text-3xl lg:text-4xl font-black text-white z-10 tracking-tight">$0.00</p>
               
-              <!-- Contenedor Deuda -->
               <div id="debt-container" class="w-full flex flex-col z-10 border-t border-gray-800/80 pt-4 mt-4 hidden">
                 <span class="text-[10px] text-center text-rose-450 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded mt-1 uppercase block w-max mx-auto">Deuda Activa</span>
                 <div id="debt-list" class="w-full space-y-2 mt-2"></div>
@@ -675,14 +666,12 @@
           </div>
 
           <div id="accounts-deck" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <!-- Tarjetas de cuentas se cargarán aquí por JS -->
           </div>
         </div>
       </section>
 
       <!-- SECCIÓN: COLECCIÓN DE DIECASTS -->
       <section id="diecasts-section" class="glass-card rounded-2xl border border-amber-500/15 p-6 shadow-xl transition-all">
-        <!-- HEADER PLEGABLE -->
         <div id="toggle-diecasts-btn" class="flex justify-between items-center cursor-pointer group">
           <div class="flex items-center gap-3">
             <i data-lucide="car-front" class="w-5 h-5 text-amber-500 filter drop-shadow-[0_0_5px_rgba(245,158,11,0.4)]"></i>
@@ -693,7 +682,6 @@
           </button>
         </div>
 
-        <!-- CONTENIDO PLEGABLE -->
         <div id="diecasts-content" class="hidden mt-6 space-y-6 animate-fade-in">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-800/80 pb-4">
             <h3 class="text-sm text-gray-400 font-bold uppercase tracking-wider" id="diecasts-month-label">Inversión en la Colección (Selección Actual)</h3>
@@ -701,14 +689,12 @@
           </div>
           
           <div id="diecasts-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <!-- Tarjetas de DieCasts se cargarán aquí -->
           </div>
         </div>
       </section>
 
       <!-- SECCIÓN INFERIOR: CONSULTA HISTÓRICA Y BÚSQUEDA -->
       <section id="historical-section" class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl transition-all">
-        <!-- HEADER PLEGABLE -->
         <div id="toggle-history-btn" class="flex justify-between items-center cursor-pointer group">
           <div class="flex items-center gap-3">
             <i data-lucide="history" class="w-5 h-5 text-[#ff007f] filter drop-shadow-[0_0_5px_rgba(255,0,127,0.4)]"></i>
@@ -719,16 +705,13 @@
           </button>
         </div>
 
-        <!-- CONTENIDO PLEGABLE -->
         <div id="history-content" class="hidden mt-6 space-y-6 animate-fade-in">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
               <select id="search-year" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
-                <!-- Llenado dinámico -->
               </select>
               
-              <!-- Selector de Mes -->
               <select id="search-month" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
                 <option value="all">Todo el año</option>
                 <option value="0">Enero</option>
@@ -745,10 +728,8 @@
                 <option value="11">Diciembre</option>
               </select>
               
-              <!-- Selector de Cuenta para filtrado -->
               <select id="search-account" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
                 <option value="all">Todas las cuentas</option>
-                <!-- Cuentas inyectadas dinámicamente -->
               </select>
             </div>
 
@@ -763,12 +744,9 @@
             </div>
           </div>
 
-          <!-- Mini Resumen Anual/Mensual -->
           <div id="year-summary-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- Totales anuales aquí -->
           </div>
 
-          <!-- Lista de Movimientos Filtrados -->
           <div class="overflow-x-auto border border-gray-800/60 rounded-xl">
             <table class="w-full text-left border-collapse">
               <thead class="bg-gray-950/90">
@@ -782,7 +760,6 @@
                 </tr>
               </thead>
               <tbody id="table-body" class="text-sm divide-y divide-gray-850 bg-gray-950/20">
-                <!-- Movimientos aquí -->
               </tbody>
             </table>
           </div>
@@ -806,7 +783,6 @@
       </div>
 
       <form id="hover-images-form" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-        <!-- Imagen Ingreso -->
         <div class="text-center space-y-2 border border-gray-800 p-3 rounded-2xl bg-gray-900/50">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Ingresos</label>
           <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('img-input-ingreso').click()">
@@ -818,7 +794,6 @@
           <input type="file" id="img-input-ingreso" accept="image/*" class="hidden">
         </div>
 
-        <!-- Imagen Gasto -->
         <div class="text-center space-y-2 border border-gray-800 p-3 rounded-2xl bg-gray-900/50">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Gastos</label>
           <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('img-input-gasto').click()">
@@ -830,7 +805,6 @@
           <input type="file" id="img-input-gasto" accept="image/*" class="hidden">
         </div>
 
-        <!-- Imagen Ahorro -->
         <div class="text-center space-y-2 border border-gray-800 p-3 rounded-2xl bg-gray-900/50">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Ahorros</label>
           <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('img-input-ahorro').click()">
@@ -842,7 +816,6 @@
           <input type="file" id="img-input-ahorro" accept="image/*" class="hidden">
         </div>
 
-        <!-- Imagen Diecast -->
         <div class="text-center space-y-2 border border-gray-800 p-3 rounded-2xl bg-gray-900/50">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">DieCasts</label>
           <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('img-input-diecast').click()">
@@ -871,14 +844,14 @@
           <span id="modal-title-text" class="text-white">Añadir Registro</span>
           <span id="modal-date-label" class="text-xs font-semibold text-[#00f0ff] bg-[#00f0ff]/10 px-2.5 py-1 rounded-lg ml-2"></span>
         </h3>
-        <button id="btn-close-modal" class="text-gray-400 hover:text-white transition-colors">
+        <button id="btn-close-modal" type="button" onclick="window.closeModal()" class="text-gray-400 hover:text-white transition-colors">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <form id="movement-form" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
         
-        <!-- SELECTOR DE TIPO (LIQUID GLASS APPLE STYLE) -->
+        <!-- SELECTOR DE TIPO -->
         <div class="pt-4 pb-2">
           <div class="relative flex items-center justify-between glass-pill rounded-full px-2 max-w-sm mx-auto h-16 w-full">
             
@@ -920,7 +893,7 @@
           </div>
         </div>
 
-        <!-- Selector de Subcategoría (Oculto para DieCasts y Pago TC) -->
+        <!-- Selector de Subcategoría -->
         <div id="container-subcategory" class="space-y-1.5">
           <div class="flex justify-between items-center">
             <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Subcategoría</label>
@@ -929,11 +902,10 @@
             </button>
           </div>
           <select id="form-subcategory" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
-            <!-- Subcategorías inyectadas dinámicamente -->
           </select>
         </div>
 
-        <!-- Foto del DieCast (Visible solo para DieCasts) -->
+        <!-- Foto del DieCast -->
         <div id="container-photo" class="space-y-1.5 hidden">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Foto del Modelo</label>
           <div class="relative w-full h-32 border-2 border-dashed border-gray-800 rounded-2xl flex items-center justify-center bg-gray-950 hover:bg-gray-900 transition-colors cursor-pointer overflow-hidden group" onclick="document.getElementById('form-photo-input').click()">
@@ -953,21 +925,26 @@
         <div class="space-y-1.5">
           <label id="label-account" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta / Cartera</label>
           <select id="form-account" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
-            <!-- Cuentas inyectadas dinámicamente -->
           </select>
         </div>
 
-        <!-- Selector de Cuenta Destino (Solo visible para Pago TC) -->
+        <!-- Selector de Cuenta Destino -->
         <div id="container-transfer" class="space-y-1.5 hidden">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider text-emerald-400">Cuenta Destino (A Pagar)</label>
           <select id="form-to-account" class="w-full bg-gray-900 border border-emerald-500/50 rounded-2xl px-4 py-3.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 outline-none text-white text-sm transition-colors cursor-pointer">
-            <!-- Cuentas inyectadas dinámicamente -->
+          </select>
+        </div>
+
+        <!-- Selector de Cuenta Origen para Ahorro (Opcional) -->
+        <div id="container-source-saving" class="space-y-1.5 hidden">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider text-purple-400">¿De dónde viene el dinero? (Opcional)</label>
+          <select id="form-source-saving" class="w-full bg-gray-900 border border-purple-500/50 rounded-2xl px-4 py-3.5 focus:border-purple-400 focus:ring-1 focus:ring-purple-400 outline-none text-white text-sm transition-colors cursor-pointer">
           </select>
         </div>
 
         <!-- Cantidad -->
         <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Monto / Costo</label>
+          <label id="label-amount" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Monto / Costo</label>
           <div class="relative">
             <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
             <input type="number" id="form-amount" step="0.01" required min="0" placeholder="0.00" class="w-full bg-gray-900 border border-gray-800 rounded-2xl pl-10 pr-4 py-4 focus:border-[#00f0ff] focus:ring-2 focus:ring-[#00f0ff]/10 outline-none text-xl font-bold text-white transition-colors" />
@@ -977,7 +954,7 @@
         <!-- Concepto -->
         <div class="space-y-1.5">
           <label id="label-concept" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Concepto / Descripción</label>
-          <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none text-white text-sm transition-colors placeholder:text-gray-650" />
+          <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none text-white text-sm transition-colors placeholder:text-gray-605" />
         </div>
 
         <!-- Botón Guardar -->
@@ -1002,7 +979,6 @@
       </div>
       
       <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-        <!-- Formulario Agregar / Editar Cuenta -->
         <form id="new-account-form" class="space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-850">
           <h4 id="account-form-title" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Cuenta</h4>
           
@@ -1040,7 +1016,6 @@
             </div>
           </div>
 
-          <!-- Tipo de Cuenta (Débito/Crédito) NUEVO -->
           <div class="space-y-2 pt-1 border-t border-gray-800/40 mt-3">
             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tipo de Cuenta</label>
             <div class="flex gap-4">
@@ -1079,11 +1054,9 @@
           </div>
         </form>
 
-        <!-- Listado de Cuentas Existentes -->
         <div class="space-y-3">
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Cuentas Activas</h4>
           <div id="accounts-manager-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-            <!-- Elementos inyectados por JS -->
           </div>
         </div>
       </div>
@@ -1093,7 +1066,6 @@
   <!-- MODAL DETALLE DE LA CUENTA -->
   <div id="account-details-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
     <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="account-details-content">
-      <!-- Header -->
       <div class="flex justify-between items-center p-6 border-b border-gray-800">
         <div class="flex items-center gap-3">
           <span id="detail-acc-emoji" class="text-3xl p-2 bg-gray-900 rounded-2xl border border-gray-800"></span>
@@ -1107,9 +1079,7 @@
         </button>
       </div>
       
-      <!-- Body -->
       <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-        <!-- Tarjetas de Información -->
         <div class="grid grid-cols-2 gap-3">
           <div class="bg-gray-900 p-3 rounded-2xl border border-gray-800">
             <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Saldo Inicial</span>
@@ -1125,20 +1095,17 @@
             <p id="detail-acc-income" class="text-sm font-bold text-emerald-400"></p>
           </div>
           <div class="bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10">
-            <span class="text-[9px] text-rose-450 font-bold uppercase tracking-wider block mb-1">Cargos/Gastos</span>
+            <span class="text-[9px] text-rose-455 font-bold uppercase tracking-wider block mb-1">Cargos/Gastos</span>
             <p id="detail-acc-expense" class="text-sm font-bold text-rose-400"></p>
           </div>
         </div>
 
-        <!-- Últimos Movimientos -->
         <div class="space-y-3">
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Últimos Movimientos</h4>
           <div id="detail-recent-list" class="space-y-2">
-            <!-- Cargo dinámico -->
           </div>
         </div>
 
-        <!-- Acciones -->
         <div class="flex gap-3 pt-2">
           <button id="btn-detail-filter-history" class="flex-1 bg-gradient-to-r from-[#7000ff] to-[#ff007f] text-white font-bold py-3.5 rounded-2xl text-xs transition-all flex items-center justify-center gap-2">
             <i data-lucide="search" class="w-4 h-4"></i> Ver Historial Completo
@@ -1165,7 +1132,6 @@
       </div>
       
       <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-        <!-- Formulario Agregar Subcategoría -->
         <form id="new-subcat-form" class="space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-850">
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Subcategoría</h4>
           
@@ -1178,16 +1144,15 @@
             
             <div class="grid grid-cols-4 gap-3">
               <input type="text" id="new-subcat-emoji" placeholder="🍔" required class="col-span-1 bg-gray-950 border border-gray-850 rounded-xl px-3 py-3 text-center text-lg focus:outline-none focus:border-[#7000ff] text-white">
-              <input type="text" id="new-subcat-name" placeholder="Ej. Comida, Ropa..." required class="col-span-3 bg-gray-950 border border-gray-850 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#7000ff] text-white placeholder:text-gray-600">
+              <input type="text" id="new-subcat-name" placeholder="Ej. Comida, Ropa..." required class="col-span-3 bg-gray-950 border border-gray-850 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#7000ff] text-white placeholder:text-gray-650">
             </div>
           </div>
 
-          <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3=">
+          <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md">
             + Agregar Subcategoría
           </button>
         </form>
 
-        <!-- Listado de Subcategorías Existentes -->
         <div class="space-y-3">
           <div class="flex justify-between items-center">
             <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lista de Subcategorías</h4>
@@ -1199,7 +1164,6 @@
             </select>
           </div>
           <div id="subcategories-manager-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-            <!-- Elementos inyectados por JS -->
           </div>
         </div>
       </div>
@@ -1220,7 +1184,6 @@
       </div>
 
       <form id="profile-settings-form" class="p-6 space-y-5">
-        <!-- Modificar Imagen de Perfil -->
         <div class="text-center space-y-3 mb-4">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Foto de Perfil</label>
           <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('avatar-input').click()">
@@ -1233,7 +1196,6 @@
           <p class="text-[10px] text-gray-500">Haz clic en la imagen para subir una nueva foto.</p>
         </div>
 
-        <!-- Modificar Nombre -->
         <div class="space-y-1.5">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Nombre del Propietario</label>
           <input type="text" id="settings-username" required placeholder="Milton Montoya" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
@@ -1263,11 +1225,6 @@
         <div class="space-y-1.5">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Título del Inicio de Sesión</label>
           <input type="text" id="settings-login-title" required placeholder="Bóveda Patrimonial" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm" />
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Subtítulo del Inicio de Sesión</label>
-          <input type="text" id="settings-login-subtitle" required placeholder="Ingrese su clave de seguridad para acceder a su portafolio financiero" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm" />
         </div>
 
         <div class="space-y-1.5">
@@ -1327,11 +1284,9 @@
         </button>
       </form>
       
-      <!-- Lista de notificaciones pendientes -->
       <div class="px-6 pb-6 pt-2 border-t border-gray-800/80">
         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Alertas Pendientes</h4>
         <div id="pending-notifications-list" class="space-y-2 max-h-32 overflow-y-auto pr-1">
-          <!-- Se inyectarán dinámicamente -->
         </div>
       </div>
     </div>
@@ -1351,16 +1306,13 @@
       </div>
 
       <form id="password-settings-form" class="p-6 space-y-4">
-        <!-- Password Actual -->
         <div class="space-y-1.5">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cambiar Contraseña</label>
           <input type="password" id="settings-current-pwd" required placeholder="Contraseña Actual" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
         </div>
-        <!-- Password Nueva -->
         <div class="space-y-1.5">
           <input type="password" id="settings-new-pwd" required placeholder="Ingresa clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
         </div>
-        <!-- Confirmar Password Nueva -->
         <div class="space-y-1.5">
           <input type="password" id="settings-confirm-pwd" required placeholder="Repite la clave nueva" class="w-full bg-gray-950 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#7000ff] outline-none text-white text-sm" />
         </div>
@@ -1477,17 +1429,17 @@
     let searchMonth = new Date().getMonth().toString(); 
     let searchAccount = 'all';
     let searchQuery = '';
-    let inactivityTimeout;
+    let inactivityTimeout = null;
     let confirmCallback = null; 
-    let currentDieCastPhoto = ''; // Fotografía guardada del modal
+    let currentDieCastPhoto = ''; 
 
-    // Guardado de la clave maestra cargada de Firestore
+    // Guardado de la clave maestra
     let vaultPassword = '2527'; 
     const DEFAULT_LOGIN_TITLE = 'Bóveda Patrimonial';
     const DEFAULT_MAIN_TITLE = 'Cuentas Personales';
     const DEFAULT_LOGIN_SUBTITLE = 'Ingrese su clave de seguridad para acceder a su portafolio financiero';
 
-    // Estado global para las imágenes flotantes sincronizadas con Firebase
+    // Estado global para las imágenes flotantes
     let hoverImagesData = {
       ingreso: '',
       gasto: '',
@@ -1530,7 +1482,7 @@
           attestation: "none"
         };
 
-        const credential = await navigator.credentials.create({ publicKey: creationOptions });
+        const credential = await navigator.credentials.create({ publicKey: challenge ? creationOptions : null });
         if (credential) {
           const rawId = new Uint8Array(credential.rawId);
           const base64Id = btoa(String.fromCharCode.apply(null, rawId));
@@ -1809,9 +1761,86 @@
       renderMonthSummary();
       renderYearSummary();
       renderTable();
-      renderAccountsSection();
       renderDieCastsSection();
       lucide.createIcons();
+    }
+
+    function updateAccountsChart(accountBalances) {
+      const ctx = document.getElementById('accounts-chart');
+      if (!ctx) return;
+
+      const labels = accountBalances.map(acc => `${acc.emoji} ${acc.name}`);
+      const data = accountBalances.map(acc => acc.balance);
+      
+      const isLight = document.body.classList.contains('light-theme');
+      const borderColors = accountBalances.map(acc => 
+        acc.accountType === 'credito' ? '#ff007f' : '#00f0ff'
+      );
+      const bgColors = accountBalances.map(acc => 
+        acc.accountType === 'credito' ? 'rgba(255, 0, 127, 0.15)' : 'rgba(0, 240, 255, 0.15)'
+      );
+
+      if (window.accountsChartInstance) {
+        window.accountsChartInstance.data.labels = labels;
+        window.accountsChartInstance.data.datasets[0].data = data;
+        window.accountsChartInstance.data.datasets[0].backgroundColor = bgColors;
+        window.accountsChartInstance.data.datasets[0].borderColor = borderColors;
+        window.accountsChartInstance.options.scales.x.grid.color = isLight ? 'rgba(112, 0, 255, 0.08)' : 'rgba(255, 255, 255, 0.05)';
+        window.accountsChartInstance.options.scales.x.ticks.color = isLight ? '#4a3e5c' : '#9ca3af';
+        window.accountsChartInstance.options.scales.y.ticks.color = isLight ? '#4a3e5c' : '#9ca3af';
+        window.accountsChartInstance.update();
+      } else {
+        window.accountsChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Saldo',
+              data: data,
+              backgroundColor: bgColors,
+              borderColor: borderColors,
+              borderWidth: 1.5,
+              borderRadius: 10,
+              borderSkipped: false,
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(11, 8, 20, 0.95)',
+                titleColor: isLight ? '#1a1528' : '#ffffff',
+                bodyColor: '#00f0ff',
+                borderColor: 'rgba(112, 0, 255, 0.2)',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    return ' ' + formatCurrency(context.raw);
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: isLight ? 'rgba(112, 0, 255, 0.08)' : 'rgba(255, 255, 255, 0.05)' },
+                ticks: { 
+                  color: isLight ? '#4a3e5c' : '#9ca3af',
+                  callback: function(value) {
+                    return formatCurrency(value);
+                  }
+                }
+              },
+              y: {
+                grid: { display: false },
+                ticks: { color: isLight ? '#4a3e5c' : '#9ca3af' }
+              }
+            }
+          }
+        });
+      }
     }
 
     function renderCalendar() {
@@ -1848,13 +1877,14 @@
         const dayMovements = movements.filter(m => m.date === dateStr);
         
         const btn = document.createElement('button');
+        btn.type = 'button';
         btn.onclick = () => window.openModal(dateStr);
         
         let baseClass = `relative h-24 md:h-28 rounded-[2.5rem] border flex flex-col justify-between items-center p-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer animate-pop `;
         if (isSelected) {
           baseClass += 'student-highlight';
         } else if (isToday) {
-          baseClass += 'bg-[#7000ff]/15 border-[#7000ff]/50 text-[#00f0ff] font-bold today-destello';
+          baseClass += 'today-destello';
         } else {
           baseClass += 'bg-gray-900/40 border-gray-800/80 text-gray-300 hover:border-gray-500 hover:bg-gray-800/60';
         }
@@ -1892,8 +1922,23 @@
         }
       });
 
+      // Calcular flujo de patrimonio real del mes
+      // El ahorro DIRECTO (sin cuenta de origen) es patrimonio nuevo recibido.
+      // El ahorro por TRANSFERENCIA (con cuenta de origen) no añade patrimonio nuevo total neto ya que sólo se mueve de una cuenta a otra.
+      let directAhorros = 0;
+      monthMovements.forEach(m => {
+        if (m.type === 'ahorro' && !m.fromAccountId) {
+          directAhorros += m.amount;
+        }
+      });
+
+      const netChange = totals.ingreso + directAhorros - totals.gasto - totals.diecast;
+
       const donutTotalEl = document.getElementById('donut-total');
-      if (donutTotalEl) donutTotalEl.textContent = formatCurrency(totals.ingreso + totals.ahorro - totals.gasto - totals.diecast);
+      if (donutTotalEl) donutTotalEl.textContent = formatCurrency(netChange);
+      
+      const donutCenterLabel = document.getElementById('donut-center-label');
+      if (donutCenterLabel) donutCenterLabel.textContent = "Balance Neto";
 
       const ctx = document.getElementById('month-donut-canvas');
       if (ctx) {
@@ -2031,7 +2076,7 @@
                   backgroundColor: 'rgba(11, 8, 20, 0.95)',
                   titleColor: '#ffffff',
                   bodyColor: '#00f0ff',
-                  borderColor: 'rgba(112, 0, 255, 0.4)',
+                  borderColor: 'rgba(112, 0, 255, 0.3)',
                   borderWidth: 1,
                   padding: 10,
                   displayColors: false,
@@ -2075,7 +2120,7 @@
         
         const snoopyImg = document.getElementById('snoopy-hover-img');
         document.querySelectorAll('.summary-item').forEach(item => {
-          item.addEventListener('mouseenter', (e) => {
+          item.addEventListener('mouseenter', () => {
             const type = item.getAttribute('data-type');
             if (hoverImagesData[type] && hoverImagesData[type] !== '' && snoopyImg) {
               snoopyImg.src = hoverImagesData[type];
@@ -2165,7 +2210,7 @@
         const d = new Date(m.date + 'T00:00:00');
         const matchYear = d.getFullYear() === searchYear;
         const matchMonth = searchMonth === 'all' || d.getMonth() === parseInt(searchMonth);
-        const matchAcc = searchAccount === 'all' || m.accountId === searchAccount || m.toAccountId === searchAccount;
+        const matchAcc = searchAccount === 'all' || m.accountId === searchAccount || m.toAccountId === searchAccount || m.fromAccountId === searchAccount;
         const catLabel = CATEGORIES[m.type] ? CATEGORIES[m.type].label.toLowerCase() : '';
         const matchQuery = m.concept.toLowerCase().includes(lowerQuery) || 
                            m.amount.toString().includes(lowerQuery) ||
@@ -2188,6 +2233,10 @@
            const destAcc = accounts.find(a => a.id === m.toAccountId);
            const destLabel = destAcc ? `${destAcc.emoji} ${destAcc.name}` : '💳 Tarjeta';
            accountLabel = `<div class="flex items-center gap-1">${accountLabel} <i data-lucide="arrow-right" class="w-3 h-3 text-gray-500"></i> ${destLabel}</div>`;
+        } else if (m.type === 'ahorro' && m.fromAccountId) {
+           const srcAcc = accounts.find(a => a.id === m.fromAccountId);
+           const srcLabel = srcAcc ? `${srcAcc.emoji} ${srcAcc.name}` : '💵 Efectivo';
+           accountLabel = `<div class="flex items-center gap-1 text-purple-400">${srcLabel} <i data-lucide="arrow-right" class="w-3 h-3 text-purple-500"></i> ${accountLabel}</div>`;
         }
         
         const isExpense = (m.type === 'gasto' || m.type === 'diecast');
@@ -2213,10 +2262,10 @@
           </td>
           <td class="py-3 px-4 text-center">
             <div class="flex items-center justify-center gap-2">
-              <button onclick="window.editMovement('${m.id}')" class="p-1.5 text-gray-500 hover:text-[#00f0ff] rounded-md hover:bg-[#00f0ff]/10 transition-colors" title="Editar">
+              <button onclick="window.editMovement('${m.id}')" class="p-1.5 text-gray-400 hover:text-[#00f0ff] rounded-md hover:bg-[#00f0ff]/10 transition-colors" title="Editar">
                 <i data-lucide="edit-3" class="w-4 h-4 pointer-events-none"></i>
               </button>
-              <button onclick="window.deleteMovement('${m.id}')" class="p-1.5 text-gray-500 hover:text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors" title="Eliminar">
+              <button onclick="window.deleteMovement('${m.id}')" class="p-1.5 text-gray-400 hover:text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors" title="Eliminar">
                 <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
               </button>
             </div>
@@ -2266,7 +2315,7 @@
              <div class="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                <button onclick="window.viewDiecast('${d.id}')" class="p-1.5 bg-black/60 hover:bg-emerald-500/20 text-gray-300 hover:text-emerald-400 rounded-lg backdrop-blur-md transition-colors" title="Visualizar"><i data-lucide="eye" class="w-4 h-4"></i></button>
                <button onclick="window.editMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-[#00f0ff]/20 text-gray-300 hover:text-[#00f0ff] rounded-lg backdrop-blur-md transition-colors" title="Editar"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-               <button onclick="window.deleteMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-rose-500/20 text-gray-300 hover:text-rose-450 rounded-lg backdrop-blur-md transition-colors" title="Eliminar"><i data-lucide="trash" class="w-4 h-4"></i></button>
+               <button onclick="window.deleteMovement('${d.id}')" class="p-1.5 bg-black/60 hover:bg-rose-500/20 text-gray-300 hover:text-rose-455 rounded-lg backdrop-blur-md transition-colors" title="Eliminar"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
              </div>
            </div>
          `;
@@ -2299,6 +2348,22 @@
       searchAccSelect.value = searchVal && accounts.some(a => a.id === searchVal) ? searchVal : 'all';
       formAccSelect.value = formVal && accounts.some(a => a.id === formVal) ? formVal : (accounts[0]?.id || '');
       formToAccSelect.value = toVal && accounts.some(a => a.id === toVal) ? toVal : (accounts[0]?.id || '');
+
+      updateSourceSavingSelector();
+    }
+
+    function updateSourceSavingSelector() {
+      const sourceSelect = document.getElementById('form-source-saving');
+      if (!sourceSelect) return;
+      
+      const currentVal = sourceSelect.value;
+      sourceSelect.innerHTML = '<option value="">Ahorro Directo (Aporte nuevo, no descontar de otra cuenta)</option>';
+      
+      accounts.forEach(acc => {
+        sourceSelect.innerHTML += `<option value="${acc.id}">Retirar de: ${acc.emoji} ${acc.name}</option>`;
+      });
+      
+      sourceSelect.value = currentVal;
     }
 
     function updateSubcategorySelectors() {
@@ -2336,6 +2401,9 @@
             if (m.type === 'pago_tc') {
                if (m.toAccountId === acc.id) balance -= m.amount;
                if (m.accountId === acc.id) balance += m.amount;
+            } else if (m.type === 'ahorro' && m.fromAccountId) {
+               if (m.fromAccountId === acc.id) balance += m.amount; 
+               if (m.accountId === acc.id) balance -= m.amount;     
             } else if (m.accountId === acc.id || m.account === acc.name) { 
               if (m.type === 'ingreso' || m.type === 'ahorro') balance -= m.amount;
               else if (m.type === 'gasto' || m.type === 'diecast') balance += m.amount;
@@ -2344,6 +2412,9 @@
             if (m.type === 'pago_tc') {
                if (m.accountId === acc.id) balance -= m.amount;
                if (m.toAccountId === acc.id) balance += m.amount;
+            } else if (m.type === 'ahorro' && m.fromAccountId) {
+               if (m.fromAccountId === acc.id) balance -= m.amount;
+               if (m.accountId === acc.id) balance += m.amount;
             } else if (m.accountId === acc.id || m.account === acc.name) { 
               if (m.type === 'ingreso' || m.type === 'ahorro') balance += m.amount;
               else if (m.type === 'gasto' || m.type === 'diecast') balance -= m.amount;
@@ -2392,7 +2463,7 @@
           debtContainer.classList.remove('hidden');
           debts.forEach(d => {
             debtList.innerHTML += `
-              <div class="flex justify-between items-center bg-gray-950/60 px-3 py-2 rounded-xl border border-rose-500/20 shadow-sm">
+              <div class="flex justify-between items-center bg-gray-900 px-3 py-2 rounded-xl border border-rose-500/20 shadow-sm">
                 <span class="text-xs text-gray-300 font-medium truncate pr-2 flex items-center gap-1.5"><span class="text-sm">${d.emoji}</span> ${d.name}</span>
                 <span class="text-xs text-rose-400 font-bold whitespace-nowrap">-${formatCurrency(Math.abs(d.balance))}</span>
               </div>
@@ -2406,1551 +2477,24 @@
       updateAccountsChart(accountBalances);
     }
 
-    function updateAccountsChart(accountBalances) {
-      const ctx = document.getElementById('accounts-chart');
-      if (!ctx) return;
-
-      const labels = accountBalances.map(a => a.name);
-      const data = accountBalances.map(a => a.accountType === 'credito' ? -Math.abs(a.balance) : a.balance);
-      
-      const isLight = document.body.classList.contains('light-theme');
-      const textColor = isLight ? '#1a1528' : '#9ca3af';
-      const gridColor = isLight ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)';
-
-      const bgColors = accountBalances.map((acc, i) => {
-        const nameLower = acc.name.toLowerCase();
-        
-        if (nameLower.includes('nu')) {
-          return 'rgba(138, 5, 190, 0.65)'; 
-        } else if (nameLower.includes('mercadolibre') || nameLower.includes('mercado libre') || nameLower.includes('mercado')) {
-          return 'rgba(255, 230, 0, 0.7)'; 
-        } else if (nameLower.includes('bbva')) {
-          return 'rgba(0, 68, 129, 0.7)'; 
-        } else if (nameLower.includes('revolut')) {
-          return 'rgba(180, 185, 195, 0.75)'; 
-        }
-        
-        const colors = [
-          'rgba(0, 240, 255, 0.6)', 
-          'rgba(112, 0, 255, 0.6)', 
-          'rgba(255, 0, 127, 0.6)', 
-          'rgba(250, 255, 0, 0.6)', 
-          'rgba(0, 255, 128, 0.6)', 
-          'rgba(255, 165, 0, 0.6)'
-        ];
-        return colors[i % colors.length];
-      });
-      const borderColors = bgColors.map(c => c.replace('0.65', '1').replace('0.7', '1').replace('0.75', '1').replace('0.6', '1'));
-
-      if (window.accountsChartInstance) {
-        window.accountsChartInstance.data.labels = labels;
-        window.accountsChartInstance.data.datasets[0].data = data;
-        window.accountsChartInstance.data.datasets[0].backgroundColor = bgColors;
-        window.accountsChartInstance.data.datasets[0].borderColor = borderColors;
-        window.accountsChartInstance.options.scales.x.ticks.color = textColor;
-        window.accountsChartInstance.options.scales.y.ticks.color = textColor;
-        window.accountsChartInstance.options.scales.y.grid.color = gridColor;
-        window.accountsChartInstance.update();
-      } else {
-        window.accountsChartInstance = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Saldo',
-              data: data,
-              backgroundColor: bgColors,
-              borderColor: borderColors,
-              borderWidth: 1,
-              borderRadius: 6,
-              barPercentage: 0.5
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                backgroundColor: 'rgba(11, 8, 20, 0.95)',
-                titleColor: '#fff',
-                bodyColor: '#00f0ff',
-                borderColor: 'rgba(112, 0, 255, 0.3)',
-                borderWidth: 1,
-                padding: 10,
-                displayColors: false,
-                callbacks: {
-                  label: function(context) {
-                    return formatCurrency(context.raw);
-                  }
-                }
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                grid: { color: gridColor, drawBorder: false },
-                ticks: {
-                  color: textColor,
-                  callback: function(value) { return '$' + value.toLocaleString('es-MX'); }
-                }
-              },
-              x: {
-                grid: { display: false, drawBorder: false },
-                ticks: { color: textColor, font: { size: 10 } }
-              }
-            },
-            animation: { duration: 800, easing: 'easeOutQuart' }
-          }
-        });
-      }
-    }
-
-    function openAccountDetails(accountId) {
-      const acc = accounts.find(a => a.id === accountId);
-      if (!acc) return;
-
-      let initialBalance = parseFloat(acc.initialBalance || 0);
-      let incomeTotal = 0;
-      let expenseTotal = 0;
-
-      const accMovements = movements.filter(m => m.accountId === acc.id || m.toAccountId === acc.id || m.account === acc.name);
-      
-      accMovements.forEach(m => {
-        if (m.type === 'pago_tc') {
-          if (m.accountId === acc.id) expenseTotal += m.amount;
-          if (m.toAccountId === acc.id) incomeTotal += m.amount;
-        } else {
-          if (m.accountId === acc.id || m.account === acc.name) {
-            if (m.type === 'ingreso' || m.type === 'ahorro') incomeTotal += m.amount;
-            else if (m.type === 'gasto' || m.type === 'diecast') expenseTotal += m.amount; 
-          }
-        }
-      });
-
-      const currentBalance = acc.accountType === 'credito' 
-        ? initialBalance + expenseTotal - incomeTotal 
-        : initialBalance + incomeTotal - expenseTotal;
-
-      const detailAccEmoji = document.getElementById('detail-acc-emoji');
-      const detailAccName = document.getElementById('detail-acc-name');
-      const detailAccType = document.getElementById('detail-acc-type');
-      const detailAccInit = document.getElementById('detail-acc-init');
-      const detailAccInitDate = document.getElementById('detail-acc-init-date');
-      const detailAccCurrent = document.getElementById('detail-acc-current');
-      const detailAccIncome = document.getElementById('detail-acc-income');
-      const detailAccExpense = document.getElementById('detail-acc-expense');
-
-      if (detailAccEmoji) detailAccEmoji.textContent = acc.emoji;
-      if (detailAccName) detailAccName.textContent = acc.name;
-      
-      if (detailAccType) {
-        if (acc.accountType === 'credito') {
-          detailAccType.textContent = 'Crédito';
-          detailAccType.className = 'text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-450 border border-rose-500/20 uppercase tracking-wider';
-        } else {
-          detailAccType.textContent = 'Cartera';
-          detailAccType.className = 'text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider';
-        }
-      }
-
-      if (detailAccInit) detailAccInit.textContent = formatCurrency(initialBalance);
-      if (detailAccInitDate) detailAccInitDate.textContent = acc.initialBalanceDate ? `Registrado: ${acc.initialBalanceDate}` : 'No especificado';
-      if (detailAccCurrent) detailAccCurrent.textContent = formatCurrency(currentBalance);
-      if (detailAccIncome) detailAccIncome.textContent = formatCurrency(incomeTotal);
-      if (detailAccExpense) detailAccExpense.textContent = formatCurrency(expenseTotal);
-
-      const recentListContainer = document.getElementById('detail-recent-list');
-      if (recentListContainer) {
-        recentListContainer.innerHTML = '';
-        
-        const recentMovements = accMovements.slice(0, 5);
-        
-        if (recentMovements.length === 0) {
-          recentListContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">Sin movimientos registrados aún en esta cuenta.</p>`;
-        } else {
-          recentMovements.forEach(m => {
-            const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
-            let isOutflow = false;
-            
-            if (m.type === 'pago_tc') {
-               if (m.accountId === acc.id) isOutflow = true;
-            } else if (m.type === 'gasto' || m.type === 'diecast') {
-               isOutflow = true;
-            }
-            
-            const prefix = isOutflow ? '-' : '+';
-            const colorClass = isOutflow ? 'text-rose-450' : 'text-emerald-400';
-
-            recentListContainer.innerHTML += `
-              <div class="flex items-center justify-between p-3 rounded-2xl bg-gray-900 border border-gray-850">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <span class="text-lg bg-gray-950 px-2 py-1 rounded-xl border border-gray-800">${m.subcategoryEmoji || cat.emoji}</span>
-                  <div class="flex flex-col truncate">
-                    <span class="text-xs font-bold text-white truncate max-w-[150px]">${m.concept}</span>
-                    <span class="text-[9px] text-gray-500">${m.date}</span>
-                  </div>
-                </div>
-                <span class="text-xs font-bold ${colorClass} whitespace-nowrap">
-                  ${prefix}${formatCurrency(m.amount)}
-                </span>
-              </div>
-            `;
-          });
-        }
-      }
-
-      const btnFilterHistory = document.getElementById('btn-detail-filter-history');
-      if (btnFilterHistory) {
-        btnFilterHistory.onclick = () => {
-          closeAccountDetails();
-          
-          const historyContent = document.getElementById('history-content');
-          const historyChevron = document.getElementById('history-chevron');
-          if (historyContent && historyContent.classList.contains('hidden')) {
-            historyContent.classList.remove('hidden');
-            if (historyChevron) historyChevron.classList.add('rotate-180');
-          }
-
-          const searchAccSelector = document.getElementById('search-account');
-          if (searchAccSelector) {
-            searchAccSelector.value = acc.id;
-            searchAccount = acc.id;
-          }
-
-          renderYearSummary();
-          renderTable();
-
-          const targetSection = document.getElementById('historical-section');
-          if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth' });
-        };
-      }
-
-      const btnEditAcc = document.getElementById('btn-detail-edit-acc');
-      if (btnEditAcc) {
-        btnEditAcc.onclick = () => {
-          closeAccountDetails();
-          openAccountManager();
-          editAccount(acc.id);
-        };
-      }
-
-      const modalElement = document.getElementById('account-details-modal');
-      const content = document.getElementById('account-details-content');
-      if (modalElement && content) {
-        modalElement.classList.remove('hidden');
-        setTimeout(() => {
-          modalElement.classList.remove('opacity-0');
-          content.classList.remove('scale-95');
-        }, 10);
-      }
-      lucide.createIcons();
-    }
-
-    function closeAccountDetails() {
-      const modalElement = document.getElementById('account-details-modal');
-      const content = document.getElementById('account-details-content');
-      if (modalElement && content) {
-        modalElement.classList.add('opacity-0');
-        content.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
-      }
-    }
-
-    function applyBrandTemplate(emoji, name) {
-      const emojiInput = document.getElementById('new-acc-emoji');
-      const nameInput = document.getElementById('new-acc-name');
-      if (emojiInput) emojiInput.value = emoji;
-      if (nameInput) nameInput.value = name;
-    }
-
-    function showConfirm(title, text, callback, isAlert = false) {
-      const confirmTitle = document.getElementById('confirm-title');
-      const confirmText = document.getElementById('confirm-text');
-      const confirmIconBox = document.getElementById('confirm-icon-box');
-      const confirmIcon = document.getElementById('confirm-icon');
-      const actionBtn = document.getElementById('confirm-action-btn');
-
-      if (confirmTitle) confirmTitle.textContent = title;
-      if (confirmText) confirmText.textContent = text;
-      confirmCallback = callback;
-      
-      if (isAlert) {
-        actionBtn.classList.add('hidden');
-        confirmIconBox.className = "inline-flex p-3 bg-[#00f0ff]/10 text-[#00f0ff] rounded-2xl border border-[#00f0ff]/20";
-        confirmIcon.setAttribute('data-lucide', 'check-circle');
-      } else {
-        actionBtn.classList.remove('hidden');
-        confirmIconBox.className = "inline-flex p-3 bg-rose-500/10 text-rose-450 rounded-2xl border border-rose-500/20";
-        confirmIcon.setAttribute('data-lucide', 'alert-triangle');
-      }
-      lucide.createIcons();
-
-      const modalElement = document.getElementById('confirm-modal');
-      const content = document.getElementById('confirm-content');
-      if (modalElement && content) {
-        modalElement.classList.remove('hidden');
-        setTimeout(() => {
-          modalElement.classList.remove('opacity-0');
-          content.classList.remove('scale-95');
-        }, 10);
-      }
-    }
-
-    function closeConfirm() {
-      const modalElement = document.getElementById('confirm-modal');
-      const modalContent = document.getElementById('confirm-content');
-      if (modalElement && modalContent) {
-        modalElement.classList.add('opacity-0');
-        modalContent.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
-      }
-      confirmCallback = null;
-    }
-
-    function triggerConfirm() {
-      if (confirmCallback) confirmCallback();
-      closeConfirm();
-    }
-
-    function openAccountManager() {
-      const modalElement = document.getElementById('accounts-modal');
-      const modalContent = document.getElementById('accounts-modal-content');
-      resetAccountForm();
-      renderAccountsManagerList();
-      
-      if (modalElement && modalContent) {
-        modalElement.classList.remove('hidden');
-        setTimeout(() => {
-          modalElement.classList.remove('opacity-0');
-          modalContent.classList.remove('scale-95');
-        }, 10);
-      }
-    }
-
-    function closeAccountManager() {
-      const modalElement = document.getElementById('accounts-modal');
-      const modalContent = document.getElementById('accounts-modal-content');
-      if (modalElement && modalContent) {
-        modalElement.classList.add('opacity-0');
-        modalContent.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
-      }
-      resetAccountForm();
-    }
-
-    function resetAccountForm() {
-      editingAccountId = null;
-      const title = document.getElementById('account-form-title');
-      const emoji = document.getElementById('new-acc-emoji');
-      const name = document.getElementById('new-acc-name');
-      const balance = document.getElementById('new-acc-balance');
-      const date = document.getElementById('new-acc-date');
-      const typeRadio = document.querySelector('input[name="acc-type"][value="debito"]');
-      const btn = document.getElementById('btn-save-account');
-      const cancelBtn = document.getElementById('btn-cancel-account-edit');
-
-      if (title) title.textContent = "Crear Cuenta";
-      if (emoji) emoji.value = '💵';
-      if (name) name.value = '';
-      if (balance) balance.value = '';
-      if (date) date.value = new Date().toISOString().split('T')[0];
-      if (typeRadio) typeRadio.checked = true;
-      if (btn) btn.textContent = "+ Agregar Cuenta";
-      if (cancelBtn) cancelBtn.classList.add('hidden');
-    }
-
-    const cancelAccEditBtn = document.getElementById('btn-cancel-account-edit');
-    if (cancelAccEditBtn) {
-      cancelAccEditBtn.addEventListener('click', resetAccountForm);
-    }
-
-    function renderAccountsManagerList() {
-      const container = document.getElementById('accounts-manager-list');
-      if (!container) return;
-      container.innerHTML = '';
-
-      accounts.forEach(acc => {
-        const typeBadge = acc.accountType === 'credito' 
-          ? `<span class="text-[9px] font-bold text-rose-450 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded ml-2 uppercase">Crédito</span>` 
-          : '';
-          
-        container.innerHTML += `
-          <div class="flex items-center justify-between bg-gray-900/60 p-2.5 rounded-xl border border-gray-800">
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold text-white flex items-center gap-2">
-                <span class="text-lg bg-gray-950 px-1.5 py-0.5 rounded">${acc.emoji}</span>
-                ${acc.name} ${typeBadge}
-              </span>
-              ${acc.initialBalance > 0 ? `<span class="text-[10px] text-gray-400 mt-1">S. Inicial: ${formatCurrency(acc.initialBalance)} (${acc.initialBalanceDate})</span>` : ''}
-            </div>
-            <div class="flex items-center gap-1">
-              <button onclick="window.editAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-[#00f0ff] rounded-lg hover:bg-cyan-500/10 transition-colors" title="Editar">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-              </button>
-              <button onclick="window.deleteAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors" title="Eliminar">
-                <i data-lucide="trash" class="w-4 h-4"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      });
-      lucide.createIcons();
-    }
-
-    function editAccount(id) {
-      const acc = accounts.find(a => a.id === id);
-      if (!acc) return;
-      editingAccountId = id;
-      
-      const title = document.getElementById('account-form-title');
-      const emoji = document.getElementById('new-acc-emoji');
-      const name = document.getElementById('new-acc-name');
-      const balance = document.getElementById('new-acc-balance');
-      const date = document.getElementById('new-acc-date');
-      const typeRadio = document.querySelector(`input[name="acc-type"][value="${acc.accountType || 'debito'}"]`);
-      const btn = document.getElementById('btn-save-account');
-      const cancelBtn = document.getElementById('btn-cancel-account-edit');
-
-      if (title) title.textContent = "Editar Cuenta";
-      if (emoji) emoji.value = acc.emoji;
-      if (name) name.value = acc.name;
-      if (balance) balance.value = acc.initialBalance || '';
-      if (date) date.value = acc.initialBalanceDate || new Date().toISOString().split('T')[0];
-      if (typeRadio) typeRadio.checked = true;
-      if (btn) btn.textContent = "Actualizar Cuenta";
-      if (cancelBtn) cancelBtn.classList.remove('hidden');
-    }
-
-    const newAccForm = document.getElementById('new-account-form');
-    if (newAccForm) {
-      newAccForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const emojiInput = document.getElementById('new-acc-emoji');
-        const nameInput = document.getElementById('new-acc-name');
-        const balanceInput = document.getElementById('new-acc-balance');
-        const dateInput = document.getElementById('new-acc-date');
-        const typeInput = document.querySelector('input[name="acc-type"]:checked');
-        const initModeInput = document.querySelector('input[name="acc-init-mode"]:checked');
-
-        const emoji = emojiInput ? emojiInput.value.trim() : '💳';
-        const name = nameInput ? nameInput.value.trim() : '';
-        const initialBalance = balanceInput ? (parseFloat(balanceInput.value) || 0) : 0;
-        const initialBalanceDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
-        const accountType = typeInput ? typeInput.value : 'debito';
-        const initMode = initModeInput ? initModeInput.value : 'preexistente';
-
-        if (!name) return;
-
-        try {
-          if (editingAccountId) {
-            if (initMode === 'ingreso' && initialBalance > 0) {
-              await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), {
-                date: initialBalanceDate,
-                type: 'ingreso',
-                amount: initialBalance,
-                concept: 'Saldo Inicial Registrado',
-                subcategory: 'Sueldo',
-                subcategoryEmoji: '💼',
-                accountId: editingAccountId,
-                account: name,
-                timestamp: new Date().toISOString()
-              });
-
-              await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'accounts', editingAccountId), {
-                name: name,
-                emoji: emoji,
-                initialBalance: 0,
-                initialBalanceDate: initialBalanceDate,
-                accountType: accountType
-              });
-            } else {
-              await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'accounts', editingAccountId), {
-                name: name,
-                emoji: emoji,
-                initialBalance: initialBalance,
-                initialBalanceDate: initialBalanceDate,
-                accountType: accountType
-              });
-            }
-            
-            movements.forEach(async (m) => {
-              if (m.accountId === editingAccountId) {
-                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', m.id), {
-                  account: name
-                });
-              }
-            });
-          } else {
-            const newDocRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'accounts'), {
-              name: name,
-              emoji: emoji,
-              initialBalance: initMode === 'preexistente' ? initialBalance : 0,
-              initialBalanceDate: initialBalanceDate,
-              isDefault: false,
-              accountType: accountType,
-              timestamp: new Date().toISOString()
-            });
-
-            if (initMode === 'ingreso' && initialBalance > 0) {
-              await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), {
-                date: initialBalanceDate,
-                type: 'ingreso',
-                amount: initialBalance,
-                concept: 'Saldo Inicial Registrado',
-                subcategory: 'Sueldo',
-                subcategoryEmoji: '💼',
-                accountId: newDocRef.id,
-                account: name,
-                timestamp: new Date().toISOString()
-              });
-            }
-          }
-          resetAccountForm();
-          renderAccountsManagerList();
-        } catch (error) {
-          console.error("Error al procesar cuenta:", error);
-        }
-      });
-    }
-
-    function deleteAccount(id) {
-      showConfirm(
-        "¿Eliminar cuenta?", 
-        "Los movimientos previos vinculados a ella podrían desvincularse o mostrarse incompletos. Esta acción no se puede deshacer.",
-        async () => {
-          try {
-            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'accounts', id));
-            if (editingAccountId === id) resetAccountForm();
-            renderAccountsManagerList();
-          } catch (error) {
-            console.error("Error al borrar cuenta:", error);
-          }
-        },
-        false 
-      );
-    }
-
-    function openSubcategoryManager() {
-      const modalElement = document.getElementById('subcategories-modal');
-      const modalContent = document.getElementById('subcategories-modal-content');
-      renderSubcategoriesManagerList();
-      
-      if (modalElement && modalContent) {
-        modalElement.classList.remove('hidden');
-        setTimeout(() => {
-          modalElement.classList.remove('opacity-0');
-          modalContent.classList.remove('scale-95');
-        }, 10);
-      }
-    }
-
-    function closeSubcategoryManager() {
-      const modalElement = document.getElementById('subcategories-modal');
-      const modalContent = document.getElementById('subcategories-modal-content');
-      if (modalElement && modalContent) {
-        modalElement.classList.add('opacity-0');
-        modalContent.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
-      }
-    }
-
-    const subcatFilterEl = document.getElementById('subcat-filter');
-    if (subcatFilterEl) {
-      subcatFilterEl.addEventListener('change', renderSubcategoriesManagerList);
-    }
-
-    function renderSubcategoriesManagerList() {
-      const container = document.getElementById('subcategories-manager-list');
-      if (!container) return;
-      const subcatFilter = document.getElementById('subcat-filter');
-      const filter = subcatFilter ? subcatFilter.value : 'all';
-      container.innerHTML = '';
-
-      const filtered = customSubcategories.filter(s => filter === 'all' || s.type === filter);
-
-      filtered.forEach(s => {
-        const cat = CATEGORIES[s.type];
-        if (!cat) return;
-        container.innerHTML += `
-          <div class="flex items-center justify-between bg-gray-900/60 p-2.5 rounded-xl border border-gray-800">
-            <div class="flex items-center gap-3">
-              <span class="text-lg bg-gray-950 px-2 py-1 rounded-lg border border-gray-800">${s.emoji}</span>
-              <div class="flex flex-col">
-                <span class="text-sm font-semibold text-white leading-none mb-1">${s.name}</span>
-                <span class="text-[9px] font-extrabold ${cat.textClass} uppercase tracking-wider">${cat.label}</span>
-              </div>
-            </div>
-            ${s.isDefault ? `<span class="text-[9px] text-gray-500 bg-gray-950 px-2 py-1 rounded-md font-bold border border-gray-800">Fijo</span>` : `
-              <button onclick="window.deleteSubcategory('${s.id}')" class="p-1.5 text-gray-500 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors">
-                <i data-lucide="trash" class="w-4 h-4"></i>
-              </button>
-            `}
-          </div>
-        `;
-      });
-      lucide.createIcons();
-    }
-
-    const newSubcatForm = document.getElementById('new-subcat-form');
-    if (newSubcatForm) {
-      newSubcatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const typeInput = document.getElementById('new-subcat-type');
-        const emojiInput = document.getElementById('new-subcat-emoji');
-        const nameInput = document.getElementById('new-subcat-name');
-
-        const type = typeInput ? typeInput.value : 'gasto';
-        const emoji = emojiInput ? (emojiInput.value.trim() || '🏷️') : '🏷️';
-        const name = nameInput ? nameInput.value.trim() : '';
-
-        if (!name) return;
-
-        const subcatData = {
-          type: type,
-          name: name,
-          emoji: emoji,
-          isDefault: false,
-          timestamp: new Date().toISOString()
-        };
-
-        try {
-          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories'), subcatData);
-          if (emojiInput) emojiInput.value = '';
-          if (nameInput) nameInput.value = '';
-          renderSubcategoriesManagerList();
-        } catch (error) {
-          console.error("Error al crear subcategoría:", error);
-        }
-      });
-    }
-
-    function deleteSubcategory(id) {
-      showConfirm(
-        "¿Eliminar subcategoría?",
-        "Los movimientos previamente registrados con esta etiqueta mantendrán su nombre, pero la opción no estará disponible para futuros registros.",
-        async () => {
-          try {
-            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories', id));
-            renderSubcategoriesManagerList();
-          } catch (error) {
-            console.error("Error al borrar subcategoría:", error);
-          }
-        },
-        false 
-      );
-    }
-
-    const profileDropdownBtn = document.getElementById('profile-dropdown-btn');
-    const profileDropdownMenu = document.getElementById('profile-dropdown-menu');
-
-    if (profileDropdownBtn && profileDropdownMenu) {
-      profileDropdownBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        profileDropdownMenu.classList.toggle('hidden');
-      });
-    }
-
-    function openProfileSettingsModal() {
-      profileDropdownMenu.classList.add('hidden');
-      const modalElement = document.getElementById('profile-settings-modal');
-      const content = document.getElementById('profile-settings-content');
-      
-      const usernameInput = document.getElementById('settings-username');
-      if (usernameInput) {
-        usernameInput.value = document.getElementById('user-display-name').textContent;
-      }
-
-      if (modalElement && content) {
-        modalElement.classList.remove('hidden');
-        setTimeout(() => {
-          modalElement.classList.remove('opacity-0');
-          content.classList.remove('scale-95');
-        }, 10);
-      }
-    }
-
-    window.addEventListener('resize', () => {
-      if (window.monthDonutInstance && movements.length > 0) {
-        renderMonthSummary();
-      }
-    });
-
-    function closeProfileSettingsModal() {
-      const modalElement = document.getElementById('profile-settings-modal');
-      const content = document.getElementById('profile-settings-content');
-      if (modalElement && content) {
-        modalElement.classList.add('opacity-0');
-        content.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
-      }
-    }
-
-    const avatarInput = document.getElementById('avatar-input');
-    const settingsAvatarPreview = document.getElementById('settings-avatar-preview');
-
-    if (avatarInput && settingsAvatarPreview) {
-      avatarInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 400;
-            canvas.height = 400;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, 400, 400);
-            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
-            settingsAvatarPreview.src = compressedBase64;
-          };
-          img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    const profileSettingsForm = document.getElementById('profile-settings-form');
-    if (profileSettingsForm) {
-      profileSettingsForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const usernameInput = document.getElementById('settings-username');
-        const name = usernameInput ? usernameInput.value.trim() : 'Milton Montoya';
-        const avatar = settingsAvatarPreview ? settingsAvatarPreview.src : '';
-
-        try {
-          const profileDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'profile');
-          await setDoc(profileDocRef, {
-            name: name,
-            avatar: avatar,
-            timestamp: new Date().toISOString()
-          }, { merge: true });
-
-          closeProfileSettingsModal();
-        } catch (error) {
-          console.error("Error al actualizar perfil:", error);
-        }
-      });
-    }
-
-    function openTitleSettingsModal() {
-      profileDropdownMenu.classList.add('hidden');
-      const modalElement = document.getElementById('title-settings-modal');
-      const content = document.getElementById('title-settings-content');
-
-      const loginTitleInput = document.getElementById('settings-login-title');
-      const mainTitleInput = document.getElementById('settings-main-title');
-      
-      const currentLoginTitle = document.getElementById('login-title-text');
-      const currentMainTitle = document.getElementById('main-title-text');
-
-      if (loginTitleInput && currentLoginTitle) {
-        loginTitleInput.value = currentLoginTitle.textContent.trim();
-      }
-      if (mainTitleInput && currentMainTitle) {
-        mainTitleInput.value = currentMainTitle.textContent.trim();
-      }
-
-      if (modalElement && content) {
-        modalElement.classList.remove('hidden');
-        setTimeout(() => {
-          modalElement.classList.remove('opacity-0');
-          content.classList.remove('scale-95');
-        }, 10);
-      }
-    }
-
-    function closeTitleSettingsModal() {
-      const modalElement = document.getElementById('title-settings-modal');
-      const content = document.getElementById('title-settings-content');
-      if (modalElement && content) {
-        modalElement.classList.add('opacity-0');
-        content.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
-      }
-    }
-
-    const titleSettingsForm = document.getElementById('title-settings-form');
-    if (titleSettingsForm) {
-      titleSettingsForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const loginTitleInput = document.getElementById('settings-login-title');
-        const mainTitleInput = document.getElementById('settings-main-title');
-        
-        const loginTitle = loginTitleInput ? (loginTitleInput.value.trim() || DEFAULT_LOGIN_TITLE) : DEFAULT_LOGIN_TITLE;
-        const mainTitle = mainTitleInput ? (mainTitleInput.value.trim() || DEFAULT_MAIN_TITLE) : DEFAULT_MAIN_TITLE;
-
-        try {
-          const profileDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'profile');
-          await setDoc(profileDocRef, {
-            loginTitle: loginTitle,
-            mainTitle: mainTitle,
-            timestamp: new Date().toISOString()
-          }, { merge: true });
-
-          closeTitleSettingsModal();
-        } catch (error) {
-          console.error("Error al actualizar títulos:", error);
-        }
-      });
-    }
-
-    // GESTIÓN DE NOTIFICACIONES
-    function openNotificationSettingsModal() {
-      profileDropdownMenu.classList.add('hidden');
-      const modalElement = document.getElementById('notification-settings-modal');
-      const content = document.getElementById('notification-settings-content');
-      
-      if ("Notification" in window) {
-        Notification.requestPermission();
-      }
-
-      if (modalElement && content) {
-        modalElement.classList.remove('hidden');
-        setTimeout(() => {
-          modalElement.classList.remove('opacity-0');
-          content.classList.remove('scale-95');
-        }, 10);
-      }
-      renderPendingNotifications();
-    }
-
-    function closeNotificationSettingsModal() {
-      const modalElement = document.getElementById('notification-settings-modal');
-      const content = document.getElementById('notification-settings-content');
-      if (modalElement && content) {
-        modalElement.classList.add('opacity-0');
-        content.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
-      }
-    }
-
-    const notifyForm = document.getElementById('notification-settings-form');
-    if (notifyForm) {
-      notifyForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const dateInput = document.getElementById('notify-date');
-        const timeInput = document.getElementById('notify-time');
-        const reasonInput = document.getElementById('notify-reason');
-        
-        if (!dateInput || !timeInput || !reasonInput) return;
-
-        const notifyData = {
-          date: dateInput.value,
-          time: timeInput.value,
-          reason: reasonInput.value.trim(),
-          triggered: false,
-          timestamp: new Date().toISOString()
-        };
-
-        try {
-          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), notifyData);
-          notifyForm.reset();
-          if ("Notification" in window && Notification.permission !== "granted") {
-            Notification.requestPermission();
-          }
-        } catch (error) {
-          console.error("Error al programar notificación:", error);
-        }
-      });
-    }
-
-    function renderPendingNotifications() {
-      const container = document.getElementById('pending-notifications-list');
-      if (!container) return;
-      container.innerHTML = '';
-      
-      const pending = scheduledNotifications.filter(n => !n.triggered);
-      if (pending.length === 0) {
-        container.innerHTML = '<p class="text-[10px] text-gray-500 text-center py-2">No hay alertas pendientes.</p>';
-        return;
-      }
-
-      pending.forEach(n => {
-        let repeatBadge = '';
-        if (n.repeat === 'monthly') {
-          repeatBadge = '<span class="text-[9px] bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/20 px-1.5 py-0.5 rounded-md font-extrabold uppercase ml-1.5">Mes</span>';
-        } else if (n.repeat === 'annually') {
-          repeatBadge = '<span class="text-[9px] bg-[#7000ff]/10 text-[#7000ff] border border-[#7000ff]/20 px-1.5 py-0.5 rounded-md font-extrabold uppercase ml-1.5">Año</span>';
-        }
-
-        container.innerHTML += `
-          <div class="flex items-center justify-between bg-gray-900/60 p-2 rounded-xl border border-gray-800">
-            <div class="flex flex-col text-left">
-              <span class="text-xs text-white font-semibold truncate max-w-[180px] flex items-center gap-1">
-                ${n.reason} ${repeatBadge}
-              </span>
-              <span class="text-[9px] text-gray-400">${n.date} a las ${n.time}</span>
-            </div>
-            <button onclick="window.deleteNotification('${n.id}')" class="p-1 text-gray-400 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        `;
-      });
-      lucide.createIcons();
-    }
-
-    window.deleteNotification = async function(id) {
-      try {
-        await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', id));
-      } catch (e) {
-        console.error("Error al eliminar notificación:", e);
-      }
-    };
-
-    function startNotificationTicker() {
-      setInterval(() => {
-        const now = new Date();
-        scheduledNotifications.forEach(async (n) => {
-          if (!n.triggered) {
-            const schedDateTime = new Date(`${n.date}T${n.time}:00`);
-            if (now >= schedDateTime) {
-              if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("Cuentas Personales - Recordatorio", {
-                  body: n.reason,
-                  icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>"
-                });
-              } else {
-                showConfirm("Recordatorio Alerta", n.reason, null, true);
-              }
-              
-              try {
-                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
-                  triggered: true
-                });
-              } catch (e) {
-                console.error("Error al actualizar estado de notificación:", e);
-              }
-            }
-          }
-        });
-      }, 15000); // Comprobar cada 15 segundos
-    }
-
-    function openPasswordSettingsModal() {
-      profileDropdownMenu.classList.add('hidden');
-      const modalElement = document.getElementById('password-settings-modal');
-      const content = document.getElementById('password-settings-content');
-      
-      const form = document.getElementById('password-settings-form');
-      if (form) form.reset();
-      const errBox = document.getElementById('password-settings-error');
-      if (errBox) errBox.classList.add('hidden');
-
-      updateBiometricSettingsUI();
-
-      if (modalElement && content) {
-        modalElement.classList.remove('hidden');
-        setTimeout(() => {
-          modalElement.classList.remove('opacity-0');
-          content.classList.remove('scale-95');
-        }, 10);
-      }
-    }
-
-    function closePasswordSettingsModal() {
-      const modalElement = document.getElementById('password-settings-modal');
-      const content = document.getElementById('password-settings-content');
-      if (modalElement && content) {
-        modalElement.classList.add('opacity-0');
-        content.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
-      }
-    }
-
-    const passwordSettingsForm = document.getElementById('password-settings-form');
-    if (passwordSettingsForm) {
-      passwordSettingsForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const currentInput = document.getElementById('settings-current-pwd');
-        const newInput = document.getElementById('settings-new-pwd');
-        const confirmInput = document.getElementById('settings-confirm-pwd');
-        const errBox = document.getElementById('password-settings-error');
-        const errText = document.getElementById('password-settings-error-text');
-
-        if (!currentInput || !newInput || !confirmInput) return;
-
-        const currentVal = currentInput.value;
-        const newVal = newInput.value;
-        const confirmVal = confirmInput.value;
-
-        if (currentVal !== vaultPassword) {
-          if (errBox && errText) {
-            errText.textContent = "La contraseña actual es incorrecta.";
-            errBox.classList.remove('hidden');
-          }
-          return;
-    const notifyForm = document.getElementById('notification-settings-form');
-    if (notifyForm) {
-      notifyForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const dateInput = document.getElementById('notify-date');
-        const timeInput = document.getElementById('notify-time');
-        const reasonInput = document.getElementById('notify-reason');
-        const repeatInput = document.getElementById('notify-repeat');
-        
-        if (!dateInput || !timeInput || !reasonInput) return;
-
-        const notifyData = {
-          date: dateInput.value,
-          time: timeInput.value,
-          reason: reasonInput.value.trim(),
-          repeat: repeatInput ? repeatInput.value : 'once',
-          triggered: false,
-          timestamp: new Date().toISOString()
-        };
-
-        try {
-          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), notifyData);
-          notifyForm.reset();
-          if ("Notification" in window && Notification.permission !== "granted") {
-            Notification.requestPermission();
-          }
-        } catch (error) {
-          console.error("Error al programar notificación:", error);
-        }
-      });
-    }
-    function startNotificationTicker() {
-      setInterval(() => {
-        const now = new Date();
-        scheduledNotifications.forEach(async (n) => {
-          if (!n.triggered) {
-            const schedDateTime = new Date(`${n.date}T${n.time}:00`);
-            if (now >= schedDateTime) {
-              if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("Cuentas Personales - Recordatorio", {
-                  body: n.reason,
-                  icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>"
-                });
-              } else {
-                showConfirm("Recordatorio Alerta", n.reason, null, true);
-              }
-              
-              try {
-                if (n.repeat === 'monthly') {
-                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
-                  currentSchedDate.setMonth(currentSchedDate.getMonth() + 1);
-                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
-                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
-                    date: newDateStr
-                  });
-                } else if (n.repeat === 'annually') {
-                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
-                  currentSchedDate.setFullYear(currentSchedDate.getFullYear() + 1);
-                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
-                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
-                    date: newDateStr
-                  });
-                } else {
-                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
-                    triggered: true
-                  });
-                }
-              } catch (e) {
-                console.error("Error al actualizar estado de notificación:", e);
-              }
-            }
-          }
-        });
-      }, 15000); // Comprobar cada 15 segundos
-    }
-        }
-      });
-    }
-
-    const btnBiometricLogin = document.getElementById('btn-biometric-login');
-    if (btnBiometricLogin) {
-      btnBiometricLogin.addEventListener('click', async () => {
-        const success = await authenticateBiometrics();
-        if (success) {
-          unlockVault();
-        } else {
-          const loginError = document.getElementById('login-error');
-          if (loginError) {
-            loginError.querySelector('span').textContent = "Error de autenticación biométrica.";
-            loginError.classList.remove('hidden');
-            loginError.classList.add('animate-shake');
-            setTimeout(() => loginError.classList.remove('animate-shake'), 500);
-          }
-        }
-      });
-    }
-
-    function unlockVault() {
-      const loginScreen = document.getElementById('login-screen');
-      const appContainer = document.getElementById('app-container');
-      if (loginScreen) {
-        loginScreen.style.opacity = '0';
-        loginScreen.style.transform = 'scale(1.05)';
-      }
-      setTimeout(() => {
-        if (loginScreen) loginScreen.classList.add('hidden');
-        if (appContainer) appContainer.classList.remove('hidden');
-        resetInactivityTimer();
-      }, 500);
-    }
-
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
-
-    if (themeToggleBtn && themeIcon) {
-      themeToggleBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-theme');
-        const isLight = document.body.classList.contains('light-theme');
-        themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
-        lucide.createIcons();
-        renderApp(); 
-        
-        if (window.accountsChartInstance) {
-          const textColor = isLight ? '#1a1528' : '#9ca3af';
-          const gridColor = isLight ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)';
-          window.accountsChartInstance.options.scales.x.ticks.color = textColor;
-          window.accountsChartInstance.options.scales.y.ticks.color = textColor;
-          window.accountsChartInstance.options.scales.y.grid.color = gridColor;
-          window.accountsChartInstance.update();
-        }
-      });
-    }
-
-    const btnExportMenu = document.getElementById('btn-export-menu');
-    const exportDropdown = document.getElementById('export-dropdown');
-    
-    if (btnExportMenu && exportDropdown) {
-      btnExportMenu.addEventListener('click', (e) => {
-        e.stopPropagation();
-        exportDropdown.classList.toggle('hidden');
-      });
-    }
-
-    function getMonthExportData() {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth();
-      const monthName = document.getElementById('month-select') ? document.getElementById('month-select').options[month].text : '';
-      
-      const monthMovements = movements.filter(m => {
-        const d = new Date(m.date + 'T00:00:00');
-        return d.getFullYear() === year && d.getMonth() === month;
-      });
-      
-      return { year, monthName, monthMovements };
-    }
-
-    const btnExportPdf = document.getElementById('btn-export-pdf');
-    if (btnExportPdf) {
-      btnExportPdf.addEventListener('click', () => {
-        exportDropdown.classList.add('hidden');
-        const { year, monthName, monthMovements } = getMonthExportData();
-        
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        doc.setFontSize(18);
-        doc.text(`Resumen Mensual - ${monthName} ${year}`, 14, 22);
-        
-        const tableData = monthMovements.map(m => {
-          const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
-          const assignedAcc = accounts.find(a => a.id === m.accountId);
-          let accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
-          
-          if (m.type === 'pago_tc') {
-             const destAcc = accounts.find(a => a.id === m.toAccountId);
-             const destLabel = destAcc ? `${destAcc.emoji} ${destAcc.name}` : '💳 Tarjeta';
-             accountLabel = `${accountLabel} -> ${destLabel}`;
-          }
-
-          return [
-            m.date,
-            cat.label,
-            m.subcategory || 'General',
-            accountLabel,
-            m.concept,
-            ((m.type === 'gasto' || m.type === 'diecast' || m.type === 'pago_tc') ? '-' : '+') + formatCurrency(m.amount)
-          ];
-        });
-        
-        let totalIngresos = 0, totalGastos = 0, totalAhorros = 0, totalDieCasts = 0;
-        monthMovements.forEach(m => {
-          if(m.type === 'ingreso') totalIngresos += m.amount;
-          if(m.type === 'gasto') totalGastos += m.amount;
-          if(m.type === 'ahorro') totalAhorros += m.amount;
-          if(m.type === 'diecast') totalDieCasts += m.amount;
-        });
-        
-        doc.autoTable({
-          startY: 30,
-          head: [['Fecha', 'Tipo', 'Subcategoría', 'Cuenta', 'Concepto', 'Monto']],
-          body: tableData,
-          foot: [
-            ['', '', '', '', 'Total Ingresos:', formatCurrency(totalIngresos)],
-            ['', '', '', '', 'Total Gastos:', formatCurrency(totalGastos)],
-            ['', '', '', '', 'Total Ahorros:', formatCurrency(totalAhorros)],
-            ['', '', '', '', 'Total DieCasts:', formatCurrency(totalDieCasts)],
-            ['', '', '', '', 'Balance Final:', formatCurrency(totalIngresos - totalGastos - totalDieCasts)]
-          ],
-          theme: 'grid',
-          headStyles: { fillColor: [112, 0, 255] },
-          footStyles: { fillColor: [243, 244, 246], textColor: [15, 23, 42], fontStyle: 'bold' }
-        });
-        
-        doc.save(`Resumen_${monthName}_${year}.pdf`);
-      });
-    }
-
-    const btnExportExcel = document.getElementById('btn-export-excel');
-    if (btnExportExcel) {
-      btnExportExcel.addEventListener('click', () => {
-        exportDropdown.classList.add('hidden');
-        const { year, monthName, monthMovements } = getMonthExportData();
-        
-        const wsData = [
-          ['Fecha', 'Tipo', 'Subcategoría', 'Cuenta', 'Concepto', 'Monto']
-        ];
-        
-        let totalIngresos = 0, totalGastos = 0, totalAhorros = 0, totalDieCasts = 0;
-        
-        monthMovements.forEach(m => {
-          const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
-          const assignedAcc = accounts.find(a => a.id === m.accountId);
-          let accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
-          
-          if (m.type === 'pago_tc') {
-             const destAcc = accounts.find(a => a.id === m.toAccountId);
-             const destLabel = destAcc ? `${destAcc.emoji} ${destAcc.name}` : '💳 Tarjeta';
-             accountLabel = `${accountLabel} -> ${destLabel}`;
-          }
-
-          wsData.push([
-            m.date, 
-            cat.label, 
-            m.subcategory || 'General',
-            accountLabel,
-            m.concept, 
-            ((m.type === 'gasto' || m.type === 'diecast' || m.type === 'pago_tc') ? -m.amount : m.amount)
-          ]);
-          if(m.type === 'ingreso') totalIngresos += m.amount;
-          if(m.type === 'gasto') totalGastos += m.amount;
-          if(m.type === 'ahorro') totalAhorros += m.amount;
-          if(m.type === 'diecast') totalDieCasts += m.amount;
-        });
-        
-        wsData.push([]);
-        wsData.push(['', '', '', '', 'Total Ingresos:', totalIngresos]);
-        wsData.push(['', '', '', '', 'Total Gastos:', -totalGastos]);
-        wsData.push(['', '', '', '', 'Total Ahorros:', totalAhorros]);
-        wsData.push(['', '', '', '', 'Total DieCasts:', -totalDieCasts]);
-        wsData.push(['', '', '', '', 'Balance Final:', totalIngresos - totalGastos - totalDieCasts]);
-        
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Resumen");
-        
-        XLSX.writeFile(wb, `Resumen_${monthName}_${year}.xlsx`);
-      });
-    }
-
-    const btnPrint = document.getElementById('btnPrint');
-    if (btnPrint) {
-      btnPrint.addEventListener('click', () => {
-        window.print();
-      });
-    }
-    
-    const btnToday = document.getElementById('btn-today');
-    if (btnToday) {
-      btnToday.addEventListener('click', () => {
-        currentDate = new Date();
-        renderApp();
-      });
-    }
-
-    const monthSelect = document.getElementById('month-select');
-    if (monthSelect) {
-      monthSelect.addEventListener('change', (e) => {
-        currentDate = new Date(currentDate.getFullYear(), parseInt(e.target.value), 1);
-        renderApp();
-      });
-    }
-
-    const yearSelectBottom = document.getElementById('year-select');
-    if (yearSelectBottom) {
-      yearSelectBottom.addEventListener('change', (e) => {
-        currentDate = new Date(parseInt(e.target.value), currentDate.getMonth(), 1);
-        renderApp();
-      });
-    }
-
-    const btnPrevMonth = document.getElementById('btn-prev-month');
-    if (btnPrevMonth) {
-      btnPrevMonth.addEventListener('click', () => {
-        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-        renderApp();
-      });
-    }
-
-    const btnNextMonth = document.getElementById('btn-next-month');
-    if (btnNextMonth) {
-      btnNextMonth.addEventListener('click', () => {
-        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-        renderApp();
-      });
-    }
-
-    if (selectYearBottom) {
-      selectYearBottom.addEventListener('change', (e) => {
-        searchYear = Number(e.target.value);
-        renderYearSummary();
-        renderTable();
-        renderDieCastsSection();
-        lucide.createIcons();
-      });
-    }
-
-    const selectMonthBottom = document.getElementById('search-month');
-    if (selectMonthBottom) {
-      selectMonthBottom.value = searchMonth; 
-      selectMonthBottom.addEventListener('change', (e) => {
-        searchMonth = e.target.value;
-        renderYearSummary();
-        renderTable();
-        renderDieCastsSection();
-        lucide.createIcons();
-      });
-    }
-
-    const searchAccountSelector = document.getElementById('search-account');
-    if (searchAccountSelector) {
-      searchAccountSelector.addEventListener('change', (e) => {
-        searchAccount = e.target.value;
-        renderYearSummary();
-        renderTable();
-        renderDieCastsSection();
-        lucide.createIcons();
-      });
-    }
-
-    const toggleHistoryBtn = document.getElementById('toggle-history-btn');
-    const historyContent = document.getElementById('history-content');
-    const historyChevron = document.getElementById('history-chevron');
-
-    if (toggleHistoryBtn && historyContent) {
-      toggleHistoryBtn.addEventListener('click', () => {
-        historyContent.classList.toggle('hidden');
-        if (historyChevron) historyChevron.classList.toggle('rotate-180');
-      });
-    }
-
-    const toggleAccountsBtn = document.getElementById('toggle-accounts-btn');
-    const accountsContent = document.getElementById('accounts-content');
-    const accountsChevron = document.getElementById('accounts-chevron');
-
-    if (toggleAccountsBtn && accountsContent) {
-      toggleAccountsBtn.addEventListener('click', () => {
-        accountsContent.classList.toggle('hidden');
-        if (accountsChevron) accountsChevron.classList.toggle('rotate-180');
-      });
-    }
-
-    const toggleDieCastsBtn = document.getElementById('toggle-diecasts-btn');
-    const dieCastsContent = document.getElementById('diecasts-content');
-    const dieCastsChevron = document.getElementById('diecasts-chevron');
-
-    if (toggleDieCastsBtn && dieCastsContent) {
-      toggleDieCastsBtn.addEventListener('click', () => {
-        dieCastsContent.classList.toggle('hidden');
-        if (dieCastsChevron) dieCastsChevron.classList.toggle('rotate-180');
-      });
-    }
-
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        searchQuery = e.target.value;
-        renderTable();
-        lucide.createIcons();
-      });
-    }
-
-    function selectType(t) {
-      formType = t;
-      
-      const types = ['ingreso', 'gasto', 'ahorro', 'pago_tc', 'diecast'];
-      
-      types.forEach(type => {
-        const iconContainer = document.getElementById(`icon-container-${type}`);
-        const textSpan = document.getElementById(`text-${type}`);
-        
-        if (iconContainer && textSpan) {
-          if (type === t) {
-            iconContainer.classList.remove('neon-ring-inactive');
-            iconContainer.classList.add('neon-ring-active');
-            textSpan.classList.remove('type-text-inactive');
-            textSpan.classList.add('type-text-active');
-          } else {
-            iconContainer.classList.remove('neon-ring-active');
-            iconContainer.classList.add('neon-ring-inactive');
-            textSpan.classList.remove('type-text-active');
-            textSpan.classList.add('type-text-inactive');
-          }
-        }
-      });
-
-      const containerSubcategory = document.getElementById('container-subcategory');
-      const containerPhoto = document.getElementById('container-photo');
-      const containerTransfer = document.getElementById('container-transfer');
-      const labelConcept = document.getElementById('label-concept');
-      const labelAccount = document.getElementById('label-account');
-
-      if (t === 'diecast') {
-        if (containerSubcategory) containerSubcategory.classList.add('hidden');
-        if (containerPhoto) containerPhoto.classList.remove('hidden');
-        if (containerTransfer) containerTransfer.classList.add('hidden');
-        if (labelConcept) labelConcept.textContent = "Nombre del Modelo / Descripción";
-        if (labelAccount) labelAccount.textContent = "Cuenta / Cartera";
-      } else if (t === 'pago_tc') {
-        if (containerSubcategory) containerSubcategory.classList.add('hidden');
-        if (containerPhoto) containerPhoto.classList.add('hidden');
-        if (containerTransfer) containerTransfer.classList.remove('hidden');
-        if (labelConcept) labelConcept.textContent = "Concepto / Descripción";
-        if (labelAccount) labelAccount.textContent = "Cuenta Origen (Retiro)";
-      } else {
-        if (containerSubcategory) containerSubcategory.classList.remove('hidden');
-        if (containerPhoto) containerPhoto.classList.add('hidden');
-        if (containerTransfer) containerTransfer.classList.add('hidden');
-        if (labelConcept) labelConcept.textContent = "Concepto / Descripción";
-        if (labelAccount) labelAccount.textContent = "Cuenta / Cartera";
-        updateSubcategorySelectors();
-      }
-    }
-
-    // Lógica para previsualizar foto al crear o editar DieCast
-    const formPhotoInput = document.getElementById('form-photo-input');
-    const formPhotoPreview = document.getElementById('form-photo-preview');
-    const formPhotoPlaceholder = document.getElementById('form-photo-placeholder');
-
-    if (formPhotoInput) {
-      formPhotoInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const maxSize = 800;
-            let width = img.width;
-            let height = img.height;
-            if (width > height) {
-              if (width > maxSize) { height *= maxSize / width; width = maxSize; }
-            } else {
-              if (height > maxSize) { width *= maxSize / height; height = maxSize; }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            currentDieCastPhoto = canvas.toDataURL('image/jpeg', 0.7);
-            
-            if (formPhotoPreview && formPhotoPlaceholder) {
-              formPhotoPreview.src = currentDieCastPhoto;
-              formPhotoPreview.classList.remove('hidden');
-              formPhotoPlaceholder.classList.add('hidden');
-            }
-          };
-          img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function openModal(dateStr, existingMovement = null) {
+    function openModal(dateStr) {
       selectedDateStr = dateStr;
-      renderCalendar(); // Rerenderizar inmediatamente el calendario para destacar el día
+      editingId = null;
+      document.getElementById('movement-form').reset();
+      document.getElementById('modal-title-text').textContent = "Añadir Registro";
+      document.getElementById('modal-date-label').textContent = dateStr;
       
-      const dateLabel = document.getElementById('modal-date-label');
-      if (dateLabel) dateLabel.textContent = dateStr;
-      
-      const titleText = document.getElementById('modal-title-text');
-      const amountInput = document.getElementById('form-amount');
-      const conceptInput = document.getElementById('form-concept');
-      const saveBtn = document.getElementById('btn-save-movement');
-
+      const formPhotoPreview = document.getElementById('form-photo-preview');
+      const formPhotoPlaceholder = document.getElementById('form-photo-placeholder');
+      if (formPhotoPreview) formPhotoPreview.classList.add('hidden');
+      if (formPhotoPlaceholder) formPhotoPlaceholder.classList.remove('hidden');
       currentDieCastPhoto = '';
-      if (formPhotoPreview && formPhotoPlaceholder) {
-        formPhotoPreview.src = '';
-        formPhotoPreview.classList.add('hidden');
-        formPhotoPlaceholder.classList.remove('hidden');
-      }
-      if (formPhotoInput) formPhotoInput.value = '';
 
-      if (existingMovement) {
-        editingId = existingMovement.id;
-        if (titleText) titleText.textContent = 'Editar Registro';
-        if (amountInput) amountInput.value = existingMovement.amount;
-        if (conceptInput) conceptInput.value = existingMovement.concept;
-        formType = existingMovement.type || 'gasto';
-        if (saveBtn) saveBtn.textContent = 'Actualizar Registro';
-        
-        selectType(formType);
-        
-        if (formType === 'diecast' && existingMovement.photo) {
-          currentDieCastPhoto = existingMovement.photo;
-          if (formPhotoPreview && formPhotoPlaceholder) {
-            formPhotoPreview.src = currentDieCastPhoto;
-            formPhotoPreview.classList.remove('hidden');
-            formPhotoPlaceholder.classList.add('hidden');
-          }
-        }
+      const sourceSelect = document.getElementById('form-source-saving');
+      if (sourceSelect) sourceSelect.value = '';
 
-        if (formType === 'pago_tc') {
-          const formToAcc = document.getElementById('form-to-account');
-          if (formToAcc && existingMovement.toAccountId) {
-            formToAcc.value = existingMovement.toAccountId;
-          }
-        }
-        
-        const subcatObj = customSubcategories.find(s => s.name === existingMovement.subcategory && s.type === formType);
-        const subcatSelector = document.getElementById('form-subcategory');
-        if (subcatObj && subcatSelector) {
-          subcatSelector.value = subcatObj.id;
-        }
+      selectType('gasto'); 
 
-        const accountSelector = document.getElementById('form-account');
-        if (existingMovement.accountId && accountSelector) {
-          accountSelector.value = existingMovement.accountId;
-        } else if (existingMovement.account && accountSelector) {
-          const matchedAcc = accounts.find(a => a.name === existingMovement.account);
-          if (matchedAcc) accountSelector.value = matchedAcc.id;
-        }
-      } else {
-        editingId = null;
-        if (titleText) titleText.textContent = 'Añadir Registro';
-        if (amountInput) amountInput.value = '';
-        if (conceptInput) conceptInput.value = '';
-        formType = 'gasto';
-        if (saveBtn) saveBtn.textContent = 'Guardar Registro';
-        
-        selectType(formType);
-        
-        const accountSelector = document.getElementById('form-account');
-        if (accounts.length > 0 && accountSelector) {
-          accountSelector.value = accounts[0].id;
-        }
-      }
-      
       const modalElement = document.getElementById('modal');
       const content = document.getElementById('modal-content');
       if (modalElement && content) {
@@ -3968,271 +2512,192 @@
       if (modalElement && content) {
         modalElement.classList.add('opacity-0');
         content.classList.add('scale-95');
-        setTimeout(() => {
-          modalElement.classList.add('hidden');
-        }, 300);
+        setTimeout(() => modalElement.classList.add('hidden'), 300);
       }
     }
 
-    const modalCloseBtn = document.getElementById('btn-close-modal');
-    if (modalCloseBtn) {
-      modalCloseBtn.addEventListener('click', closeModal);
+    function selectType(type) {
+      formType = type;
+      
+      const types = ['ingreso', 'gasto', 'ahorro', 'pago_tc', 'diecast'];
+      types.forEach(t => {
+        const btn = document.getElementById(`btn-type-${t}`);
+        const ring = document.getElementById(`icon-container-${t}`);
+        const text = document.getElementById(`text-${t}`);
+        
+        if (t === type) {
+          if (ring) {
+            ring.className = ring.className.replace('neon-ring-inactive', 'neon-ring-active');
+          }
+          if (text) {
+            text.className = text.className.replace('type-text-inactive', 'type-text-active');
+          }
+        } else {
+          if (ring) {
+            ring.className = ring.className.replace('neon-ring-active', 'neon-ring-inactive');
+          }
+          if (text) {
+            text.className = text.className.replace('type-text-active', 'type-text-inactive');
+          }
+        }
+      });
+
+      const containerSubcategory = document.getElementById('container-subcategory');
+      const containerPhoto = document.getElementById('container-photo');
+      const containerTransfer = document.getElementById('container-transfer');
+      const containerSourceSaving = document.getElementById('container-source-saving');
+      const labelAccount = document.getElementById('label-account');
+      const labelConcept = document.getElementById('label-concept');
+      const labelAmount = document.getElementById('label-amount');
+      const conceptInput = document.getElementById('form-concept');
+
+      if (type === 'diecast') {
+        if (containerSubcategory) containerSubcategory.classList.add('hidden');
+        if (containerPhoto) containerPhoto.classList.remove('hidden');
+        if (containerTransfer) containerTransfer.classList.add('hidden');
+        if (containerSourceSaving) containerSourceSaving.classList.add('hidden');
+        if (labelAccount) labelAccount.textContent = "Pagado desde";
+        if (labelConcept) labelConcept.textContent = "Modelo del Automóvil";
+        if (labelAmount) labelAmount.textContent = "Costo del Modelo";
+        if (conceptInput) conceptInput.placeholder = "Ej. Nissan Skyline R34 GT-R";
+      } else if (type === 'pago_tc') {
+        if (containerSubcategory) containerSubcategory.classList.add('hidden');
+        if (containerPhoto) containerPhoto.classList.add('hidden');
+        if (containerTransfer) containerTransfer.classList.remove('hidden');
+        if (containerSourceSaving) containerSourceSaving.classList.add('hidden');
+        if (labelAccount) labelAccount.textContent = "Cuenta de Retiro (Origen)";
+        if (labelConcept) labelConcept.textContent = "Concepto";
+        if (labelAmount) labelAmount.textContent = "Monto a Pagar";
+        if (conceptInput) conceptInput.placeholder = "Ej. Pago mensualidad de Tarjeta";
+      } else if (type === 'ahorro') {
+        if (containerSubcategory) containerSubcategory.classList.remove('hidden');
+        if (containerPhoto) containerPhoto.classList.add('hidden');
+        if (containerTransfer) containerTransfer.classList.add('hidden');
+        if (containerSourceSaving) containerSourceSaving.classList.remove('hidden');
+        if (labelAccount) labelAccount.textContent = "Guardar en Cuenta de Ahorro";
+        if (labelConcept) labelConcept.textContent = "Propósito del Ahorro";
+        if (labelAmount) labelAmount.textContent = "Monto a Ahorrar";
+        if (conceptInput) conceptInput.placeholder = "Ej. Ahorro para fondo de emergencias...";
+        updateSubcategorySelectors();
+        updateSourceSavingSelector();
+      } else {
+        if (containerSubcategory) containerSubcategory.classList.remove('hidden');
+        if (containerPhoto) containerPhoto.classList.add('hidden');
+        if (containerTransfer) containerTransfer.classList.add('hidden');
+        if (containerSourceSaving) containerSourceSaving.classList.add('hidden');
+        if (labelAccount) labelAccount.textContent = "Cuenta / Cartera";
+        if (labelConcept) labelConcept.textContent = "Concepto / Descripción";
+        if (labelAmount) labelAmount.textContent = "Monto / Costo";
+        if (conceptInput) conceptInput.placeholder = "Ej. Despensa semanal, Cine, Gasolina...";
+        updateSubcategorySelectors();
+      }
     }
 
     const movementForm = document.getElementById('movement-form');
     if (movementForm) {
       movementForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!selectedDateStr) return;
+        
+        const amountEl = document.getElementById('form-amount');
+        const conceptEl = document.getElementById('form-concept');
+        const accountEl = document.getElementById('form-account');
+        const toAccountEl = document.getElementById('form-to-account');
+        const subcatEl = document.getElementById('form-subcategory');
 
-        const amountInput = document.getElementById('form-amount');
-        const conceptInput = document.getElementById('form-concept');
-        const subcatIdInput = document.getElementById('form-subcategory');
-        const accountIdInput = document.getElementById('form-account');
+        const amount = parseFloat(amountEl.value) || 0;
+        const concept = conceptEl.value.trim();
+        const accountId = accountEl.value;
+        const assignedAcc = accounts.find(a => a.id === accountId);
+        const accountName = assignedAcc ? assignedAcc.name : '';
 
-        const amount = amountInput ? parseFloat(amountInput.value) : 0;
-        const concept = conceptInput ? conceptInput.value : '';
-        const subcatId = subcatIdInput ? subcatIdInput.value : '';
-        const accountId = accountIdInput ? accountIdInput.value : '';
+        if (amount <= 0 || !concept || !accountId) return;
 
-        const subcatObj = customSubcategories.find(s => s.id === subcatId);
-        const accountObj = accounts.find(a => a.id === accountId);
-
-        const movementData = {
+        let entry = {
           date: selectedDateStr,
           type: formType,
           amount: amount,
           concept: concept,
           accountId: accountId,
-          account: accountObj ? accountObj.name : 'Efectivo', 
+          account: accountName,
           timestamp: new Date().toISOString()
         };
 
         if (formType === 'diecast') {
-          movementData.subcategory = 'Colección DieCast';
-          movementData.subcategoryEmoji = '🚗';
-          movementData.photo = currentDieCastPhoto;
+          entry.subcategory = 'DieCast';
+          entry.subcategoryEmoji = '🚗';
+          entry.photo = currentDieCastPhoto;
         } else if (formType === 'pago_tc') {
-          const toAccountIdInput = document.getElementById('form-to-account');
-          const toAccountId = toAccountIdInput ? toAccountIdInput.value : '';
-          const toAccountObj = accounts.find(a => a.id === toAccountId);
-          
-          movementData.subcategory = 'Pago de Tarjeta';
-          movementData.subcategoryEmoji = '💳';
-          movementData.toAccountId = toAccountId;
-          movementData.toAccount = toAccountObj ? toAccountObj.name : '';
+          entry.subcategory = 'Pago TC';
+          entry.subcategoryEmoji = '💳';
+          entry.toAccountId = toAccountEl.value;
+        } else if (formType === 'ahorro') {
+          const selectedSubcat = customSubcategories.find(s => s.id === subcatEl.value);
+          entry.subcategory = selectedSubcat ? selectedSubcat.name : 'Ahorro';
+          entry.subcategoryEmoji = selectedSubcat ? selectedSubcat.emoji : '💰';
+          const sourceSavingEl = document.getElementById('form-source-saving');
+          entry.fromAccountId = (sourceSavingEl && sourceSavingEl.value) ? sourceSavingEl.value : '';
         } else {
-          movementData.subcategory = subcatObj ? subcatObj.name : 'General';
-          movementData.subcategoryEmoji = subcatObj ? subcatObj.emoji : '🏷️';
+          const selectedSubcat = customSubcategories.find(s => s.id === subcatEl.value);
+          entry.subcategory = selectedSubcat ? selectedSubcat.name : 'General';
+          entry.subcategoryEmoji = selectedSubcat ? selectedSubcat.emoji : '🏷️';
         }
 
         try {
           if (editingId) {
-            await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', editingId), movementData);
+            await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', editingId), entry);
           } else {
-            await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+            await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), entry);
           }
           closeModal();
         } catch (error) {
-          console.error("Error al guardar/actualizar:", error);
+          console.error("Error al guardar movimiento:", error);
         }
       });
     }
 
-    window.editMovement = function(id) {
-      const movementToEdit = movements.find(m => m.id === id);
-      if (movementToEdit) {
-        openModal(movementToEdit.date, movementToEdit);
-      }
-    };
+    function editMovement(id) {
+      const m = movements.find(move => move.id === id);
+      if (!m) return;
 
-    window.deleteMovement = function(id) {
-      showConfirm(
-        "¿Eliminar registro?",
-        "Esta acción eliminará el registro de forma permanente de tu historial financiero. No se puede deshacer.",
-        async () => {
-          try {
-            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id));
-          } catch (error) {
-            console.error("Error al borrar:", error);
-          }
+      selectedDateStr = m.date;
+      editingId = id;
+
+      document.getElementById('modal-title-text').textContent = "Editar Registro";
+      document.getElementById('modal-date-label').textContent = m.date;
+      document.getElementById('form-amount').value = m.amount;
+      document.getElementById('form-concept').value = m.concept;
+      
+      const accSelect = document.getElementById('form-account');
+      if (accSelect) accSelect.value = m.accountId || '';
+
+      selectType(m.type);
+
+      if (m.type === 'pago_tc') {
+        const destSelect = document.getElementById('form-to-account');
+        if (destSelect) destSelect.value = m.toAccountId || '';
+      } else if (m.type === 'ahorro') {
+        updateSourceSavingSelector();
+        const sourceSelect = document.getElementById('form-source-saving');
+        if (sourceSelect) sourceSelect.value = m.fromAccountId || '';
+      } else if (m.type === 'diecast') {
+        currentDieCastPhoto = m.photo || '';
+        const preview = document.getElementById('form-photo-preview');
+        const placeholder = document.getElementById('form-photo-placeholder');
+        if (preview && m.photo) {
+          preview.src = m.photo;
+          preview.classList.remove('hidden');
+          if (placeholder) placeholder.classList.add('hidden');
         }
-      );
-    };
-
-    window.viewDiecast = function(id) {
-      const d = movements.find(m => m.id === id);
-      if (!d) return;
-
-      const imgEl = document.getElementById('diecast-view-img');
-      if (d.photo) {
-        imgEl.src = d.photo;
-        imgEl.classList.remove('hidden');
       } else {
-        imgEl.src = '';
-        imgEl.classList.add('hidden');
-      }
-
-      document.getElementById('diecast-view-concept').textContent = d.concept;
-      document.getElementById('diecast-view-date').textContent = d.date;
-      document.getElementById('diecast-view-amount').textContent = formatCurrency(d.amount);
-      
-      const acc = accounts.find(a => a.id === d.accountId);
-      document.getElementById('diecast-view-account').innerHTML = acc ? `${acc.emoji} Comprado con ${acc.name}` : '💵 Comprado con Efectivo';
-
-      const modal = document.getElementById('diecast-view-modal');
-      const content = document.getElementById('diecast-view-content');
-      if (modal && content) {
-        modal.classList.remove('hidden');
-        lucide.createIcons();
-        setTimeout(() => {
-          modal.classList.remove('opacity-0');
-          content.classList.remove('scale-95');
-        }, 10);
-      }
-    };
-
-    window.closeDiecastView = function() {
-      const modal = document.getElementById('diecast-view-modal');
-      const content = document.getElementById('diecast-view-content');
-      if (modal && content) {
-        modal.classList.add('opacity-0');
-        content.classList.add('scale-95');
-        setTimeout(() => modal.classList.add('hidden'), 300);
-      }
-    };
-
-    const loginScreen = document.getElementById('login-screen');
-    const loginForm = document.getElementById('login-form');
-    const appContainer = document.getElementById('app-container');
-    const loginError = document.getElementById('login-error');
-    const loginPasswordInput = document.getElementById('login-password');
-    const toggleLoginPasswordBtn = document.getElementById('toggle-login-password');
-    const eyeIconLogin = document.getElementById('eye-icon-login');
-
-    if (toggleLoginPasswordBtn && loginPasswordInput && eyeIconLogin) {
-      toggleLoginPasswordBtn.addEventListener('click', () => {
-        const isPassword = loginPasswordInput.type === 'password';
-        loginPasswordInput.type = isPassword ? 'text' : 'password';
-        eyeIconLogin.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
-        lucide.createIcons();
-      });
-    }
-
-    if (loginForm) {
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const pwd = loginPasswordInput ? loginPasswordInput.value : '';
-        
-        if (pwd === vaultPassword) {
-          unlockVault();
-        } else {
-          if (loginError) {
-            loginError.classList.remove('hidden');
-            loginError.classList.add('animate-shake');
-            setTimeout(() => loginError.classList.remove('animate-shake'), 500);
-          }
-          if (loginPasswordInput) {
-            loginPasswordInput.value = '';
-            loginPasswordInput.focus();
-          }
+        const subcatSelect = document.getElementById('form-subcategory');
+        if (subcatSelect) {
+          const foundSub = customSubcategories.find(s => s.name === m.subcategory && s.type === m.type);
+          if (foundSub) subcatSelect.value = foundSub.id;
         }
-      });
-    }
-
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', logout);
-    }
-
-    function logout() {
-      if (loginPasswordInput) {
-        loginPasswordInput.value = '';
-        loginPasswordInput.type = 'password';
       }
-      if (eyeIconLogin) eyeIconLogin.setAttribute('data-lucide', 'eye');
-      lucide.createIcons();
-      if (loginError) loginError.classList.add('hidden');
 
-      if (appContainer) appContainer.classList.add('hidden');
-      if (loginScreen) {
-        loginScreen.classList.remove('hidden');
-        setTimeout(() => {
-          loginScreen.style.opacity = '1';
-          loginScreen.style.transform = 'scale(1)';
-        }, 10);
-      }
-      clearTimeout(inactivityTimeout);
-    }
-
-    function resetInactivityTimer() {
-      const loginScreen = document.getElementById('login-screen');
-      const appContainer = document.getElementById('app-container');
-      if (loginScreen && loginScreen.classList.contains('hidden')) {
-        clearTimeout(inactivityTimeout);
-        inactivityTimeout = setTimeout(() => {
-          logout();
-        }, 5 * 60 * 1000); 
-      }
-    }
-
-    function handleHoverImageUpload(inputId, previewId) {
-      const input = document.getElementById(inputId);
-      const preview = document.getElementById(previewId);
-      if (input && preview) {
-        input.addEventListener('change', (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              const maxSize = 250; 
-              let width = img.width;
-              let height = img.height;
-              if (width > height) {
-                if (width > maxSize) {
-                  height *= maxSize / width;
-                  width = maxSize;
-                }
-              } else {
-                if (height > maxSize) {
-                  width *= maxSize / height;
-                  height = maxSize;
-                }
-              }
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-              preview.src = canvas.toDataURL('image/jpeg', 0.7);
-            };
-            img.src = event.target.result;
-          };
-          reader.readAsDataURL(file);
-        });
-      }
-    }
-
-    handleHoverImageUpload('img-input-ingreso', 'preview-img-ingreso');
-    handleHoverImageUpload('img-input-gasto', 'preview-img-gasto');
-    handleHoverImageUpload('img-input-ahorro', 'preview-img-ahorro');
-    handleHoverImageUpload('img-input-diecast', 'preview-img-diecast');
-
-    function openHoverImagesModal() {
-      const prevIn = document.getElementById('preview-img-ingreso');
-      const prevGa = document.getElementById('preview-img-gasto');
-      const prevAh = document.getElementById('preview-img-ahorro');
-      const prevDi = document.getElementById('preview-img-diecast');
-      
-      if (prevIn) prevIn.src = hoverImagesData.ingreso || '';
-      if (prevGa) prevGa.src = hoverImagesData.gasto || '';
-      if (prevAh) prevAh.src = hoverImagesData.ahorro || '';
-      if (prevDi) prevDi.src = hoverImagesData.diecast || '';
-
-      const modalElement = document.getElementById('hover-images-modal');
-      const content = document.getElementById('hover-images-content');
+      const modalElement = document.getElementById('modal');
+      const content = document.getElementById('modal-content');
       if (modalElement && content) {
         modalElement.classList.remove('hidden');
         setTimeout(() => {
@@ -4242,13 +2707,441 @@
       }
     }
 
-    function closeHoverImagesModal() {
-      const modalElement = document.getElementById('hover-images-modal');
+    function deleteMovement(id) {
+      showConfirm(
+        "¿Eliminar movimiento?",
+        "Este registro financiero se borrará permanentemente del balance de su bóveda.",
+        async () => {
+          try {
+            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id));
+          } catch (error) {
+            console.error("Error al borrar el movimiento:", error);
+          }
+        },
+        false
+      );
+    }
+
+    const btnExportPdf = document.getElementById('btn-export-pdf');
+    if (btnExportPdf) {
+      btnExportPdf.addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.setFillColor(11, 8, 20);
+        doc.rect(0, 0, 220, 297, 'F');
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.setTextColor(0, 240, 255);
+        doc.text("BÓVEDA PATRIMONIAL", 14, 25);
+
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(156, 163, 175);
+        doc.text(`Reporte de Transacciones Financieras - ${new Date().toLocaleDateString()}`, 14, 32);
+
+        const tableRows = [];
+        const monthMovements = movements.filter(m => {
+          const d = new Date(m.date + 'T00:00:00');
+          return d.getFullYear() === currentDate.getFullYear() && d.getMonth() === currentDate.getMonth();
+        });
+
+        monthMovements.forEach(m => {
+          tableRows.push([
+            m.date,
+            CATEGORIES[m.type] ? CATEGORIES[m.type].label : m.type,
+            m.subcategory || 'General',
+            m.account || 'Efectivo',
+            m.concept,
+            formatCurrency(m.amount)
+          ]);
+        });
+
+        doc.autoTable({
+          startY: 40,
+          head: [['Fecha', 'Tipo', 'Subcategoría', 'Cuenta', 'Concepto', 'Monto']],
+          body: tableRows,
+          theme: 'grid',
+          headStyles: { fillColor: [112, 0, 255], textColor: [255, 255, 255] },
+          styles: { fontSize: 9, cellPadding: 3 },
+          alternateRowStyles: { fillColor: [20, 15, 35] },
+          textColor: [243, 244, 246]
+        });
+
+        doc.save(`Reporte_Patrimonial_${currentDate.getFullYear()}_${currentDate.getMonth() + 1}.pdf`);
+        const dropdown = document.getElementById('export-dropdown');
+        if (dropdown) dropdown.classList.add('hidden');
+      });
+    }
+
+    const btnExportExcel = document.getElementById('btn-export-excel');
+    if (btnExportExcel) {
+      btnExportExcel.addEventListener('click', () => {
+        const exportData = movements.map(m => ({
+          Fecha: m.date,
+          Tipo: CATEGORIES[m.type] ? CATEGORIES[m.type].label : m.type,
+          Subcategoria: m.subcategory || 'General',
+          Cuenta: m.account,
+          Concepto: m.concept,
+          Monto: m.amount
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Movimientos");
+        XLSX.writeFile(workbook, `Boveda_Movimientos_Export.xlsx`);
+        
+        const dropdown = document.getElementById('export-dropdown');
+        if (dropdown) dropdown.classList.add('hidden');
+      });
+    }
+
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pwdInput = document.getElementById('login-password');
+        const loginError = document.getElementById('login-error');
+        
+        if (pwdInput && pwdInput.value === vaultPassword) {
+          if (loginError) loginError.classList.add('hidden');
+          unlockVault();
+        } else {
+          if (loginError) {
+            loginError.classList.remove('hidden');
+            loginError.classList.add('animate-shake');
+            setTimeout(() => loginError.classList.remove('animate-shake'), 400);
+          }
+        }
+      });
+    }
+
+    function unlockVault() {
+      sessionStorage.setItem('vault_unlocked', 'true');
+      const loginScreen = document.getElementById('login-screen');
+      const appContainer = document.getElementById('app-container');
+      
+      if (loginScreen) {
+        loginScreen.classList.add('opacity-0');
+        loginScreen.classList.add('scale-95');
+        setTimeout(() => loginScreen.classList.add('hidden'), 500);
+      }
+      if (appContainer) {
+        appContainer.classList.remove('hidden');
+        setTimeout(() => appContainer.classList.add('opacity-100'), 50);
+      }
+      resetInactivityTimer();
+    }
+
+    function logout() {
+      sessionStorage.removeItem('vault_unlocked');
+      const loginScreen = document.getElementById('login-screen');
+      const appContainer = document.getElementById('app-container');
+      const pwdInput = document.getElementById('login-password');
+      
+      if (pwdInput) pwdInput.value = '';
+      if (loginScreen) {
+        loginScreen.classList.remove('hidden');
+        setTimeout(() => {
+          loginScreen.classList.remove('opacity-0');
+          loginScreen.classList.remove('scale-95');
+        }, 50);
+      }
+      if (appContainer) {
+        appContainer.classList.add('hidden');
+      }
+      clearTimeout(inactivityTimeout);
+    }
+
+    const logoutBtnEl = document.getElementById('logout-btn');
+    if (logoutBtnEl) {
+      logoutBtnEl.addEventListener('click', logout);
+    }
+
+    const toggleLoginPwdBtn = document.getElementById('toggle-login-password');
+    if (toggleLoginPwdBtn) {
+      toggleLoginPwdBtn.addEventListener('click', () => {
+        const pwdInput = document.getElementById('login-password');
+        const eyeIcon = document.getElementById('eye-icon-login');
+        if (pwdInput && eyeIcon) {
+          if (pwdInput.type === 'password') {
+            pwdInput.type = 'text';
+            eyeIcon.setAttribute('data-lucide', 'eye-off');
+          } else {
+            pwdInput.type = 'password';
+            eyeIcon.setAttribute('data-lucide', 'eye');
+          }
+          lucide.createIcons();
+        }
+      });
+    }
+
+    const btnBiometricLogin = document.getElementById('btn-biometric-login');
+    if (btnBiometricLogin) {
+      btnBiometricLogin.addEventListener('click', async () => {
+        const success = await authenticateBiometrics();
+        if (success) {
+          unlockVault();
+        }
+      });
+    }
+
+    const btnToggleBiometrics = document.getElementById('btn-toggle-biometrics');
+    if (btnToggleBiometrics) {
+      btnToggleBiometrics.addEventListener('click', async () => {
+        const hasEnrolled = !!localStorage.getItem('vault_biometric_id');
+        if (hasEnrolled) {
+          localStorage.removeItem('vault_biometric_id');
+          showConfirm("Biométricos Desactivados", "Face ID y Touch ID han sido revocados.", null, true);
+        } else {
+          const success = await enrollBiometrics();
+          if (success) {
+            showConfirm("Biométricos Activados", "Ya puede desbloquear su bóveda usando su huella o rostro.", null, true);
+          }
+        }
+        updateBiometricLoginUI();
+        updateBiometricSettingsUI();
+      });
+    }
+
+    const toggleAccountsBtn = document.getElementById('toggle-accounts-btn');
+    if (toggleAccountsBtn) {
+      toggleAccountsBtn.addEventListener('click', () => {
+        const content = document.getElementById('accounts-content');
+        const chevron = document.getElementById('accounts-chevron');
+        if (content && chevron) {
+          const isHidden = content.classList.contains('hidden');
+          if (isHidden) {
+            content.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+          } else {
+            content.classList.add('hidden');
+            chevron.classList.remove('rotate-180');
+          }
+        }
+      });
+    }
+
+    const toggleDiecastsBtn = document.getElementById('toggle-diecasts-btn');
+    if (toggleDiecastsBtn) {
+      toggleDiecastsBtn.addEventListener('click', () => {
+        const content = document.getElementById('diecasts-content');
+        const chevron = document.getElementById('diecasts-chevron');
+        if (content && chevron) {
+          const isHidden = content.classList.contains('hidden');
+          if (isHidden) {
+            content.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+          } else {
+            content.classList.add('hidden');
+            chevron.classList.remove('rotate-180');
+          }
+        }
+      });
+    }
+
+    const toggleHistoryBtn = document.getElementById('toggle-history-btn');
+    if (toggleHistoryBtn) {
+      toggleHistoryBtn.addEventListener('click', () => {
+        const content = document.getElementById('history-content');
+        const chevron = document.getElementById('history-chevron');
+        if (content && chevron) {
+          const isHidden = content.classList.contains('hidden');
+          if (isHidden) {
+            content.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+          } else {
+            content.classList.add('hidden');
+            chevron.classList.remove('rotate-180');
+          }
+        }
+      });
+    }
+
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) {
+          themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+          lucide.createIcons();
+        }
+        renderMonthSummary();
+        renderAccountsSection();
+        renderTable();
+        renderYearSummary();
+      });
+    }
+
+    const btnExportMenu = document.getElementById('btn-export-menu');
+    if (btnExportMenu) {
+      btnExportMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dropdown = document.getElementById('export-dropdown');
+        if (dropdown) dropdown.classList.toggle('hidden');
+      });
+    }
+
+    const monthSelectEl = document.getElementById('month-select');
+    if (monthSelectEl) {
+      monthSelectEl.addEventListener('change', (e) => {
+        currentDate.setMonth(parseInt(e.target.value));
+        renderApp();
+      });
+    }
+
+    const yearSelectEl = document.getElementById('year-select');
+    if (yearSelectEl) {
+      yearSelectEl.addEventListener('change', (e) => {
+        currentDate.setFullYear(parseInt(e.target.value));
+        renderApp();
+      });
+    }
+
+    const btnPrevMonth = document.getElementById('btn-prev-month');
+    if (btnPrevMonth) {
+      btnPrevMonth.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderApp();
+      });
+    }
+
+    const btnNextMonth = document.getElementById('btn-next-month');
+    if (btnNextMonth) {
+      btnNextMonth.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderApp();
+      });
+    }
+
+    const btnToday = document.getElementById('btn-today');
+    if (btnToday) {
+      btnToday.addEventListener('click', () => {
+        currentDate = new Date();
+        renderApp();
+      });
+    }
+
+    const searchYearEl = document.getElementById('search-year');
+    if (searchYearEl) {
+      searchYearEl.addEventListener('change', (e) => {
+        searchYear = parseInt(e.target.value);
+        renderYearSummary();
+        renderTable();
+        renderDieCastsSection();
+      });
+    }
+
+    const searchMonthEl = document.getElementById('search-month');
+    if (searchMonthEl) {
+      searchMonthEl.addEventListener('change', (e) => {
+        searchMonth = e.target.value;
+        renderYearSummary();
+        renderTable();
+        renderDieCastsSection();
+      });
+    }
+
+    const searchAccEl = document.getElementById('search-account');
+    if (searchAccEl) {
+      searchAccEl.addEventListener('change', (e) => {
+        searchAccount = e.target.value;
+        renderYearSummary();
+        renderTable();
+        renderDieCastsSection();
+      });
+    }
+
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        renderTable();
+      });
+    }
+
+    const btnPrint = document.getElementById('btn-print');
+    if (btnPrint) {
+      btnPrint.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    // Foto de Diecast
+    const formPhotoInput = document.getElementById('form-photo-input');
+    if (formPhotoInput) {
+      formPhotoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxDim = 800;
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+              if (w > maxDim) { h *= maxDim / w; w = maxDim; }
+            } else {
+              if (h > maxDim) { w *= maxDim / h; h = maxDim; }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.8);
+            
+            currentDieCastPhoto = compressed;
+            const preview = document.getElementById('form-photo-preview');
+            const placeholder = document.getElementById('form-photo-placeholder');
+            if (preview) {
+              preview.src = compressed;
+              preview.classList.remove('hidden');
+            }
+            if (placeholder) placeholder.classList.add('hidden');
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Modal de Imágenes Flotantes
+    function openHoverImagesModal() {
+      const modal = document.getElementById('hover-images-modal');
       const content = document.getElementById('hover-images-content');
-      if (modalElement && content) {
-        modalElement.classList.add('opacity-0');
+      
+      const prevIn = document.getElementById('preview-img-ingreso');
+      const prevOut = document.getElementById('preview-img-gasto');
+      const prevSav = document.getElementById('preview-img-ahorro');
+      const prevDie = document.getElementById('preview-img-diecast');
+
+      if (prevIn) prevIn.src = hoverImagesData.ingreso || 'https://placehold.co/100x100?text=Ingreso';
+      if (prevOut) prevOut.src = hoverImagesData.gasto || 'https://placehold.co/100x100?text=Gasto';
+      if (prevSav) prevSav.src = hoverImagesData.ahorro || 'https://placehold.co/100x100?text=Ahorro';
+      if (prevDie) prevDie.src = hoverImagesData.diecast || 'https://placehold.co/100x100?text=DieCast';
+
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeHoverImagesModal() {
+      const modal = document.getElementById('hover-images-modal');
+      const content = document.getElementById('hover-images-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
         content.classList.add('scale-95');
-        setTimeout(() => modalElement.classList.add('hidden'), 300);
+        setTimeout(() => modal.classList.add('hidden'), 300);
       }
     }
 
@@ -4256,96 +3149,100 @@
     if (hoverImagesForm) {
       hoverImagesForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const prevIn = document.getElementById('preview-img-ingreso').src;
-        const prevGa = document.getElementById('preview-img-gasto').src;
-        const prevAh = document.getElementById('preview-img-ahorro').src;
-        const prevDi = document.getElementById('preview-img-diecast').src;
-
-        const newImages = {
-           ingreso: prevIn !== window.location.href ? prevIn : hoverImagesData.ingreso,
-           gasto: prevGa !== window.location.href ? prevGa : hoverImagesData.gasto,
-           ahorro: prevAh !== window.location.href ? prevAh : hoverImagesData.ahorro,
-           diecast: prevDi !== window.location.href ? prevDi : hoverImagesData.diecast
-        };
-
         try {
           const imagesDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'hoverImages');
-          await setDoc(imagesDocRef, newImages, { merge: true });
+          await setDoc(imagesDocRef, hoverImagesData);
           closeHoverImagesModal();
         } catch (error) {
-          console.error("Error al actualizar imágenes flotantes:", error);
+          console.error("Error al guardar imágenes de flotación:", error);
         }
       });
     }
 
-    window.addEventListener('mousemove', resetInactivityTimer);
-    window.addEventListener('keypress', resetInactivityTimer);
-    window.addEventListener('scroll', resetInactivityTimer);
+    const inputTypes = ['ingreso', 'gasto', 'ahorro', 'diecast'];
+    inputTypes.forEach(type => {
+      const input = document.getElementById(`img-input-${type}`);
+      if (input) {
+        input.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
 
-    // Cierre de modales con Escape y Clic Fuera
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-        closeAccountManager();
-        closeSubcategoryManager();
-        closeProfileSettingsModal();
-        closeTitleSettingsModal();
-        closePasswordSettingsModal();
-        closeAccountDetails();
-        closeConfirm();
-        closeHoverImagesModal();
-        closeDiecastView();
-        const profileMenu = document.getElementById('profile-dropdown-menu');
-        const exportMenu = document.getElementById('export-dropdown');
-        if (profileMenu) profileMenu.classList.add('hidden');
-        if (exportMenu) exportMenu.classList.add('hidden');
-      }
-    });
-
-    const modalContainers = [
-      { id: 'modal', closeFunc: closeModal },
-      { id: 'accounts-modal', closeFunc: closeAccountManager },
-      { id: 'subcategories-modal', closeFunc: closeSubcategoryManager },
-      { id: 'account-details-modal', closeFunc: closeAccountDetails },
-      { id: 'profile-settings-modal', closeFunc: closeProfileSettingsModal },
-      { id: 'title-settings-modal', closeFunc: closeTitleSettingsModal },
-      { id: 'password-settings-modal', closeFunc: closePasswordSettingsModal },
-      { id: 'confirm-modal', closeFunc: closeConfirm },
-      { id: 'hover-images-modal', closeFunc: closeHoverImagesModal },
-      { id: 'diecast-view-modal', closeFunc: closeDiecastView },
-      { id: 'notification-settings-modal', closeFunc: closeNotificationSettingsModal }
-    ];
-
-    modalContainers.forEach(modal => {
-      const el = document.getElementById(modal.id);
-      if (el) {
-        el.addEventListener('click', (e) => {
-          if (e.target === el) {
-            modal.closeFunc();
-          }
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = 150;
+              canvas.height = 150;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, 150, 150);
+              const compressed = canvas.toDataURL('image/jpeg', 0.85);
+              
+              hoverImagesData[type] = compressed;
+              const preview = document.getElementById(`preview-img-${type}`);
+              if (preview) preview.src = compressed;
+            };
+            img.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
         });
       }
     });
 
-    document.addEventListener('click', (e) => {
-      const exportMenu = document.getElementById('export-dropdown');
-      const exportBtn = document.getElementById('btn-export-menu');
-      if (exportMenu && exportBtn && !exportMenu.contains(e.target) && !exportBtn.contains(e.target)) {
-        exportMenu.classList.add('hidden');
-      }
-      const profileMenu = document.getElementById('profile-dropdown-menu');
-      const profileBtn = document.getElementById('profile-dropdown-btn');
-      if (profileMenu && profileBtn && !profileMenu.contains(e.target) && !profileBtn.contains(e.target)) {
-        profileMenu.classList.add('hidden');
-      }
-    });
+    // Detalle DieCast
+    function viewDiecast(id) {
+      const d = movements.find(m => m.id === id);
+      if (!d) return;
 
-    window.editAccount = editAccount;
-    window.deleteAccount = deleteAccount;
-    window.deleteSubcategory = deleteSubcategory;
+      const modal = document.getElementById('diecast-view-modal');
+      const content = document.getElementById('diecast-view-content');
+      
+      const img = document.getElementById('diecast-view-img');
+      const concept = document.getElementById('diecast-view-concept');
+      const date = document.getElementById('diecast-view-date');
+      const amount = document.getElementById('diecast-view-amount');
+      const account = document.getElementById('diecast-view-account');
+
+      if (img) img.src = d.photo || '';
+      if (concept) concept.textContent = d.concept;
+      if (date) date.textContent = d.date;
+      if (amount) amount.textContent = formatCurrency(d.amount);
+      if (account) {
+         const acc = accounts.find(a => a.id === d.accountId);
+         account.innerHTML = `<i data-lucide="wallet" class="w-3.5 h-3.5"></i> ${acc ? acc.emoji + ' ' + acc.name : 'Efectivo'}`;
+      }
+
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+      lucide.createIcons();
+    }
+
+    function closeDiecastView() {
+      const modal = document.getElementById('diecast-view-modal');
+      const content = document.getElementById('diecast-view-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+      }
+    }
+
+    // Auto Desbloqueo de Sesión si ya estaba abierta
+    if (sessionStorage.getItem('vault_unlocked') === 'true') {
+      unlockVault();
+    }
+
+    // Exportar variables al objeto Window para que las invoque HTML
     window.closeModal = closeModal; 
     window.openModal = openModal;
     window.selectType = selectType;
+    window.editMovement = editMovement;
+    window.deleteMovement = deleteMovement;
     window.openProfileSettingsModal = openProfileSettingsModal;
     window.closeProfileSettingsModal = closeProfileSettingsModal;
     window.openTitleSettingsModal = openTitleSettingsModal;
@@ -4369,6 +3266,8 @@
     window.closeDiecastView = closeDiecastView;
     window.openNotificationSettingsModal = openNotificationSettingsModal;
     window.closeNotificationSettingsModal = closeNotificationSettingsModal;
+    window.updateSourceSavingSelector = updateSourceSavingSelector;
+    window.updateAccountsChart = updateAccountsChart;
 
     checkBiometricsSupport().then(supported => {
       if (supported) {
