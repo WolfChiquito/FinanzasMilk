@@ -1166,7 +1166,7 @@
       <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
         <!-- Formulario Agregar Subcategoría -->
         <form id="new-subcat-form" class="space-y-4 bg-gray-900 p-4 rounded-2xl border border-gray-850">
-          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Subcategoría</h4>
+          <h4 id="subcat-form-title" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Crear Subcategoría</h4>
           
           <div class="space-y-3">
             <select id="new-subcat-type" class="w-full bg-gray-950 border border-gray-850 rounded-xl px-3.5 py-3 text-xs focus:outline-none focus:border-[#7000ff] text-white cursor-pointer">
@@ -1181,9 +1181,14 @@
             </div>
           </div>
 
-          <button type="submit" class="w-full bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3=">
-            + Agregar Subcategoría
-          </button>
+          <div class="flex gap-3">
+            <button type="submit" id="btn-save-subcat" class="flex-1 bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white font-bold py-3 rounded-xl text-xs transition-colors shadow-md">
+              + Agregar Subcategoría
+            </button>
+            <button type="button" id="btn-cancel-subcat-edit" class="hidden px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-semibold py-3 rounded-xl text-xs transition-colors">
+              Cancelar
+            </button>
+          </div>
         </form>
 
         <!-- Listado de Subcategorías Existentes -->
@@ -1471,6 +1476,7 @@
     let selectedDateStr = null;
     let editingId = null; 
     let editingAccountId = null; 
+    let editingSubcatId = null; 
     let formType = 'gasto';
     let searchYear = new Date().getFullYear();
     let searchMonth = new Date().getMonth().toString(); 
@@ -2976,11 +2982,54 @@
         modalContent.classList.add('scale-95');
         setTimeout(() => modalElement.classList.add('hidden'), 300);
       }
+      resetSubcatForm();
     }
 
     const subcatFilterEl = document.getElementById('subcat-filter');
     if (subcatFilterEl) {
       subcatFilterEl.addEventListener('change', renderSubcategoriesManagerList);
+    }
+
+    function resetSubcatForm() {
+      editingSubcatId = null;
+      const title = document.getElementById('subcat-form-title');
+      const typeSelect = document.getElementById('new-subcat-type');
+      const emoji = document.getElementById('new-subcat-emoji');
+      const name = document.getElementById('new-subcat-name');
+      const btn = document.getElementById('btn-save-subcat');
+      const cancelBtn = document.getElementById('btn-cancel-subcat-edit');
+
+      if (title) title.textContent = "Crear Subcategoría";
+      if (typeSelect) typeSelect.value = 'gasto';
+      if (emoji) emoji.value = '';
+      if (name) name.value = '';
+      if (btn) btn.textContent = "+ Agregar Subcategoría";
+      if (cancelBtn) cancelBtn.classList.add('hidden');
+    }
+
+    const cancelSubcatEditBtn = document.getElementById('btn-cancel-subcat-edit');
+    if (cancelSubcatEditBtn) {
+      cancelSubcatEditBtn.addEventListener('click', resetSubcatForm);
+    }
+
+    function editSubcategory(id) {
+      const subcat = customSubcategories.find(s => s.id === id);
+      if (!subcat) return;
+      editingSubcatId = id;
+
+      const title = document.getElementById('subcat-form-title');
+      const typeSelect = document.getElementById('new-subcat-type');
+      const emoji = document.getElementById('new-subcat-emoji');
+      const name = document.getElementById('new-subcat-name');
+      const btn = document.getElementById('btn-save-subcat');
+      const cancelBtn = document.getElementById('btn-cancel-subcat-edit');
+
+      if (title) title.textContent = "Editar Subcategoría";
+      if (typeSelect) typeSelect.value = subcat.type;
+      if (emoji) emoji.value = subcat.emoji;
+      if (name) name.value = subcat.name;
+      if (btn) btn.textContent = "Actualizar Subcategoría";
+      if (cancelBtn) cancelBtn.classList.remove('hidden');
     }
 
     function renderSubcategoriesManagerList() {
@@ -3005,9 +3054,14 @@
               </div>
             </div>
             ${s.isDefault ? `<span class="text-[9px] text-gray-500 bg-gray-950 px-2 py-1 rounded-md font-bold border border-gray-800">Fijo</span>` : `
-              <button onclick="window.deleteSubcategory('${s.id}')" class="p-1.5 text-gray-500 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors">
-                <i data-lucide="trash" class="w-4 h-4"></i>
-              </button>
+              <div class="flex items-center gap-1">
+                <button onclick="window.editSubcategory('${s.id}')" class="p-1.5 text-gray-500 hover:text-[#00f0ff] rounded-lg hover:bg-cyan-500/10 transition-colors" title="Editar">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                </button>
+                <button onclick="window.deleteSubcategory('${s.id}')" class="p-1.5 text-gray-500 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors" title="Eliminar">
+                  <i data-lucide="trash" class="w-4 h-4"></i>
+                </button>
+              </div>
             `}
           </div>
         `;
@@ -3029,21 +3083,28 @@
 
         if (!name) return;
 
-        const subcatData = {
-          type: type,
-          name: name,
-          emoji: emoji,
-          isDefault: false,
-          timestamp: new Date().toISOString()
-        };
-
         try {
-          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories'), subcatData);
-          if (emojiInput) emojiInput.value = '';
-          if (nameInput) nameInput.value = '';
+          if (editingSubcatId) {
+            await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories', editingSubcatId), {
+              type: type,
+              name: name,
+              emoji: emoji
+            });
+            resetSubcatForm();
+          } else {
+            await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories'), {
+              type: type,
+              name: name,
+              emoji: emoji,
+              isDefault: false,
+              timestamp: new Date().toISOString()
+            });
+            if (emojiInput) emojiInput.value = '';
+            if (nameInput) nameInput.value = '';
+          }
           renderSubcategoriesManagerList();
         } catch (error) {
-          console.error("Error al crear subcategoría:", error);
+          console.error("Error al procesar subcategoría:", error);
         }
       });
     }
@@ -3055,6 +3116,7 @@
         async () => {
           try {
             await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories', id));
+            if (editingSubcatId === id) resetSubcatForm();
             renderSubcategoriesManagerList();
           } catch (error) {
             console.error("Error al borrar subcategoría:", error);
@@ -4395,6 +4457,7 @@
     window.editAccount = editAccount;
     window.deleteAccount = deleteAccount;
     window.deleteSubcategory = deleteSubcategory;
+    window.editSubcategory = editSubcategory;
     window.closeModal = closeModal; 
     window.openModal = openModal;
     window.selectType = selectType;
