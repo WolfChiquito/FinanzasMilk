@@ -4035,8 +4035,8 @@
 
         if (formType === 'ahorro') {
           const toAccountId = document.getElementById('form-to-account')?.value || '';
-          if (!toAccountId || toAccountId === accountId) {
-            window.alert('Selecciona una cuenta de origen y una cuenta de destino diferentes para el ahorro.');
+          if (!toAccountId) {
+            window.alert('Selecciona una cuenta de destino para el ahorro.');
             return;
           }
         }
