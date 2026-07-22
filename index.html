@@ -1642,6 +1642,33 @@
       }
     }
 
+    async function toggleBiometrics() {
+      const hasEnrolled = !!localStorage.getItem('vault_biometric_id');
+
+      if (hasEnrolled) {
+        showConfirm(
+          "¿Desactivar Face ID / Touch ID?",
+          "Ya no podrás desbloquear la bóveda con biometría en este dispositivo. Puedes volver a activarlo cuando quieras.",
+          () => {
+            localStorage.removeItem('vault_biometric_id');
+            updateBiometricSettingsUI();
+            updateBiometricLoginUI();
+          },
+          false
+        );
+        return;
+      }
+
+      const success = await enrollBiometrics();
+      if (success) {
+        updateBiometricSettingsUI();
+        updateBiometricLoginUI();
+        showConfirm("Face ID / Touch ID activado", "Ya puedes desbloquear tu bóveda con biometría en este dispositivo.", null, true);
+      } else {
+        showConfirm("No se pudo activar", "No fue posible registrar Face ID / Touch ID en este dispositivo. Inténtalo de nuevo.", null, true);
+      }
+    }
+
     const formatCurrency = (amount) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
 
     const DEFAULT_ACCOUNTS = [
@@ -1809,6 +1836,11 @@
 
       updateBiometricLoginUI();
       updateBiometricSettingsUI();
+
+      const btnToggleBiometrics = document.getElementById('btn-toggle-biometrics');
+      if (btnToggleBiometrics) {
+        btnToggleBiometrics.addEventListener('click', toggleBiometrics);
+      }
     }
 
     function updateUserProfileUI(name, avatarBase64) {
