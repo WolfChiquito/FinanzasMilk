@@ -1589,6 +1589,44 @@
       }
     }
 
+    let biometricAttemptInProgress = false;
+
+    async function attemptAutoBiometricLogin() {
+      const hasEnrolled = !!localStorage.getItem('vault_biometric_id');
+      if (!hasEnrolled || biometricAttemptInProgress) return;
+
+      const isSupported = await checkBiometricsSupport();
+      if (!isSupported) return;
+
+      biometricAttemptInProgress = true;
+      const success = await authenticateBiometrics();
+      biometricAttemptInProgress = false;
+
+      if (success) {
+        unlockVault();
+      }
+      // Si falla (incluye bloqueo del navegador por falta de gesto del usuario),
+      // no se muestra error: la pantalla de login y el botón manual quedan como respaldo.
+    }
+
+    function setupBiometricFirstTapFallback() {
+      const hasEnrolled = !!localStorage.getItem('vault_biometric_id');
+      if (!hasEnrolled) return;
+
+      const loginScreenEl = document.getElementById('login-screen');
+      const biometricContainer = document.getElementById('biometric-login-container');
+      if (!loginScreenEl) return;
+
+      // Se dispara una sola vez, con el primer toque en cualquier parte de la pantalla de login.
+      // Necesario porque Safari (Face ID / Touch ID) bloquea WebAuthn si no viene de un gesto real.
+      loginScreenEl.addEventListener('click', (e) => {
+        if (biometricContainer && biometricContainer.contains(e.target)) return; // el botón ya maneja su propio clic
+        authenticateBiometrics().then(success => {
+          if (success) unlockVault();
+        });
+      }, { once: true });
+    }
+
     async function updateBiometricSettingsUI() {
       const section = document.getElementById('biometric-settings-section');
       const btnText = document.getElementById('biometrics-btn-text');
@@ -4277,6 +4315,8 @@
         }, 10);
       }
       clearTimeout(inactivityTimeout);
+      attemptAutoBiometricLogin();
+      setupBiometricFirstTapFallback();
     }
 
     function resetInactivityTimer() {
@@ -4488,6 +4528,8 @@
     checkBiometricsSupport().then(supported => {
       if (supported) {
         updateBiometricLoginUI();
+        attemptAutoBiometricLogin();
+        setupBiometricFirstTapFallback();
       }
     });
 
