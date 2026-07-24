@@ -915,6 +915,13 @@
               </div>
               <span id="text-diecast" class="text-[10px] font-bold absolute transition-all duration-500 whitespace-nowrap pointer-events-none type-text-inactive">DieCast</span>
             </button>
+
+            <button type="button" onclick="window.selectType('evento')" id="btn-type-evento" class="relative flex flex-col items-center justify-center w-12 h-12 rounded-full outline-none group">
+              <div id="icon-container-evento" class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 neon-ring-inactive">
+                <span class="text-xl transition-transform duration-500 group-hover:scale-110">📅</span>
+              </div>
+              <span id="text-evento" class="text-[10px] font-bold absolute transition-all duration-500 whitespace-nowrap pointer-events-none type-text-inactive">Evento</span>
+            </button>
             
           </div>
         </div>
@@ -949,7 +956,7 @@
         </div>
 
         <!-- Selector de Cuenta Origen -->
-        <div class="space-y-1.5">
+        <div id="container-account" class="space-y-1.5">
           <label id="label-account" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta / Cartera</label>
           <select id="form-account" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
             <!-- Cuentas inyectadas dinámicamente -->
@@ -965,7 +972,7 @@
         </div>
 
         <!-- Cantidad -->
-        <div class="space-y-1.5">
+        <div id="container-amount" class="space-y-1.5">
           <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Monto / Costo</label>
           <div class="relative">
             <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
@@ -977,6 +984,22 @@
         <div class="space-y-1.5">
           <label id="label-concept" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Concepto / Descripción</label>
           <input type="text" id="form-concept" required placeholder="Ej. Quincena, Despensa, Cine..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none text-white text-sm transition-colors placeholder:text-gray-650" />
+        </div>
+
+        <!-- Recordatorio del Evento (Visible solo para Eventos) -->
+        <div id="container-event-reminder" class="space-y-3 hidden bg-gray-900/60 border border-[#faff00]/20 rounded-2xl p-4">
+          <label for="form-event-reminder-toggle" class="flex items-center justify-between cursor-pointer">
+            <span class="flex items-center gap-2 text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              <i data-lucide="bell" class="w-4 h-4 text-[#faff00]"></i>
+              Activar Recordatorio
+            </span>
+            <input type="checkbox" id="form-event-reminder-toggle" class="w-5 h-5 accent-[#faff00] cursor-pointer">
+          </label>
+          <div id="container-event-reminder-time" class="hidden space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Hora del Recordatorio</label>
+            <input type="time" id="form-event-reminder-time" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none" />
+            <p class="text-[10px] text-gray-500">Se te notificará este mismo día a la hora indicada, igual que las notificaciones del menú de perfil.</p>
+          </div>
         </div>
 
         <!-- Botón Guardar -->
@@ -1698,7 +1721,8 @@
       gasto: { label: 'Gasto', emoji: '📉', color: '#ff007f', bgClass: 'bg-pink-500/10', textClass: 'text-pink-400', borderClass: 'border-pink-500/50' },
       ahorro: { label: 'Ahorro', emoji: '💰', color: '#7000ff', bgClass: 'bg-purple-500/10', textClass: 'text-purple-400', borderClass: 'border-purple-500/50' },
       diecast: { label: 'DieCast', emoji: '🚗', color: '#f59e0b', bgClass: 'bg-amber-500/10', textClass: 'text-amber-500', borderClass: 'border-amber-500/50' },
-      pago_tc: { label: 'Pago TC', emoji: '💳', color: '#10b981', bgClass: 'bg-emerald-500/10', textClass: 'text-emerald-500', borderClass: 'border-emerald-500/50' }
+      pago_tc: { label: 'Pago TC', emoji: '💳', color: '#10b981', bgClass: 'bg-emerald-500/10', textClass: 'text-emerald-500', borderClass: 'border-emerald-500/50' },
+      evento: { label: 'Evento', emoji: '📅', color: '#faff00', bgClass: 'bg-yellow-400/10', textClass: 'text-yellow-300', borderClass: 'border-yellow-400/50' }
     };
 
     const yearSelect = document.getElementById('year-select');
@@ -1962,7 +1986,12 @@
         let innerHTML = `<span class="text-xl md:text-2xl font-black tracking-tight w-full text-center mt-1 drop-shadow-sm">${day}</span>`;
 
         if (dayMovements.length > 0) {
-          let emojisHtml = dayMovements.slice(0, 3).map(m => `<span class="text-[11px] md:text-sm" title="${m.subcategory || CATEGORIES[m.type]?.label}: ${formatCurrency(m.amount)}">${m.subcategoryEmoji || (CATEGORIES[m.type] ? CATEGORIES[m.type].emoji : '🏷️')}</span>`).join('');
+          let emojisHtml = dayMovements.slice(0, 3).map(m => {
+            const tooltipTitle = m.type === 'evento'
+              ? `${m.concept || 'Evento'}${m.notificationId ? ' 🔔' : ''}`
+              : `${m.subcategory || CATEGORIES[m.type]?.label}: ${formatCurrency(m.amount)}`;
+            return `<span class="text-[11px] md:text-sm" title="${tooltipTitle}">${m.subcategoryEmoji || (CATEGORIES[m.type] ? CATEGORIES[m.type].emoji : '🏷️')}</span>`;
+          }).join('');
           if (dayMovements.length > 3) emojisHtml += `<span class="text-[10px] text-gray-400 font-bold">+${dayMovements.length - 3}</span>`;
           
           innerHTML += `<div class="mt-auto flex flex-wrap justify-center gap-0.5 w-full px-1 pb-1">${emojisHtml}</div>`;
@@ -2152,7 +2181,7 @@
         listContainer.innerHTML = '';
         
         Object.keys(CATEGORIES).forEach(type => {
-          if(type === 'pago_tc') return; 
+          if(type === 'pago_tc' || type === 'evento') return; 
           const cat = CATEGORIES[type];
           const val = totals[type] || 0;
           const percentage = totals.total > 0 ? ((val / totals.total) * 100).toFixed(1) : '0.0';
@@ -2235,7 +2264,7 @@
       const labelTime = searchMonth === 'all' ? 'Anual' : 'del Mes';
 
       Object.keys(CATEGORIES).forEach(type => {
-        if(type === 'pago_tc') return; 
+        if(type === 'pago_tc' || type === 'evento') return; 
         const cat = CATEGORIES[type];
         gridContainer.innerHTML += `
           <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:border-[#7000ff]/30">
@@ -2260,6 +2289,7 @@
 
       const lowerQuery = searchQuery.toLowerCase();
       const filtered = movements.filter(m => {
+        if (m.type === 'evento') return false;
         const d = new Date(m.date + 'T00:00:00');
         const matchYear = d.getFullYear() === searchYear;
         const matchMonth = searchMonth === 'all' || d.getMonth() === parseInt(searchMonth);
@@ -3395,6 +3425,7 @@
         const dateInput = document.getElementById('notify-date');
         const timeInput = document.getElementById('notify-time');
         const reasonInput = document.getElementById('notify-reason');
+        const repeatInput = document.getElementById('notify-repeat');
         
         if (!dateInput || !timeInput || !reasonInput) return;
 
@@ -3402,6 +3433,7 @@
           date: dateInput.value,
           time: timeInput.value,
           reason: reasonInput.value.trim(),
+          repeat: repeatInput ? repeatInput.value : 'once',
           triggered: false,
           timestamp: new Date().toISOString()
         };
@@ -3479,9 +3511,25 @@
               }
               
               try {
-                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
-                  triggered: true
-                });
+                if (n.repeat === 'monthly') {
+                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
+                  currentSchedDate.setMonth(currentSchedDate.getMonth() + 1);
+                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
+                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
+                    date: newDateStr
+                  });
+                } else if (n.repeat === 'annually') {
+                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
+                  currentSchedDate.setFullYear(currentSchedDate.getFullYear() + 1);
+                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
+                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
+                    date: newDateStr
+                  });
+                } else {
+                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
+                    triggered: true
+                  });
+                }
               } catch (e) {
                 console.error("Error al actualizar estado de notificación:", e);
               }
@@ -3547,81 +3595,29 @@
             errBox.classList.remove('hidden');
           }
           return;
-    const notifyForm = document.getElementById('notification-settings-form');
-    if (notifyForm) {
-      notifyForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const dateInput = document.getElementById('notify-date');
-        const timeInput = document.getElementById('notify-time');
-        const reasonInput = document.getElementById('notify-reason');
-        const repeatInput = document.getElementById('notify-repeat');
-        
-        if (!dateInput || !timeInput || !reasonInput) return;
+        }
 
-        const notifyData = {
-          date: dateInput.value,
-          time: timeInput.value,
-          reason: reasonInput.value.trim(),
-          repeat: repeatInput ? repeatInput.value : 'once',
-          triggered: false,
-          timestamp: new Date().toISOString()
-        };
+        if (newVal !== confirmVal) {
+          if (errBox && errText) {
+            errText.textContent = "Las contraseñas no coinciden.";
+            errBox.classList.remove('hidden');
+          }
+          return;
+        }
+
+        if (errBox) errBox.classList.add('hidden');
 
         try {
-          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), notifyData);
-          notifyForm.reset();
-          if ("Notification" in window && Notification.permission !== "granted") {
-            Notification.requestPermission();
-          }
+          await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'security'), { password: newVal }, { merge: true });
+          passwordSettingsForm.reset();
+          closePasswordSettingsModal();
+          showConfirm("Contraseña Actualizada", "Tu contraseña se cambió correctamente.", null, true);
         } catch (error) {
-          console.error("Error al programar notificación:", error);
-        }
-      });
-    }
-    function startNotificationTicker() {
-      setInterval(() => {
-        const now = new Date();
-        scheduledNotifications.forEach(async (n) => {
-          if (!n.triggered) {
-            const schedDateTime = new Date(`${n.date}T${n.time}:00`);
-            if (now >= schedDateTime) {
-              if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("Cuentas Personales - Recordatorio", {
-                  body: n.reason,
-                  icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>"
-                });
-              } else {
-                showConfirm("Recordatorio Alerta", n.reason, null, true);
-              }
-              
-              try {
-                if (n.repeat === 'monthly') {
-                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
-                  currentSchedDate.setMonth(currentSchedDate.getMonth() + 1);
-                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
-                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
-                    date: newDateStr
-                  });
-                } else if (n.repeat === 'annually') {
-                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
-                  currentSchedDate.setFullYear(currentSchedDate.getFullYear() + 1);
-                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
-                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
-                    date: newDateStr
-                  });
-                } else {
-                  await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
-                    triggered: true
-                  });
-                }
-              } catch (e) {
-                console.error("Error al actualizar estado de notificación:", e);
-              }
-            }
+          console.error("Error al actualizar la contraseña:", error);
+          if (errBox && errText) {
+            errText.textContent = "No se pudo actualizar la contraseña. Intenta de nuevo.";
+            errBox.classList.remove('hidden');
           }
-        });
-      }, 15000); // Comprobar cada 15 segundos
-    }
         }
       });
     }
@@ -3697,7 +3693,7 @@
       
       const monthMovements = movements.filter(m => {
         const d = new Date(m.date + 'T00:00:00');
-        return d.getFullYear() === year && d.getMonth() === month;
+        return d.getFullYear() === year && d.getMonth() === month && m.type !== 'evento';
       });
       
       return { year, monthName, monthMovements };
@@ -3935,7 +3931,7 @@
     function selectType(t) {
       formType = t;
       
-      const types = ['ingreso', 'gasto', 'ahorro', 'pago_tc', 'diecast'];
+      const types = ['ingreso', 'gasto', 'ahorro', 'pago_tc', 'diecast', 'evento'];
       
       types.forEach(type => {
         const iconContainer = document.getElementById(`icon-container-${type}`);
@@ -3959,9 +3955,24 @@
       const containerSubcategory = document.getElementById('container-subcategory');
       const containerPhoto = document.getElementById('container-photo');
       const containerTransfer = document.getElementById('container-transfer');
+      const containerAmount = document.getElementById('container-amount');
+      const containerAccount = document.getElementById('container-account');
+      const containerEventReminder = document.getElementById('container-event-reminder');
+      const amountInputEl = document.getElementById('form-amount');
+      const accountInputEl = document.getElementById('form-account');
+      const conceptInputEl = document.getElementById('form-concept');
       const labelConcept = document.getElementById('label-concept');
       const labelAccount = document.getElementById('label-account');
       const labelTransfer = document.getElementById('label-transfer');
+
+      // Por defecto (todos los tipos financieros) el monto y la cuenta son visibles y obligatorios,
+      // y el bloque de recordatorio de evento permanece oculto. El bloque "evento" más abajo invierte esto.
+      if (containerAmount) containerAmount.classList.remove('hidden');
+      if (containerAccount) containerAccount.classList.remove('hidden');
+      if (containerEventReminder) containerEventReminder.classList.add('hidden');
+      if (amountInputEl) amountInputEl.required = true;
+      if (accountInputEl) accountInputEl.required = true;
+      if (conceptInputEl) conceptInputEl.placeholder = 'Ej. Quincena, Despensa, Cine...';
 
       if (t === 'diecast') {
         if (containerSubcategory) containerSubcategory.classList.add('hidden');
@@ -3992,6 +4003,17 @@
           labelTransfer.classList.add('text-[#7000ff]');
         }
         updateSubcategorySelectors();
+      } else if (t === 'evento') {
+        if (containerSubcategory) containerSubcategory.classList.add('hidden');
+        if (containerPhoto) containerPhoto.classList.add('hidden');
+        if (containerTransfer) containerTransfer.classList.add('hidden');
+        if (containerAmount) containerAmount.classList.add('hidden');
+        if (containerAccount) containerAccount.classList.add('hidden');
+        if (containerEventReminder) containerEventReminder.classList.remove('hidden');
+        if (amountInputEl) amountInputEl.required = false;
+        if (accountInputEl) accountInputEl.required = false;
+        if (labelConcept) labelConcept.textContent = "Nombre del Evento";
+        if (conceptInputEl) conceptInputEl.placeholder = "Ej. Cumpleaños de Ana, Cita médica, Aniversario...";
       } else {
         if (containerSubcategory) containerSubcategory.classList.remove('hidden');
         if (containerPhoto) containerPhoto.classList.add('hidden');
@@ -4000,6 +4022,20 @@
         if (labelAccount) labelAccount.textContent = "Cuenta / Cartera";
         updateSubcategorySelectors();
       }
+    }
+
+    // Mostrar/ocultar la hora del recordatorio de evento según el checkbox
+    const eventReminderToggle = document.getElementById('form-event-reminder-toggle');
+    const containerEventReminderTime = document.getElementById('container-event-reminder-time');
+    if (eventReminderToggle) {
+      eventReminderToggle.addEventListener('change', () => {
+        if (containerEventReminderTime) {
+          containerEventReminderTime.classList.toggle('hidden', !eventReminderToggle.checked);
+        }
+        if (eventReminderToggle.checked && "Notification" in window) {
+          Notification.requestPermission();
+        }
+      });
     }
 
     // Lógica para previsualizar foto al crear o editar DieCast
@@ -4063,6 +4099,13 @@
       }
       if (formPhotoInput) formPhotoInput.value = '';
 
+      const reminderToggleEl = document.getElementById('form-event-reminder-toggle');
+      const reminderTimeInput = document.getElementById('form-event-reminder-time');
+      const reminderTimeContainer = document.getElementById('container-event-reminder-time');
+      if (reminderToggleEl) reminderToggleEl.checked = false;
+      if (reminderTimeInput) reminderTimeInput.value = '';
+      if (reminderTimeContainer) reminderTimeContainer.classList.add('hidden');
+
       if (existingMovement) {
         editingId = existingMovement.id;
         if (titleText) titleText.textContent = 'Editar Registro';
@@ -4086,6 +4129,15 @@
           const formToAcc = document.getElementById('form-to-account');
           if (formToAcc && existingMovement.toAccountId) {
             formToAcc.value = existingMovement.toAccountId;
+          }
+        }
+
+        if (formType === 'evento' && existingMovement.notificationId) {
+          const linkedReminder = scheduledNotifications.find(n => n.id === existingMovement.notificationId);
+          if (linkedReminder) {
+            if (reminderToggleEl) reminderToggleEl.checked = true;
+            if (reminderTimeInput) reminderTimeInput.value = linkedReminder.time;
+            if (reminderTimeContainer) reminderTimeContainer.classList.remove('hidden');
           }
         }
         
@@ -4205,6 +4257,55 @@
           movementData.subcategoryEmoji = subcatObj ? subcatObj.emoji : '🏷️';
           movementData.toAccountId = toAccountId;
           movementData.toAccount = toAccountObj ? toAccountObj.name : '';
+        } else if (formType === 'evento') {
+          const reminderToggleInput = document.getElementById('form-event-reminder-toggle');
+          const reminderTimeValueInput = document.getElementById('form-event-reminder-time');
+          const wantsReminder = reminderToggleInput ? reminderToggleInput.checked : false;
+          const reminderTime = reminderTimeValueInput ? reminderTimeValueInput.value : '';
+
+          if (wantsReminder && !reminderTime) {
+            window.alert('Selecciona una hora para el recordatorio del evento.');
+            return;
+          }
+
+          movementData.amount = 0;
+          movementData.accountId = '';
+          movementData.account = '';
+          movementData.subcategory = 'Evento';
+          movementData.subcategoryEmoji = CATEGORIES.evento.emoji;
+
+          const existingMovementForEdit = editingId ? movements.find(m => m.id === editingId) : null;
+          const existingNotificationId = existingMovementForEdit ? existingMovementForEdit.notificationId : null;
+
+          try {
+            if (wantsReminder) {
+              const notifyData = {
+                date: selectedDateStr,
+                time: reminderTime,
+                reason: concept || 'Evento',
+                repeat: 'once',
+                triggered: false,
+                timestamp: new Date().toISOString()
+              };
+              if (existingNotificationId) {
+                await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', existingNotificationId), notifyData);
+                movementData.notificationId = existingNotificationId;
+              } else {
+                const newNotifRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), notifyData);
+                movementData.notificationId = newNotifRef.id;
+              }
+              if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+              }
+            } else {
+              if (existingNotificationId) {
+                await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', existingNotificationId));
+              }
+              movementData.notificationId = null;
+            }
+          } catch (error) {
+            console.error("Error al programar el recordatorio del evento:", error);
+          }
         } else {
           movementData.subcategory = subcatObj ? subcatObj.name : 'General';
           movementData.subcategoryEmoji = subcatObj ? subcatObj.emoji : '🏷️';
@@ -4236,7 +4337,15 @@
         "Esta acción eliminará el registro de forma permanente de tu historial financiero. No se puede deshacer.",
         async () => {
           try {
+            const movementToDelete = movements.find(m => m.id === id);
             await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id));
+            if (movementToDelete && movementToDelete.notificationId) {
+              try {
+                await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', movementToDelete.notificationId));
+              } catch (notifError) {
+                console.error("Error al borrar el recordatorio vinculado:", notifError);
+              }
+            }
           } catch (error) {
             console.error("Error al borrar:", error);
           }
