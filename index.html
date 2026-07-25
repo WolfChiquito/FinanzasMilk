@@ -2630,7 +2630,10 @@
           : '';
           
         deck.innerHTML += `
-          <div onclick="window.openAccountDetails('${acc.id}')" class="bg-gray-900/40 p-4 rounded-xl border border-gray-800 flex items-center gap-3 shadow-md cursor-pointer hover:scale-[1.03] active:scale-[0.98] hover:border-[#00f0ff]/30 transition-all duration-300">
+          <div data-account-id="${acc.id}" onclick="window.openAccountDetails('${acc.id}')" class="relative bg-gray-900/40 p-4 rounded-xl border border-gray-800 flex items-center gap-3 shadow-md cursor-pointer hover:scale-[1.03] active:scale-[0.98] hover:border-[#00f0ff]/30 transition-all duration-300">
+            <span data-drag-handle onclick="event.stopPropagation()" style="touch-action: none;" class="absolute top-1 right-1 p-1 text-gray-600 hover:text-gray-300 cursor-grab active:cursor-grabbing touch-none select-none z-10" title="Arrastra para reordenar">
+              <i data-lucide="grip-vertical" class="w-3.5 h-3.5 pointer-events-none"></i>
+            </span>
             <span class="text-3xl p-2 bg-gray-950 rounded-lg">${acc.emoji}</span>
             <div class="overflow-hidden w-full">
               <h3 class="text-xs text-gray-400 font-medium truncate w-full">${acc.name}</h3>
@@ -2640,6 +2643,8 @@
           </div>
         `;
       });
+      lucide.createIcons();
+      attachMainAccountsDragEvents();
 
       const totalNetWorthEl = document.getElementById('total-net-worth');
       if (totalNetWorthEl) {
@@ -3122,6 +3127,71 @@
         handle.addEventListener('pointerup', finishDrag);
         handle.addEventListener('pointercancel', () => {
           row.classList.remove('opacity-50', 'shadow-lg');
+          dragState = null;
+          clearDropIndicators();
+        });
+      });
+    }
+
+    // Habilita reordenar las cuentas arrastrando directamente desde las tarjetas de la
+    // pantalla principal (mismo mecanismo que en el gestor de cuentas). Como aquí las
+    // tarjetas están en una cuadrícula en vez de una lista vertical, la mitad de referencia
+    // para decidir "antes/después" es la horizontal (izquierda/derecha) en vez de la vertical.
+    function attachMainAccountsDragEvents() {
+      const container = document.getElementById('accounts-deck');
+      if (!container) return;
+      let dragState = null;
+
+      const clearDropIndicators = () => {
+        container.querySelectorAll('[data-account-id]').forEach(c => {
+          c.classList.remove('border-l-4', 'border-l-[#00f0ff]', 'border-r-4', 'border-r-[#00f0ff]');
+          delete c.dataset.dropPosition;
+        });
+      };
+
+      container.querySelectorAll('[data-account-id]').forEach(card => {
+        const handle = card.querySelector('[data-drag-handle]');
+        if (!handle) return;
+
+        handle.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dragState = { draggedId: card.getAttribute('data-account-id'), pointerId: e.pointerId };
+          card.classList.add('opacity-50', 'shadow-lg');
+          handle.setPointerCapture(e.pointerId);
+        });
+
+        handle.addEventListener('pointermove', (e) => {
+          if (!dragState || dragState.pointerId !== e.pointerId) return;
+          clearDropIndicators();
+          const overEl = document.elementFromPoint(e.clientX, e.clientY);
+          const target = overEl ? overEl.closest('[data-account-id]') : null;
+          if (target && target !== card) {
+            const rect = target.getBoundingClientRect();
+            const isLeftHalf = e.clientX < rect.left + rect.width / 2;
+            target.classList.add(isLeftHalf ? 'border-l-4' : 'border-r-4', isLeftHalf ? 'border-l-[#00f0ff]' : 'border-r-[#00f0ff]');
+            target.dataset.dropPosition = isLeftHalf ? 'before' : 'after';
+          }
+        });
+
+        const finishDrag = async (e) => {
+          if (!dragState || dragState.pointerId !== e.pointerId) return;
+          card.classList.remove('opacity-50', 'shadow-lg');
+          const overEl = document.elementFromPoint(e.clientX, e.clientY);
+          const target = overEl ? overEl.closest('[data-account-id]') : null;
+          const draggedId = dragState.draggedId;
+          const dropPosition = target ? target.dataset.dropPosition : null;
+          dragState = null;
+          clearDropIndicators();
+
+          if (target && target.getAttribute('data-account-id') !== draggedId) {
+            await reorderAccounts(draggedId, target.getAttribute('data-account-id'), dropPosition || 'before');
+          }
+        };
+
+        handle.addEventListener('pointerup', finishDrag);
+        handle.addEventListener('pointercancel', () => {
+          card.classList.remove('opacity-50', 'shadow-lg');
           dragState = null;
           clearDropIndicators();
         });
