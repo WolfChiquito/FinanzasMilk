@@ -995,10 +995,26 @@
             </span>
             <input type="checkbox" id="form-event-reminder-toggle" class="w-5 h-5 accent-[#faff00] cursor-pointer">
           </label>
-          <div id="container-event-reminder-time" class="hidden space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Hora del Recordatorio</label>
-            <input type="time" id="form-event-reminder-time" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none" />
-            <p class="text-[10px] text-gray-500">Se te notificará este mismo día a la hora indicada, igual que las notificaciones del menú de perfil.</p>
+          <div id="container-event-reminder-time" class="hidden space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="space-y-1.5">
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Fecha del Recordatorio</label>
+                <input type="date" id="form-event-reminder-date" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none" />
+              </div>
+              <div class="space-y-1.5">
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Hora del Recordatorio</label>
+                <input type="time" id="form-event-reminder-time" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none" />
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Repetir Recordatorio</label>
+              <select id="form-event-reminder-repeat" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none cursor-pointer">
+                <option value="once" class="bg-gray-950 text-white">No repetir (Solo una vez)</option>
+                <option value="monthly" class="bg-gray-950 text-white">Repetir cada mes (Mensual)</option>
+                <option value="annually" class="bg-gray-950 text-white">Repetir cada año (Anual)</option>
+              </select>
+            </div>
+            <p class="text-[10px] text-gray-500">Se te notificará en la fecha y hora indicadas, igual que las notificaciones del menú de perfil.</p>
           </div>
         </div>
 
@@ -2289,7 +2305,6 @@
 
       const lowerQuery = searchQuery.toLowerCase();
       const filtered = movements.filter(m => {
-        if (m.type === 'evento') return false;
         const d = new Date(m.date + 'T00:00:00');
         const matchYear = d.getFullYear() === searchYear;
         const matchMonth = searchMonth === 'all' || d.getMonth() === parseInt(searchMonth);
@@ -2309,8 +2324,9 @@
 
       filtered.forEach(m => {
         const cat = CATEGORIES[m.type] || CATEGORIES.gasto;
+        const isEvent = m.type === 'evento';
         const assignedAcc = accounts.find(a => a.id === m.accountId);
-        let accountLabel = assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo';
+        let accountLabel = isEvent ? '—' : (assignedAcc ? `${assignedAcc.emoji} ${assignedAcc.name}` : '💵 Efectivo');
         
         const isTransfer = isTransferMovement(m);
         if (isTransfer) {
@@ -2336,9 +2352,9 @@
             </div>
           </td>
           <td class="py-3 px-4 text-gray-300 font-medium whitespace-nowrap">${accountLabel}</td>
-          <td class="py-3 px-4 text-gray-300 max-w-xs truncate">${m.concept}</td>
+          <td class="py-3 px-4 text-gray-300 max-w-xs truncate">${m.concept}${isEvent && m.notificationId ? ' 🔔' : ''}</td>
           <td class="py-3 px-4 text-right font-bold ${cat.textClass}">
-            ${isExpense ? '-' : (isTransfer ? '' : '+')}${formatCurrency(m.amount)}
+            ${isEvent ? '—' : `${isExpense ? '-' : (isTransfer ? '' : '+')}${formatCurrency(m.amount)}`}
           </td>
           <td class="py-3 px-4 text-center">
             <div class="flex items-center justify-center gap-2">
@@ -4100,10 +4116,14 @@
       if (formPhotoInput) formPhotoInput.value = '';
 
       const reminderToggleEl = document.getElementById('form-event-reminder-toggle');
+      const reminderDateInput = document.getElementById('form-event-reminder-date');
       const reminderTimeInput = document.getElementById('form-event-reminder-time');
+      const reminderRepeatInput = document.getElementById('form-event-reminder-repeat');
       const reminderTimeContainer = document.getElementById('container-event-reminder-time');
       if (reminderToggleEl) reminderToggleEl.checked = false;
+      if (reminderDateInput) reminderDateInput.value = dateStr;
       if (reminderTimeInput) reminderTimeInput.value = '';
+      if (reminderRepeatInput) reminderRepeatInput.value = 'once';
       if (reminderTimeContainer) reminderTimeContainer.classList.add('hidden');
 
       if (existingMovement) {
@@ -4136,7 +4156,9 @@
           const linkedReminder = scheduledNotifications.find(n => n.id === existingMovement.notificationId);
           if (linkedReminder) {
             if (reminderToggleEl) reminderToggleEl.checked = true;
+            if (reminderDateInput) reminderDateInput.value = linkedReminder.date || dateStr;
             if (reminderTimeInput) reminderTimeInput.value = linkedReminder.time;
+            if (reminderRepeatInput) reminderRepeatInput.value = linkedReminder.repeat || 'once';
             if (reminderTimeContainer) reminderTimeContainer.classList.remove('hidden');
           }
         }
@@ -4259,12 +4281,16 @@
           movementData.toAccount = toAccountObj ? toAccountObj.name : '';
         } else if (formType === 'evento') {
           const reminderToggleInput = document.getElementById('form-event-reminder-toggle');
+          const reminderDateValueInput = document.getElementById('form-event-reminder-date');
           const reminderTimeValueInput = document.getElementById('form-event-reminder-time');
+          const reminderRepeatValueInput = document.getElementById('form-event-reminder-repeat');
           const wantsReminder = reminderToggleInput ? reminderToggleInput.checked : false;
+          const reminderDate = reminderDateValueInput ? reminderDateValueInput.value : '';
           const reminderTime = reminderTimeValueInput ? reminderTimeValueInput.value : '';
+          const reminderRepeat = reminderRepeatValueInput ? reminderRepeatValueInput.value : 'once';
 
-          if (wantsReminder && !reminderTime) {
-            window.alert('Selecciona una hora para el recordatorio del evento.');
+          if (wantsReminder && (!reminderDate || !reminderTime)) {
+            window.alert('Selecciona una fecha y hora para el recordatorio del evento.');
             return;
           }
 
@@ -4280,10 +4306,10 @@
           try {
             if (wantsReminder) {
               const notifyData = {
-                date: selectedDateStr,
+                date: reminderDate,
                 time: reminderTime,
                 reason: concept || 'Evento',
-                repeat: 'once',
+                repeat: reminderRepeat,
                 triggered: false,
                 timestamp: new Date().toISOString()
               };
