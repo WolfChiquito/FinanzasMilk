@@ -4906,7 +4906,7 @@
         return;
       }
 
-      tasks.forEach(t => {
+      tasks.forEach((t, idx) => {
         if (editingTaskId === t.id) {
           container.innerHTML += `
             <div class="flex items-center gap-2 bg-gray-950/60 border border-[#00f0ff]/40 rounded-xl px-3 py-2">
@@ -4925,6 +4925,12 @@
             <div class="group flex items-center gap-2 bg-gray-950/60 border border-gray-800/80 rounded-xl px-3 py-2">
               <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskCompleted('${t.id}')" class="w-[18px] h-[18px] rounded accent-[#00f0ff] cursor-pointer flex-shrink-0" title="Marcar como completada" />
               <span class="flex-1 text-sm truncate ${t.completed ? 'underline decoration-2 decoration-[#00f0ff]/70 text-gray-500' : 'text-gray-200'}">${escapeHtml(t.text)}${linkedBadge}</span>
+              <button onclick="window.moveTaskUp('${t.id}')" ${idx === 0 ? 'disabled' : ''} class="p-1 rounded-lg transition-colors flex-shrink-0 ${idx === 0 ? 'text-gray-700 cursor-not-allowed' : 'text-gray-500 hover:text-[#00f0ff] hover:bg-cyan-500/10'}" title="Subir">
+                <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="window.moveTaskDown('${t.id}')" ${idx === tasks.length - 1 ? 'disabled' : ''} class="p-1 rounded-lg transition-colors flex-shrink-0 ${idx === tasks.length - 1 ? 'text-gray-700 cursor-not-allowed' : 'text-gray-500 hover:text-[#00f0ff] hover:bg-cyan-500/10'}" title="Bajar">
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+              </button>
               <button onclick="window.startEditTask('${t.id}')" class="p-1 text-gray-500 hover:text-[#00f0ff] rounded-lg hover:bg-cyan-500/10 transition-colors flex-shrink-0" title="Editar">
                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
               </button>
@@ -5053,6 +5059,29 @@
         },
         false
       );
+    }
+
+    async function swapTaskOrder(taskA, taskB) {
+      try {
+        const createdAtA = taskA.createdAt;
+        const createdAtB = taskB.createdAt;
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', taskA.id), { createdAt: createdAtB });
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', taskB.id), { createdAt: createdAtA });
+      } catch (error) {
+        console.error("Error al reordenar las tareas:", error);
+      }
+    }
+
+    async function moveTaskUp(id) {
+      const idx = tasks.findIndex(t => t.id === id);
+      if (idx <= 0) return;
+      await swapTaskOrder(tasks[idx], tasks[idx - 1]);
+    }
+
+    async function moveTaskDown(id) {
+      const idx = tasks.findIndex(t => t.id === id);
+      if (idx === -1 || idx >= tasks.length - 1) return;
+      await swapTaskOrder(tasks[idx], tasks[idx + 1]);
     }
 
     // --- Vincular la tarea al calendario como evento ---
@@ -5193,6 +5222,8 @@
     window.saveEditTask = saveEditTask;
     window.cancelEditTask = cancelEditTask;
     window.deleteTask = deleteTask;
+    window.moveTaskUp = moveTaskUp;
+    window.moveTaskDown = moveTaskDown;
 
     // Cierre de modales con Escape y Clic Fuera
     window.addEventListener('keydown', (e) => {
