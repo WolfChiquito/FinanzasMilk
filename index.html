@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cuentas</title>
+  <title>Cuentas Personales</title>
   
   <!-- Icono de Favoritos -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💰</text></svg>">
@@ -2169,29 +2169,11 @@
         const offsetValues = dataValues.map(() => 0);
 
         const isPC = window.innerWidth >= 768;
+        const leftRightPadding = isPC ? 85 : 25; 
         const topBottomPadding = isPC ? 15 : 12;
         const labelFontSize = isPC ? '12px' : '10px';
         const subLabelFontSize = isPC ? '10px' : '8px';
-        const lineOffset = isPC ? 10 : 8;
-
-        // El padding horizontal se calcula midiendo el texto real (nombre y monto)
-        // más ancho, así las etiquetas nunca quedan cortadas en pantallas chicas.
-        let maxLabelTextWidth = 0;
-        if (labels[0] !== 'Sin datos') {
-          const measureCtx = ctx.getContext('2d');
-          const totalForMeasure = dataValues.reduce((a, b) => a + b, 0);
-          dataValues.forEach((val, i) => {
-            if (!val) return;
-            const percent = totalForMeasure > 0 ? ((val / totalForMeasure) * 100).toFixed(1) : 0;
-            const formattedValue = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val);
-            measureCtx.font = `bold ${labelFontSize} sans-serif`;
-            maxLabelTextWidth = Math.max(maxLabelTextWidth, measureCtx.measureText(labels[i]).width);
-            measureCtx.font = `normal ${subLabelFontSize} sans-serif`;
-            maxLabelTextWidth = Math.max(maxLabelTextWidth, measureCtx.measureText(`${percent}% | ${formattedValue}`).width);
-          });
-        }
-        const minPadding = isPC ? 70 : 46;
-        const leftRightPadding = Math.max(minPadding, Math.ceil(maxLabelTextWidth) + (isPC ? 26 : 18));
+        const lineOffset = isPC ? 10 : 8; 
 
         if (!Chart.Tooltip.positioners.cursor) {
           Chart.Tooltip.positioners.cursor = function(elements, eventPosition) {
@@ -2218,108 +2200,54 @@
             afterDraw(chart) {
               if (chart.data.labels[0] === 'Sin datos') return;
               const { ctx, chartArea: { top, bottom, left, right, width, height } } = chart;
-
+              
               const dataset = chart.data.datasets[0];
               const meta = chart.getDatasetMeta(0);
               if (!meta || !meta.data) return;
 
               const currentTotal = dataset.data.reduce((a, b) => a + b, 0);
-              const centerX = left + width / 2;
-              const centerY = top + height / 2;
-              const elbowExtension = isPC ? 14 : 10;
-              const minGap = isPC ? 32 : 24;
-              const minY = top - topBottomPadding + (isPC ? 16 : 12);
-              const maxY = bottom + topBottomPadding - (isPC ? 16 : 12);
 
-              // 1) Posición natural de cada etiqueta, justo a la salida de su rebanada
-              const items = [];
               meta.data.forEach((datapoint, index) => {
                 const value = dataset.data[index];
                 if (!value || value === 0) return;
-
-                let arcPoint;
+                
+                let centerPoint;
                 try {
-                  arcPoint = datapoint.tooltipPosition();
-                } catch (e) {
+                  centerPoint = datapoint.tooltipPosition();
+                } catch(e) {
                   return;
                 }
-
-                const angle = Math.atan2(arcPoint.y - centerY, arcPoint.x - centerX);
-                const side = Math.cos(angle) >= 0 ? 1 : -1;
-                const bendX = arcPoint.x + Math.cos(angle) * lineOffset;
-                const bendY = arcPoint.y + Math.sin(angle) * lineOffset;
-
-                const percent = currentTotal > 0 ? ((value / currentTotal) * 100).toFixed(1) : 0;
-                const formattedValue = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
-
-                items.push({
-                  side,
-                  arcX: arcPoint.x,
-                  arcY: arcPoint.y,
-                  bendX,
-                  bendY,
-                  finalY: bendY,
-                  color: dataset.borderColor[index],
-                  title: chart.data.labels[index],
-                  subtitle: `${percent}% | ${formattedValue}`
-                });
-              });
-
-              // 2) Por lado (izquierda/derecha), separar verticalmente las que se encimarían
-              [-1, 1].forEach(sideVal => {
-                const group = items.filter(it => it.side === sideVal).sort((a, b) => a.finalY - b.finalY);
-                for (let i = 1; i < group.length; i++) {
-                  if (group[i].finalY - group[i - 1].finalY < minGap) {
-                    group[i].finalY = group[i - 1].finalY + minGap;
-                  }
-                }
-                if (group.length) {
-                  const overflow = group[group.length - 1].finalY - maxY;
-                  if (overflow > 0) {
-                    group.forEach(it => { it.finalY -= overflow; });
-                    for (let i = group.length - 2; i >= 0; i--) {
-                      if (group[i + 1].finalY - group[i].finalY < minGap) {
-                        group[i].finalY = group[i + 1].finalY - minGap;
-                      }
-                    }
-                  }
-                  if (group[0].finalY < minY) {
-                    const shiftUp = minY - group[0].finalY;
-                    group.forEach(it => { it.finalY += shiftUp; });
-                  }
-                }
-              });
-
-              // 3) Dibujar: línea corta hacia afuera, con un pequeño codo solo si
-              // la etiqueta tuvo que recorrerse para no encimarse con otra
-              items.forEach(item => {
-                const needsElbow = Math.abs(item.finalY - item.bendY) > 1.5;
-                const elbowX = item.bendX + item.side * elbowExtension;
-                const textX = needsElbow ? elbowX : item.bendX;
+                
+                const x = centerPoint.x;
+                const y = centerPoint.y;
+                
+                const centerX = left + width / 2;
+                const centerY = top + height / 2;
+                const angle = Math.atan2(y - centerY, x - centerX);
+                
+                const endX = x + Math.cos(angle) * lineOffset;
+                const endY = y + Math.sin(angle) * lineOffset;
 
                 ctx.beginPath();
-                ctx.moveTo(item.arcX, item.arcY);
-                if (needsElbow) {
-                  ctx.lineTo(item.bendX, item.bendY);
-                  ctx.lineTo(elbowX, item.finalY);
-                } else {
-                  ctx.lineTo(item.bendX, item.finalY);
-                }
-                ctx.strokeStyle = item.color;
+                ctx.moveTo(x, y);
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = dataset.borderColor[index];
                 ctx.lineWidth = isPC ? 2 : 1.5;
                 ctx.stroke();
 
-                ctx.textAlign = item.side > 0 ? 'left' : 'right';
+                ctx.textAlign = Math.cos(angle) > 0 ? 'left' : 'right';
                 ctx.textBaseline = 'middle';
-                const padding = item.side > 0 ? 5 : -5;
-
-                ctx.fillStyle = item.color;
+                const padding = Math.cos(angle) > 0 ? 5 : -5;
+                
+                ctx.fillStyle = dataset.borderColor[index];
                 ctx.font = `bold ${labelFontSize} sans-serif`;
-                ctx.fillText(item.title, textX + padding, item.finalY - 6);
+                ctx.fillText(chart.data.labels[index], endX + padding, endY - 6);
 
+                const percent = currentTotal > 0 ? ((value / currentTotal) * 100).toFixed(1) : 0;
                 ctx.fillStyle = document.body.classList.contains('light-theme') ? '#6e6183' : '#9ca3af';
                 ctx.font = `normal ${subLabelFontSize} sans-serif`;
-                ctx.fillText(item.subtitle, textX + padding, item.finalY + 6);
+                const formattedValue = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(value);
+                ctx.fillText(`${percent}% | ${formattedValue}`, endX + padding, endY + 6);
               });
             }
           };
