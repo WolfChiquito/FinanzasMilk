@@ -1119,7 +1119,10 @@
 
         <!-- Listado de Cuentas Existentes -->
         <div class="space-y-3">
-          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Cuentas Activas</h4>
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Cuentas Activas</h4>
+            <span class="text-[10px] text-gray-500 flex items-center gap-1"><i data-lucide="grip-vertical" class="w-3 h-3"></i> Arrastra para reordenar</span>
+          </div>
           <div id="accounts-manager-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
             <!-- Elementos inyectados por JS -->
           </div>
@@ -1717,6 +1720,18 @@
       { id: 'acc_mercadolibre', name: 'MercadoLibre', emoji: '📦', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' }
     ];
 
+    // Ordena las cuentas según el orden manual guardado (campo 'order').
+    // Si una cuenta aún no tiene 'order' (cuentas creadas antes de esta función),
+    // se ubica después de las que sí lo tienen, usando su fecha de creación como respaldo.
+    function sortAccountsByOrder(list) {
+      return [...list].sort((a, b) => {
+        const orderA = typeof a.order === 'number' ? a.order : Infinity;
+        const orderB = typeof b.order === 'number' ? b.order : Infinity;
+        if (orderA !== orderB) return orderA - orderB;
+        return (a.timestamp || '').localeCompare(b.timestamp || '');
+      });
+    }
+
     const DEFAULT_SUBCATEGORIES = [
       { id: 'sub_sueldo', type: 'ingreso', name: 'Sueldo', emoji: '💼', isDefault: true },
       { id: 'sub_inversiones', type: 'ingreso', name: 'Inversiones', emoji: '📈', isDefault: true },
@@ -1792,7 +1807,8 @@
           ...doc.data()
         }));
         if (loadedAccounts.length === 0) {
-          for (const acc of DEFAULT_ACCOUNTS) {
+          for (let i = 0; i < DEFAULT_ACCOUNTS.length; i++) {
+            const acc = DEFAULT_ACCOUNTS[i];
             await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'accounts', acc.id), {
               name: acc.name,
               emoji: acc.emoji,
@@ -1800,12 +1816,13 @@
               initialBalanceDate: acc.initialBalanceDate || new Date().toISOString().split('T')[0],
               isDefault: false,
               accountType: acc.accountType || 'debito',
+              order: i,
               timestamp: new Date().toISOString()
             });
           }
           return;
         }
-        accounts = loadedAccounts;
+        accounts = sortAccountsByOrder(loadedAccounts);
         renderAccountsSection();
         updateAccountsSelectors();
         renderApp();
@@ -2499,8 +2516,6 @@
         accountBalances.push({ ...acc, balance });
       });
 
-      accountBalances.sort((a, b) => b.balance - a.balance);
-
       accountBalances.forEach(acc => {
         if (acc.accountType === 'credito') {
           debts.push(acc);
@@ -2921,13 +2936,18 @@
           : '';
           
         container.innerHTML += `
-          <div class="flex items-center justify-between bg-gray-900/60 p-2.5 rounded-xl border border-gray-800">
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold text-white flex items-center gap-2">
-                <span class="text-lg bg-gray-950 px-1.5 py-0.5 rounded">${acc.emoji}</span>
-                ${acc.name} ${typeBadge}
+          <div data-account-id="${acc.id}" class="flex items-center justify-between bg-gray-900/60 p-2.5 rounded-xl border border-gray-800 transition-colors">
+            <div class="flex items-center gap-1.5">
+              <span data-drag-handle style="touch-action: none;" class="p-1 -ml-1 text-gray-600 hover:text-gray-300 cursor-grab active:cursor-grabbing touch-none select-none" title="Arrastra para reordenar">
+                <i data-lucide="grip-vertical" class="w-4 h-4 pointer-events-none"></i>
               </span>
-              ${acc.initialBalance > 0 ? `<span class="text-[10px] text-gray-400 mt-1">S. Inicial: ${formatCurrency(acc.initialBalance)} (${acc.initialBalanceDate})</span>` : ''}
+              <div class="flex flex-col">
+                <span class="text-sm font-semibold text-white flex items-center gap-2">
+                  <span class="text-lg bg-gray-950 px-1.5 py-0.5 rounded">${acc.emoji}</span>
+                  ${acc.name} ${typeBadge}
+                </span>
+                ${acc.initialBalance > 0 ? `<span class="text-[10px] text-gray-400 mt-1">S. Inicial: ${formatCurrency(acc.initialBalance)} (${acc.initialBalanceDate})</span>` : ''}
+              </div>
             </div>
             <div class="flex items-center gap-1">
               <button onclick="window.editAccount('${acc.id}')" class="p-1 text-gray-400 hover:text-[#00f0ff] rounded-lg hover:bg-cyan-500/10 transition-colors" title="Editar">
@@ -2941,6 +2961,95 @@
         `;
       });
       lucide.createIcons();
+      attachAccountsDragEvents();
+    }
+
+    // Habilita reordenar las cuentas arrastrando (compatible con mouse y con el dedo en móvil
+    // mediante Pointer Events). Solo el ícono "grip" de cada fila inicia el arrastre.
+    function attachAccountsDragEvents() {
+      const container = document.getElementById('accounts-manager-list');
+      if (!container) return;
+      let dragState = null;
+
+      const clearDropIndicators = () => {
+        container.querySelectorAll('[data-account-id]').forEach(r => {
+          r.classList.remove('border-t-2', 'border-t-[#00f0ff]', 'border-b-2', 'border-b-[#00f0ff]');
+          delete r.dataset.dropPosition;
+        });
+      };
+
+      container.querySelectorAll('[data-account-id]').forEach(row => {
+        const handle = row.querySelector('[data-drag-handle]');
+        if (!handle) return;
+
+        handle.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          dragState = { draggedId: row.getAttribute('data-account-id'), pointerId: e.pointerId };
+          row.classList.add('opacity-50', 'shadow-lg');
+          handle.setPointerCapture(e.pointerId);
+        });
+
+        handle.addEventListener('pointermove', (e) => {
+          if (!dragState || dragState.pointerId !== e.pointerId) return;
+          clearDropIndicators();
+          const overEl = document.elementFromPoint(e.clientX, e.clientY);
+          const target = overEl ? overEl.closest('[data-account-id]') : null;
+          if (target && target !== row) {
+            const rect = target.getBoundingClientRect();
+            const isTopHalf = e.clientY < rect.top + rect.height / 2;
+            target.classList.add(isTopHalf ? 'border-t-2' : 'border-b-2', isTopHalf ? 'border-t-[#00f0ff]' : 'border-b-[#00f0ff]');
+            target.dataset.dropPosition = isTopHalf ? 'before' : 'after';
+          }
+        });
+
+        const finishDrag = async (e) => {
+          if (!dragState || dragState.pointerId !== e.pointerId) return;
+          row.classList.remove('opacity-50', 'shadow-lg');
+          const overEl = document.elementFromPoint(e.clientX, e.clientY);
+          const target = overEl ? overEl.closest('[data-account-id]') : null;
+          const draggedId = dragState.draggedId;
+          const dropPosition = target ? target.dataset.dropPosition : null;
+          dragState = null;
+          clearDropIndicators();
+
+          if (target && target.getAttribute('data-account-id') !== draggedId) {
+            await reorderAccounts(draggedId, target.getAttribute('data-account-id'), dropPosition || 'before');
+          }
+        };
+
+        handle.addEventListener('pointerup', finishDrag);
+        handle.addEventListener('pointercancel', () => {
+          row.classList.remove('opacity-50', 'shadow-lg');
+          dragState = null;
+          clearDropIndicators();
+        });
+      });
+    }
+
+    // Aplica el nuevo orden localmente (para respuesta inmediata) y lo guarda en Firestore
+    // reescribiendo el campo 'order' de todas las cuentas según su nueva posición.
+    async function reorderAccounts(draggedId, targetId, position) {
+      const list = [...accounts];
+      const fromIndex = list.findIndex(a => a.id === draggedId);
+      if (fromIndex === -1) return;
+      const [movedAccount] = list.splice(fromIndex, 1);
+      let toIndex = list.findIndex(a => a.id === targetId);
+      if (toIndex === -1) toIndex = list.length;
+      if (position === 'after') toIndex += 1;
+      list.splice(toIndex, 0, movedAccount);
+
+      accounts = list;
+      renderAccountsManagerList();
+      renderAccountsSection();
+      updateAccountsSelectors();
+
+      try {
+        await Promise.all(list.map((acc, index) =>
+          updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'accounts', acc.id), { order: index })
+        ));
+      } catch (error) {
+        console.error("Error al guardar el nuevo orden de cuentas:", error);
+      }
     }
 
     function editAccount(id) {
