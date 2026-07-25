@@ -619,6 +619,32 @@
               </div>
             </div>
           </div>
+
+          <!-- APARTADO DE TAREAS -->
+          <div id="tasks-section" class="mb-6 print:hidden">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="list-checks" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Tareas
+              </h3>
+              <button id="btn-add-task" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Añadir tarea">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <form id="add-task-form" class="hidden mb-2.5 flex items-center gap-2 animate-pop">
+              <input type="text" id="new-task-input" maxlength="200" placeholder="Escribe una tarea..." class="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none placeholder:text-gray-600" />
+              <button type="submit" class="p-2 bg-[#00f0ff]/15 text-[#00f0ff] rounded-lg hover:bg-[#00f0ff]/25 transition-colors flex-shrink-0" title="Guardar tarea">
+                <i data-lucide="check" class="w-4 h-4"></i>
+              </button>
+              <button type="button" id="btn-cancel-add-task" class="p-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors flex-shrink-0" title="Cancelar">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </form>
+
+            <div id="tasks-list" class="space-y-2 max-h-44 overflow-y-auto pr-1">
+              <!-- Renderizado dinámico -->
+            </div>
+          </div>
           
           <div id="donut-chart-container" class="flex justify-center mb-8 relative w-full h-64 md:h-80 lg:h-96 max-w-md md:max-w-lg lg:max-w-xl mx-auto cursor-pointer">
             <canvas id="month-donut-canvas"></canvas>
@@ -1485,6 +1511,68 @@
     </div>
   </div>
 
+  <!-- MODAL: AÑADIR TAREA AL CALENDARIO COMO EVENTO -->
+  <div id="task-calendar-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-[100] hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="task-calendar-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2 text-white">
+          <i data-lucide="calendar-plus" class="w-5 h-5 text-[#faff00]"></i>
+          Añadir al Calendario
+        </h3>
+        <button id="btn-close-task-calendar-modal" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5">
+        <p class="text-sm text-gray-300 leading-relaxed">
+          ¿Quieres agregar <span id="task-calendar-task-name" class="font-bold text-white"></span> a tu calendario como evento?
+        </p>
+
+        <!-- Paso 1: Pregunta Sí/No -->
+        <div id="task-calendar-step1" class="flex gap-3">
+          <button id="btn-task-calendar-no" type="button" class="flex-1 bg-gray-850 hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold py-3 rounded-2xl text-xs transition-colors">
+            Ahora no
+          </button>
+          <button id="btn-task-calendar-yes" type="button" class="flex-1 bg-gradient-to-r from-[#7000ff] to-[#ff007f] hover:brightness-110 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md">
+            Sí, agregar
+          </button>
+        </div>
+
+        <!-- Paso 2: Fecha, hora y notificación -->
+        <div id="task-calendar-step2" class="hidden space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Fecha</label>
+              <input type="date" id="task-calendar-date" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Hora</label>
+              <input type="time" id="task-calendar-time" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 text-white text-sm focus:border-[#faff00] outline-none" />
+            </div>
+          </div>
+
+          <label for="task-calendar-notify" class="flex items-center justify-between cursor-pointer bg-gray-900/60 border border-[#faff00]/20 rounded-2xl p-4">
+            <span class="flex items-center gap-2 text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              <i data-lucide="bell" class="w-4 h-4 text-[#faff00]"></i>
+              ¿Enviar notificación?
+            </span>
+            <input type="checkbox" id="task-calendar-notify" class="w-5 h-5 accent-[#faff00] cursor-pointer">
+          </label>
+
+          <div class="flex gap-3">
+            <button id="btn-task-calendar-back" type="button" class="flex-1 bg-gray-850 hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold py-3 rounded-2xl text-xs transition-colors">
+              Cancelar
+            </button>
+            <button id="btn-task-calendar-save" type="button" class="flex-1 bg-gradient-to-r from-[#7000ff] to-[#ff007f] hover:brightness-110 text-white font-bold py-3 rounded-2xl text-xs transition-all shadow-md">
+              Guardar Evento
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SCRIPT PRINCIPAL DE LA APLICACIÓN -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1513,6 +1601,9 @@
     let accounts = [];
     let customSubcategories = [];
     let scheduledNotifications = [];
+    let tasks = [];
+    let editingTaskId = null;
+    let taskPendingCalendar = null;
     
     let currentDate = new Date();
     let selectedDateStr = null;
@@ -1848,6 +1939,16 @@
         renderPendingNotifications();
       }, (error) => console.error("Error cargando notificaciones:", error));
 
+      const qTasks = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'tasks'));
+      onSnapshot(qTasks, (snapshot) => {
+        tasks = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        tasks.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        renderApp();
+      }, (error) => console.error("Error cargando tareas:", error));
+
       startNotificationTicker();
     }
 
@@ -1961,6 +2062,7 @@
     function renderApp() {
       syncHistoryPeriodWithCalendar();
       renderCalendar();
+      renderTasks();
       renderMonthSummary();
       renderYearSummary();
       renderTable();
@@ -4712,6 +4814,316 @@
     window.addEventListener('keypress', resetInactivityTimer);
     window.addEventListener('scroll', resetInactivityTimer);
 
+    // ===== APARTADO DE TAREAS =====
+
+    function escapeHtml(str) {
+      if (str === undefined || str === null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderTasks() {
+      const container = document.getElementById('tasks-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (tasks.length === 0) {
+        container.innerHTML = '<p class="text-[10px] text-gray-500 text-center py-3">No tienes tareas pendientes.</p>';
+        return;
+      }
+
+      tasks.forEach(t => {
+        if (editingTaskId === t.id) {
+          container.innerHTML += `
+            <div class="flex items-center gap-2 bg-gray-950/60 border border-[#00f0ff]/40 rounded-xl px-3 py-2">
+              <input type="text" id="task-edit-input-${t.id}" maxlength="200" value="${escapeHtml(t.text)}" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-2 py-1.5 text-sm text-white focus:border-[#00f0ff] outline-none" />
+              <button onclick="window.saveEditTask('${t.id}')" class="p-1 text-[#00f0ff] hover:text-white transition-colors flex-shrink-0" title="Guardar">
+                <i data-lucide="check" class="w-4 h-4"></i>
+              </button>
+              <button onclick="window.cancelEditTask()" class="p-1 text-gray-500 hover:text-white transition-colors flex-shrink-0" title="Cancelar">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `;
+        } else {
+          const linkedBadge = t.eventMovementId ? ' <i data-lucide="calendar-check" class="w-3.5 h-3.5 inline text-[#faff00]"></i>' : '';
+          container.innerHTML += `
+            <div class="group flex items-center gap-2 bg-gray-950/60 border border-gray-800/80 rounded-xl px-3 py-2">
+              <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskCompleted('${t.id}')" class="w-[18px] h-[18px] rounded accent-[#00f0ff] cursor-pointer flex-shrink-0" title="Marcar como completada" />
+              <span class="flex-1 text-sm truncate ${t.completed ? 'underline decoration-2 decoration-[#00f0ff]/70 text-gray-500' : 'text-gray-200'}">${escapeHtml(t.text)}${linkedBadge}</span>
+              <button onclick="window.startEditTask('${t.id}')" class="p-1 text-gray-500 hover:text-[#00f0ff] rounded-lg hover:bg-cyan-500/10 transition-colors flex-shrink-0" title="Editar">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="window.deleteTask('${t.id}')" class="p-1 text-gray-500 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors flex-shrink-0" title="Eliminar">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          `;
+        }
+      });
+
+      lucide.createIcons();
+
+      if (editingTaskId) {
+        const input = document.getElementById(`task-edit-input-${editingTaskId}`);
+        if (input) {
+          input.focus();
+          input.select();
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); saveEditTask(editingTaskId); }
+            else if (e.key === 'Escape') { e.preventDefault(); cancelEditTask(); }
+          });
+        }
+      }
+    }
+
+    function showAddTaskInput() {
+      const form = document.getElementById('add-task-form');
+      const input = document.getElementById('new-task-input');
+      if (form) form.classList.remove('hidden');
+      if (input) { input.value = ''; input.focus(); }
+    }
+
+    function hideAddTaskInput() {
+      const form = document.getElementById('add-task-form');
+      const input = document.getElementById('new-task-input');
+      if (form) form.classList.add('hidden');
+      if (input) input.value = '';
+    }
+
+    const btnAddTask = document.getElementById('btn-add-task');
+    if (btnAddTask) {
+      btnAddTask.addEventListener('click', showAddTaskInput);
+    }
+
+    const btnCancelAddTask = document.getElementById('btn-cancel-add-task');
+    if (btnCancelAddTask) {
+      btnCancelAddTask.addEventListener('click', hideAddTaskInput);
+    }
+
+    const newTaskInputEl = document.getElementById('new-task-input');
+    if (newTaskInputEl) {
+      newTaskInputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { e.preventDefault(); hideAddTaskInput(); }
+      });
+    }
+
+    const addTaskForm = document.getElementById('add-task-form');
+    if (addTaskForm) {
+      addTaskForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('new-task-input');
+        const text = input ? input.value.trim() : '';
+        if (!text) return;
+
+        hideAddTaskInput();
+
+        try {
+          const newTaskRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'tasks'), {
+            text: text,
+            completed: false,
+            eventMovementId: null,
+            createdAt: new Date().toISOString()
+          });
+          openTaskCalendarPrompt(newTaskRef.id, text);
+        } catch (error) {
+          console.error("Error al guardar la tarea:", error);
+        }
+      });
+    }
+
+    async function toggleTaskCompleted(id) {
+      const t = tasks.find(x => x.id === id);
+      if (!t) return;
+      try {
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', id), {
+          completed: !t.completed
+        });
+      } catch (error) {
+        console.error("Error al actualizar la tarea:", error);
+      }
+    }
+
+    function startEditTask(id) {
+      editingTaskId = id;
+      renderTasks();
+    }
+
+    function cancelEditTask() {
+      editingTaskId = null;
+      renderTasks();
+    }
+
+    async function saveEditTask(id) {
+      const input = document.getElementById(`task-edit-input-${id}`);
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+      try {
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', id), { text });
+        editingTaskId = null;
+      } catch (error) {
+        console.error("Error al actualizar la tarea:", error);
+      }
+    }
+
+    function deleteTask(id) {
+      showConfirm(
+        "¿Eliminar tarea?",
+        "Esta acción no se puede deshacer.",
+        async () => {
+          try {
+            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', id));
+          } catch (error) {
+            console.error("Error al eliminar la tarea:", error);
+          }
+        },
+        false
+      );
+    }
+
+    // --- Vincular la tarea al calendario como evento ---
+
+    function openTaskCalendarPrompt(taskId, taskText) {
+      taskPendingCalendar = { id: taskId, text: taskText };
+
+      const nameEl = document.getElementById('task-calendar-task-name');
+      if (nameEl) nameEl.textContent = `"${taskText}"`;
+
+      const step1 = document.getElementById('task-calendar-step1');
+      const step2 = document.getElementById('task-calendar-step2');
+      if (step1) step1.classList.remove('hidden');
+      if (step2) step2.classList.add('hidden');
+
+      const dateInput = document.getElementById('task-calendar-date');
+      const timeInput = document.getElementById('task-calendar-time');
+      const notifyInput = document.getElementById('task-calendar-notify');
+      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+      if (timeInput) timeInput.value = '';
+      if (notifyInput) notifyInput.checked = false;
+
+      const modalElement = document.getElementById('task-calendar-modal');
+      const content = document.getElementById('task-calendar-content');
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeTaskCalendarPrompt() {
+      const modalElement = document.getElementById('task-calendar-modal');
+      const content = document.getElementById('task-calendar-content');
+      if (modalElement && content) {
+        modalElement.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modalElement.classList.add('hidden'), 300);
+      }
+      taskPendingCalendar = null;
+    }
+
+    const btnCloseTaskCalendarModal = document.getElementById('btn-close-task-calendar-modal');
+    if (btnCloseTaskCalendarModal) {
+      btnCloseTaskCalendarModal.addEventListener('click', closeTaskCalendarPrompt);
+    }
+
+    const btnTaskCalendarNo = document.getElementById('btn-task-calendar-no');
+    if (btnTaskCalendarNo) {
+      btnTaskCalendarNo.addEventListener('click', closeTaskCalendarPrompt);
+    }
+
+    const btnTaskCalendarYes = document.getElementById('btn-task-calendar-yes');
+    if (btnTaskCalendarYes) {
+      btnTaskCalendarYes.addEventListener('click', () => {
+        const step1 = document.getElementById('task-calendar-step1');
+        const step2 = document.getElementById('task-calendar-step2');
+        if (step1) step1.classList.add('hidden');
+        if (step2) step2.classList.remove('hidden');
+        if ("Notification" in window) {
+          Notification.requestPermission();
+        }
+      });
+    }
+
+    const btnTaskCalendarBack = document.getElementById('btn-task-calendar-back');
+    if (btnTaskCalendarBack) {
+      btnTaskCalendarBack.addEventListener('click', closeTaskCalendarPrompt);
+    }
+
+    const btnTaskCalendarSave = document.getElementById('btn-task-calendar-save');
+    if (btnTaskCalendarSave) {
+      btnTaskCalendarSave.addEventListener('click', async () => {
+        if (!taskPendingCalendar) return;
+
+        const dateInput = document.getElementById('task-calendar-date');
+        const timeInput = document.getElementById('task-calendar-time');
+        const notifyInput = document.getElementById('task-calendar-notify');
+        const eventDate = dateInput ? dateInput.value : '';
+        const eventTime = timeInput ? timeInput.value : '';
+        const wantsNotification = notifyInput ? notifyInput.checked : false;
+
+        if (!eventDate) {
+          window.alert('Selecciona una fecha para el evento.');
+          return;
+        }
+        if (wantsNotification && !eventTime) {
+          window.alert('Selecciona una hora para la notificación.');
+          return;
+        }
+
+        try {
+          const movementData = {
+            date: eventDate,
+            type: 'evento',
+            amount: 0,
+            concept: taskPendingCalendar.text,
+            accountId: '',
+            account: '',
+            subcategory: 'Evento',
+            subcategoryEmoji: CATEGORIES.evento.emoji,
+            notificationId: null,
+            timestamp: new Date().toISOString()
+          };
+
+          if (wantsNotification) {
+            const notifyData = {
+              date: eventDate,
+              time: eventTime,
+              reason: taskPendingCalendar.text,
+              repeat: 'once',
+              triggered: false,
+              timestamp: new Date().toISOString()
+            };
+            const newNotifRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), notifyData);
+            movementData.notificationId = newNotifRef.id;
+            if ("Notification" in window && Notification.permission !== "granted") {
+              Notification.requestPermission();
+            }
+          }
+
+          const newMovementRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', taskPendingCalendar.id), {
+            eventMovementId: newMovementRef.id
+          });
+
+          closeTaskCalendarPrompt();
+        } catch (error) {
+          console.error("Error al crear el evento de la tarea:", error);
+        }
+      });
+    }
+
+    window.toggleTaskCompleted = toggleTaskCompleted;
+    window.startEditTask = startEditTask;
+    window.saveEditTask = saveEditTask;
+    window.cancelEditTask = cancelEditTask;
+    window.deleteTask = deleteTask;
+
     // Cierre de modales con Escape y Clic Fuera
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -4725,6 +5137,7 @@
         closeConfirm();
         closeHoverImagesModal();
         closeDiecastView();
+        closeTaskCalendarPrompt();
         const profileMenu = document.getElementById('profile-dropdown-menu');
         const exportMenu = document.getElementById('export-dropdown');
         if (profileMenu) profileMenu.classList.add('hidden');
@@ -4743,7 +5156,8 @@
       { id: 'confirm-modal', closeFunc: closeConfirm },
       { id: 'hover-images-modal', closeFunc: closeHoverImagesModal },
       { id: 'diecast-view-modal', closeFunc: closeDiecastView },
-      { id: 'notification-settings-modal', closeFunc: closeNotificationSettingsModal }
+      { id: 'notification-settings-modal', closeFunc: closeNotificationSettingsModal },
+      { id: 'task-calendar-modal', closeFunc: closeTaskCalendarPrompt }
     ];
 
     modalContainers.forEach(modal => {
