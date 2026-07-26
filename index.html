@@ -483,7 +483,7 @@
       <!-- CONTROLES Y PERFIL DE USUARIO -->
       <div class="flex items-center gap-3">
         <!-- BOTÓN PARA MODO CLARO / OSCURO -->
-        <button id="theme-toggle" class="p-2.5 md:p-3 bg-gray-950/80 border border-gray-800 rounded-xl hover:border-[#00f0ff]/30 transition-colors text-gray-400 hover:text-[#00f0ff]" title="Alternar tema">
+        <button id="theme-toggle" class="p-2.5 md:p-3 bg-gray-950/80 border border-gray-800 rounded-xl hover:border-[#00f0ff]/30 transition-colors text-gray-400 hover:text-[#00f0ff]" title="Alternar tema (Claro / Oscuro / Automático)">
           <i data-lucide="sun" id="theme-icon" class="w-5 h-5"></i>
         </button>
 
@@ -2039,6 +2039,16 @@
           }
         }
       }, (error) => console.error("Error sincronizando clave:", error));
+
+      const themeDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'theme');
+      onSnapshot(themeDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const themeData = docSnap.data();
+          applyThemeMode(themeData.mode || 'dark');
+        } else {
+          applyThemeMode('dark');
+        }
+      }, (error) => console.error("Error sincronizando tema:", error));
       
       const imagesDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'hoverImages');
       onSnapshot(imagesDocRef, async (docSnap) => {
@@ -4165,25 +4175,88 @@
       }, 500);
     }
 
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
+    // ===== SISTEMA DE TEMA: Claro / Oscuro / Automático (con persistencia en Firebase) =====
+    let currentThemeMode = 'dark'; // 'light' | 'dark' | 'auto'
+    let themeAutoTicker = null;
 
-    if (themeToggleBtn && themeIcon) {
-      themeToggleBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-theme');
-        const isLight = document.body.classList.contains('light-theme');
-        themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+    // Determina si "toca" claro según la hora local del dispositivo (06:00 a 18:59 = día)
+    function computeAutoIsLight() {
+      const hour = new Date().getHours();
+      return hour >= 6 && hour < 19;
+    }
+
+    function applyThemeVisual(isLight) {
+      document.body.classList.toggle('light-theme', isLight);
+
+      const themeIcon = document.getElementById('theme-icon');
+      if (themeIcon) {
+        let iconName = 'sun';
+        if (currentThemeMode === 'auto') iconName = 'sun-moon';
+        else iconName = isLight ? 'sun' : 'moon';
+        themeIcon.setAttribute('data-lucide', iconName);
         lucide.createIcons();
-        renderApp(); 
-        
-        if (window.accountsChartInstance) {
-          const textColor = isLight ? '#1a1528' : '#9ca3af';
-          const gridColor = isLight ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)';
-          window.accountsChartInstance.options.scales.x.ticks.color = textColor;
-          window.accountsChartInstance.options.scales.y.ticks.color = textColor;
-          window.accountsChartInstance.options.scales.y.grid.color = gridColor;
-          window.accountsChartInstance.update();
-        }
+      }
+
+      const themeToggleBtn = document.getElementById('theme-toggle');
+      if (themeToggleBtn) {
+        const labels = {
+          light: 'Tema: Claro (clic para cambiar)',
+          dark: 'Tema: Oscuro (clic para cambiar)',
+          auto: 'Tema: Automático según la hora (clic para cambiar)'
+        };
+        themeToggleBtn.title = labels[currentThemeMode] || 'Alternar tema';
+      }
+
+      renderApp();
+
+      if (window.accountsChartInstance) {
+        const textColor = isLight ? '#1a1528' : '#9ca3af';
+        const gridColor = isLight ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+        window.accountsChartInstance.options.scales.x.ticks.color = textColor;
+        window.accountsChartInstance.options.scales.y.ticks.color = textColor;
+        window.accountsChartInstance.options.scales.y.grid.color = gridColor;
+        window.accountsChartInstance.update();
+      }
+    }
+
+    // Aplica un modo de tema ('light' | 'dark' | 'auto') sin guardarlo (para sincronización)
+    function applyThemeMode(mode) {
+      currentThemeMode = mode === 'light' || mode === 'auto' ? mode : 'dark';
+      const isLight = currentThemeMode === 'auto' ? computeAutoIsLight() : currentThemeMode === 'light';
+      applyThemeVisual(isLight);
+
+      if (currentThemeMode === 'auto' && !themeAutoTicker) {
+        // Revisa cada 5 minutos si cambió el momento del día (día/noche) para actualizar solo
+        themeAutoTicker = setInterval(() => {
+          if (currentThemeMode !== 'auto') return;
+          const shouldBeLight = computeAutoIsLight();
+          const isCurrentlyLight = document.body.classList.contains('light-theme');
+          if (shouldBeLight !== isCurrentlyLight) {
+            applyThemeVisual(shouldBeLight);
+          }
+        }, 5 * 60 * 1000);
+      }
+    }
+
+    async function saveThemeMode(mode) {
+      try {
+        await setDoc(
+          doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'theme'),
+          { mode, updatedAt: new Date().toISOString() },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error("Error guardando configuración de tema:", error);
+      }
+    }
+
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const order = ['light', 'dark', 'auto'];
+        const nextMode = order[(order.indexOf(currentThemeMode) + 1) % order.length];
+        applyThemeMode(nextMode);
+        saveThemeMode(nextMode);
       });
     }
 
