@@ -1511,6 +1511,67 @@
     </div>
   </div>
 
+  <!-- MODAL: RESUMEN DETALLADO POR CATEGORÍA (RESUMEN MENSUAL) -->
+  <div id="category-summary-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[105] hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800 w-full max-w-lg overflow-hidden transform scale-95 transition-all duration-300" id="category-summary-content">
+      <div class="flex justify-between items-start p-6 border-b border-gray-800">
+        <div class="flex items-center gap-3">
+          <div id="category-summary-badge" class="flex items-center justify-center w-12 h-12 rounded-2xl text-2xl flex-shrink-0">
+            <span id="category-summary-emoji">📈</span>
+          </div>
+          <div>
+            <h3 id="category-summary-title" class="text-lg font-bold text-white leading-tight">Ingresos</h3>
+            <span id="category-summary-period" class="text-xs text-gray-400 uppercase tracking-wider font-semibold"></span>
+          </div>
+        </div>
+        <button onclick="window.closeCategorySummaryModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+
+        <div class="text-center py-1">
+          <span id="category-summary-total" class="block text-3xl md:text-4xl font-black text-white tracking-tight">$0.00</span>
+          <span id="category-summary-percent" class="text-xs text-gray-500 font-semibold mt-1.5 inline-block"></span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-gray-900/40 border border-gray-800 rounded-xl p-3 text-center">
+            <i data-lucide="receipt" class="w-4 h-4 mx-auto mb-1.5 text-gray-500"></i>
+            <span id="category-summary-count" class="block text-base sm:text-lg font-bold text-white">0</span>
+            <span class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Registros</span>
+          </div>
+          <div class="bg-gray-900/40 border border-gray-800 rounded-xl p-3 text-center">
+            <i data-lucide="divide" class="w-4 h-4 mx-auto mb-1.5 text-gray-500"></i>
+            <span id="category-summary-average" class="block text-base sm:text-lg font-bold text-white">$0.00</span>
+            <span class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Promedio</span>
+          </div>
+          <div class="bg-gray-900/40 border border-gray-800 rounded-xl p-3 text-center">
+            <i data-lucide="trending-up" class="w-4 h-4 mx-auto mb-1.5 text-gray-500"></i>
+            <span id="category-summary-max" class="block text-base sm:text-lg font-bold text-white">$0.00</span>
+            <span class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Mayor Registro</span>
+          </div>
+        </div>
+
+        <div id="category-summary-subcats-wrap">
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i> Desglose por Subcategoría
+          </h4>
+          <div id="category-summary-subcats" class="space-y-3"></div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <i data-lucide="list" class="w-3.5 h-3.5"></i> Movimientos del Mes
+          </h4>
+          <div id="category-summary-movements" class="space-y-1"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: AÑADIR TAREA AL CALENDARIO COMO EVENTO -->
   <div id="task-calendar-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-[100] hidden opacity-0 transition-all duration-300">
     <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="task-calendar-content">
@@ -2358,7 +2419,160 @@
               setTimeout(() => snoopyImg.classList.add('hidden'), 200);
             }
           });
+          item.addEventListener('click', () => {
+            openCategorySummary(item.getAttribute('data-type'));
+          });
         });
+      }
+    }
+
+    function openCategorySummary(type) {
+      const cat = CATEGORIES[type];
+      if (!cat) return;
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const monthMovements = movements.filter(m => {
+        const d = new Date(m.date + 'T00:00:00');
+        return d.getFullYear() === year && d.getMonth() === month;
+      });
+
+      const catMovements = monthMovements.filter(m => m.type === type);
+      catMovements.sort((a, b) => {
+        if (a.date !== b.date) return new Date(b.date) - new Date(a.date);
+        return (b.timestamp || '').localeCompare(a.timestamp || '');
+      });
+
+      const monthTotalAll = monthMovements.reduce((sum, m) => {
+        return (m.type === 'ingreso' || m.type === 'gasto' || m.type === 'ahorro' || m.type === 'diecast') ? sum + (m.amount || 0) : sum;
+      }, 0);
+      const catTotal = catMovements.reduce((sum, m) => sum + (m.amount || 0), 0);
+      const count = catMovements.length;
+      const average = count > 0 ? catTotal / count : 0;
+      const max = count > 0 ? Math.max(...catMovements.map(m => m.amount || 0)) : 0;
+      const percentOfMonth = monthTotalAll > 0 ? ((catTotal / monthTotalAll) * 100).toFixed(1) : '0.0';
+
+      const PLURAL_LABELS = { ingreso: 'Ingresos', gasto: 'Gastos', ahorro: 'Ahorros', diecast: 'DieCasts' };
+      const monthName = document.getElementById('month-select')?.options[month]?.text || '';
+
+      const badge = document.getElementById('category-summary-badge');
+      if (badge) badge.className = `flex items-center justify-center w-12 h-12 rounded-2xl text-2xl flex-shrink-0 border ${cat.bgClass} ${cat.borderClass}`;
+      const emojiEl = document.getElementById('category-summary-emoji');
+      if (emojiEl) emojiEl.textContent = cat.emoji;
+      const titleEl = document.getElementById('category-summary-title');
+      if (titleEl) titleEl.textContent = PLURAL_LABELS[type] || cat.label;
+      const periodEl = document.getElementById('category-summary-period');
+      if (periodEl) periodEl.textContent = `${monthName} ${year}`;
+
+      const content = document.getElementById('category-summary-content');
+      if (content) content.className = `bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border ${cat.borderClass} w-full max-w-lg overflow-hidden transform scale-95 transition-all duration-300`;
+
+      const totalEl = document.getElementById('category-summary-total');
+      if (totalEl) {
+        totalEl.textContent = formatCurrency(catTotal);
+        totalEl.className = `block text-3xl md:text-4xl font-black tracking-tight ${cat.textClass}`;
+      }
+      const percentEl = document.getElementById('category-summary-percent');
+      if (percentEl) percentEl.textContent = count > 0 ? `${percentOfMonth}% del movimiento total del mes` : 'Sin actividad registrada este mes';
+
+      const countEl = document.getElementById('category-summary-count');
+      if (countEl) countEl.textContent = count;
+      const avgEl = document.getElementById('category-summary-average');
+      if (avgEl) avgEl.textContent = formatCurrency(average);
+      const maxEl = document.getElementById('category-summary-max');
+      if (maxEl) maxEl.textContent = formatCurrency(max);
+
+      const subcatsWrap = document.getElementById('category-summary-subcats-wrap');
+      const subcatsEl = document.getElementById('category-summary-subcats');
+      if (subcatsEl) {
+        const groups = {};
+        catMovements.forEach(m => {
+          const key = m.subcategory || 'General';
+          if (!groups[key]) groups[key] = { emoji: m.subcategoryEmoji || '🏷️', total: 0, count: 0 };
+          groups[key].total += (m.amount || 0);
+          groups[key].count += 1;
+        });
+        const sortedGroups = Object.entries(groups).sort((a, b) => b[1].total - a[1].total);
+
+        if (sortedGroups.length === 0) {
+          if (subcatsWrap) subcatsWrap.classList.add('hidden');
+          subcatsEl.innerHTML = '';
+        } else {
+          if (subcatsWrap) subcatsWrap.classList.remove('hidden');
+          subcatsEl.innerHTML = sortedGroups.map(([name, g]) => {
+            const pct = catTotal > 0 ? ((g.total / catTotal) * 100).toFixed(0) : 0;
+            return `
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5 gap-2">
+                  <span class="font-medium text-gray-300 flex items-center gap-1.5 truncate">
+                    <span>${g.emoji}</span> <span class="truncate">${name}</span> <span class="text-gray-600 font-normal flex-shrink-0">(${g.count})</span>
+                  </span>
+                  <span class="font-bold ${cat.textClass} flex-shrink-0">${formatCurrency(g.total)}</span>
+                </div>
+                <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-500" style="width:${pct}%; background-color:${cat.color};"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      const listEl = document.getElementById('category-summary-movements');
+      if (listEl) {
+        if (catMovements.length === 0) {
+          listEl.innerHTML = `<p class="text-center text-gray-500 py-6 text-sm">No hay ${(PLURAL_LABELS[type] || cat.label).toLowerCase()} registrados en el mes seleccionado.</p>`;
+        } else {
+          listEl.innerHTML = catMovements.map(m => {
+            const accLabel = m.account || 'Efectivo';
+            const isTransfer = type === 'ahorro' && !!m.toAccountId;
+            const destAccObj = isTransfer ? accounts.find(a => a.id === m.toAccountId) : null;
+            const destLabel = isTransfer ? (destAccObj ? destAccObj.name : (m.toAccount || '')) : '';
+            const dateObj = new Date(m.date + 'T00:00:00');
+            const dateLabel = dateObj.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+            const thumb = (type === 'diecast' && m.photo)
+              ? `<img src="${m.photo}" class="w-10 h-10 rounded-lg object-cover border ${cat.borderClass} flex-shrink-0">`
+              : `<div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0 ${cat.bgClass} border ${cat.borderClass}">${m.subcategoryEmoji || cat.emoji}</div>`;
+
+            return `
+              <div class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-900/60 transition-colors">
+                ${thumb}
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="font-medium text-gray-200 text-sm truncate" title="${m.concept || ''}">${m.concept || 'Sin concepto'}</span>
+                    <span class="font-bold ${cat.textClass} text-sm flex-shrink-0">${formatCurrency(m.amount || 0)}</span>
+                  </div>
+                  <div class="flex items-center justify-between gap-2 mt-0.5">
+                    <span class="text-[10px] text-gray-500 truncate">${m.subcategory || 'General'} · ${accLabel}${isTransfer && destLabel ? ` → ${destLabel}` : ''}</span>
+                    <span class="text-[10px] text-gray-500 uppercase font-semibold flex-shrink-0">${dateLabel}</span>
+                  </div>
+                </div>
+                ${type === 'diecast' ? `<button onclick="window.viewDiecast('${m.id}')" class="p-1.5 text-gray-500 hover:text-amber-400 rounded-lg hover:bg-amber-500/10 transition-colors flex-shrink-0" title="Ver modelo"><i data-lucide="eye" class="w-4 h-4 pointer-events-none"></i></button>` : ''}
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      const modal = document.getElementById('category-summary-modal');
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeCategorySummaryModal() {
+      const modal = document.getElementById('category-summary-modal');
+      const content = document.getElementById('category-summary-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
       }
     }
 
@@ -5238,6 +5452,7 @@
         closeConfirm();
         closeHoverImagesModal();
         closeDiecastView();
+        closeCategorySummaryModal();
         closeTaskCalendarPrompt();
         const profileMenu = document.getElementById('profile-dropdown-menu');
         const exportMenu = document.getElementById('export-dropdown');
@@ -5257,6 +5472,7 @@
       { id: 'confirm-modal', closeFunc: closeConfirm },
       { id: 'hover-images-modal', closeFunc: closeHoverImagesModal },
       { id: 'diecast-view-modal', closeFunc: closeDiecastView },
+      { id: 'category-summary-modal', closeFunc: closeCategorySummaryModal },
       { id: 'notification-settings-modal', closeFunc: closeNotificationSettingsModal },
       { id: 'task-calendar-modal', closeFunc: closeTaskCalendarPrompt }
     ];
@@ -5313,6 +5529,7 @@
     window.closeHoverImagesModal = closeHoverImagesModal;
     window.viewDiecast = viewDiecast;
     window.closeDiecastView = closeDiecastView;
+    window.closeCategorySummaryModal = closeCategorySummaryModal;
     window.openNotificationSettingsModal = openNotificationSettingsModal;
     window.closeNotificationSettingsModal = closeNotificationSettingsModal;
 
