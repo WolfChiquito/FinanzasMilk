@@ -116,6 +116,103 @@
       text-shadow: 0 0 8px rgba(250, 255, 0, 0.6);
     }
 
+    /* ===== NOTAS ADHESIVAS (Sticky Notes) ===== */
+    .sticky-notes-board {
+      min-height: 90px;
+      background-image:
+        radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 12px 12px;
+    }
+
+    .sticky-note {
+      position: relative;
+      width: 168px;
+      min-height: 168px;
+      padding: 16px 12px 10px 14px;
+      border-radius: 3px 3px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 3px 6px 14px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.15) inset;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, z-index 0s;
+      cursor: default;
+    }
+    .sticky-note:hover {
+      transform: translateY(-5px) scale(1.04) rotate(0deg) !important;
+      box-shadow: 5px 12px 22px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.2) inset;
+      z-index: 10;
+    }
+    /* Cinta adhesiva en la esquina */
+    .sticky-note::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-2deg);
+      width: 46px;
+      height: 16px;
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .sticky-note-rot-0 { transform: rotate(-2.5deg); }
+    .sticky-note-rot-1 { transform: rotate(1.8deg); }
+    .sticky-note-rot-2 { transform: rotate(-1.2deg); }
+    .sticky-note-rot-3 { transform: rotate(2.6deg); }
+    .sticky-note-rot-4 { transform: rotate(-3deg); }
+    .sticky-note-rot-5 { transform: rotate(1deg); }
+
+    .sticky-note-lines {
+      flex: 1;
+      font-family: 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif;
+      font-size: 13px;
+      line-height: 22px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-y: auto;
+      background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 20px, var(--note-line-color, rgba(0,0,0,0.12)) 21px);
+      background-position: 0 4px;
+      padding-top: 2px;
+    }
+
+    .sticky-note-actions {
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .sticky-note:hover .sticky-note-actions {
+      opacity: 1;
+    }
+
+    .sticky-note-textarea {
+      flex: 1;
+      width: 100%;
+      resize: none;
+      background: rgba(255,255,255,0.25);
+      border: 1px dashed rgba(0,0,0,0.35);
+      border-radius: 4px;
+      outline: none;
+      font-family: 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif;
+      font-size: 13px;
+      line-height: 21px;
+      padding: 4px 6px;
+      color: inherit;
+    }
+
+    .sticky-note-yellow { background: #f4e04d; color: #3a3410; --note-line-color: rgba(80,70,0,0.14); }
+    .sticky-note-pink   { background: #f5a6c9; color: #4a1230; --note-line-color: rgba(110,10,60,0.14); }
+    .sticky-note-cyan   { background: #8fe3f0; color: #0a3a42; --note-line-color: rgba(0,70,85,0.14); }
+    .sticky-note-green  { background: #a8e6a1; color: #163a15; --note-line-color: rgba(15,80,15,0.14); }
+    .sticky-note-purple { background: #cbb0f0; color: #2e1252; --note-line-color: rgba(60,15,100,0.14); }
+    .sticky-note-orange { background: #f7c07a; color: #4a2600; --note-line-color: rgba(120,60,0,0.14); }
+
+    .sticky-note-empty-msg {
+      font-size: 10px;
+      color: #6b7280;
+      text-align: center;
+      padding: 12px 0;
+      width: 100%;
+    }
+
     /* Animación de destello para el día actual */
     @keyframes today-glow {
       0%, 100% {
@@ -745,6 +842,24 @@
 
             <div id="tasks-list" class="space-y-2 max-h-44 overflow-y-auto pr-1">
               <!-- Renderizado dinámico -->
+            </div>
+          </div>
+
+          <!-- APARTADO DE NOTAS ADHESIVAS -->
+          <div id="sticky-notes-section" class="mb-6 print:hidden">
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="sticky-note" class="w-3.5 h-3.5 text-[#faff00]"></i> Notas Adhesivas
+              </h3>
+              <button id="btn-add-note" onclick="window.showAddNoteInput()" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#faff00] border border-[#faff00]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Añadir nota">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <div id="sticky-notes-board" class="sticky-notes-board rounded-xl p-3 border border-gray-800/80 bg-gray-950/40">
+              <div id="sticky-notes-grid" class="flex flex-wrap gap-4">
+                <!-- Renderizado dinámico -->
+              </div>
             </div>
           </div>
           
@@ -1767,6 +1882,9 @@
     let tasks = [];
     let editingTaskId = null;
     let taskPendingCalendar = null;
+    let stickyNotes = [];
+    let editingNoteId = null;
+    let creatingNewNote = false;
     
     let currentDate = new Date();
     let selectedDateStr = null;
@@ -2112,6 +2230,16 @@
         renderApp();
       }, (error) => console.error("Error cargando tareas:", error));
 
+      const qStickyNotes = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes'));
+      onSnapshot(qStickyNotes, (snapshot) => {
+        stickyNotes = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        stickyNotes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        renderStickyNotes();
+      }, (error) => console.error("Error cargando notas adhesivas:", error));
+
       startNotificationTicker();
     }
 
@@ -2236,6 +2364,7 @@
       syncHistoryPeriodWithCalendar();
       renderCalendar();
       renderTasks();
+      renderStickyNotes();
       renderMonthSummary();
       renderYearSummary();
       renderTable();
@@ -5477,6 +5606,175 @@
         console.error("Error al reordenar las tareas:", error);
       }
     }
+
+    // ===== NOTAS ADHESIVAS =====
+    const STICKY_NOTE_COLORS = ['yellow', 'pink', 'cyan', 'green', 'purple', 'orange'];
+
+    function stickyNoteRotationClass(id) {
+      let hash = 0;
+      const str = String(id || 'x');
+      for (let i = 0; i < str.length; i++) hash = (hash + str.charCodeAt(i) * (i + 1)) % 6;
+      return `sticky-note-rot-${hash}`;
+    }
+
+    function renderStickyNotes() {
+      const container = document.getElementById('sticky-notes-grid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (stickyNotes.length === 0 && !creatingNewNote) {
+        container.innerHTML = '<p class="sticky-note-empty-msg">No tienes notas adhesivas. Pulsa "+" para pegar una.</p>';
+        lucide.createIcons();
+        return;
+      }
+
+      stickyNotes.forEach((n, idx) => {
+        const colorClass = `sticky-note-${STICKY_NOTE_COLORS[idx % STICKY_NOTE_COLORS.length]}`;
+        const rotClass = stickyNoteRotationClass(n.id);
+
+        if (editingNoteId === n.id) {
+          container.innerHTML += `
+            <div class="sticky-note ${colorClass} ${rotClass}">
+              <textarea id="note-edit-input-${n.id}" maxlength="300" class="sticky-note-textarea">${escapeHtml(n.text)}</textarea>
+              <div class="flex justify-end gap-1 mt-2">
+                <button onclick="window.saveEditNote('${n.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+                <button onclick="window.cancelEditNote()" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Cancelar">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          container.innerHTML += `
+            <div class="sticky-note ${colorClass} ${rotClass}">
+              <div class="sticky-note-lines">${escapeHtml(n.text)}</div>
+              <div class="sticky-note-actions flex justify-end gap-1 mt-1">
+                <button onclick="window.startEditNote('${n.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Editar">
+                  <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="window.deleteNote('${n.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Eliminar">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      if (creatingNewNote) {
+        const colorClass = `sticky-note-${STICKY_NOTE_COLORS[stickyNotes.length % STICKY_NOTE_COLORS.length]}`;
+        container.innerHTML += `
+          <div class="sticky-note ${colorClass} sticky-note-rot-1">
+            <textarea id="note-new-input" maxlength="300" placeholder="Escribe tu nota..." class="sticky-note-textarea"></textarea>
+            <div class="flex justify-end gap-1 mt-2">
+              <button onclick="window.saveNewNote()" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
+                <i data-lucide="check" class="w-4 h-4"></i>
+              </button>
+              <button onclick="window.cancelAddNote()" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Cancelar">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      lucide.createIcons();
+
+      if (editingNoteId) {
+        const input = document.getElementById(`note-edit-input-${editingNoteId}`);
+        if (input) {
+          input.focus();
+          input.setSelectionRange(input.value.length, input.value.length);
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); cancelEditNote(); }
+          });
+        }
+      }
+
+      if (creatingNewNote) {
+        const input = document.getElementById('note-new-input');
+        if (input) {
+          input.focus();
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); cancelAddNote(); }
+          });
+        }
+      }
+    }
+
+    function showAddNoteInput() {
+      creatingNewNote = true;
+      editingNoteId = null;
+      renderStickyNotes();
+    }
+
+    function cancelAddNote() {
+      creatingNewNote = false;
+      renderStickyNotes();
+    }
+
+    async function saveNewNote() {
+      const input = document.getElementById('note-new-input');
+      const text = input ? input.value.trim() : '';
+      if (!text) { creatingNewNote = false; renderStickyNotes(); return; }
+      creatingNewNote = false;
+      try {
+        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes'), {
+          text: text,
+          createdAt: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error("Error al guardar la nota:", error);
+      }
+    }
+
+    function startEditNote(id) {
+      creatingNewNote = false;
+      editingNoteId = id;
+      renderStickyNotes();
+    }
+
+    function cancelEditNote() {
+      editingNoteId = null;
+      renderStickyNotes();
+    }
+
+    async function saveEditNote(id) {
+      const input = document.getElementById(`note-edit-input-${id}`);
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+      try {
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), { text });
+        editingNoteId = null;
+      } catch (error) {
+        console.error("Error al actualizar la nota:", error);
+      }
+    }
+
+    function deleteNote(id) {
+      showConfirm(
+        "¿Eliminar nota?",
+        "Esta acción no se puede deshacer.",
+        async () => {
+          try {
+            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id));
+          } catch (error) {
+            console.error("Error al eliminar la nota:", error);
+          }
+        },
+        false
+      );
+    }
+
+    window.showAddNoteInput = showAddNoteInput;
+    window.cancelAddNote = cancelAddNote;
+    window.saveNewNote = saveNewNote;
+    window.startEditNote = startEditNote;
+    window.cancelEditNote = cancelEditNote;
+    window.saveEditNote = saveEditNote;
+    window.deleteNote = deleteNote;
 
     async function moveTaskUp(id) {
       const idx = tasks.findIndex(t => t.id === id);
