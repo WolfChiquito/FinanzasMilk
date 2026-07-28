@@ -122,10 +122,17 @@
       background-image:
         radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
       background-size: 12px 12px;
+      overflow: auto;
+    }
+
+    /* Contenedor de posicionamiento libre para las notas: cada nota se ubica con left/top absolutos */
+    .sticky-notes-grid-free {
+      position: relative;
+      width: 100%;
     }
 
     .sticky-note {
-      position: relative;
+      position: absolute;
       width: 168px;
       min-height: 168px;
       padding: 16px 12px 10px 14px;
@@ -134,12 +141,25 @@
       flex-direction: column;
       box-shadow: 3px 6px 14px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.15) inset;
       transition: transform 0.2s ease, box-shadow 0.2s ease, z-index 0s;
-      cursor: default;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
     }
     .sticky-note:hover {
       transform: translateY(-5px) scale(1.04) rotate(0deg) !important;
       box-shadow: 5px 12px 22px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.2) inset;
       z-index: 10;
+    }
+    /* Mientras se arrastra: sin transición, sin efectos de hover, cursor de agarre */
+    .sticky-note.dragging {
+      cursor: grabbing !important;
+      transition: none !important;
+      transform: scale(1.06) !important;
+      box-shadow: 8px 16px 28px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.2) inset !important;
+    }
+    .sticky-note .sticky-note-actions,
+    .sticky-note textarea {
+      cursor: default;
     }
     /* Cinta adhesiva en la esquina */
     .sticky-note::before {
@@ -1064,7 +1084,7 @@
             </div>
 
             <div id="sticky-notes-board" class="sticky-notes-board rounded-xl p-3 border border-gray-800/80 bg-gray-950/40">
-              <div id="sticky-notes-grid" class="flex flex-wrap gap-4">
+              <div id="sticky-notes-grid" class="sticky-notes-grid-free">
                 <!-- Renderizado dinámico -->
               </div>
             </div>
@@ -5992,24 +6012,46 @@
       return `sticky-note-rot-${hash}`;
     }
 
+    // Ancho/alto aproximado usado para calcular posiciones por defecto y límites de arrastre
+    const NOTE_DEFAULT_W = 168;
+    const NOTE_DEFAULT_H = 168;
+    let stickyNoteTopZ = 100; // contador global para llevar una nota al frente al arrastrarla
+
+    // Posición por defecto en cascada tipo cuadrícula para notas que aún no tienen x/y guardados
+    function defaultNotePosition(idx) {
+      const cols = 4;
+      const col = idx % cols;
+      const row = Math.floor(idx / cols);
+      return { x: 16 + col * (NOTE_DEFAULT_W + 22), y: 16 + row * (NOTE_DEFAULT_H + 22) };
+    }
+
     function renderStickyNotes() {
       const container = document.getElementById('sticky-notes-grid');
       if (!container) return;
       container.innerHTML = '';
 
       if (stickyNotes.length === 0 && !creatingNewNote) {
+        container.style.minHeight = '';
         container.innerHTML = '<p class="sticky-note-empty-msg">No tienes notas adhesivas. Pulsa "+" para pegar una.</p>';
         lucide.createIcons();
         return;
       }
 
+      // Asegura suficiente alto en el tablero para que las notas tengan espacio libre donde moverse
+      const rows = Math.ceil((stickyNotes.length + (creatingNewNote ? 1 : 0)) / 4);
+      container.style.minHeight = Math.max(220, rows * (NOTE_DEFAULT_H + 22) + 40) + 'px';
+
       stickyNotes.forEach((n, idx) => {
         const rotClass = stickyNoteRotationClass(n.id);
+        const pos = (typeof n.x === 'number' && typeof n.y === 'number') ? { x: n.x, y: n.y } : defaultNotePosition(idx);
+        const zIndex = (typeof n.z === 'number') ? n.z : (idx + 1);
+        if (zIndex > stickyNoteTopZ) stickyNoteTopZ = zIndex;
+        const posStyle = `left: ${pos.x}px; top: ${pos.y}px; z-index: ${zIndex};`;
 
         if (editingNoteId === n.id) {
           const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note');
           container.innerHTML += `
-            <div id="note-card-edit-${n.id}" class="sticky-note sticky-note-editing ${rotClass}" style="${style}">
+            <div id="note-card-edit-${n.id}" class="sticky-note sticky-note-editing ${rotClass}" style="${style} ${posStyle}">
               <textarea id="note-edit-input-${n.id}" maxlength="300" class="sticky-note-textarea">${escapeHtml(n.text)}</textarea>
               <div id="note-picker-edit-${n.id}">${colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity)}</div>
               <div class="flex justify-end gap-1 mt-2">
@@ -6028,7 +6070,7 @@
           const opacity = (typeof n.opacity === 'number') ? n.opacity : 0.75;
           const style = buildItemStyle(palette, color, opacity, 'note');
           container.innerHTML += `
-            <div class="sticky-note ${rotClass}" style="${style}">
+            <div id="note-card-${n.id}" class="sticky-note ${rotClass}" style="${style} ${posStyle}" onpointerdown="window.startDragNote(event, '${n.id}')">
               <div class="sticky-note-lines">${escapeHtml(n.text)}</div>
               <div class="sticky-note-actions flex justify-end gap-1 mt-1">
                 <button onclick="window.startEditNote('${n.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Editar">
@@ -6045,8 +6087,9 @@
 
       if (creatingNewNote) {
         const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note');
+        const newPos = defaultNotePosition(stickyNotes.length);
         container.innerHTML += `
-          <div id="note-card-new" class="sticky-note sticky-note-editing sticky-note-rot-1" style="${style}">
+          <div id="note-card-new" class="sticky-note sticky-note-editing sticky-note-rot-1" style="${style} left: ${newPos.x}px; top: ${newPos.y}px; z-index: ${stickyNoteTopZ + 1};">
             <textarea id="note-new-input" maxlength="300" placeholder="Escribe tu nota..." class="sticky-note-textarea"></textarea>
             <div id="note-picker-new">${colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity)}</div>
             <div class="flex justify-end gap-1 mt-2">
@@ -6165,6 +6208,84 @@
       );
     }
 
+    // Permite arrastrar libremente una nota adhesiva dentro del tablero, incluso sobre otras notas
+    let stickyNoteDrag = null;
+
+    function startDragNote(e, id) {
+      // No iniciar arrastre si el toque/clic viene de los botones de editar/eliminar
+      if (e.target.closest('.sticky-note-actions')) return;
+      if (editingNoteId || creatingNewNote) return;
+
+      const el = document.getElementById(`note-card-${id}`);
+      const container = document.getElementById('sticky-notes-grid');
+      if (!el || !container) return;
+
+      e.preventDefault();
+      const containerRect = container.getBoundingClientRect();
+      const noteRect = el.getBoundingClientRect();
+
+      stickyNoteTopZ += 1;
+      el.classList.add('dragging');
+      el.style.zIndex = stickyNoteTopZ;
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+
+      stickyNoteDrag = {
+        id,
+        el,
+        container,
+        offsetX: e.clientX - noteRect.left,
+        offsetY: e.clientY - noteRect.top,
+        finalX: parseFloat(el.style.left) || 0,
+        finalY: parseFloat(el.style.top) || 0
+      };
+
+      const onMove = (ev) => {
+        if (!stickyNoteDrag || stickyNoteDrag.id !== id) return;
+        const cRect = stickyNoteDrag.container.getBoundingClientRect();
+        let newX = ev.clientX - cRect.left - stickyNoteDrag.offsetX;
+        let newY = ev.clientY - cRect.top - stickyNoteDrag.offsetY;
+        const maxX = Math.max(0, stickyNoteDrag.container.clientWidth - el.offsetWidth);
+        const maxY = Math.max(0, stickyNoteDrag.container.clientHeight - el.offsetHeight);
+        newX = Math.min(Math.max(newX, 0), maxX);
+        newY = Math.min(Math.max(newY, 0), maxY);
+        el.style.left = newX + 'px';
+        el.style.top = newY + 'px';
+        stickyNoteDrag.finalX = newX;
+        stickyNoteDrag.finalY = newY;
+      };
+
+      const onUp = async () => {
+        if (!stickyNoteDrag || stickyNoteDrag.id !== id) return;
+        el.classList.remove('dragging');
+        el.removeEventListener('pointermove', onMove);
+        el.removeEventListener('pointerup', onUp);
+        el.removeEventListener('pointercancel', onUp);
+
+        const finalX = stickyNoteDrag.finalX;
+        const finalY = stickyNoteDrag.finalY;
+        const zIndex = stickyNoteTopZ;
+        stickyNoteDrag = null;
+
+        // Actualiza el estado local para evitar parpadeos antes de que llegue la confirmación de Firestore
+        const noteData = stickyNotes.find(x => x.id === id);
+        if (noteData) { noteData.x = finalX; noteData.y = finalY; noteData.z = zIndex; }
+
+        try {
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), {
+            x: finalX,
+            y: finalY,
+            z: zIndex
+          });
+        } catch (error) {
+          console.error("Error al guardar la posición de la nota:", error);
+        }
+      };
+
+      el.addEventListener('pointermove', onMove);
+      el.addEventListener('pointerup', onUp);
+      el.addEventListener('pointercancel', onUp);
+    }
+
     window.showAddNoteInput = showAddNoteInput;
     window.cancelAddNote = cancelAddNote;
     window.saveNewNote = saveNewNote;
@@ -6172,6 +6293,7 @@
     window.cancelEditNote = cancelEditNote;
     window.saveEditNote = saveEditNote;
     window.deleteNote = deleteNote;
+    window.startDragNote = startDragNote;
 
     async function moveTaskUp(id) {
       const idx = tasks.findIndex(t => t.id === id);
