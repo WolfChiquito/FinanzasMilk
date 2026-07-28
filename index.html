@@ -198,18 +198,213 @@
       color: inherit;
     }
 
-    .sticky-note-yellow { background: #f4e04d; color: #3a3410; --note-line-color: rgba(80,70,0,0.14); }
-    .sticky-note-pink   { background: #f5a6c9; color: #4a1230; --note-line-color: rgba(110,10,60,0.14); }
-    .sticky-note-cyan   { background: #8fe3f0; color: #0a3a42; --note-line-color: rgba(0,70,85,0.14); }
-    .sticky-note-green  { background: #a8e6a1; color: #163a15; --note-line-color: rgba(15,80,15,0.14); }
-    .sticky-note-purple { background: #cbb0f0; color: #2e1252; --note-line-color: rgba(60,15,100,0.14); }
-    .sticky-note-orange { background: #f7c07a; color: #4a2600; --note-line-color: rgba(120,60,0,0.14); }
+    .sticky-note-yellow { background: rgba(244, 224, 77, 0.75); color: #3a3410; --note-line-color: rgba(80,70,0,0.14); }
+    .sticky-note-pink   { background: rgba(245, 166, 201, 0.75); color: #4a1230; --note-line-color: rgba(110,10,60,0.14); }
+    .sticky-note-cyan   { background: rgba(143, 227, 240, 0.75); color: #0a3a42; --note-line-color: rgba(0,70,85,0.14); }
+    .sticky-note-green  { background: rgba(168, 230, 161, 0.75); color: #163a15; --note-line-color: rgba(15,80,15,0.14); }
+    .sticky-note-purple { background: rgba(203, 176, 240, 0.75); color: #2e1252; --note-line-color: rgba(60,15,100,0.14); }
+    .sticky-note-orange { background: rgba(247, 192, 122, 0.75); color: #4a2600; --note-line-color: rgba(120,60,0,0.14); }
+
+    /* Tarjeta en modo edición/creación: un poco más alta para dejar sitio al selector de color */
+    .sticky-note-editing { min-height: 232px; }
+
+    /* ===== SELECTOR DE COLOR Y TRANSPARENCIA (Notas y Tareas) ===== */
+    .item-color-picker {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .item-palette-tabs {
+      display: flex;
+      gap: 4px;
+    }
+    .item-palette-tab {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.12);
+      color: inherit;
+      opacity: 0.55;
+      border: 1px solid rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: opacity 0.15s ease, background 0.15s ease;
+    }
+    .item-palette-tab.active {
+      opacity: 1;
+      background: rgba(0,0,0,0.22);
+    }
+    .item-swatches-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .item-swatch {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.55);
+      cursor: pointer;
+      padding: 0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      transition: transform 0.15s ease;
+      flex-shrink: 0;
+    }
+    .item-swatch:hover { transform: scale(1.18); }
+    .item-swatch-selected {
+      border-color: rgba(0,0,0,0.65);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.85), 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .item-opacity-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .item-opacity-slider {
+      flex: 1;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(0,0,0,0.22);
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+    .item-opacity-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: currentColor;
+      border: 2px solid rgba(255,255,255,0.85);
+      cursor: pointer;
+    }
+    .item-opacity-slider::-moz-range-thumb {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: currentColor;
+      border: 2px solid rgba(255,255,255,0.85);
+      cursor: pointer;
+    }
+    .no-tape::before { content: none !important; }
 
     .sticky-note-empty-msg {
       font-size: 10px;
       color: #6b7280;
       text-align: center;
       padding: 12px 0;
+      width: 100%;
+    }
+
+    /* ===== TAREAS (Panel Widget estilo nota adhesiva) ===== */
+    .tasks-board {
+      min-height: 64px;
+      background-image:
+        radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 12px 12px;
+    }
+
+    .task-card {
+      position: relative;
+      border-radius: 4px 4px 14px 14px;
+      padding: 13px 12px 9px 14px;
+      box-shadow: 2px 5px 12px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.14) inset;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease, filter 0.3s ease;
+    }
+    .task-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 3px 10px 20px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.18) inset;
+      z-index: 5;
+    }
+    /* Cinta adhesiva en la esquina, como las notas */
+    .task-card::before {
+      content: '';
+      position: absolute;
+      top: -7px;
+      left: 16px;
+      width: 26px;
+      height: 13px;
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .task-card.tape-a::before { transform: rotate(-6deg); }
+    .task-card.tape-b::before { transform: rotate(5deg); }
+
+    .task-card-done {
+      opacity: 0.55;
+      filter: saturate(0.45);
+    }
+
+    .task-card-text {
+      font-family: 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif;
+      font-size: 13px;
+      line-height: 19px;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .task-card-input {
+      width: 100%;
+      background: rgba(255,255,255,0.3);
+      border: 1px dashed rgba(0,0,0,0.35);
+      border-radius: 6px;
+      outline: none;
+      font-family: 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif;
+      font-size: 13px;
+      padding: 6px 8px;
+      color: inherit;
+    }
+
+    .task-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.16);
+      margin-top: 5px;
+    }
+
+    /* Acciones visibles siempre en móvil; en pantallas grandes aparecen al pasar el cursor */
+    .task-card-actions {
+      opacity: 1;
+      transition: opacity 0.15s ease;
+    }
+    @media (min-width: 640px) {
+      .task-card-actions { opacity: 0; }
+      .task-card:hover .task-card-actions,
+      .task-card:focus-within .task-card-actions { opacity: 1; }
+    }
+
+    .task-yellow { background: rgba(244, 224, 77, 0.75); color: #3a3410; }
+    .task-pink   { background: rgba(245, 166, 201, 0.75); color: #4a1230; }
+    .task-cyan   { background: rgba(143, 227, 240, 0.75); color: #0a3a42; }
+    .task-green  { background: rgba(168, 230, 161, 0.75); color: #163a15; }
+    .task-purple { background: rgba(203, 176, 240, 0.75); color: #2e1252; }
+    .task-orange { background: rgba(247, 192, 122, 0.75); color: #4a2600; }
+
+    .task-new-card {
+      display: block;
+    }
+    .task-new-card .task-card-input {
+      margin-bottom: 2px;
+    }
+
+    .task-empty-msg {
+      font-size: 10px;
+      color: #6b7280;
+      text-align: center;
+      padding: 14px 0;
       width: 100%;
     }
 
@@ -821,27 +1016,39 @@
 
           <!-- APARTADO DE TAREAS -->
           <div id="tasks-section" class="mb-6 print:hidden">
-            <div class="flex justify-between items-center mb-3">
+            <div class="flex justify-between items-center mb-2">
               <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                 <i data-lucide="list-checks" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Tareas
+                <span id="tasks-progress-badge" class="hidden normal-case tracking-normal text-[10px] font-bold text-[#00f0ff] bg-[#00f0ff]/10 border border-[#00f0ff]/25 rounded-full px-2 py-0.5"></span>
               </h3>
               <button id="btn-add-task" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Añadir tarea">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               </button>
             </div>
 
-            <form id="add-task-form" class="hidden mb-2.5 flex items-center gap-2 animate-pop">
-              <input type="text" id="new-task-input" maxlength="200" placeholder="Escribe una tarea..." class="flex-1 bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:border-[#00f0ff] focus:ring-1 focus:ring-[#00f0ff] outline-none placeholder:text-gray-600" />
-              <button type="submit" class="p-2 bg-[#00f0ff]/15 text-[#00f0ff] rounded-lg hover:bg-[#00f0ff]/25 transition-colors flex-shrink-0" title="Guardar tarea">
-                <i data-lucide="check" class="w-4 h-4"></i>
-              </button>
-              <button type="button" id="btn-cancel-add-task" class="p-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors flex-shrink-0" title="Cancelar">
-                <i data-lucide="x" class="w-4 h-4"></i>
-              </button>
-            </form>
+            <div id="tasks-progress-track" class="hidden w-full h-1 bg-gray-900 rounded-full overflow-hidden mb-2.5">
+              <div id="tasks-progress-bar" class="h-full bg-gradient-to-r from-[#7000ff] to-[#00f0ff] rounded-full transition-all duration-500" style="width:0%"></div>
+            </div>
 
-            <div id="tasks-list" class="space-y-2 max-h-44 overflow-y-auto pr-1">
-              <!-- Renderizado dinámico -->
+            <div class="tasks-board rounded-2xl p-3 border border-gray-800/80 bg-gray-950/40">
+              <form id="add-task-form" class="hidden mb-3 flex flex-col gap-2 animate-pop">
+                <div id="task-card-new-form" class="task-card task-new-card no-tape">
+                  <input type="text" id="new-task-input" maxlength="200" placeholder="Escribe una tarea..." class="task-card-input" style="background: rgba(255,255,255,0.3); color: inherit;" />
+                  <div id="task-picker-new-form"></div>
+                </div>
+                <div class="flex items-center justify-end gap-2">
+                  <button type="submit" class="p-2 bg-[#00f0ff]/15 text-[#00f0ff] rounded-lg hover:bg-[#00f0ff]/25 transition-colors flex-shrink-0" title="Guardar tarea">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                  </button>
+                  <button type="button" id="btn-cancel-add-task" class="p-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors flex-shrink-0" title="Cancelar">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </form>
+
+              <div id="tasks-list" class="space-y-3 max-h-72 overflow-y-auto overflow-x-hidden pt-3 pr-1">
+                <!-- Renderizado dinámico -->
+              </div>
             </div>
           </div>
 
@@ -5431,47 +5638,198 @@
         .replace(/'/g, '&#39;');
     }
 
+    const TASK_CARD_COLORS = ['yellow', 'pink', 'cyan', 'green', 'purple', 'orange'];
+
+    // Color y cinta estables por id (no cambian al reordenar la tarea)
+    // ===== PALETAS DE COLOR PERSONALIZABLES (Pastel / Neón) =====
+    const COLOR_PALETTES = {
+      pastel: {
+        yellow: { bg: '244,224,77',  text: '#3a3410', line: '80,70,0' },
+        pink:   { bg: '245,166,201', text: '#4a1230', line: '110,10,60' },
+        cyan:   { bg: '143,227,240', text: '#0a3a42', line: '0,70,85' },
+        green:  { bg: '168,230,161', text: '#163a15', line: '15,80,15' },
+        purple: { bg: '203,176,240', text: '#2e1252', line: '60,15,100' },
+        orange: { bg: '247,192,122', text: '#4a2600', line: '120,60,0' }
+      },
+      neon: {
+        cyan:   { bg: '0,240,255',  text: '#022329', line: '0,120,130' },
+        pink:   { bg: '255,0,127',  text: '#3a0018', line: '140,0,60' },
+        purple: { bg: '112,0,255',  text: '#f3e8ff', line: '60,0,140' },
+        yellow: { bg: '250,255,0',  text: '#2e2f00', line: '120,120,0' },
+        green:  { bg: '57,255,20',  text: '#0a2e05', line: '20,110,10' },
+        orange: { bg: '255,140,0',  text: '#331c00', line: '140,70,0' }
+      }
+    };
+    const DEFAULT_ITEM_STYLE = { palette: 'pastel', color: 'yellow', opacity: 0.75 };
+
+    // Borrador de color/transparencia en uso mientras se crea o edita una nota o tarea
+    let noteDraft = { ...DEFAULT_ITEM_STYLE };
+    let taskDraft = { ...DEFAULT_ITEM_STYLE };
+
+    // Construye el estilo inline (fondo + transparencia + texto + resplandor neón) para una nota o tarea
+    function buildItemStyle(palette, color, opacity, kind) {
+      const pal = COLOR_PALETTES[palette] ? palette : 'pastel';
+      const colKey = COLOR_PALETTES[pal][color] ? color : Object.keys(COLOR_PALETTES[pal])[0];
+      const c = COLOR_PALETTES[pal][colKey];
+      const alpha = (typeof opacity === 'number' && opacity >= 0.1 && opacity <= 1) ? opacity : DEFAULT_ITEM_STYLE.opacity;
+      let style = `background: rgba(${c.bg}, ${alpha}); color: ${c.text}; --note-line-color: rgba(${c.line}, 0.16);`;
+      if (pal === 'neon') {
+        const shadowOffset = kind === 'task' ? '2px 5px 12px' : '3px 6px 14px';
+        style += ` box-shadow: 0 0 14px rgba(${c.bg},0.55), 0 0 28px rgba(${c.bg},0.28), ${shadowOffset} rgba(0,0,0,0.5); border: 1px solid rgba(${c.bg},0.65);`;
+      }
+      return style;
+    }
+
+    // Genera el HTML del selector de paleta (pastel/neón), colores y transparencia
+    function colorPickerHtml(kind, palette, color, opacity) {
+      const swatches = Object.keys(COLOR_PALETTES[palette]).map(k => {
+        const c = COLOR_PALETTES[palette][k];
+        const sel = k === color ? 'item-swatch-selected' : '';
+        return `<button type="button" class="item-swatch ${sel}" style="background: rgb(${c.bg})" onclick="window.setItemDraft('${kind}','color','${k}')" title="${k}"></button>`;
+      }).join('');
+      return `
+        <div class="item-color-picker" onclick="event.stopPropagation()">
+          <div class="item-palette-tabs">
+            <button type="button" class="item-palette-tab ${palette === 'pastel' ? 'active' : ''}" onclick="window.setItemDraft('${kind}','palette','pastel')">Pastel</button>
+            <button type="button" class="item-palette-tab ${palette === 'neon' ? 'active' : ''}" onclick="window.setItemDraft('${kind}','palette','neon')">Neón</button>
+          </div>
+          <div class="item-swatches-row">${swatches}</div>
+          <div class="item-opacity-row">
+            <i data-lucide="droplet" class="w-3 h-3 opacity-60 flex-shrink-0"></i>
+            <input type="range" min="15" max="95" value="${Math.round(opacity * 100)}" class="item-opacity-slider" oninput="window.setItemDraft('${kind}','opacity',this.value)" />
+          </div>
+        </div>
+      `;
+    }
+
+    // Actualiza el color/transparencia elegido y refresca solo lo necesario (sin perder el foco del texto)
+    function setItemDraft(kind, field, value) {
+      const draft = kind === 'note' ? noteDraft : taskDraft;
+      let rebuildPicker = true;
+      if (field === 'opacity') {
+        draft.opacity = parseInt(value, 10) / 100;
+        rebuildPicker = false;
+      } else if (field === 'palette') {
+        draft.palette = value;
+        if (!COLOR_PALETTES[value][draft.color]) draft.color = Object.keys(COLOR_PALETTES[value])[0];
+      } else if (field === 'color') {
+        draft.color = value;
+      }
+      if (kind === 'note') applyNoteDraftUI(rebuildPicker);
+      else applyTaskDraftUI(rebuildPicker);
+    }
+    window.setItemDraft = setItemDraft;
+
+    function applyNoteDraftUI(rebuildPicker) {
+      const suffix = editingNoteId ? `edit-${editingNoteId}` : 'new';
+      const card = document.getElementById(`note-card-${suffix}`);
+      if (card) card.setAttribute('style', buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note'));
+      if (rebuildPicker) {
+        const pickerContainer = document.getElementById(`note-picker-${suffix}`);
+        if (pickerContainer) {
+          pickerContainer.innerHTML = colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity);
+          lucide.createIcons();
+        }
+      }
+    }
+
+    function applyTaskDraftUI(rebuildPicker) {
+      const suffix = editingTaskId ? `edit-${editingTaskId}` : 'new-form';
+      const card = document.getElementById(`task-card-${suffix}`);
+      if (card) card.setAttribute('style', buildItemStyle(taskDraft.palette, taskDraft.color, taskDraft.opacity, 'task'));
+      if (rebuildPicker) {
+        const pickerContainer = document.getElementById(`task-picker-${suffix}`);
+        if (pickerContainer) {
+          pickerContainer.innerHTML = colorPickerHtml('task', taskDraft.palette, taskDraft.color, taskDraft.opacity);
+          lucide.createIcons();
+        }
+      }
+    }
+
+    function taskDefaultColor(id) {
+      let hash = 0;
+      const str = String(id || 'x');
+      for (let i = 0; i < str.length; i++) hash = (hash + str.charCodeAt(i) * (i + 3)) % 12;
+      return { color: TASK_CARD_COLORS[hash % TASK_CARD_COLORS.length], tape: hash % 2 === 0 ? 'tape-a' : 'tape-b' };
+    }
+
+    function updateTasksProgress(done, total) {
+      const badge = document.getElementById('tasks-progress-badge');
+      const track = document.getElementById('tasks-progress-track');
+      const bar = document.getElementById('tasks-progress-bar');
+      if (badge) {
+        badge.classList.toggle('hidden', total === 0);
+        badge.textContent = total > 0 ? `${done}/${total}` : '';
+      }
+      if (track) track.classList.toggle('hidden', total === 0);
+      if (bar) bar.style.width = total > 0 ? `${Math.round((done / total) * 100)}%` : '0%';
+    }
+
     function renderTasks() {
       const container = document.getElementById('tasks-list');
       if (!container) return;
       container.innerHTML = '';
 
-      if (tasks.length === 0) {
-        container.innerHTML = '<p class="text-[10px] text-gray-500 text-center py-3">No tienes tareas pendientes.</p>';
+      const total = tasks.length;
+      const done = tasks.filter(t => t.completed).length;
+      updateTasksProgress(done, total);
+
+      if (total === 0) {
+        container.innerHTML = '<p class="task-empty-msg">No tienes tareas pendientes. Pulsa "+" para crear una.</p>';
         return;
       }
 
       tasks.forEach((t, idx) => {
+        const def = taskDefaultColor(t.id);
+        const tapeClass = def.tape;
+
         if (editingTaskId === t.id) {
+          const style = buildItemStyle(taskDraft.palette, taskDraft.color, taskDraft.opacity, 'task');
           container.innerHTML += `
-            <div class="flex items-center gap-2 bg-gray-950/60 border border-[#00f0ff]/40 rounded-xl px-3 py-2">
-              <input type="text" id="task-edit-input-${t.id}" maxlength="200" value="${escapeHtml(t.text)}" class="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-2 py-1.5 text-sm text-white focus:border-[#00f0ff] outline-none" />
-              <button onclick="window.saveEditTask('${t.id}')" class="p-1 text-[#00f0ff] hover:text-white transition-colors flex-shrink-0" title="Guardar">
-                <i data-lucide="check" class="w-4 h-4"></i>
-              </button>
-              <button onclick="window.cancelEditTask()" class="p-1 text-gray-500 hover:text-white transition-colors flex-shrink-0" title="Cancelar">
-                <i data-lucide="x" class="w-4 h-4"></i>
-              </button>
+            <div id="task-card-edit-${t.id}" class="task-card ${tapeClass}" style="${style}">
+              <input type="text" id="task-edit-input-${t.id}" maxlength="200" value="${escapeHtml(t.text)}" class="task-card-input" />
+              <div id="task-picker-edit-${t.id}">${colorPickerHtml('task', taskDraft.palette, taskDraft.color, taskDraft.opacity)}</div>
+              <div class="flex justify-end gap-2 mt-2">
+                <button onclick="window.saveEditTask('${t.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+                <button onclick="window.cancelEditTask()" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Cancelar">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
             </div>
           `;
         } else {
-          const linkedBadge = t.eventMovementId ? ' <i data-lucide="calendar-check" class="w-3.5 h-3.5 inline text-[#faff00]"></i>' : '';
+          const palette = t.palette || 'pastel';
+          const color = t.color || def.color;
+          const opacity = (typeof t.opacity === 'number') ? t.opacity : 0.75;
+          const style = buildItemStyle(palette, color, opacity, 'task');
+          const badge = t.eventMovementId
+            ? '<span class="task-card-badge"><i data-lucide="calendar-check" class="w-3 h-3"></i>Evento</span>'
+            : '';
           container.innerHTML += `
-            <div class="group flex items-center gap-2 bg-gray-950/60 border border-gray-800/80 rounded-xl px-3 py-2">
-              <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskCompleted('${t.id}')" class="w-[18px] h-[18px] rounded accent-[#00f0ff] cursor-pointer flex-shrink-0" title="Marcar como completada" />
-              <span class="flex-1 text-sm truncate ${t.completed ? 'underline decoration-2 decoration-[#00f0ff]/70 text-gray-500' : 'text-gray-200'}">${escapeHtml(t.text)}${linkedBadge}</span>
-              <button onclick="window.moveTaskUp('${t.id}')" ${idx === 0 ? 'disabled' : ''} class="p-1 rounded-lg transition-colors flex-shrink-0 ${idx === 0 ? 'text-gray-700 cursor-not-allowed' : 'text-gray-500 hover:text-[#00f0ff] hover:bg-cyan-500/10'}" title="Subir">
-                <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="window.moveTaskDown('${t.id}')" ${idx === tasks.length - 1 ? 'disabled' : ''} class="p-1 rounded-lg transition-colors flex-shrink-0 ${idx === tasks.length - 1 ? 'text-gray-700 cursor-not-allowed' : 'text-gray-500 hover:text-[#00f0ff] hover:bg-cyan-500/10'}" title="Bajar">
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="window.startEditTask('${t.id}')" class="p-1 text-gray-500 hover:text-[#00f0ff] rounded-lg hover:bg-cyan-500/10 transition-colors flex-shrink-0" title="Editar">
-                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-              </button>
-              <button onclick="window.deleteTask('${t.id}')" class="p-1 text-gray-500 hover:text-rose-450 rounded-lg hover:bg-rose-500/10 transition-colors flex-shrink-0" title="Eliminar">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-              </button>
+            <div class="task-card ${tapeClass} ${t.completed ? 'task-card-done' : ''}" style="${style}">
+              <div class="flex items-start gap-2.5">
+                <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskCompleted('${t.id}')" class="mt-0.5 w-[18px] h-[18px] rounded-md cursor-pointer flex-shrink-0" style="accent-color: currentColor;" title="Marcar como completada" />
+                <div class="flex-1 min-w-0">
+                  <p class="task-card-text ${t.completed ? 'line-through' : ''}">${escapeHtml(t.text)}</p>
+                  ${badge}
+                </div>
+              </div>
+              <div class="task-card-actions flex justify-end items-center gap-0.5 mt-1">
+                <button onclick="window.moveTaskUp('${t.id}')" ${idx === 0 ? 'disabled' : ''} class="p-1 rounded-lg transition-opacity flex-shrink-0 ${idx === 0 ? 'opacity-25 cursor-not-allowed' : 'hover:opacity-70'}" title="Subir">
+                  <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="window.moveTaskDown('${t.id}')" ${idx === tasks.length - 1 ? 'disabled' : ''} class="p-1 rounded-lg transition-opacity flex-shrink-0 ${idx === tasks.length - 1 ? 'opacity-25 cursor-not-allowed' : 'hover:opacity-70'}" title="Bajar">
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="window.startEditTask('${t.id}')" class="p-1 hover:opacity-70 rounded-lg transition-opacity flex-shrink-0" title="Editar">
+                  <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                </button>
+                <button onclick="window.deleteTask('${t.id}')" class="p-1 hover:opacity-70 rounded-lg transition-opacity flex-shrink-0" title="Eliminar">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
             </div>
           `;
         }
@@ -5495,8 +5853,10 @@
     function showAddTaskInput() {
       const form = document.getElementById('add-task-form');
       const input = document.getElementById('new-task-input');
+      taskDraft = { ...DEFAULT_ITEM_STYLE };
       if (form) form.classList.remove('hidden');
       if (input) { input.value = ''; input.focus(); }
+      applyTaskDraftUI(true);
     }
 
     function hideAddTaskInput() {
@@ -5538,6 +5898,9 @@
             text: text,
             completed: false,
             eventMovementId: null,
+            palette: taskDraft.palette,
+            color: taskDraft.color,
+            opacity: taskDraft.opacity,
             createdAt: new Date().toISOString()
           });
           openTaskCalendarPrompt(newTaskRef.id, text);
@@ -5560,6 +5923,13 @@
     }
 
     function startEditTask(id) {
+      const t = tasks.find(x => x.id === id);
+      const def = t ? taskDefaultColor(t.id) : { color: 'yellow' };
+      taskDraft = {
+        palette: (t && t.palette) || 'pastel',
+        color: (t && t.color) || def.color,
+        opacity: (t && typeof t.opacity === 'number') ? t.opacity : 0.75
+      };
       editingTaskId = id;
       renderTasks();
     }
@@ -5574,7 +5944,12 @@
       const text = input ? input.value.trim() : '';
       if (!text) return;
       try {
-        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', id), { text });
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', id), {
+          text,
+          palette: taskDraft.palette,
+          color: taskDraft.color,
+          opacity: taskDraft.opacity
+        });
         editingTaskId = null;
       } catch (error) {
         console.error("Error al actualizar la tarea:", error);
@@ -5629,13 +6004,14 @@
       }
 
       stickyNotes.forEach((n, idx) => {
-        const colorClass = `sticky-note-${STICKY_NOTE_COLORS[idx % STICKY_NOTE_COLORS.length]}`;
         const rotClass = stickyNoteRotationClass(n.id);
 
         if (editingNoteId === n.id) {
+          const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note');
           container.innerHTML += `
-            <div class="sticky-note ${colorClass} ${rotClass}">
+            <div id="note-card-edit-${n.id}" class="sticky-note sticky-note-editing ${rotClass}" style="${style}">
               <textarea id="note-edit-input-${n.id}" maxlength="300" class="sticky-note-textarea">${escapeHtml(n.text)}</textarea>
+              <div id="note-picker-edit-${n.id}">${colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity)}</div>
               <div class="flex justify-end gap-1 mt-2">
                 <button onclick="window.saveEditNote('${n.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
                   <i data-lucide="check" class="w-4 h-4"></i>
@@ -5647,8 +6023,12 @@
             </div>
           `;
         } else {
+          const palette = n.palette || 'pastel';
+          const color = n.color || STICKY_NOTE_COLORS[idx % STICKY_NOTE_COLORS.length];
+          const opacity = (typeof n.opacity === 'number') ? n.opacity : 0.75;
+          const style = buildItemStyle(palette, color, opacity, 'note');
           container.innerHTML += `
-            <div class="sticky-note ${colorClass} ${rotClass}">
+            <div class="sticky-note ${rotClass}" style="${style}">
               <div class="sticky-note-lines">${escapeHtml(n.text)}</div>
               <div class="sticky-note-actions flex justify-end gap-1 mt-1">
                 <button onclick="window.startEditNote('${n.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Editar">
@@ -5664,10 +6044,11 @@
       });
 
       if (creatingNewNote) {
-        const colorClass = `sticky-note-${STICKY_NOTE_COLORS[stickyNotes.length % STICKY_NOTE_COLORS.length]}`;
+        const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note');
         container.innerHTML += `
-          <div class="sticky-note ${colorClass} sticky-note-rot-1">
+          <div id="note-card-new" class="sticky-note sticky-note-editing sticky-note-rot-1" style="${style}">
             <textarea id="note-new-input" maxlength="300" placeholder="Escribe tu nota..." class="sticky-note-textarea"></textarea>
+            <div id="note-picker-new">${colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity)}</div>
             <div class="flex justify-end gap-1 mt-2">
               <button onclick="window.saveNewNote()" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
                 <i data-lucide="check" class="w-4 h-4"></i>
@@ -5707,6 +6088,7 @@
     function showAddNoteInput() {
       creatingNewNote = true;
       editingNoteId = null;
+      noteDraft = { ...DEFAULT_ITEM_STYLE };
       renderStickyNotes();
     }
 
@@ -5723,6 +6105,9 @@
       try {
         await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes'), {
           text: text,
+          palette: noteDraft.palette,
+          color: noteDraft.color,
+          opacity: noteDraft.opacity,
           createdAt: new Date().toISOString()
         });
       } catch (error) {
@@ -5731,6 +6116,13 @@
     }
 
     function startEditNote(id) {
+      const idx = stickyNotes.findIndex(x => x.id === id);
+      const n = idx >= 0 ? stickyNotes[idx] : null;
+      noteDraft = {
+        palette: (n && n.palette) || 'pastel',
+        color: (n && n.color) || STICKY_NOTE_COLORS[(idx >= 0 ? idx : 0) % STICKY_NOTE_COLORS.length],
+        opacity: (n && typeof n.opacity === 'number') ? n.opacity : 0.75
+      };
       creatingNewNote = false;
       editingNoteId = id;
       renderStickyNotes();
@@ -5746,7 +6138,12 @@
       const text = input ? input.value.trim() : '';
       if (!text) return;
       try {
-        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), { text });
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), {
+          text,
+          palette: noteDraft.palette,
+          color: noteDraft.color,
+          opacity: noteDraft.opacity
+        });
         editingNoteId = null;
       } catch (error) {
         console.error("Error al actualizar la nota:", error);
