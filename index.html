@@ -231,6 +231,24 @@
     /* Tarjeta en modo edición/creación: un poco más alta para dejar sitio al selector de color */
     .sticky-note-editing { min-height: 232px; }
 
+    /* Manija de redimensionado (esquina inferior derecha), visible solo mientras se edita la nota */
+    .sticky-note-resize-handle {
+      position: absolute;
+      right: 1px;
+      bottom: 1px;
+      width: 18px;
+      height: 18px;
+      cursor: nwse-resize;
+      touch-action: none;
+      background-image: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 5px);
+      -webkit-mask-image: linear-gradient(315deg, black 0 45%, transparent 46%);
+      mask-image: linear-gradient(315deg, black 0 45%, transparent 46%);
+      opacity: 0.45;
+      border-radius: 0 0 8px 0;
+      z-index: 5;
+    }
+    .sticky-note-resize-handle:hover { opacity: 0.85; }
+
     /* ===== SELECTOR DE COLOR Y TRANSPARENCIA (Notas y Tareas) ===== */
     .item-color-picker {
       margin-top: 6px;
@@ -6052,7 +6070,10 @@
         const posStyle = `position:absolute; left:${pos.x}px; top:${pos.y}px; z-index:${z};`;
 
         if (isEditingThis) {
-          const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note') + posStyle;
+          const w = (typeof n.width === 'number') ? n.width : NOTE_W;
+          const h = (typeof n.height === 'number') ? n.height : 232;
+          const sizeStyle = `width:${w}px; height:${h}px;`;
+          const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note') + posStyle + sizeStyle;
           container.innerHTML += `
             <div id="note-card-edit-${n.id}" class="sticky-note sticky-note-editing ${rotClass}" style="${style}">
               <textarea id="note-edit-input-${n.id}" maxlength="300" class="sticky-note-textarea">${escapeHtml(n.text)}</textarea>
@@ -6065,13 +6086,16 @@
                   <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
               </div>
+              <div class="sticky-note-resize-handle" data-resize-for="note-card-edit-${n.id}" title="Arrastra para cambiar el tamaño"></div>
             </div>
           `;
         } else {
           const palette = n.palette || 'pastel';
           const color = n.color || STICKY_NOTE_COLORS[idx % STICKY_NOTE_COLORS.length];
           const opacity = (typeof n.opacity === 'number') ? n.opacity : 0.75;
-          const style = buildItemStyle(palette, color, opacity, 'note') + posStyle;
+          const sizeStyle = (typeof n.width === 'number' && typeof n.height === 'number')
+            ? `width:${n.width}px; height:${n.height}px;` : '';
+          const style = buildItemStyle(palette, color, opacity, 'note') + posStyle + sizeStyle;
           container.innerHTML += `
             <div class="sticky-note ${rotClass}" data-note-id="${n.id}" style="${style}">
               <div class="sticky-note-lines">${escapeHtml(n.text)}</div>
@@ -6104,6 +6128,7 @@
                 <i data-lucide="x" class="w-4 h-4"></i>
               </button>
             </div>
+            <div class="sticky-note-resize-handle" data-resize-for="note-card-new" title="Arrastra para cambiar el tamaño"></div>
           </div>
         `;
       }
@@ -6120,6 +6145,7 @@
       container.style.height = (maxBottom + 20) + 'px';
 
       attachStickyNotesDragEvents(container);
+      attachStickyNoteResizeHandles(container);
 
       if (editingNoteId) {
         const input = document.getElementById(`note-edit-input-${editingNoteId}`);
@@ -6212,6 +6238,52 @@
       });
     }
 
+    // Permite redimensionar la nota que se está editando (o creando) arrastrando la manija
+    // de su esquina inferior derecha. El tamaño se guarda como estilo en línea sobre la
+    // tarjeta y se persiste en Firestore al pulsar "Guardar" (ver saveEditNote/saveNewNote).
+    function attachStickyNoteResizeHandles(container) {
+      const MIN_W = 140, MIN_H = 150;
+      container.querySelectorAll('.sticky-note-resize-handle').forEach(handle => {
+        let resizeState = null;
+
+        handle.addEventListener('pointerdown', (e) => {
+          const card = document.getElementById(handle.getAttribute('data-resize-for'));
+          if (!card) return;
+          const rect = card.getBoundingClientRect();
+          resizeState = {
+            card,
+            pointerId: e.pointerId,
+            startW: rect.width,
+            startH: rect.height,
+            startX: e.clientX,
+            startY: e.clientY
+          };
+          handle.setPointerCapture(e.pointerId);
+          e.preventDefault();
+          e.stopPropagation();
+        });
+
+        handle.addEventListener('pointermove', (e) => {
+          if (!resizeState || resizeState.pointerId !== e.pointerId) return;
+          const dw = e.clientX - resizeState.startX;
+          const dh = e.clientY - resizeState.startY;
+          const newW = Math.max(MIN_W, resizeState.startW + dw);
+          const newH = Math.max(MIN_H, resizeState.startH + dh);
+          resizeState.card.style.width = newW + 'px';
+          resizeState.card.style.height = newH + 'px';
+          const neededHeight = resizeState.card.offsetTop + newH + 20;
+          if (neededHeight > container.offsetHeight) container.style.height = neededHeight + 'px';
+        });
+
+        const finishResize = (e) => {
+          if (!resizeState || resizeState.pointerId !== e.pointerId) return;
+          resizeState = null;
+        };
+        handle.addEventListener('pointerup', finishResize);
+        handle.addEventListener('pointercancel', finishResize);
+      });
+    }
+
     // Si la ventana cambia de tamaño (p. ej. al rotar el móvil), recalcula la casilla de las
     // notas que aún no tienen posición propia guardada (las ya arrastradas no se mueven).
     let stickyNotesResizeTimer = null;
@@ -6238,15 +6310,22 @@
       const input = document.getElementById('note-new-input');
       const text = input ? input.value.trim() : '';
       if (!text) { creatingNewNote = false; renderStickyNotes(); return; }
+      const card = document.getElementById('note-card-new');
+      const newNoteData = {
+        text: text,
+        palette: noteDraft.palette,
+        color: noteDraft.color,
+        opacity: noteDraft.opacity,
+        createdAt: new Date().toISOString()
+      };
+      if (card) {
+        newNoteData.width = card.offsetWidth;
+        newNoteData.height = card.offsetHeight;
+      }
       creatingNewNote = false;
+      renderStickyNotes();
       try {
-        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes'), {
-          text: text,
-          palette: noteDraft.palette,
-          color: noteDraft.color,
-          opacity: noteDraft.opacity,
-          createdAt: new Date().toISOString()
-        });
+        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes'), newNoteData);
       } catch (error) {
         console.error("Error al guardar la nota:", error);
       }
@@ -6274,14 +6353,23 @@
       const input = document.getElementById(`note-edit-input-${id}`);
       const text = input ? input.value.trim() : '';
       if (!text) return;
+      const card = document.getElementById(`note-card-edit-${id}`);
+      const updateData = {
+        text,
+        palette: noteDraft.palette,
+        color: noteDraft.color,
+        opacity: noteDraft.opacity
+      };
+      if (card) {
+        updateData.width = card.offsetWidth;
+        updateData.height = card.offsetHeight;
+      }
+      // Se cierra de inmediato para que la tarjeta se vea guardada al instante,
+      // sin esperar a que llegue la confirmación de Firestore.
+      editingNoteId = null;
+      renderStickyNotes();
       try {
-        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), {
-          text,
-          palette: noteDraft.palette,
-          color: noteDraft.color,
-          opacity: noteDraft.opacity
-        });
-        editingNoteId = null;
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), updateData);
       } catch (error) {
         console.error("Error al actualizar la nota:", error);
       }
