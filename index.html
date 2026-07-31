@@ -1099,9 +1099,15 @@
               <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                 <i data-lucide="sticky-note" class="w-3.5 h-3.5 text-[#faff00]"></i> Notas Adhesivas
               </h3>
-              <button id="btn-add-note" onclick="window.showAddNoteInput()" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#faff00] border border-[#faff00]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Añadir nota">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button id="btn-notes-trash" onclick="window.openNotesTrashModal()" class="relative flex items-center justify-center w-6 h-6 bg-gray-800/60 text-gray-400 border border-gray-700/60 hover:bg-gray-700/60 hover:text-gray-200 rounded-lg transition-colors cursor-pointer" title="Papelera de notas">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <span id="notes-trash-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-[#ff007f] text-white text-[9px] font-bold leading-none">0</span>
+                </button>
+                <button id="btn-add-note" onclick="window.showAddNoteInput()" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#faff00] border border-[#faff00]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Añadir nota">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
             </div>
 
             <div id="sticky-notes-board" class="sticky-notes-board rounded-xl p-3 border border-gray-800/80 bg-gray-950/40">
@@ -1110,7 +1116,30 @@
               </div>
             </div>
           </div>
-          
+
+          <!-- MODAL: PAPELERA DE NOTAS -->
+          <div id="notes-trash-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[105] hidden opacity-0 transition-all duration-300">
+            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="notes-trash-content">
+              <div class="flex justify-between items-start p-6 border-b border-gray-800">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-gray-800/70 text-gray-300 flex-shrink-0">
+                    <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-white leading-tight">Papelera de Notas</h3>
+                    <span class="text-xs text-gray-500">Se eliminan definitivamente a los 3 meses</span>
+                  </div>
+                </div>
+                <button onclick="window.closeNotesTrashModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                  <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+              </div>
+              <div id="notes-trash-list" class="p-4 space-y-2 max-h-[65vh] overflow-y-auto">
+                <!-- Renderizado dinámico -->
+              </div>
+            </div>
+          </div>
+
           <div id="donut-chart-container" class="flex justify-center mb-8 relative w-full h-64 md:h-80 lg:h-96 max-w-md md:max-w-lg lg:max-w-xl mx-auto cursor-pointer">
             <canvas id="month-donut-canvas"></canvas>
             <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
@@ -2131,6 +2160,7 @@
     let editingTaskId = null;
     let taskPendingCalendar = null;
     let stickyNotes = [];
+    let stickyNotesTrash = []; // Notas eliminadas: se conservan aquí 3 meses antes de borrarse definitivamente
     let editingNoteId = null;
     let creatingNewNote = false;
     let stickyNoteZCounter = 0; // Define qué nota queda "encima" al arrastrarla/editarla
@@ -2481,12 +2511,17 @@
 
       const qStickyNotes = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes'));
       onSnapshot(qStickyNotes, (snapshot) => {
-        stickyNotes = snapshot.docs.map(doc => ({
+        const allNotes = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
+        stickyNotes = allNotes.filter(n => !n.deletedAt);
         stickyNotes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        stickyNotesTrash = allNotes.filter(n => n.deletedAt);
+        stickyNotesTrash.sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
         renderStickyNotes();
+        renderNotesTrash();
+        purgeExpiredTrashNotes();
       }, (error) => console.error("Error cargando notas adhesivas:", error));
 
       startNotificationTicker();
@@ -6377,17 +6412,129 @@
 
     function deleteNote(id) {
       showConfirm(
-        "¿Eliminar nota?",
-        "Esta acción no se puede deshacer.",
+        "¿Mover a la papelera?",
+        "La nota se moverá a la papelera y se eliminará definitivamente después de 3 meses.",
         async () => {
           try {
-            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id));
+            await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), {
+              deletedAt: new Date().toISOString()
+            });
           } catch (error) {
-            console.error("Error al eliminar la nota:", error);
+            console.error("Error al mover la nota a la papelera:", error);
           }
         },
         false
       );
+    }
+
+    // Regresa una nota de la papelera a las notas activas
+    async function restoreNote(id) {
+      try {
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), {
+          deletedAt: null
+        });
+      } catch (error) {
+        console.error("Error al restaurar la nota:", error);
+      }
+    }
+
+    // Elimina una nota de la papelera de forma permanente e inmediata (a petición del usuario)
+    function deleteNoteForever(id) {
+      showConfirm(
+        "¿Eliminar definitivamente?",
+        "Esta nota se borrará por completo y no podrá recuperarse.",
+        async () => {
+          try {
+            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id));
+          } catch (error) {
+            console.error("Error al eliminar la nota definitivamente:", error);
+          }
+        },
+        false
+      );
+    }
+
+    // Borra en automático (sin pedir confirmación) las notas que llevan más de 3 meses en la papelera
+    function purgeExpiredTrashNotes() {
+      const TRES_MESES_MS = 1000 * 60 * 60 * 24 * 30 * 3; // ~3 meses
+      const now = Date.now();
+      stickyNotesTrash.forEach(n => {
+        if (n.deletedAt && (now - new Date(n.deletedAt).getTime()) > TRES_MESES_MS) {
+          deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', n.id))
+            .catch(error => console.error("Error al purgar nota vencida de la papelera:", error));
+        }
+      });
+    }
+
+    function diasRestantesEnPapelera(deletedAt) {
+      const TRES_MESES_DIAS = 90;
+      const dias = Math.floor((Date.now() - new Date(deletedAt).getTime()) / (1000 * 60 * 60 * 24));
+      return Math.max(0, TRES_MESES_DIAS - dias);
+    }
+
+    function renderNotesTrash() {
+      const badge = document.getElementById('notes-trash-badge');
+      if (badge) {
+        if (stickyNotesTrash.length > 0) {
+          badge.textContent = stickyNotesTrash.length > 99 ? '99+' : stickyNotesTrash.length;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+
+      const list = document.getElementById('notes-trash-list');
+      if (!list) return;
+
+      if (stickyNotesTrash.length === 0) {
+        list.innerHTML = '<p class="text-center text-sm text-gray-500 py-6">La papelera está vacía.</p>';
+        return;
+      }
+
+      list.innerHTML = stickyNotesTrash.map(n => {
+        const dias = diasRestantesEnPapelera(n.deletedAt);
+        return `
+          <div class="flex items-start gap-3 bg-gray-900/50 border border-gray-800 rounded-xl p-3">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-gray-200 whitespace-pre-wrap break-words line-clamp-3">${escapeHtml(n.text)}</p>
+              <span class="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Se borra en ${dias} día${dias === 1 ? '' : 's'}</span>
+            </div>
+            <div class="flex flex-col gap-1 flex-shrink-0">
+              <button onclick="window.restoreNote('${n.id}')" class="p-1.5 rounded-lg bg-[#7000ff]/15 text-[#faff00] border border-[#faff00]/30 hover:bg-[#7000ff]/25 transition-colors" title="Restaurar">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="window.deleteNoteForever('${n.id}')" class="p-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 transition-colors" title="Eliminar definitivamente">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function openNotesTrashModal() {
+      const modal = document.getElementById('notes-trash-modal');
+      const content = document.getElementById('notes-trash-content');
+      renderNotesTrash();
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeNotesTrashModal() {
+      const modal = document.getElementById('notes-trash-modal');
+      const content = document.getElementById('notes-trash-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+      }
     }
 
     window.showAddNoteInput = showAddNoteInput;
@@ -6397,6 +6544,10 @@
     window.cancelEditNote = cancelEditNote;
     window.saveEditNote = saveEditNote;
     window.deleteNote = deleteNote;
+    window.restoreNote = restoreNote;
+    window.deleteNoteForever = deleteNoteForever;
+    window.openNotesTrashModal = openNotesTrashModal;
+    window.closeNotesTrashModal = closeNotesTrashModal;
 
     async function moveTaskUp(id) {
       const idx = tasks.findIndex(t => t.id === id);
@@ -6566,6 +6717,7 @@
         closeDiecastView();
         closeCategorySummaryModal();
         closeTaskCalendarPrompt();
+        closeNotesTrashModal();
         const profileMenu = document.getElementById('profile-dropdown-menu');
         const exportMenu = document.getElementById('export-dropdown');
         if (profileMenu) profileMenu.classList.add('hidden');
@@ -6586,7 +6738,8 @@
       { id: 'diecast-view-modal', closeFunc: closeDiecastView },
       { id: 'category-summary-modal', closeFunc: closeCategorySummaryModal },
       { id: 'notification-settings-modal', closeFunc: closeNotificationSettingsModal },
-      { id: 'task-calendar-modal', closeFunc: closeTaskCalendarPrompt }
+      { id: 'task-calendar-modal', closeFunc: closeTaskCalendarPrompt },
+      { id: 'notes-trash-modal', closeFunc: closeNotesTrashModal }
     ];
 
     modalContainers.forEach(modal => {
