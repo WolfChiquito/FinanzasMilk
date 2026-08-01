@@ -23,6 +23,11 @@
   <!-- Chart.js para gráficos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Fuentes adicionales para Notas Adhesivas y Tareas (la fuente por defecto sigue siendo Comic Sans MS/Segoe Print, de sistema) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Kalam:wght@400&family=Patrick+Hand&family=Poppins:wght@500&family=Lora:wght@400&display=swap" rel="stylesheet">
+
   <style>
     body {
       background-color: #050409;
@@ -187,7 +192,7 @@
 
     .sticky-note-lines {
       flex: 1;
-      font-family: 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif;
+      font-family: var(--item-font, 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif);
       font-size: 13px;
       line-height: 22px;
       white-space: pre-wrap;
@@ -211,11 +216,14 @@
       min-height: 0;
       width: 100%;
       resize: none;
-      background: rgba(255,255,255,0.25);
+      background-color: rgba(255,255,255,0.25);
+      /* Mismas líneas de cuaderno que el modo lectura, para previsualizar en vivo el control de intensidad */
+      background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 20px, var(--note-line-color, rgba(0,0,0,0.12)) 21px);
+      background-position: 0 4px;
       border: 1px dashed rgba(0,0,0,0.35);
       border-radius: 4px;
       outline: none;
-      font-family: 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif;
+      font-family: var(--item-font, 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif);
       font-size: 13px;
       line-height: 21px;
       padding: 4px 6px;
@@ -336,6 +344,32 @@
       border: 2px solid rgba(255,255,255,0.85);
       cursor: pointer;
     }
+
+    /* Selector de tipografía: cada botón muestra "Aa" en su propia fuente para previsualizarla */
+    .item-font-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .item-font-btn {
+      font-size: 13px;
+      line-height: 1;
+      padding: 4px 9px;
+      border-radius: 7px;
+      background: rgba(0,0,0,0.12);
+      color: inherit;
+      opacity: 0.75;
+      border: 1px solid rgba(0,0,0,0.18);
+      cursor: pointer;
+      transition: opacity 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    }
+    .item-font-btn:hover { opacity: 1; transform: scale(1.06); }
+    .item-font-btn.item-font-selected {
+      opacity: 1;
+      background: rgba(0,0,0,0.24);
+      border-color: rgba(0,0,0,0.55);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.75);
+    }
     .no-tape::before { content: none !important; }
 
     .sticky-note-empty-msg {
@@ -387,7 +421,7 @@
     }
 
     .task-card-text {
-      font-family: 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif;
+      font-family: var(--item-font, 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif);
       font-size: 13px;
       line-height: 19px;
       word-break: break-word;
@@ -400,7 +434,7 @@
       border: 1px dashed rgba(0,0,0,0.35);
       border-radius: 6px;
       outline: none;
-      font-family: 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif;
+      font-family: var(--item-font, 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif);
       font-size: 13px;
       padding: 6px 8px;
       color: inherit;
@@ -5785,19 +5819,38 @@
         orange: { bg: '255,140,0',  text: '#331c00', line: '140,70,0' }
       }
     };
-    const DEFAULT_ITEM_STYLE = { palette: 'pastel', color: 'yellow', opacity: 0.75 };
+    // ===== TIPOGRAFÍAS PERSONALIZABLES (Notas y Tareas) =====
+    // 'manuscrita' es la fuente que ya existía (Comic Sans MS/Segoe Print) y queda intacta como opción por defecto.
+    const FONT_OPTIONS = {
+      manuscrita: { label: 'Manuscrita (original)', family: "'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif" },
+      trazo:      { label: 'Trazo suave',            family: "'Kalam', 'Comic Sans MS', cursive" },
+      clara:      { label: 'Letra clara',             family: "'Patrick Hand', 'Comic Sans MS', cursive" },
+      elegante:   { label: 'Elegante',                family: "'Caveat', 'Segoe Script', cursive" },
+      moderna:    { label: 'Moderna',                 family: "'Poppins', ui-sans-serif, sans-serif" },
+      clasica:    { label: 'Clásica',                 family: "'Lora', Georgia, serif" }
+    };
+    const DEFAULT_FONT = 'manuscrita';
+
+    const DEFAULT_ITEM_STYLE = { palette: 'pastel', color: 'yellow', opacity: 0.75, font: DEFAULT_FONT };
+    // Opacidad por defecto de las líneas de cuaderno de las notas (0 = invisibles, 1 = sólidas)
+    const DEFAULT_NOTE_LINE_OPACITY = 0.16;
 
     // Borrador de color/transparencia en uso mientras se crea o edita una nota o tarea
-    let noteDraft = { ...DEFAULT_ITEM_STYLE };
+    let noteDraft = { ...DEFAULT_ITEM_STYLE, lineOpacity: DEFAULT_NOTE_LINE_OPACITY };
     let taskDraft = { ...DEFAULT_ITEM_STYLE };
 
-    // Construye el estilo inline (fondo + transparencia + texto + resplandor neón) para una nota o tarea
-    function buildItemStyle(palette, color, opacity, kind) {
+    // Construye el estilo inline (fondo + transparencia + texto + resplandor neón + tipografía) para una nota o tarea
+    // lineOpacity solo aplica a notas: controla qué tanto se ven las líneas de cuaderno de fondo
+    function buildItemStyle(palette, color, opacity, kind, lineOpacity, font) {
       const pal = COLOR_PALETTES[palette] ? palette : 'pastel';
       const colKey = COLOR_PALETTES[pal][color] ? color : Object.keys(COLOR_PALETTES[pal])[0];
       const c = COLOR_PALETTES[pal][colKey];
       const alpha = (typeof opacity === 'number' && opacity >= 0.1 && opacity <= 1) ? opacity : DEFAULT_ITEM_STYLE.opacity;
-      let style = `background: rgba(${c.bg}, ${alpha}); color: ${c.text}; --note-line-color: rgba(${c.line}, 0.16);`;
+      const lineAlpha = kind === 'note'
+        ? ((typeof lineOpacity === 'number' && lineOpacity >= 0 && lineOpacity <= 1) ? lineOpacity : DEFAULT_NOTE_LINE_OPACITY)
+        : 0.16;
+      const fontFamily = (FONT_OPTIONS[font] || FONT_OPTIONS[DEFAULT_FONT]).family;
+      let style = `background: rgba(${c.bg}, ${alpha}); color: ${c.text}; --note-line-color: rgba(${c.line}, ${lineAlpha}); --item-font: ${fontFamily};`;
       if (pal === 'neon') {
         const shadowOffset = kind === 'task' ? '2px 5px 12px' : '3px 6px 14px';
         style += ` box-shadow: 0 0 14px rgba(${c.bg},0.55), 0 0 28px rgba(${c.bg},0.28), ${shadowOffset} rgba(0,0,0,0.5); border: 1px solid rgba(${c.bg},0.65);`;
@@ -5805,13 +5858,25 @@
       return style;
     }
 
-    // Genera el HTML del selector de paleta (pastel/neón), colores y transparencia
-    function colorPickerHtml(kind, palette, color, opacity) {
+    // Genera el HTML del selector de paleta (pastel/neón), colores, tipografía y transparencia
+    // Para notas, agrega además un control de qué tanto se ven las líneas de cuaderno de fondo
+    function colorPickerHtml(kind, palette, color, opacity, lineOpacity, font) {
       const swatches = Object.keys(COLOR_PALETTES[palette]).map(k => {
         const c = COLOR_PALETTES[palette][k];
         const sel = k === color ? 'item-swatch-selected' : '';
         return `<button type="button" class="item-swatch ${sel}" style="background: rgb(${c.bg})" onclick="window.setItemDraft('${kind}','color','${k}')" title="${k}"></button>`;
       }).join('');
+      const activeFont = font || DEFAULT_FONT;
+      const fontButtons = Object.keys(FONT_OPTIONS).map(k => {
+        const f = FONT_OPTIONS[k];
+        const sel = k === activeFont ? 'item-font-selected' : '';
+        return `<button type="button" class="item-font-btn ${sel}" style="font-family: ${f.family}" onclick="window.setItemDraft('${kind}','font','${k}')" title="${f.label}">Aa</button>`;
+      }).join('');
+      const lineOpacityRow = kind === 'note' ? `
+          <div class="item-opacity-row">
+            <i data-lucide="align-justify" class="w-3 h-3 opacity-60 flex-shrink-0"></i>
+            <input type="range" min="0" max="100" value="${Math.round((typeof lineOpacity === 'number' ? lineOpacity : DEFAULT_NOTE_LINE_OPACITY) * 100)}" class="item-opacity-slider" oninput="window.setItemDraft('${kind}','lineOpacity',this.value)" title="Líneas de cuaderno" />
+          </div>` : '';
       return `
         <div class="item-color-picker" onclick="event.stopPropagation()">
           <div class="item-palette-tabs">
@@ -5819,10 +5884,11 @@
             <button type="button" class="item-palette-tab ${palette === 'neon' ? 'active' : ''}" onclick="window.setItemDraft('${kind}','palette','neon')">Neón</button>
           </div>
           <div class="item-swatches-row">${swatches}</div>
+          <div class="item-font-row">${fontButtons}</div>
           <div class="item-opacity-row">
             <i data-lucide="droplet" class="w-3 h-3 opacity-60 flex-shrink-0"></i>
-            <input type="range" min="15" max="95" value="${Math.round(opacity * 100)}" class="item-opacity-slider" oninput="window.setItemDraft('${kind}','opacity',this.value)" />
-          </div>
+            <input type="range" min="15" max="95" value="${Math.round(opacity * 100)}" class="item-opacity-slider" oninput="window.setItemDraft('${kind}','opacity',this.value)" title="Transparencia" />
+          </div>${lineOpacityRow}
         </div>
       `;
     }
@@ -5834,11 +5900,16 @@
       if (field === 'opacity') {
         draft.opacity = parseInt(value, 10) / 100;
         rebuildPicker = false;
+      } else if (field === 'lineOpacity') {
+        draft.lineOpacity = parseInt(value, 10) / 100;
+        rebuildPicker = false;
       } else if (field === 'palette') {
         draft.palette = value;
         if (!COLOR_PALETTES[value][draft.color]) draft.color = Object.keys(COLOR_PALETTES[value])[0];
       } else if (field === 'color') {
         draft.color = value;
+      } else if (field === 'font') {
+        draft.font = value;
       }
       if (kind === 'note') applyNoteDraftUI(rebuildPicker);
       else applyTaskDraftUI(rebuildPicker);
@@ -5848,11 +5919,11 @@
     function applyNoteDraftUI(rebuildPicker) {
       const suffix = editingNoteId ? `edit-${editingNoteId}` : 'new';
       const card = document.getElementById(`note-card-${suffix}`);
-      if (card) card.setAttribute('style', buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note'));
+      if (card) card.setAttribute('style', buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note', noteDraft.lineOpacity, noteDraft.font));
       if (rebuildPicker) {
         const pickerContainer = document.getElementById(`note-picker-${suffix}`);
         if (pickerContainer) {
-          pickerContainer.innerHTML = colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity);
+          pickerContainer.innerHTML = colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity, noteDraft.lineOpacity, noteDraft.font);
           lucide.createIcons();
         }
       }
@@ -5861,11 +5932,11 @@
     function applyTaskDraftUI(rebuildPicker) {
       const suffix = editingTaskId ? `edit-${editingTaskId}` : 'new-form';
       const card = document.getElementById(`task-card-${suffix}`);
-      if (card) card.setAttribute('style', buildItemStyle(taskDraft.palette, taskDraft.color, taskDraft.opacity, 'task'));
+      if (card) card.setAttribute('style', buildItemStyle(taskDraft.palette, taskDraft.color, taskDraft.opacity, 'task', undefined, taskDraft.font));
       if (rebuildPicker) {
         const pickerContainer = document.getElementById(`task-picker-${suffix}`);
         if (pickerContainer) {
-          pickerContainer.innerHTML = colorPickerHtml('task', taskDraft.palette, taskDraft.color, taskDraft.opacity);
+          pickerContainer.innerHTML = colorPickerHtml('task', taskDraft.palette, taskDraft.color, taskDraft.opacity, undefined, taskDraft.font);
           lucide.createIcons();
         }
       }
@@ -5909,11 +5980,11 @@
         const tapeClass = def.tape;
 
         if (editingTaskId === t.id) {
-          const style = buildItemStyle(taskDraft.palette, taskDraft.color, taskDraft.opacity, 'task');
+          const style = buildItemStyle(taskDraft.palette, taskDraft.color, taskDraft.opacity, 'task', undefined, taskDraft.font);
           container.innerHTML += `
             <div id="task-card-edit-${t.id}" class="task-card ${tapeClass}" style="${style}">
               <input type="text" id="task-edit-input-${t.id}" maxlength="200" value="${escapeHtml(t.text)}" class="task-card-input" />
-              <div id="task-picker-edit-${t.id}">${colorPickerHtml('task', taskDraft.palette, taskDraft.color, taskDraft.opacity)}</div>
+              <div id="task-picker-edit-${t.id}">${colorPickerHtml('task', taskDraft.palette, taskDraft.color, taskDraft.opacity, undefined, taskDraft.font)}</div>
               <div class="flex justify-end gap-2 mt-2">
                 <button onclick="window.saveEditTask('${t.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
                   <i data-lucide="check" class="w-4 h-4"></i>
@@ -5928,7 +5999,8 @@
           const palette = t.palette || 'pastel';
           const color = t.color || def.color;
           const opacity = (typeof t.opacity === 'number') ? t.opacity : 0.75;
-          const style = buildItemStyle(palette, color, opacity, 'task');
+          const font = t.font || DEFAULT_FONT;
+          const style = buildItemStyle(palette, color, opacity, 'task', undefined, font);
           const badge = t.eventMovementId
             ? '<span class="task-card-badge"><i data-lucide="calendar-check" class="w-3 h-3"></i>Evento</span>'
             : '';
@@ -6026,6 +6098,7 @@
             palette: taskDraft.palette,
             color: taskDraft.color,
             opacity: taskDraft.opacity,
+            font: taskDraft.font,
             createdAt: new Date().toISOString()
           });
           openTaskCalendarPrompt(newTaskRef.id, text);
@@ -6053,7 +6126,8 @@
       taskDraft = {
         palette: (t && t.palette) || 'pastel',
         color: (t && t.color) || def.color,
-        opacity: (t && typeof t.opacity === 'number') ? t.opacity : 0.75
+        opacity: (t && typeof t.opacity === 'number') ? t.opacity : 0.75,
+        font: (t && t.font) || DEFAULT_FONT
       };
       editingTaskId = id;
       renderTasks();
@@ -6073,7 +6147,8 @@
           text,
           palette: taskDraft.palette,
           color: taskDraft.color,
-          opacity: taskDraft.opacity
+          opacity: taskDraft.opacity,
+          font: taskDraft.font
         });
         editingTaskId = null;
       } catch (error) {
@@ -6156,11 +6231,11 @@
           const w = (typeof n.width === 'number') ? n.width : NOTE_W;
           const h = (typeof n.height === 'number') ? n.height : 232;
           const sizeStyle = `width:${w}px; height:${h}px;`;
-          const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note') + posStyle + sizeStyle;
+          const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note', noteDraft.lineOpacity, noteDraft.font) + posStyle + sizeStyle;
           container.innerHTML += `
             <div id="note-card-edit-${n.id}" class="sticky-note sticky-note-editing ${rotClass}" style="${style}">
               <textarea id="note-edit-input-${n.id}" maxlength="300" class="sticky-note-textarea">${escapeHtml(n.text)}</textarea>
-              <div id="note-picker-edit-${n.id}">${colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity)}</div>
+              <div id="note-picker-edit-${n.id}">${colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity, noteDraft.lineOpacity, noteDraft.font)}</div>
               <div class="flex justify-end gap-1 mt-2">
                 <button onclick="window.saveEditNote('${n.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
                   <i data-lucide="check" class="w-4 h-4"></i>
@@ -6176,9 +6251,11 @@
           const palette = n.palette || 'pastel';
           const color = n.color || STICKY_NOTE_COLORS[idx % STICKY_NOTE_COLORS.length];
           const opacity = (typeof n.opacity === 'number') ? n.opacity : 0.75;
+          const lineOpacity = (typeof n.lineOpacity === 'number') ? n.lineOpacity : DEFAULT_NOTE_LINE_OPACITY;
+          const font = n.font || DEFAULT_FONT;
           const sizeStyle = (typeof n.width === 'number' && typeof n.height === 'number')
             ? `width:${n.width}px; height:${n.height}px;` : '';
-          const style = buildItemStyle(palette, color, opacity, 'note') + posStyle + sizeStyle;
+          const style = buildItemStyle(palette, color, opacity, 'note', lineOpacity, font) + posStyle + sizeStyle;
           container.innerHTML += `
             <div class="sticky-note ${rotClass}" data-note-id="${n.id}" style="${style}">
               <div class="sticky-note-lines">${escapeHtml(n.text)}</div>
@@ -6197,12 +6274,12 @@
 
       if (creatingNewNote) {
         const pos = getNotePosition({}, stickyNotes.length, containerWidth);
-        const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note') +
+        const style = buildItemStyle(noteDraft.palette, noteDraft.color, noteDraft.opacity, 'note', noteDraft.lineOpacity, noteDraft.font) +
           `position:absolute; left:${pos.x}px; top:${pos.y}px; z-index:${stickyNoteZCounter + 1};`;
         container.innerHTML += `
           <div id="note-card-new" class="sticky-note sticky-note-editing sticky-note-rot-1" style="${style}">
             <textarea id="note-new-input" maxlength="300" placeholder="Escribe tu nota..." class="sticky-note-textarea"></textarea>
-            <div id="note-picker-new">${colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity)}</div>
+            <div id="note-picker-new">${colorPickerHtml('note', noteDraft.palette, noteDraft.color, noteDraft.opacity, noteDraft.lineOpacity, noteDraft.font)}</div>
             <div class="flex justify-end gap-1 mt-2">
               <button onclick="window.saveNewNote()" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
                 <i data-lucide="check" class="w-4 h-4"></i>
@@ -6380,7 +6457,7 @@
     function showAddNoteInput() {
       creatingNewNote = true;
       editingNoteId = null;
-      noteDraft = { ...DEFAULT_ITEM_STYLE };
+      noteDraft = { ...DEFAULT_ITEM_STYLE, lineOpacity: DEFAULT_NOTE_LINE_OPACITY };
       renderStickyNotes();
     }
 
@@ -6399,6 +6476,8 @@
         palette: noteDraft.palette,
         color: noteDraft.color,
         opacity: noteDraft.opacity,
+        lineOpacity: noteDraft.lineOpacity,
+        font: noteDraft.font,
         createdAt: new Date().toISOString()
       };
       if (card) {
@@ -6420,7 +6499,9 @@
       noteDraft = {
         palette: (n && n.palette) || 'pastel',
         color: (n && n.color) || STICKY_NOTE_COLORS[(idx >= 0 ? idx : 0) % STICKY_NOTE_COLORS.length],
-        opacity: (n && typeof n.opacity === 'number') ? n.opacity : 0.75
+        opacity: (n && typeof n.opacity === 'number') ? n.opacity : 0.75,
+        lineOpacity: (n && typeof n.lineOpacity === 'number') ? n.lineOpacity : DEFAULT_NOTE_LINE_OPACITY,
+        font: (n && n.font) || DEFAULT_FONT
       };
       creatingNewNote = false;
       editingNoteId = id;
@@ -6441,7 +6522,9 @@
         text,
         palette: noteDraft.palette,
         color: noteDraft.color,
-        opacity: noteDraft.opacity
+        opacity: noteDraft.opacity,
+        lineOpacity: noteDraft.lineOpacity,
+        font: noteDraft.font
       };
       if (card) {
         updateData.width = card.offsetWidth;
