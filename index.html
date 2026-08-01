@@ -135,7 +135,7 @@
     .sticky-note {
       position: absolute;
       width: 168px;
-      min-height: 168px;
+      min-height: 50px;
       padding: 16px 12px 10px 14px;
       border-radius: 3px 3px 10px 10px;
       display: flex;
@@ -208,6 +208,7 @@
 
     .sticky-note-textarea {
       flex: 1;
+      min-height: 0;
       width: 100%;
       resize: none;
       background: rgba(255,255,255,0.25);
@@ -228,8 +229,9 @@
     .sticky-note-purple { background: rgba(203, 176, 240, 0.75); color: #2e1252; --note-line-color: rgba(60,15,100,0.14); }
     .sticky-note-orange { background: rgba(247, 192, 122, 0.75); color: #4a2600; --note-line-color: rgba(120,60,0,0.14); }
 
-    /* Tarjeta en modo edición/creación: un poco más alta para dejar sitio al selector de color */
-    .sticky-note-editing { min-height: 232px; }
+    /* Tarjeta en modo edición/creación: altura mínima reducida para poder hacer notas pequeñas.
+       Si el espacio no alcanza para todos los controles, se puede desplazar dentro de la nota. */
+    .sticky-note-editing { min-height: 120px; overflow-y: auto; }
 
     /* Manija de redimensionado (esquina inferior derecha), visible solo mientras se edita la nota */
     .sticky-note-resize-handle {
@@ -969,7 +971,7 @@
 
     <main class="space-y-8 relative z-20">
       
-      <!-- SECCIÓN SUPERIOR: CALENDARIO Y RESUMEN MENSUAL -->
+      <!-- SECCIÓN SUPERIOR: CALENDARIO Y WIDGETS -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- CALENDARIO -->
@@ -1027,32 +1029,12 @@
           </div>
         </section>
 
-        <!-- RESUMEN MENSUAL Y GRÁFICA -->
+        <!-- WIDGETS: TAREAS Y NOTAS ADHESIVAS -->
         <section class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl flex flex-col hover:shadow-[0_10px_40px_rgba(112,0,255,0.08)] relative">
           <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold text-white">Resumen Mensual</h2>
-            <div class="flex items-center gap-2">
-              <button id="btn-hover-images-settings" onclick="openHoverImagesModal()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden" title="Personalizar Imágenes Flotantes">
-                <i data-lucide="image" class="w-4 h-4 text-[#7000ff]"></i>
-              </button>
-              <button id="btn-print" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden" title="Imprimir pantalla">
-                <i data-lucide="printer" class="w-4 h-4 text-[#ff007f]"></i>
-              </button>
-              <div class="relative">
-                <button id="btn-export-menu" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden">
-                  <i data-lucide="download" class="w-4 h-4 text-[#00f0ff]"></i> Exportar
-                </button>
-                <!-- Dropdown Exportar -->
-                <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-32 glass-card rounded-lg shadow-xl z-10 overflow-hidden border border-[#7000ff]/20 animate-pop">
-                  <button id="btn-export-pdf" class="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-gray-950 hover:text-white flex items-center gap-2 border-b border-gray-800/80 transition-colors">
-                    <i data-lucide="file-text" class="w-4 h-4 text-[#ff007f]"></i> PDF
-                  </button>
-                  <button id="btn-export-excel" class="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-gray-950 hover:text-white flex items-center gap-2 transition-colors">
-                    <i data-lucide="sheet" class="w-4 h-4 text-[#00f0ff]"></i> Excel
-                  </button>
-                </div>
-              </div>
-            </div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="layout-grid" class="w-5 h-5 text-[#7000ff]"></i> Widgets
+            </h2>
           </div>
 
           <!-- APARTADO DE TAREAS -->
@@ -1140,20 +1122,51 @@
             </div>
           </div>
 
-          <div id="donut-chart-container" class="flex justify-center mb-8 relative w-full h-64 md:h-80 lg:h-96 max-w-md md:max-w-lg lg:max-w-xl mx-auto cursor-pointer">
-            <canvas id="month-donut-canvas"></canvas>
-            <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
-               <span class="text-[10px] md:text-xs text-gray-400 uppercase tracking-widest font-semibold mt-4">Total Mensual</span>
-               <span id="donut-total" class="text-xl md:text-3xl font-black text-white">$0.00</span>
-            </div>
-          </div>
-
-          <div id="month-summary-list" class="space-y-4 mt-auto">
-            <!-- Resumen se renderizará aquí -->
-          </div>
         </section>
 
       </div>
+
+      <!-- RESUMEN MENSUAL Y GRÁFICA (debajo del calendario) -->
+      <section class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl flex flex-col hover:shadow-[0_10px_40px_rgba(112,0,255,0.08)] relative">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-bold text-white">Resumen Mensual</h2>
+          <div class="flex items-center gap-2">
+            <button id="btn-hover-images-settings" onclick="openHoverImagesModal()" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden" title="Personalizar Imágenes Flotantes">
+              <i data-lucide="image" class="w-4 h-4 text-[#7000ff]"></i>
+            </button>
+            <button id="btn-print" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden" title="Imprimir pantalla">
+              <i data-lucide="printer" class="w-4 h-4 text-[#ff007f]"></i>
+            </button>
+            <div class="relative">
+              <button id="btn-export-menu" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300 print:hidden">
+                <i data-lucide="download" class="w-4 h-4 text-[#00f0ff]"></i> Exportar
+              </button>
+              <!-- Dropdown Exportar -->
+              <div id="export-dropdown" class="hidden absolute right-0 mt-2 w-32 glass-card rounded-lg shadow-xl z-10 overflow-hidden border border-[#7000ff]/20 animate-pop">
+                <button id="btn-export-pdf" class="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-gray-950 hover:text-white flex items-center gap-2 border-b border-gray-800/80 transition-colors">
+                  <i data-lucide="file-text" class="w-4 h-4 text-[#ff007f]"></i> PDF
+                </button>
+                <button id="btn-export-excel" class="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-gray-950 hover:text-white flex items-center gap-2 transition-colors">
+                  <i data-lucide="sheet" class="w-4 h-4 text-[#00f0ff]"></i> Excel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="donut-chart-container" class="flex justify-center mb-8 relative w-full h-64 md:h-80 lg:h-96 max-w-md md:max-w-lg lg:max-w-xl mx-auto cursor-pointer">
+          <canvas id="month-donut-canvas"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+             <span class="text-[10px] md:text-xs text-gray-400 uppercase tracking-widest font-semibold mt-4">Total Mensual</span>
+             <span id="donut-total" class="text-xl md:text-3xl font-black text-white">$0.00</span>
+          </div>
+        </div>
+
+        <div id="month-summary-list" class="space-y-4 mt-auto">
+          <!-- Resumen se renderizará aquí -->
+        </div>
+      </section>
+
 
       <!-- SECCIÓN COLAPSABLE DE MIS CUENTAS Y CARTERAS -->
       <section id="accounts-section" class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl transition-all duration-300">
@@ -6277,7 +6290,7 @@
     // de su esquina inferior derecha. El tamaño se guarda como estilo en línea sobre la
     // tarjeta y se persiste en Firestore al pulsar "Guardar" (ver saveEditNote/saveNewNote).
     function attachStickyNoteResizeHandles(container) {
-      const MIN_W = 140, MIN_H = 150;
+      const MIN_W = 90, MIN_H = 90;
       container.querySelectorAll('.sticky-note-resize-handle').forEach(handle => {
         let resizeState = null;
 
