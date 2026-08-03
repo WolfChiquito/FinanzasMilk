@@ -870,6 +870,189 @@
         gap: 1px !important;
       }
     }
+    /* ===== MASCOTA: HUSKY PIXEL ART ===== */
+    .mascot-wolf {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 61px;
+      height: 93px;
+      z-index: 9999;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: transform 1.9s cubic-bezier(0.65, 0, 0.35, 1), left 1.9s cubic-bezier(0.65, 0, 0.35, 1), top 1.9s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.4s ease, width 0.32s cubic-bezier(0.65, 0, 0.35, 1);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5)) drop-shadow(0 0 10px rgba(0,240,255,0.10));
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mascot-wolf.mascot-hidden-away {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .mascot-wolf.mascot-facing-left { transform: scaleX(-1); }
+    .mascot-wolf.mascot-facing-right { transform: scaleX(1); }
+    .mascot-wolf.mascot-dragging { transition: none !important; cursor: grabbing; touch-action: none; }
+    .mascot-sprite {
+      width: 100%;
+      height: 100%;
+      animation: mascotBob 0.55s ease-in-out infinite;
+    }
+    .mascot-sprite svg { width: 100%; height: 100%; display: block; shape-rendering: crispEdges; }
+    .mascot-wolf.mascot-idle-state .mascot-sprite { animation: mascotIdleSway 4.6s ease-in-out infinite; }
+    .mascot-wolf.mascot-running .mascot-sprite { animation: mascotRunBounce 0.28s ease-in-out infinite; }
+    .mascot-wolf.mascot-poked .mascot-sprite { animation: mascotPoke 0.35s ease; }
+    @keyframes mascotBob {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-4px) rotate(-2deg); }
+    }
+    @keyframes mascotRunBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes mascotIdleSway {
+      0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+      22% { transform: translateY(-1px) scale(1.008) rotate(1deg); }
+      50% { transform: translateY(-2.2px) scale(1.018) rotate(0deg); }
+      78% { transform: translateY(-1px) scale(1.008) rotate(-1deg); }
+    }
+    @keyframes mascotPoke {
+      0% { transform: scale(1); }
+      35% { transform: scale(0.88) rotate(6deg); }
+      70% { transform: scale(1.08) rotate(-4deg); }
+      100% { transform: scale(1); }
+    }
+    .mascot-speech-bubble {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(6px) scale(0.85);
+      margin-bottom: 8px;
+      min-width: 90px;
+      max-width: 190px;
+      width: max-content;
+      background: rgba(10, 8, 18, 0.95);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.18), 0 6px 18px rgba(0,0,0,0.5);
+      border-radius: 14px;
+      padding: 8px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: #f3f4f6;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      text-align: center;
+      z-index: 2;
+    }
+    .mascot-speech-bubble.mascot-bubble-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+    .mascot-speech-bubble::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(10, 8, 18, 0.95);
+    }
+    .mascot-wolf.mascot-facing-left .mascot-speech-bubble {
+      transform: translateX(-50%) translateY(6px) scale(0.85) scaleX(-1);
+    }
+    .mascot-wolf.mascot-facing-left .mascot-speech-bubble.mascot-bubble-visible {
+      transform: translateX(-50%) translateY(0) scale(1) scaleX(-1);
+    }
+
+    /* Cuadro flotante para escribirle una notita al husky (triple toque) */
+    .mascot-note-box {
+      position: fixed;
+      z-index: 10000;
+      width: min(280px, 86vw);
+      background: rgba(9, 7, 16, 0.97);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(112, 0, 255, 0.4);
+      box-shadow: 0 0 24px rgba(112, 0, 255, 0.25), 0 12px 30px rgba(0,0,0,0.55);
+      border-radius: 18px;
+      padding: 14px;
+      opacity: 0;
+      transform: translateY(10px) scale(0.96);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+    .mascot-note-box.mascot-note-box-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .mascot-note-box-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #00f0ff;
+      margin-bottom: 8px;
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+    }
+    .mascot-note-box textarea {
+      width: 100%;
+      min-height: 74px;
+      resize: none;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      color: #f3f4f6;
+      outline: none;
+      font-family: inherit;
+    }
+    .mascot-note-box textarea:focus { border-color: rgba(0,240,255,0.5); }
+    .mascot-note-box-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .mascot-note-box-actions button {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 12px;
+      transition: filter 0.15s ease, opacity 0.15s ease;
+      color: #d1d5db;
+      background: rgba(255,255,255,0.06);
+    }
+    .mascot-note-box-actions button:hover { filter: brightness(1.2); }
+    .mascot-note-box-actions button.primary {
+      color: #050409;
+      background: linear-gradient(90deg, #00f0ff, #7000ff);
+    }
+
+    /* Lista de frases personalizadas en el modal de ajustes del husky */
+    .mascot-phrase-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 11.5px;
+      color: #e5e7eb;
+    }
+    .mascot-phrase-item button {
+      color: #f87171;
+      flex-shrink: 0;
+      opacity: 0.75;
+    }
+    .mascot-phrase-item button:hover { opacity: 1; }
+    .mascot-phrases-empty {
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+      padding: 10px 0;
+    }
   </style>
 </head>
 <body class="min-h-screen selection:bg-[#ff007f]/30 p-4 md:p-8 relative">
@@ -992,6 +1175,9 @@
               </button>
               <button onclick="openPasswordSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#ff007f]/10 rounded-xl transition-colors">
                 <i data-lucide="key" class="w-4 h-4 text-[#ff007f]"></i> Contraseña de Bóveda
+              </button>
+              <button onclick="openMascotSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#00f0ff]/10 rounded-xl transition-colors">
+                <i data-lucide="paw-print" class="w-4 h-4 text-[#00f0ff]"></i> Frases del Husky
               </button>
               <div class="h-px bg-gray-800/80 my-1"></div>
               <button id="logout-btn" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-rose-450 text-rose-400 hover:text-white hover:bg-rose-500/15 rounded-xl transition-colors">
@@ -1883,6 +2069,73 @@
           Guardar Cambios
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE AJUSTES DEL HUSKY (MASCOTA) -->
+  <div id="mascot-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="mascot-settings-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="paw-print" class="text-[#00f0ff] w-5 h-5"></i>
+          <span class="text-white">Frases del Husky</span>
+        </h3>
+        <button onclick="closeMascotSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="flex items-center justify-between bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3">
+          <div>
+            <p class="text-xs font-bold text-white">Mostrar mascota</p>
+            <p class="text-[10px] text-gray-500">Actívalo o apágalo cuando quieras</p>
+          </div>
+          <button id="mascot-toggle-btn" onclick="toggleMascotVisibility()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff]">
+            <span id="mascot-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+          </button>
+        </div>
+
+        <div class="bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-bold text-white">Tamaño de la mascota</p>
+            <span id="mascot-size-value" class="text-[11px] font-semibold text-[#00f0ff]">100%</span>
+          </div>
+          <input type="range" id="mascot-size-slider" min="30" max="300" step="5" value="100"
+            oninput="setMascotSizePercent(this.value)"
+            class="w-full accent-[#00f0ff]" />
+          <div class="flex justify-between text-[9px] text-gray-500">
+            <span>Chico</span>
+            <span>Grande</span>
+          </div>
+          <div class="flex items-center gap-2 pt-1">
+            <label for="mascot-size-input" class="text-[10px] text-gray-500 shrink-0">Exacto:</label>
+            <input type="number" id="mascot-size-input" min="10" max="600" step="1" value="100"
+              oninput="setMascotSizePercent(this.value)"
+              class="w-20 bg-gray-950 border border-gray-800 rounded-xl px-2 py-1 text-white text-xs outline-none focus:border-[#00f0ff]" />
+            <span class="text-[10px] text-gray-500">%</span>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-gray-400 leading-relaxed">
+          Toca al husky una vez para que diga una frase al azar. Tócalo <span class="text-[#00f0ff] font-semibold">3 veces seguidas</span> para escribirle una notita, que se guardará sola en tus notas adhesivas.
+        </p>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Agregar nueva frase</label>
+          <div class="flex gap-2">
+            <input type="text" id="mascot-new-phrase-input" maxlength="120" placeholder="Ej. ¡Vamos a ahorrar hoy! 🐶" class="flex-1 bg-gray-900 border border-gray-800 rounded-2xl px-4 py-2.5 focus:border-[#00f0ff] outline-none text-white text-xs" />
+            <button onclick="addMascotPhrase()" class="bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-black font-bold px-3.5 rounded-2xl text-xs flex items-center justify-center shadow-md hover:brightness-110 transition-all">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Tus frases</label>
+          <div id="mascot-phrases-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -6493,6 +6746,29 @@
       }
     }
 
+    // Guarda una nota adhesiva creada desde el cuadro de texto de la mascota (Husky).
+    // Reutiliza exactamente la misma colección de Firestore que las notas normales,
+    // así aparece en el tablero de notas adhesivas como cualquier otra.
+    async function saveMascotNote(text) {
+      const clean = (text || '').trim();
+      if (!clean) return;
+      const newNoteData = {
+        text: clean,
+        palette: 'pastel',
+        color: STICKY_NOTE_COLORS[Math.floor(Math.random() * STICKY_NOTE_COLORS.length)],
+        opacity: 0.75,
+        lineOpacity: DEFAULT_NOTE_LINE_OPACITY,
+        font: DEFAULT_FONT,
+        createdAt: new Date().toISOString()
+      };
+      try {
+        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes'), newNoteData);
+      } catch (error) {
+        console.error("Error al guardar la nota del husky:", error);
+      }
+    }
+    window.saveMascotNote = saveMascotNote;
+
     function startEditNote(id) {
       const idx = stickyNotes.findIndex(x => x.id === id);
       const n = idx >= 0 ? stickyNotes[idx] : null;
@@ -6850,6 +7126,8 @@
         closeTaskCalendarPrompt();
         closeNotesTrashModal();
         closeCalcWidgetModal();
+        if (window.closeMascotSettingsModal) window.closeMascotSettingsModal();
+        if (window.cancelMascotNoteBox) window.cancelMascotNoteBox();
         const profileMenu = document.getElementById('profile-dropdown-menu');
         const exportMenu = document.getElementById('export-dropdown');
         if (profileMenu) profileMenu.classList.add('hidden');
@@ -6907,7 +7185,8 @@
       { id: 'notification-settings-modal', closeFunc: closeNotificationSettingsModal },
       { id: 'task-calendar-modal', closeFunc: closeTaskCalendarPrompt },
       { id: 'notes-trash-modal', closeFunc: closeNotesTrashModal },
-      { id: 'calc-widget-modal', closeFunc: closeCalcWidgetModal }
+      { id: 'calc-widget-modal', closeFunc: closeCalcWidgetModal },
+      { id: 'mascot-settings-modal', closeFunc: () => window.closeMascotSettingsModal && window.closeMascotSettingsModal() }
     ];
 
     modalContainers.forEach(modal => {
@@ -6980,6 +7259,697 @@
     renderApp();
     initCalcWidget();
 
+  </script>
+
+  <!-- ===== MASCOTA: HUSKY PIXEL ART ===== -->
+  <div id="mascot-wolf" class="mascot-wolf mascot-idle-state mascot-facing-right" style="display:none;">
+    <div id="mascot-speech-bubble" class="mascot-speech-bubble"></div>
+    <div id="mascot-sprite" class="mascot-sprite"></div>
+  </div>
+
+  <!-- Cuadro flotante: aparece al tocar al husky 3 veces seguidas -->
+  <div id="mascot-note-box" class="mascot-note-box">
+    <p class="mascot-note-box-title">🐶 Escríbele algo al husky...</p>
+    <textarea id="mascot-note-textarea" maxlength="300" placeholder="Se guardará solo como notita al instante..."></textarea>
+    <div class="mascot-note-box-actions">
+      <button type="button" onclick="window.cancelMascotNoteBox()">Cancelar</button>
+      <button type="button" class="primary" onclick="window.confirmMascotNoteBox()">Guardar</button>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ---------- Pixel art del husky (grilla 19x29, generada a mano, espejada) ---------- */
+    var WOLF_PALETTE = {
+      'C': '#f6f0e1', 'L': '#cac9be', 'G': '#82888b',
+      'H': '#4c5c61', 'D': '#293840', 'B': '#191e2a'
+    };
+    var WOLF_FRAME_IDLE = [
+      '.....D........D....',
+      '....DGD......DGD...',
+      '....DCGD....DGCD...',
+      '....DCCDDDDDDCCD...',
+      '....DCDGGHHGGDCD...',
+      '....DDGGGHHGGGHD...',
+      '....DGGGCHHCGGGD...',
+      '...DGGGCCHHCCGGGD..',
+      '...DGCCBCGGCBCCGD..',
+      '...DCCCHGCCGDCCCD..',
+      '...DCCCCCCCCCCCCD..',
+      '....DCCCCBBCCCCD...',
+      '....DHCLCDDCLCDD...',
+      '....DHDLDCCDLHHD...',
+      '...DHGGGLDDLGGGHD..',
+      '...DGCGGLLLLGGCGD..',
+      '...DGCCCCCCCCCCGD..',
+      '...DGGCCCCCCCCGGD..',
+      '...DGGCCCCCCCCGGD..',
+      '...DDGCCLCCLCCGDDD.',
+      '..DGDGCCDCCLCCGDGGD',
+      '..DLDCCCDLLDCCCDGGD',
+      '..DLDCCCDLLDCCCDCGD',
+      '..DLLDCCDLLDCCDDCGD',
+      '..DGLDCCDLLDCCDLLGD',
+      '...HGDCCDLLDCCDGHDH',
+      '..DLLHCCDLLDCCGLCDH',
+      'LLDDDCCCDDDDLCCDDDD',
+      '....DDDDLLLLDDDDLLL'
+    ];
+    var WOLF_FRAME_BLINK = [
+      '.....D........D....',
+      '....DGD......DGD...',
+      '....DCGD....DGCD...',
+      '....DCCDDDDDDCCD...',
+      '....DCDGGHHGGDCD...',
+      '....DDGGGHHGGGHD...',
+      '....DGGGCHHCGGGD...',
+      '...DGGGCCHHCCGGGD..',
+      '...DGCCDCGGCDCCGD..',
+      '...DCCCHGCCGDCCCD..',
+      '...DCCCCCCCCCCCCD..',
+      '....DCCCCBBCCCCD...',
+      '....DHCLCDDCLCDD...',
+      '....DHDLDCCDLHHD...',
+      '...DHGGGLDDLGGGHD..',
+      '...DGCGGLLLLGGCGD..',
+      '...DGCCCCCCCCCCGD..',
+      '...DGGCCCCCCCCGGD..',
+      '...DGGCCCCCCCCGGD..',
+      '...DDGCCLCCLCCGDDD.',
+      '..DGDGCCDCCLCCGDGGD',
+      '..DLDCCCDLLDCCCDGGD',
+      '..DLDCCCDLLDCCCDCGD',
+      '..DLLDCCDLLDCCDDCGD',
+      '..DGLDCCDLLDCCDLLGD',
+      '...HGDCCDLLDCCDGHDH',
+      '..DLLHCCDLLDCCGLCDH',
+      'LLDDDCCCDDDDLCCDDDD',
+      '....DDDDLLLLDDDDLLL'
+    ];
+    var WOLF_GRID_W = 19, WOLF_GRID_H = 29;
+
+    /* Ciclo de carrera de lado (2 cuadros, patas alternadas), fiel a las fotos de
+       referencia: máscara facial blanca, cola enroscada, orejas paradas. Dibujado
+       más grande para que se vea del mismo tamaño/escala que la pose de frente. */
+    var WOLF_PROFILE_PALETTE = {
+      'B': '#030403', 'D': '#292b2b', 'H': '#434c51',
+      'G': '#7b7d7a', 'L': '#a9a9a4', 'C': '#dfdcd1'
+    };
+    var WOLF_FRAME_RUN1 = [
+      '............................BBB.',
+      '......................BBB...BHB.',
+      '......................BHB...BHB.',
+      '......................BHB...BHB.',
+      '....................BBBBBBBBBBBB',
+      '....................BHHHCCCHHHHB',
+      '....................BHHHCCCHHHHB',
+      '.BCCB...............BHHHCCCHHHHB',
+      '.BCCB...............BHHHCBBCCCCB',
+      'BBCCB....BBBBBBBBBBBBBHHCBBCCDBD',
+      'BHHBBBBBBBBBBBBBBBBBBBBCCCCCCDDD',
+      'BHHBGGGGGGHHHHGGGGGGHHBCCCCCCCCB',
+      'BHHBGGGGGGHHHHGGGGGGHHBBCCCCCCBB',
+      'BHHBHHHHHHHHHHHHHHHHHHB.........',
+      'BHHBHHHHHHHHHHHHHHHHHHB.........',
+      '...BHHCCCCCCCCCCCCCCHHB.........',
+      '...BHHCCCCCCCCCCCCCCHHB.........',
+      '...BBBBBBBBBBBBBBBBBBBBBBB......',
+      '....BHHHBBHHHB..BHHHBBHHHB......',
+      '....BHHHBBHHHB..BHHHBBHHHB......',
+      '....BHHHBBHHHB..BHHHBBHHHB......',
+      '....BCCCBBHHHB..BCCCBBHHHB......',
+      '.....CCC.BHHHB...CCC.BCCCB......',
+      '.........BCCCB........CCC.......',
+      '................................',
+      '................................',
+      '................................'
+    ];
+    var WOLF_FRAME_RUN2 = [
+      '............................BBB.',
+      '......................BBB...BHB.',
+      '......................BHB...BHB.',
+      '......................BHB...BHB.',
+      '....................BBBBBBBBBBBB',
+      '....................BHHHCCCHHHHB',
+      '....................BHHHCCCHHHHB',
+      '.BCCB...............BHHHCCCHHHHB',
+      '.BCCB...............BHHHCBBCCCCB',
+      'BBCCB....BBBBBBBBBBBBBHHCBBCCDBD',
+      'BHHBBBBBBBBBBBBBBBBBBBBCCCCCCDDD',
+      'BHHBGGGGGGHHHHGGGGGGHHBCCCCCCCCB',
+      'BHHBGGGGGGHHHHGGGGGGHHBBCCCCCCBB',
+      'BHHBHHHHHHHHHHHHHHHHHHB.........',
+      'BHHBHHHHHHHHHHHHHHHHHHB.........',
+      '...BHHCCCCCCCCCCCCCCHHB.........',
+      '...BHHCCCCCCCCCCCCCCHHB.........',
+      '...BBBBBBBBBBBBBBBBBBBBBBBB.....',
+      '...BHHHBHHHB......BHHHBHHHB.....',
+      '...BHHHBHHHB......BHHHBHHHB.....',
+      '...BCCCBHHHB......BCCCBHHHB.....',
+      '....CCCBCCCB.......CCCBCCCB.....',
+      '........CCC............CCC......',
+      '................................',
+      '................................',
+      '................................',
+      '................................'
+    ];
+    var WOLF_RUN_GRID_W = 32, WOLF_RUN_GRID_H = 27;
+
+
+    function buildWolfSvg(frame, gw, gh, align, palette) {
+      gw = gw || WOLF_GRID_W; gh = gh || WOLF_GRID_H;
+      palette = palette || WOLF_PALETTE;
+      var rects = '';
+      for (var r = 0; r < gh; r++) {
+        var row = frame[r];
+        for (var c = 0; c < gw; c++) {
+          var ch = row[c];
+          var color = palette[ch];
+          if (color) rects += '<rect x="' + c + '" y="' + r + '" width="1" height="1" fill="' + color + '"/>';
+        }
+      }
+      var par = align === 'bottom' ? 'xMidYMax meet' : 'xMidYMid meet';
+      return '<svg viewBox="0 0 ' + gw + ' ' + gh + '" preserveAspectRatio="' + par + '" xmlns="http://www.w3.org/2000/svg">' + rects + '</svg>';
+    }
+
+    /* Alto fijo (igual al de la pose de frente) multiplicado por el tamaño que
+       el usuario elija en Ajustes; el ancho se ajusta según la proporción de
+       cada grilla para que la mascota se vea del mismo tamaño real sea cual
+       sea la pose (de frente o caminando de lado). */
+    var MASCOT_BASE_HEIGHT = 93;
+    var currentGridW = WOLF_GRID_W, currentGridH = WOLF_GRID_H;
+    function setSpriteBox(gw, gh) {
+      if (!wolfEl) return;
+      currentGridW = gw; currentGridH = gh;
+      var h = MASCOT_BASE_HEIGHT * getMascotSizeScale();
+      wolfEl.style.height = h + 'px';
+      wolfEl.style.width = Math.round(h * (gw / gh)) + 'px';
+    }
+    window.setMascotSizePercent = function (pct) {
+      var scale = Math.max(0.1, Math.min(6, parseFloat(pct) / 100));
+      if (!isFinite(scale)) return;
+      setMascotSizeScale(scale);
+      var label = document.getElementById('mascot-size-value');
+      if (label) label.textContent = Math.round(scale * 100) + '%';
+      var slider = document.getElementById('mascot-size-slider');
+      var input = document.getElementById('mascot-size-input');
+      var rounded = Math.round(scale * 100);
+      if (slider && String(Math.round(parseFloat(slider.value))) !== String(rounded)) {
+        slider.value = Math.max(30, Math.min(300, rounded));
+      }
+      if (input && document.activeElement !== input) input.value = rounded;
+      setSpriteBox(currentGridW, currentGridH);
+    };
+
+    /* Recorta/desplaza filas de una grilla para crear variantes sutiles
+       (inclinar la cabeza, mover una oreja) a partir del mismo frame base,
+       sin tener que dibujar cuadros nuevos desde cero. */
+    function shiftRows(frame, fromRow, toRow, dx) {
+      var out = frame.slice();
+      for (var r = fromRow; r <= toRow && r < out.length; r++) {
+        var row = out[r];
+        var w = row.length;
+        if (dx > 0) out[r] = '.'.repeat(dx) + row.slice(0, w - dx);
+        else if (dx < 0) out[r] = row.slice(-dx) + '.'.repeat(-dx);
+      }
+      return out;
+    }
+
+    /* ---------- Frases ---------- */
+    var DEFAULT_PHRASES = [
+      '¡Hola! Soy tu husky, aquí cuidando tus cuentas 🐶',
+      '¿Ya registraste tus gastos de hoy?',
+      '¡Ahorrar poquito a poquito también cuenta!',
+      'Toca aquí 3 veces seguidas si quieres dejarme una notita ✨',
+      '¡Vamos muy bien con las finanzas este mes!',
+      'Recuerda revisar tu calendario de pagos 📅',
+      '¡Wuau wuau! Estoy aquí para acompañarte',
+      'Un pequeño ahorro hoy es un gran logro mañana.',
+      '¿Necesitas anotar algo? Tócame tres veces seguidas.',
+      '¡Sigue así, lo estás haciendo genial!'
+    ];
+    var PHRASES_KEY = 'mascotCustomPhrases';
+    var ENABLED_KEY = 'mascotEnabled';
+    var SIZE_KEY = 'mascotSizeScale';
+
+    function getMascotSizeScale() {
+      var v = parseFloat(localStorage.getItem(SIZE_KEY));
+      return (isFinite(v) && v > 0) ? v : 1;
+    }
+    function setMascotSizeScale(scale) {
+      try { localStorage.setItem(SIZE_KEY, String(scale)); } catch (e) {}
+    }
+
+    function getCustomPhrases() {
+      try {
+        var raw = localStorage.getItem(PHRASES_KEY);
+        var arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (e) { return []; }
+    }
+    function setCustomPhrases(arr) {
+      try { localStorage.setItem(PHRASES_KEY, JSON.stringify(arr)); } catch (e) {}
+    }
+    function getAllPhrases() {
+      var custom = getCustomPhrases();
+      return DEFAULT_PHRASES.concat(custom);
+    }
+    function isMascotEnabled() {
+      var v = localStorage.getItem(ENABLED_KEY);
+      return v === null ? true : v === '1';
+    }
+    function setMascotEnabled(val) {
+      try { localStorage.setItem(ENABLED_KEY, val ? '1' : '0'); } catch (e) {}
+    }
+
+    /* ---------- Elementos ---------- */
+    var wolfEl, spriteEl, bubbleEl, noteBoxEl, noteTextarea;
+    var posX = 24, posY = 0;
+    var facing = 'right';
+    var bubbleTimer = null;
+    var wanderTimer = null;
+    var blinkTimer = null;
+    var clickTimestamps = [];
+    var clickResolveTimer = null;
+    var isRunning = false;
+    var runFrameToggle = false;
+    var runAnimTimer = null;
+    var runStopTimer = null;
+    var idleGestureTimer = null;
+    var isDragging = false;
+    var dragMoved = false;
+    var dragOffsetX = 0, dragOffsetY = 0;
+    var suppressNextClick = false;
+    var POS_KEY = 'mascotPos';
+
+    function modalIsOpen() {
+      var ids = ['modal', 'accounts-modal', 'subcategories-modal', 'account-details-modal',
+        'profile-settings-modal', 'title-settings-modal', 'password-settings-modal',
+        'confirm-modal', 'hover-images-modal', 'diecast-view-modal', 'category-summary-modal',
+        'notification-settings-modal', 'task-calendar-modal', 'notes-trash-modal',
+        'calc-widget-modal', 'mascot-settings-modal'];
+      for (var i = 0; i < ids.length; i++) {
+        var el = document.getElementById(ids[i]);
+        if (el && !el.classList.contains('hidden')) return true;
+      }
+      return false;
+    }
+
+    function setFacing(dir) {
+      if (dir === facing || !wolfEl) return;
+      facing = dir;
+      wolfEl.classList.toggle('mascot-facing-left', dir === 'left');
+      wolfEl.classList.toggle('mascot-facing-right', dir === 'right');
+    }
+
+    /* ---------- Animación real de carrera (patas alternadas), no solo voltear ---------- */
+    function startRunAnimation() {
+      if (!wolfEl || !spriteEl) return;
+      if (!isRunning) {
+        isRunning = true;
+        clearTimeout(idleGestureTimer);
+        wolfEl.classList.remove('mascot-idle-state');
+        wolfEl.classList.add('mascot-running');
+        setSpriteBox(WOLF_RUN_GRID_W, WOLF_RUN_GRID_H);
+        clearInterval(runAnimTimer);
+        runAnimTimer = setInterval(function () {
+          if (!spriteEl) return;
+          runFrameToggle = !runFrameToggle;
+          spriteEl.innerHTML = buildWolfSvg(
+            runFrameToggle ? WOLF_FRAME_RUN2 : WOLF_FRAME_RUN1,
+            WOLF_RUN_GRID_W, WOLF_RUN_GRID_H, 'mid', WOLF_PROFILE_PALETTE
+          );
+        }, 140);
+      }
+    }
+
+    function stopRunAnimation() {
+      if (!wolfEl || !spriteEl) return;
+      isRunning = false;
+      clearInterval(runAnimTimer);
+      runAnimTimer = null;
+      wolfEl.classList.remove('mascot-running');
+      wolfEl.classList.add('mascot-idle-state');
+      setSpriteBox(WOLF_GRID_W, WOLF_GRID_H);
+      spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_IDLE, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+      scheduleIdleGesture();
+    }
+
+    function moveTo(x, y) {
+      if (!wolfEl) return;
+      if (x > posX + 2) setFacing('right');
+      else if (x < posX - 2) setFacing('left');
+      posX = x; posY = y;
+      wolfEl.style.left = x + 'px';
+      wolfEl.style.top = y + 'px';
+      startRunAnimation();
+      clearTimeout(runStopTimer);
+      runStopTimer = setTimeout(stopRunAnimation, 1950);
+    }
+
+    function pickWanderTarget() {
+      var margin = 90;
+      var maxX = Math.max(margin, window.innerWidth - 100);
+      var maxY = Math.max(margin, window.innerHeight - 140);
+      var x = margin * 0.2 + Math.random() * (maxX - margin * 0.2);
+      var y = 90 + Math.random() * Math.max(60, maxY - 90);
+      return { x: x, y: y };
+    }
+
+    function scheduleWander() {
+      clearTimeout(wanderTimer);
+      var delay = 4500 + Math.random() * 5000;
+      wanderTimer = setTimeout(function () {
+        if (isMascotEnabled() && !modalIsOpen() && wolfEl && wolfEl.style.display !== 'none') {
+          var t = pickWanderTarget();
+          moveTo(t.x, t.y);
+        }
+        scheduleWander();
+      }, delay);
+    }
+
+    function scheduleBlink() {
+      clearTimeout(blinkTimer);
+      var delay = 2600 + Math.random() * 4200;
+      blinkTimer = setTimeout(function () {
+        if (spriteEl && !isRunning && !noteBoxEl.classList.contains('mascot-note-box-visible')) {
+          spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_BLINK, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+          setTimeout(function () {
+            if (spriteEl && !isRunning) spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_IDLE, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+          }, 130);
+        }
+        scheduleBlink();
+      }, delay);
+    }
+
+    /* ---------- Gestos orgánicos de frente: inclinar cabeza / mover una oreja,
+       para que la mascota se sienta viva incluso quieta, más allá de la
+       respiración y el parpadeo. ---------- */
+    function scheduleIdleGesture() {
+      clearTimeout(idleGestureTimer);
+      var delay = 3200 + Math.random() * 4500;
+      idleGestureTimer = setTimeout(function () {
+        if (spriteEl && !isRunning && wolfEl && !noteBoxEl.classList.contains('mascot-note-box-visible')) {
+          var roll = Math.random();
+          var gestureFrame;
+          if (roll < 0.4) {
+            gestureFrame = shiftRows(WOLF_FRAME_IDLE, 0, 11, 1);   // cabeza ladeada a un lado
+          } else if (roll < 0.8) {
+            gestureFrame = shiftRows(WOLF_FRAME_IDLE, 0, 11, -1);  // cabeza ladeada al otro lado
+          } else {
+            gestureFrame = shiftRows(WOLF_FRAME_IDLE, 0, 2, 1);    // oreja que se mueve un poco
+          }
+          spriteEl.innerHTML = buildWolfSvg(gestureFrame, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+          setTimeout(function () {
+            if (spriteEl && !isRunning) spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_IDLE, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+          }, 260);
+        }
+        scheduleIdleGesture();
+      }, delay);
+    }
+
+    function showBubble(text) {
+      if (!bubbleEl) return;
+      bubbleEl.textContent = text;
+      bubbleEl.classList.add('mascot-bubble-visible');
+      clearTimeout(bubbleTimer);
+      bubbleTimer = setTimeout(function () {
+        bubbleEl.classList.remove('mascot-bubble-visible');
+      }, 3200);
+    }
+
+    function sayRandomPhrase() {
+      var phrases = getAllPhrases();
+      if (!phrases.length) return;
+      var phrase = phrases[Math.floor(Math.random() * phrases.length)];
+      showBubble(phrase);
+    }
+
+    function pokeAnim() {
+      if (!wolfEl) return;
+      wolfEl.classList.add('mascot-poked');
+      setTimeout(function () { wolfEl.classList.remove('mascot-poked'); }, 360);
+    }
+
+    /* ---------- Cuadro de notita (triple toque) ---------- */
+    function openNoteBox() {
+      if (!noteBoxEl || !wolfEl) return;
+      bubbleEl.classList.remove('mascot-bubble-visible');
+      var rect = wolfEl.getBoundingClientRect();
+      var boxWidth = Math.min(280, window.innerWidth * 0.86);
+      var left = Math.min(Math.max(8, rect.left - boxWidth / 2 + rect.width / 2), window.innerWidth - boxWidth - 8);
+      var top = rect.top - 190;
+      if (top < 8) top = rect.bottom + 12;
+      noteBoxEl.style.left = left + 'px';
+      noteBoxEl.style.top = top + 'px';
+      noteBoxEl.classList.add('mascot-note-box-visible');
+      clearTimeout(wanderTimer);
+      noteTextarea.value = '';
+      setTimeout(function () { noteTextarea.focus(); }, 260);
+    }
+
+    function closeNoteBox() {
+      if (!noteBoxEl) return;
+      noteBoxEl.classList.remove('mascot-note-box-visible');
+      scheduleWander();
+    }
+
+    window.cancelMascotNoteBox = function () {
+      closeNoteBox();
+    };
+
+    window.confirmMascotNoteBox = function () {
+      var text = noteTextarea ? noteTextarea.value.trim() : '';
+      if (!text) { closeNoteBox(); return; }
+      if (typeof window.saveMascotNote === 'function') {
+        window.saveMascotNote(text);
+      }
+      showBubble('¡Guardado! Ya quedó tu notita 📝');
+      closeNoteBox();
+    };
+
+    /* ---------- Detección de toques (1 = frase, 3 seguidos = notita) ---------- */
+    function handleMascotClick() {
+      var now = Date.now();
+      clickTimestamps.push(now);
+      clickTimestamps = clickTimestamps.filter(function (t) { return now - t < 750; });
+      clearTimeout(clickResolveTimer);
+      if (clickTimestamps.length >= 3) {
+        clickTimestamps = [];
+        pokeAnim();
+        openNoteBox();
+        return;
+      }
+      pokeAnim();
+      clickResolveTimer = setTimeout(function () {
+        if (clickTimestamps.length > 0 && clickTimestamps.length < 3) {
+          sayRandomPhrase();
+        }
+        clickTimestamps = [];
+      }, 300);
+    }
+
+    /* ---------- Modal de ajustes del husky (frases + activar/desactivar) ---------- */
+    function renderMascotPhrasesList() {
+      var list = document.getElementById('mascot-phrases-list');
+      if (!list) return;
+      var custom = getCustomPhrases();
+      if (!custom.length) {
+        list.innerHTML = '<p class="mascot-phrases-empty">Aún no agregas frases propias. ¡Escribe la primera arriba!</p>';
+        return;
+      }
+      list.innerHTML = custom.map(function (p, i) {
+        var safe = String(p).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return '<div class="mascot-phrase-item"><span>' + safe + '</span>' +
+          '<button type="button" onclick="window.deleteMascotPhrase(' + i + ')"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div>';
+      }).join('');
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    window.addMascotPhrase = function () {
+      var input = document.getElementById('mascot-new-phrase-input');
+      if (!input) return;
+      var val = input.value.trim();
+      if (!val) return;
+      var custom = getCustomPhrases();
+      custom.push(val);
+      setCustomPhrases(custom);
+      input.value = '';
+      renderMascotPhrasesList();
+    };
+
+    window.deleteMascotPhrase = function (idx) {
+      var custom = getCustomPhrases();
+      custom.splice(idx, 1);
+      setCustomPhrases(custom);
+      renderMascotPhrasesList();
+    };
+
+    window.toggleMascotVisibility = function () {
+      var next = !isMascotEnabled();
+      setMascotEnabled(next);
+      updateMascotToggleUI();
+      applyMascotVisibility();
+    };
+
+    function updateMascotToggleUI() {
+      var btn = document.getElementById('mascot-toggle-btn');
+      var dot = document.getElementById('mascot-toggle-dot');
+      if (!btn || !dot) return;
+      var on = isMascotEnabled();
+      btn.style.background = on ? '#7000ff' : '#374151';
+      dot.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+    }
+
+    function applyMascotVisibility() {
+      if (!wolfEl) return;
+      if (isMascotEnabled()) {
+        wolfEl.style.display = 'block';
+        scheduleWander();
+      } else {
+        wolfEl.style.display = 'none';
+        bubbleEl.classList.remove('mascot-bubble-visible');
+        closeNoteBox();
+      }
+    }
+
+    window.openMascotSettingsModal = function () {
+      var profileMenu = document.getElementById('profile-dropdown-menu');
+      if (profileMenu) profileMenu.classList.add('hidden');
+      var modalElement = document.getElementById('mascot-settings-modal');
+      var content = document.getElementById('mascot-settings-content');
+      renderMascotPhrasesList();
+      updateMascotToggleUI();
+      var sizeSlider = document.getElementById('mascot-size-slider');
+      var sizeInput = document.getElementById('mascot-size-input');
+      var sizeLabel = document.getElementById('mascot-size-value');
+      var pct = Math.round(getMascotSizeScale() * 100);
+      if (sizeSlider) sizeSlider.value = Math.max(30, Math.min(300, pct));
+      if (sizeInput) sizeInput.value = pct;
+      if (sizeLabel) sizeLabel.textContent = pct + '%';
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(function () {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    };
+
+    window.closeMascotSettingsModal = function () {
+      var modalElement = document.getElementById('mascot-settings-modal');
+      var content = document.getElementById('mascot-settings-content');
+      if (modalElement && content) {
+        modalElement.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(function () { modalElement.classList.add('hidden'); }, 300);
+      }
+    };
+
+    /* ---------- Inicialización ---------- */
+    function initMascot() {
+      wolfEl = document.getElementById('mascot-wolf');
+      spriteEl = document.getElementById('mascot-sprite');
+      bubbleEl = document.getElementById('mascot-speech-bubble');
+      noteBoxEl = document.getElementById('mascot-note-box');
+      noteTextarea = document.getElementById('mascot-note-textarea');
+      if (!wolfEl || !spriteEl) return;
+
+      setSpriteBox(WOLF_GRID_W, WOLF_GRID_H);
+      spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_IDLE, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+
+      var savedPos = null;
+      try { savedPos = JSON.parse(localStorage.getItem(POS_KEY)); } catch (err) {}
+      if (savedPos && typeof savedPos.x === 'number' && typeof savedPos.y === 'number') {
+        posX = Math.max(4, Math.min(savedPos.x, window.innerWidth - 40));
+        posY = Math.max(4, Math.min(savedPos.y, window.innerHeight - 60));
+      } else {
+        posX = Math.max(16, window.innerWidth - 110);
+        posY = window.innerHeight * 0.55;
+      }
+      wolfEl.style.left = posX + 'px';
+      wolfEl.style.top = posY + 'px';
+
+      /* ---------- Tocar para hablar / arrastrar para reubicar ---------- */
+      wolfEl.addEventListener('pointerdown', function (e) {
+        if (noteBoxEl.classList.contains('mascot-note-box-visible')) return;
+        isDragging = true;
+        dragMoved = false;
+        clearTimeout(wanderTimer);
+        clearTimeout(runStopTimer);
+        var rect = wolfEl.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        try { wolfEl.setPointerCapture(e.pointerId); } catch (err) {}
+      });
+
+      wolfEl.addEventListener('pointermove', function (e) {
+        if (!isDragging) return;
+        var nx = e.clientX - dragOffsetX;
+        var ny = e.clientY - dragOffsetY;
+        if (Math.abs(nx - posX) > 6 || Math.abs(ny - posY) > 6) {
+          if (!dragMoved) {
+            dragMoved = true;
+            stopRunAnimation();
+            wolfEl.classList.add('mascot-dragging');
+          }
+        }
+        if (!dragMoved) return;
+        posX = Math.max(4, Math.min(nx, window.innerWidth - 40));
+        posY = Math.max(4, Math.min(ny, window.innerHeight - 60));
+        wolfEl.style.left = posX + 'px';
+        wolfEl.style.top = posY + 'px';
+      });
+
+      function endMascotDrag(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        wolfEl.classList.remove('mascot-dragging');
+        try { wolfEl.releasePointerCapture(e.pointerId); } catch (err) {}
+        if (dragMoved) {
+          try { localStorage.setItem(POS_KEY, JSON.stringify({ x: posX, y: posY })); } catch (err) {}
+        } else {
+          e.stopPropagation();
+          handleMascotClick();
+        }
+        scheduleWander();
+      }
+      wolfEl.addEventListener('pointerup', endMascotDrag);
+      wolfEl.addEventListener('pointercancel', function (e) {
+        isDragging = false;
+        dragMoved = false;
+        wolfEl.classList.remove('mascot-dragging');
+        scheduleWander();
+      });
+
+      noteTextarea.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          window.confirmMascotNoteBox();
+        }
+      });
+
+      window.addEventListener('resize', function () {
+        posX = Math.min(posX, Math.max(16, window.innerWidth - 90));
+        posY = Math.min(posY, Math.max(16, window.innerHeight - 100));
+        moveTo(posX, posY);
+      });
+
+      applyMascotVisibility();
+      scheduleBlink();
+      scheduleIdleGesture();
+
+      setTimeout(function () { sayRandomPhrase(); }, 1500);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMascot);
+    } else {
+      initMascot();
+    }
+  })();
   </script>
 </body>
 </html>
