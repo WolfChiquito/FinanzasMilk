@@ -870,7 +870,7 @@
         gap: 1px !important;
       }
     }
-    /* ===== MASCOTA: HUSKY PIXEL ART ===== */
+    /* ===== MASCOTA: KIA (PIXEL ART) ===== */
     .mascot-wolf {
       position: fixed;
       left: 0;
@@ -965,7 +965,7 @@
       transform: translateX(-50%) translateY(0) scale(1) scaleX(-1);
     }
 
-    /* Cuadro flotante para escribirle una notita al husky (triple toque) */
+    /* Cuadro flotante para escribirle una notita a Kia (triple toque) */
     .mascot-note-box {
       position: fixed;
       z-index: 10000;
@@ -1028,7 +1028,7 @@
       background: linear-gradient(90deg, #00f0ff, #7000ff);
     }
 
-    /* Lista de frases personalizadas en el modal de ajustes del husky */
+    /* Lista de frases personalizadas en el modal de ajustes de Kia */
     .mascot-phrase-item {
       display: flex;
       align-items: center;
@@ -1177,7 +1177,7 @@
                 <i data-lucide="key" class="w-4 h-4 text-[#ff007f]"></i> Contraseña de Bóveda
               </button>
               <button onclick="openMascotSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#00f0ff]/10 rounded-xl transition-colors">
-                <i data-lucide="paw-print" class="w-4 h-4 text-[#00f0ff]"></i> Frases del Husky
+                <i data-lucide="paw-print" class="w-4 h-4 text-[#00f0ff]"></i> Frases de Kia
               </button>
               <div class="h-px bg-gray-800/80 my-1"></div>
               <button id="logout-btn" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-bold text-rose-450 text-rose-400 hover:text-white hover:bg-rose-500/15 rounded-xl transition-colors">
@@ -2072,13 +2072,13 @@
     </div>
   </div>
 
-  <!-- MODAL DE AJUSTES DEL HUSKY (MASCOTA) -->
+  <!-- MODAL DE AJUSTES DE KIA (MASCOTA) -->
   <div id="mascot-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
     <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="mascot-settings-content">
       <div class="flex justify-between items-center p-6 border-b border-gray-800">
         <h3 class="text-lg font-bold flex items-center gap-2">
           <i data-lucide="paw-print" class="text-[#00f0ff] w-5 h-5"></i>
-          <span class="text-white">Frases del Husky</span>
+          <span class="text-white">Frases de Kia</span>
         </h3>
         <button onclick="closeMascotSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -2088,7 +2088,7 @@
       <div class="p-6 space-y-4">
         <div class="flex items-center justify-between bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3">
           <div>
-            <p class="text-xs font-bold text-white">Mostrar mascota</p>
+            <p class="text-xs font-bold text-white">Mostrar a Kia</p>
             <p class="text-[10px] text-gray-500">Actívalo o apágalo cuando quieras</p>
           </div>
           <button id="mascot-toggle-btn" onclick="toggleMascotVisibility()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff]">
@@ -2098,7 +2098,7 @@
 
         <div class="bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3 space-y-2">
           <div class="flex items-center justify-between">
-            <p class="text-xs font-bold text-white">Tamaño de la mascota</p>
+            <p class="text-xs font-bold text-white">Tamaño de Kia</p>
             <span id="mascot-size-value" class="text-[11px] font-semibold text-[#00f0ff]">100%</span>
           </div>
           <input type="range" id="mascot-size-slider" min="30" max="300" step="5" value="100"
@@ -2118,7 +2118,7 @@
         </div>
 
         <p class="text-[11px] text-gray-400 leading-relaxed">
-          Toca al husky una vez para que diga una frase al azar. Tócalo <span class="text-[#00f0ff] font-semibold">3 veces seguidas</span> para escribirle una notita, que se guardará sola en tus notas adhesivas.
+          Toca a Kia una vez para que diga una frase al azar. Tócala <span class="text-[#00f0ff] font-semibold">3 veces seguidas</span> para escribirle una notita, que se guardará sola en tus notas adhesivas.
         </p>
 
         <div class="space-y-1.5">
@@ -6746,7 +6746,7 @@
       }
     }
 
-    // Guarda una nota adhesiva creada desde el cuadro de texto de la mascota (Husky).
+    // Guarda una nota adhesiva creada desde el cuadro de texto de la mascota (Kia).
     // Reutiliza exactamente la misma colección de Firestore que las notas normales,
     // así aparece en el tablero de notas adhesivas como cualquier otra.
     async function saveMascotNote(text) {
@@ -6764,7 +6764,7 @@
       try {
         await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes'), newNoteData);
       } catch (error) {
-        console.error("Error al guardar la nota del husky:", error);
+        console.error("Error al guardar la nota de Kia:", error);
       }
     }
     window.saveMascotNote = saveMascotNote;
@@ -7261,15 +7261,15 @@
 
   </script>
 
-  <!-- ===== MASCOTA: HUSKY PIXEL ART ===== -->
+  <!-- ===== MASCOTA: KIA (PIXEL ART) ===== -->
   <div id="mascot-wolf" class="mascot-wolf mascot-idle-state mascot-facing-right" style="display:none;">
     <div id="mascot-speech-bubble" class="mascot-speech-bubble"></div>
     <div id="mascot-sprite" class="mascot-sprite"></div>
   </div>
 
-  <!-- Cuadro flotante: aparece al tocar al husky 3 veces seguidas -->
+  <!-- Cuadro flotante: aparece al tocar a Kia 3 veces seguidas -->
   <div id="mascot-note-box" class="mascot-note-box">
-    <p class="mascot-note-box-title">🐶 Escríbele algo al husky...</p>
+    <p class="mascot-note-box-title">🐶 Escríbele algo a Kia...</p>
     <textarea id="mascot-note-textarea" maxlength="300" placeholder="Se guardará solo como notita al instante..."></textarea>
     <div class="mascot-note-box-actions">
       <button type="button" onclick="window.cancelMascotNoteBox()">Cancelar</button>
@@ -7281,10 +7281,10 @@
   (function () {
     'use strict';
 
-    /* ---------- Pixel art del husky (grilla 19x29, generada a mano, espejada) ---------- */
+    /* ---------- Pixel art de Kia (grilla 19x29, generada a mano, espejada) ---------- */
     var WOLF_PALETTE = {
       'C': '#f6f0e1', 'L': '#cac9be', 'G': '#82888b',
-      'H': '#4c5c61', 'D': '#293840', 'B': '#191e2a'
+      'H': '#4c5c61', 'D': '#293840', 'B': '#191e2a', 'P': '#d98a8a'
     };
     var WOLF_FRAME_IDLE = [
       '.....D........D....',
@@ -7350,12 +7350,22 @@
     ];
     var WOLF_GRID_W = 19, WOLF_GRID_H = 29;
 
+    /* Cuadro con la lengüita afuera (para cuando la tocan), derivado del
+       frame de frente normal cambiando el hocico por un par de píxeles rosas. */
+    var WOLF_FRAME_TONGUE = (function () {
+      var out = WOLF_FRAME_IDLE.slice();
+      function setCh(r, c, ch) { var row = out[r]; out[r] = row.slice(0, c) + ch + row.slice(c + 1); }
+      setCh(12, 9, 'P'); setCh(12, 10, 'P');
+      setCh(13, 9, 'P'); setCh(13, 10, 'P');
+      return out;
+    })();
+
     /* Ciclo de carrera de lado (2 cuadros, patas alternadas), fiel a las fotos de
        referencia: máscara facial blanca, cola enroscada, orejas paradas. Dibujado
        más grande para que se vea del mismo tamaño/escala que la pose de frente. */
     var WOLF_PROFILE_PALETTE = {
-      'B': '#030403', 'D': '#292b2b', 'H': '#434c51',
-      'G': '#7b7d7a', 'L': '#a9a9a4', 'C': '#dfdcd1'
+      'B': '#050604', 'D': '#383c3e', 'H': '#454c53',
+      'G': '#858885', 'L': '#a9a9a4', 'C': '#e1ded3'
     };
     var WOLF_FRAME_RUN1 = [
       '............................BBB.',
@@ -7416,6 +7426,40 @@
       '................................'
     ];
     var WOLF_RUN_GRID_W = 32, WOLF_RUN_GRID_H = 27;
+
+
+    /* Pose de "reverencia de juego" (play bow), fiel a la foto de referencia:
+       cola enroscada arriba, cabeza agachada con mascara facial y orejas paradas,
+       ancas traseras elevadas y patas delanteras estiradas hacia el piso. */
+    var WOLF_FRAME_PLAYBOW = [
+      '...BBBBB......................',
+      '..BBBBBB......................',
+      '.BBCCCBB......................',
+      'BBCDDBB.......................',
+      'BBCHHBB.......................',
+      'BB.HHBB.......................',
+      'BB.HHBB.............BBB.BBB...',
+      '.BBHHBB............BDCBBHBB...',
+      '..BHHBBBBB........BBDCBBHBB...',
+      '...BHHBBBBB......BBHCCBBBBB...',
+      '...BBHHHHHHB.....BBHCHHHHBB...',
+      '...BHHHHHHHDB...BBHHHHHHHGB...',
+      '..BHHHHHHHHHBB..BHHHHHHHCGBB..',
+      '.BBHHHHHHHHHHBBBHHHHHHHCBCBB..',
+      '.BBHHHHHHHHHHHHHHHHHCCCCBCCBBB',
+      '.BBHHHHHHHHHHHHHHHHCCCCCBCCBBB',
+      '.BBHHHHCHHHHHHHHHHHCCCCCCCCCBB',
+      '.BBCCCCCBHHHHHHHHHHHCCCCCCCCBB',
+      'BBBCCCCBBHHHHHHHHHCCCCCBBBBBBB',
+      'BBCCCBBBB.HHHHHHHCCCCCCBBBBBB.',
+      'BBCCBGGGBBB.HDHHHBBCCCBBB.....',
+      'BBCBBBGGBDBB.C.HHHHBBBBBBBB...',
+      'BBCCBBGGBBBBBB..HHHBBBBBBBBB..',
+      'BBCC.BGGGBB.BBBCCCCCCCCBB..BB.',
+      '.BBBBBBBBBB...BBBBBBBBBBBBBBB.',
+      '..BBBBBBBB.....BBBBBBBBBBBBB..'
+    ];
+    var WOLF_PLAYBOW_GRID_W = 30, WOLF_PLAYBOW_GRID_H = 26;
 
 
     function buildWolfSvg(frame, gw, gh, align, palette) {
@@ -7479,7 +7523,7 @@
 
     /* ---------- Frases ---------- */
     var DEFAULT_PHRASES = [
-      '¡Hola! Soy tu husky, aquí cuidando tus cuentas 🐶',
+      '¡Hola! Soy Kia, aquí cuidando tus cuentas 🐶',
       '¿Ya registraste tus gastos de hoy?',
       '¡Ahorrar poquito a poquito también cuenta!',
       'Toca aquí 3 veces seguidas si quieres dejarme una notita ✨',
@@ -7538,6 +7582,8 @@
     var runAnimTimer = null;
     var runStopTimer = null;
     var idleGestureTimer = null;
+    var tailWagTimer = null;
+    var tapSeqTimers = [];
     var isDragging = false;
     var dragMoved = false;
     var dragOffsetX = 0, dragOffsetY = 0;
@@ -7570,6 +7616,8 @@
       if (!isRunning) {
         isRunning = true;
         clearTimeout(idleGestureTimer);
+        clearTimeout(tailWagTimer);
+        clearTapSequence();
         wolfEl.classList.remove('mascot-idle-state');
         wolfEl.classList.add('mascot-running');
         setSpriteBox(WOLF_RUN_GRID_W, WOLF_RUN_GRID_H);
@@ -7595,6 +7643,7 @@
       setSpriteBox(WOLF_GRID_W, WOLF_GRID_H);
       spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_IDLE, WOLF_GRID_W, WOLF_GRID_H, 'mid');
       scheduleIdleGesture();
+      scheduleTailWag();
     }
 
     function moveTo(x, y) {
@@ -7632,7 +7681,7 @@
 
     function scheduleBlink() {
       clearTimeout(blinkTimer);
-      var delay = 2600 + Math.random() * 4200;
+      var delay = 3000;
       blinkTimer = setTimeout(function () {
         if (spriteEl && !isRunning && !noteBoxEl.classList.contains('mascot-note-box-visible')) {
           spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_BLINK, WOLF_GRID_W, WOLF_GRID_H, 'mid');
@@ -7642,6 +7691,49 @@
         }
         scheduleBlink();
       }, delay);
+    }
+
+    /* ---------- Colita: agrega un par de pixeles de cola (oculta por defecto,
+       ya que de frente casi no se ve) en el margen libre junto al cuerpo, y la
+       "menea" moviéndola entre dos posiciones cada 4 segundos. ---------- */
+    function withTail(frame, variant) {
+      var out = frame.slice();
+      function setCh(rowIdx, colIdx, ch) {
+        var row = out[rowIdx];
+        out[rowIdx] = row.slice(0, colIdx) + ch + row.slice(colIdx + 1);
+      }
+      if (variant === 0) {
+        setCh(9, 17, 'D');
+        setCh(10, 17, 'H'); setCh(10, 18, 'D');
+        setCh(11, 16, 'D'); setCh(11, 17, 'C'); setCh(11, 18, 'D');
+        setCh(12, 17, 'H'); setCh(12, 18, 'D');
+        setCh(13, 17, 'D');
+      } else {
+        setCh(9, 18, 'D');
+        setCh(10, 18, 'H');
+        setCh(11, 17, 'D'); setCh(11, 18, 'C');
+        setCh(12, 18, 'H');
+        setCh(13, 18, 'D');
+      }
+      return out;
+    }
+    function scheduleTailWag() {
+      clearTimeout(tailWagTimer);
+      tailWagTimer = setTimeout(function () {
+        if (spriteEl && !isRunning && wolfEl && !noteBoxEl.classList.contains('mascot-note-box-visible')) {
+          spriteEl.innerHTML = buildWolfSvg(withTail(WOLF_FRAME_IDLE, 0), WOLF_GRID_W, WOLF_GRID_H, 'mid');
+          setTimeout(function () {
+            if (spriteEl && !isRunning) spriteEl.innerHTML = buildWolfSvg(withTail(WOLF_FRAME_IDLE, 1), WOLF_GRID_W, WOLF_GRID_H, 'mid');
+          }, 220);
+          setTimeout(function () {
+            if (spriteEl && !isRunning) spriteEl.innerHTML = buildWolfSvg(withTail(WOLF_FRAME_IDLE, 0), WOLF_GRID_W, WOLF_GRID_H, 'mid');
+          }, 440);
+          setTimeout(function () {
+            if (spriteEl && !isRunning) spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_IDLE, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+          }, 660);
+        }
+        scheduleTailWag();
+      }, 4000);
     }
 
     /* ---------- Gestos orgánicos de frente: inclinar cabeza / mover una oreja,
@@ -7731,6 +7823,38 @@
     };
 
     /* ---------- Detección de toques (1 = frase, 3 seguidos = notita) ---------- */
+    /* ---------- Al tocarlo: saca la lengüita y, un segundo después, se pone
+       en pose de "reverencia de juego" (como la foto de referencia) unos
+       segundos antes de volver a la normalidad. ---------- */
+    function clearTapSequence() {
+      tapSeqTimers.forEach(function (t) { clearTimeout(t); });
+      tapSeqTimers = [];
+    }
+    function triggerTapFace() {
+      if (!wolfEl || !spriteEl || isRunning) return;
+      clearTapSequence();
+      clearTimeout(blinkTimer);
+      clearTimeout(idleGestureTimer);
+      clearTimeout(tailWagTimer);
+
+      spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_TONGUE, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+
+      tapSeqTimers.push(setTimeout(function () {
+        if (!spriteEl || isRunning) return;
+        setSpriteBox(WOLF_PLAYBOW_GRID_W, WOLF_PLAYBOW_GRID_H);
+        spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_PLAYBOW, WOLF_PLAYBOW_GRID_W, WOLF_PLAYBOW_GRID_H, 'mid', WOLF_PROFILE_PALETTE);
+      }, 1000));
+
+      tapSeqTimers.push(setTimeout(function () {
+        if (!spriteEl) return;
+        setSpriteBox(WOLF_GRID_W, WOLF_GRID_H);
+        spriteEl.innerHTML = buildWolfSvg(WOLF_FRAME_IDLE, WOLF_GRID_W, WOLF_GRID_H, 'mid');
+        scheduleBlink();
+        scheduleIdleGesture();
+        scheduleTailWag();
+      }, 2800));
+    }
+
     function handleMascotClick() {
       var now = Date.now();
       clickTimestamps.push(now);
@@ -7743,6 +7867,7 @@
         return;
       }
       pokeAnim();
+      triggerTapFace();
       clickResolveTimer = setTimeout(function () {
         if (clickTimestamps.length > 0 && clickTimestamps.length < 3) {
           sayRandomPhrase();
@@ -7751,7 +7876,7 @@
       }, 300);
     }
 
-    /* ---------- Modal de ajustes del husky (frases + activar/desactivar) ---------- */
+    /* ---------- Modal de ajustes de Kia (frases + activar/desactivar) ---------- */
     function renderMascotPhrasesList() {
       var list = document.getElementById('mascot-phrases-list');
       if (!list) return;
@@ -7879,6 +8004,8 @@
         dragMoved = false;
         clearTimeout(wanderTimer);
         clearTimeout(runStopTimer);
+        clearTimeout(tailWagTimer);
+        clearTimeout(idleGestureTimer);
         var rect = wolfEl.getBoundingClientRect();
         dragOffsetX = e.clientX - rect.left;
         dragOffsetY = e.clientY - rect.top;
@@ -7915,6 +8042,8 @@
           handleMascotClick();
         }
         scheduleWander();
+        scheduleIdleGesture();
+        scheduleTailWag();
       }
       wolfEl.addEventListener('pointerup', endMascotDrag);
       wolfEl.addEventListener('pointercancel', function (e) {
@@ -7940,6 +8069,7 @@
       applyMascotVisibility();
       scheduleBlink();
       scheduleIdleGesture();
+      scheduleTailWag();
 
       setTimeout(function () { sayRandomPhrase(); }, 1500);
     }
