@@ -2096,6 +2096,22 @@
           </button>
         </div>
 
+        <div class="bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-white">Voz de Kia</p>
+              <p class="text-[10px] text-gray-500">Sus frases se escuchan con vocecita de ardilla 🐿️</p>
+            </div>
+            <button id="mascot-voice-toggle-btn" onclick="toggleMascotVoice()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff] shrink-0 ml-3">
+              <span id="mascot-voice-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+            </button>
+          </div>
+          <button type="button" onclick="testMascotVoice()" class="w-full flex items-center justify-center gap-2 bg-gray-950 border border-gray-800 hover:border-[#00f0ff] rounded-xl px-3 py-2 text-[11px] font-semibold text-gray-300 hover:text-white transition-colors">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-[#00f0ff]"></i>
+            Probar voz
+          </button>
+        </div>
+
         <div class="bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3 space-y-2">
           <div class="flex items-center justify-between">
             <p class="text-xs font-bold text-white">Tamaño de Kia</p>
@@ -7537,6 +7553,7 @@
     var PHRASES_KEY = 'mascotCustomPhrases';
     var ENABLED_KEY = 'mascotEnabled';
     var SIZE_KEY = 'mascotSizeScale';
+    var VOICE_KEY = 'mascotVoiceEnabled';
 
     function getMascotSizeScale() {
       var v = parseFloat(localStorage.getItem(SIZE_KEY));
@@ -7566,6 +7583,13 @@
     }
     function setMascotEnabled(val) {
       try { localStorage.setItem(ENABLED_KEY, val ? '1' : '0'); } catch (e) {}
+    }
+    function isMascotVoiceEnabled() {
+      var v = localStorage.getItem(VOICE_KEY);
+      return v === null ? true : v === '1';
+    }
+    function setMascotVoiceEnabled(val) {
+      try { localStorage.setItem(VOICE_KEY, val ? '1' : '0'); } catch (e) {}
     }
 
     /* ---------- Elementos ---------- */
@@ -7762,6 +7786,88 @@
       }, delay);
     }
 
+    /* ---------- Voz de Kia (texto a voz, vocecita de ardilla) ---------- */
+    if ('speechSynthesis' in window) {
+      // Dispara la carga de voces del navegador cuanto antes (en varios
+      // navegadores la lista llega vacía la primera vez y se llena después).
+      window.speechSynthesis.getVoices();
+    }
+
+    function pickMascotVoice() {
+      if (!('speechSynthesis' in window)) return null;
+      var voices = window.speechSynthesis.getVoices();
+      if (!voices || !voices.length) return null;
+      var esVoices = voices.filter(function (v) { return /^es/i.test(v.lang); });
+      var pool = esVoices.length ? esVoices : voices;
+      // Nombres de voz que suelen sonar más agudos/dulces en los motores
+      // habituales (Chrome, Edge, iOS) para acercarse más al efecto "ardilla".
+      var preferred = ['mónica', 'monica', 'paulina', 'sabina', 'helena', 'elvira', 'lucia', 'lucía', 'female', 'mujer'];
+      for (var i = 0; i < pool.length; i++) {
+        var name = pool[i].name.toLowerCase();
+        for (var j = 0; j < preferred.length; j++) {
+          if (name.indexOf(preferred[j]) !== -1) return pool[i];
+        }
+      }
+      return pool[0];
+    }
+
+    function stripEmojiForSpeech(text) {
+      try {
+        return String(text)
+          .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, '')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+      } catch (e) {
+        return String(text);
+      }
+    }
+
+    function speakMascotTextForce(text) {
+      if (!('speechSynthesis' in window)) return;
+      var clean = stripEmojiForSpeech(text);
+      if (!clean) return;
+      try {
+        var synth = window.speechSynthesis;
+        if (synth.speaking || synth.pending) synth.cancel();
+        setTimeout(function () {
+          try {
+            var utter = new SpeechSynthesisUtterance(clean);
+            var voice = pickMascotVoice();
+            if (voice) { utter.voice = voice; utter.lang = voice.lang; }
+            else { utter.lang = 'es-MX'; }
+            utter.pitch = 1.8;  // agudito, tipo ardilla
+            utter.rate = 1.15;  // un poco más rápido y alegre
+            utter.volume = 1;
+            synth.speak(utter);
+          } catch (e) {}
+        }, 30);
+      } catch (e) {}
+    }
+
+    function speakMascotText(text) {
+      if (!isMascotVoiceEnabled()) return;
+      speakMascotTextForce(text);
+    }
+
+    window.toggleMascotVoice = function () {
+      var next = !isMascotVoiceEnabled();
+      setMascotVoiceEnabled(next);
+      updateMascotVoiceToggleUI();
+    };
+
+    window.testMascotVoice = function () {
+      speakMascotTextForce('¡Hola! Así sueno cuando te hablo. ¿Te gusta mi vocecita?');
+    };
+
+    function updateMascotVoiceToggleUI() {
+      var btn = document.getElementById('mascot-voice-toggle-btn');
+      var dot = document.getElementById('mascot-voice-toggle-dot');
+      if (!btn || !dot) return;
+      var on = isMascotVoiceEnabled();
+      btn.style.background = on ? '#7000ff' : '#374151';
+      dot.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+    }
+
     function showBubble(text) {
       if (!bubbleEl) return;
       bubbleEl.textContent = text;
@@ -7770,6 +7876,7 @@
       bubbleTimer = setTimeout(function () {
         bubbleEl.classList.remove('mascot-bubble-visible');
       }, 3200);
+      speakMascotText(text);
     }
 
     function sayRandomPhrase() {
@@ -7947,6 +8054,7 @@
       var content = document.getElementById('mascot-settings-content');
       renderMascotPhrasesList();
       updateMascotToggleUI();
+      updateMascotVoiceToggleUI();
       var sizeSlider = document.getElementById('mascot-size-slider');
       var sizeInput = document.getElementById('mascot-size-input');
       var sizeLabel = document.getElementById('mascot-size-value');
