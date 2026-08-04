@@ -7381,67 +7381,79 @@
        más grande para que se vea del mismo tamaño/escala que la pose de frente. */
     var WOLF_PROFILE_PALETTE = {
       'B': '#050604', 'D': '#383c3e', 'H': '#454c53',
-      'G': '#858885', 'L': '#a9a9a4', 'C': '#e1ded3'
+      'G': '#858885', 'L': '#bfc0bb', 'C': '#e1ded3'
     };
-    var WOLF_FRAME_RUN1 = [
-      '............................BBB.',
-      '......................BBB...BHB.',
-      '......................BHB...BHB.',
-      '......................BHB...BHB.',
-      '....................BBBBBBBBBBBB',
-      '....................BHHHCCCHHHHB',
-      '....................BHHHCCCHHHHB',
-      '.BCCB...............BHHHCCCHHHHB',
-      '.BCCB...............BHHHCBBCCCCB',
-      'BBCCB....BBBBBBBBBBBBBHHCBBCCDBD',
-      'BHHBBBBBBBBBBBBBBBBBBBBCCCCCCDDD',
-      'BHHBGGGGGGHHHHGGGGGGHHBCCCCCCCCB',
-      'BHHBGGGGGGHHHHGGGGGGHHBBCCCCCCBB',
-      'BHHBHHHHHHHHHHHHHHHHHHB.........',
-      'BHHBHHHHHHHHHHHHHHHHHHB.........',
-      '...BHHCCCCCCCCCCCCCCHHB.........',
-      '...BHHCCCCCCCCCCCCCCHHB.........',
-      '...BBBBBBBBBBBBBBBBBBBBBBB......',
-      '....BHHHBBHHHB..BHHHBBHHHB......',
-      '....BHHHBBHHHB..BHHHBBHHHB......',
-      '....BHHHBBHHHB..BHHHBBHHHB......',
-      '....BCCCBBHHHB..BCCCBBHHHB......',
-      '.....CCC.BHHHB...CCC.BCCCB......',
-      '.........BCCCB........CCC.......',
-      '................................',
-      '................................',
-      '................................'
+
+    /* Torso fijo (cabeza, orejas, mascarilla facial, lomo, cola enroscada,
+       pecho): reconstruido a partir de la foto de referencia del usuario
+       pixel por pixel, se mantiene idéntico en los 4 cuadros de la carrera
+       para que el cuerpo se vea siempre igual a la imagen. Solo las patas
+       (abajo) cambian entre cuadros para animar el movimiento. */
+    var WOLF_CHASSIS = [
+      '............................CBC............',
+      '............................LBL............',
+      '...........................BBHBB...CBBB....',
+      '...........................BBHBBL..HBBB....',
+      '......BBBC.................BBCBBBBBBHBB....',
+      '....LLLLLLL..............LHHHCHBBHBHBHL....',
+      '....BBCCCBB..............BBHHCHHHHHHBL.....',
+      '..LHCLHHHBB..............BBHHHHHHHHHHHB....',
+      '..BBCCHHHBB..............BBHHHHHHHHHHBB....',
+      '..BBHHHHBC.............HBHHHHHHHCCCLHBB....',
+      '..BBHHHBBC.............HBHHHHHHHCCCLHBB....',
+      '..BBHHHBBC...........LBHHHHHHHLCCCBHCHB....',
+      '..BBHHHHBH...........HBHHHHHHHCCCCHLCCHLLLC',
+      '..BBCCHHHBBBBBBBBBBBBBHHHHHHHCCCCCCCCCCBBBB',
+      '..CCHHCHHHHHHHHHHHHHHHHHHHHHHCCCCCHLCCCCLBB',
+      '....BBCLHHHHHHHHHHHHHHHHHHHHHCCCCCBHCCCCCBB',
+      '.....CBHHHHHHHHHHHHHHHHHHHHHHHCCCCCLBBBBB..',
+      '......BBHHHHHHHHHHHHHHHHHHHHHHLCCCCLBBBBB..',
+      '......BBHHHHHHHHHHHHHHHHHHHHHHLCLLBBBBB....',
+      '......BBHHHHHHHHHHHHHHHHHHHHHHCCLLHHHHH....',
+      '......BBHHHHHHHHHHHHHHHHHHHLLCCCBB.........',
+      '....HHLHHHHLLBHLCCCLHHHHHHHCCCCBLC.........',
+      '....BBCLHHHCCBHCCCCCHHHHHHHCCCBB...........',
+      '..HHCCCCCCCBHLHBBBCCCLBHHHHHHBL............',
+      '..BBCCCCCCCBBLHBBBCCCLBHHLLHHBL............',
+      '..BBCCCLBBBLLBH...BBBBBLCCCCCCHB...........'
     ];
-    var WOLF_FRAME_RUN2 = [
-      '............................BBB.',
-      '......................BBB...BHB.',
-      '......................BHB...BHB.',
-      '......................BHB...BHB.',
-      '....................BBBBBBBBBBBB',
-      '....................BHHHCCCHHHHB',
-      '....................BHHHCCCHHHHB',
-      '.BCCB...............BHHHCCCHHHHB',
-      '.BCCB...............BHHHCBBCCCCB',
-      'BBCCB....BBBBBBBBBBBBBHHCBBCCDBD',
-      'BHHBBBBBBBBBBBBBBBBBBBBCCCCCCDDD',
-      'BHHBGGGGGGHHHHGGGGGGHHBCCCCCCCCB',
-      'BHHBGGGGGGHHHHGGGGGGHHBBCCCCCCBB',
-      'BHHBHHHHHHHHHHHHHHHHHHB.........',
-      'BHHBHHHHHHHHHHHHHHHHHHB.........',
-      '...BHHCCCCCCCCCCCCCCHHB.........',
-      '...BHHCCCCCCCCCCCCCCHHB.........',
-      '...BBBBBBBBBBBBBBBBBBBBBBBB.....',
-      '...BHHHBHHHB......BHHHBHHHB.....',
-      '...BHHHBHHHB......BHHHBHHHB.....',
-      '...BCCCBHHHB......BCCCBHHHB.....',
-      '....CCCBCCCB.......CCCBCCCB.....',
-      '........CCC............CCC......',
-      '................................',
-      '................................',
-      '................................',
-      '................................'
+    /* Patas en zancada extendida (fiel a la foto: trasera estirada hacia
+       atrás, delantera estirada hacia adelante). */
+    var WOLF_LEGS_REACH_A = [
+      '.CHHCCCHBBHHLHL...HBBHHLCCCCCCLBLC.........',
+      'LBCCCCBHLLLBB..........HBBBCCCCCBB.........',
+      'LBCCHBBHLLHLC...........CCLHLLCCBB.........',
+      'LBCCBBBHLBB................BBLCCBB.........',
+      'LBBB.LBHLBB.................LBBBBB.........',
+      'LBBB..BLLHB.................CBBBBB.........',
+      '.......CBC..................CBLLLLBH.......',
+      '.......CLL.............C....LBHLLHBH.......'
     ];
-    var WOLF_RUN_GRID_W = 32, WOLF_RUN_GRID_H = 27;
+    /* Zancada opuesta (espejo horizontal de la anterior): la pata que
+       estaba atrás pasa a estar adelante y viceversa, para el paso alterno. */
+    var WOLF_LEGS_REACH_B = WOLF_LEGS_REACH_A.map(function (r) {
+      return r.split('').reverse().join('');
+    });
+    /* Patas recogidas en el aire (momento de "vuelo" entre zancadas): más
+       cortas y cerca del cuerpo, para el rebote natural de la carrera. */
+    var WOLF_LEGS_COLLECT = [
+      '...CCCHB.......................LHCCLB......',
+      '...LCCHB.......................LCCCBB......',
+      '....CLBB........................CLBBB......',
+      '.....BB..........................BBB.......',
+      '...........................................',
+      '...........................................',
+      '...........................................',
+      '...........................................'
+    ];
+
+    function joinWolfFrame(chassis, legs) { return chassis.concat(legs); }
+    var WOLF_FRAME_RUN1 = joinWolfFrame(WOLF_CHASSIS, WOLF_LEGS_REACH_A);
+    var WOLF_FRAME_RUN2 = joinWolfFrame(WOLF_CHASSIS, WOLF_LEGS_COLLECT);
+    var WOLF_FRAME_RUN3 = joinWolfFrame(WOLF_CHASSIS, WOLF_LEGS_REACH_B);
+    var WOLF_FRAME_RUN4 = joinWolfFrame(WOLF_CHASSIS, WOLF_LEGS_COLLECT);
+    var WOLF_RUN_FRAMES = [WOLF_FRAME_RUN1, WOLF_FRAME_RUN2, WOLF_FRAME_RUN3, WOLF_FRAME_RUN4];
+    var WOLF_RUN_GRID_W = 43, WOLF_RUN_GRID_H = 34;
 
 
     /* Pose de "reverencia de juego" (play bow), fiel a la foto de referencia:
@@ -7602,7 +7614,7 @@
     var clickTimestamps = [];
     var clickResolveTimer = null;
     var isRunning = false;
-    var runFrameToggle = false;
+    var runFrameIndex = 0;
     var runAnimTimer = null;
     var runStopTimer = null;
     var idleGestureTimer = null;
@@ -7645,22 +7657,31 @@
         wolfEl.classList.remove('mascot-idle-state');
         wolfEl.classList.add('mascot-running');
         setSpriteBox(WOLF_RUN_GRID_W, WOLF_RUN_GRID_H);
-        clearInterval(runAnimTimer);
-        runAnimTimer = setInterval(function () {
-          if (!spriteEl) return;
-          runFrameToggle = !runFrameToggle;
+        clearTimeout(runAnimTimer);
+        runFrameIndex = 0;
+        spriteEl.innerHTML = buildWolfSvg(
+          WOLF_RUN_FRAMES[0], WOLF_RUN_GRID_W, WOLF_RUN_GRID_H, 'mid', WOLF_PROFILE_PALETTE
+        );
+        function stepRunFrame() {
+          if (!spriteEl || !isRunning) return;
+          runFrameIndex = (runFrameIndex + 1) % WOLF_RUN_FRAMES.length;
           spriteEl.innerHTML = buildWolfSvg(
-            runFrameToggle ? WOLF_FRAME_RUN2 : WOLF_FRAME_RUN1,
+            WOLF_RUN_FRAMES[runFrameIndex],
             WOLF_RUN_GRID_W, WOLF_RUN_GRID_H, 'mid', WOLF_PROFILE_PALETTE
           );
-        }, 140);
+          /* Los cuadros de zancada extendida (0 y 2) se sostienen un poco
+             más que los de recogida (1 y 3), para un trote más natural. */
+          var isReach = (runFrameIndex % 2 === 0);
+          runAnimTimer = setTimeout(stepRunFrame, isReach ? 150 : 100);
+        }
+        runAnimTimer = setTimeout(stepRunFrame, 150);
       }
     }
 
     function stopRunAnimation() {
       if (!wolfEl || !spriteEl) return;
       isRunning = false;
-      clearInterval(runAnimTimer);
+      clearTimeout(runAnimTimer);
       runAnimTimer = null;
       wolfEl.classList.remove('mascot-running');
       wolfEl.classList.add('mascot-idle-state');
