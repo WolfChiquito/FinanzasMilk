@@ -884,6 +884,11 @@
       filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5)) drop-shadow(0 0 10px rgba(0,240,255,0.10));
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      /* Se fija desde el inicio (y no solo mientras se arrastra) para que en
+         celular el navegador no capture el primer toque como scroll de la
+         página antes de que el JS detecte que es un arrastre. */
+      touch-action: none;
+      -ms-touch-action: none;
     }
     .mascot-wolf.mascot-hidden-away {
       opacity: 0;
@@ -7493,17 +7498,28 @@
     function buildWolfSvg(frame, gw, gh, align, palette) {
       gw = gw || WOLF_GRID_W; gh = gh || WOLF_GRID_H;
       palette = palette || WOLF_PALETTE;
+      /* Se fusionan los píxeles contiguos del mismo color en cada fila en un
+         solo <rect>, y se les da un ligero solape (pad) entre celdas. Esto
+         elimina las costuras/pixeles sueltos que aparecían fuera del contorno
+         de la figura al animar o escalar (redondeo de subpíxeles del navegador
+         en la grilla de rects individuales, sobre todo visible al correr). */
+      var pad = 0.04;
       var rects = '';
       for (var r = 0; r < gh; r++) {
         var row = frame[r];
-        for (var c = 0; c < gw; c++) {
+        var c = 0;
+        while (c < gw) {
           var ch = row[c];
           var color = palette[ch];
-          if (color) rects += '<rect x="' + c + '" y="' + r + '" width="1" height="1" fill="' + color + '"/>';
+          if (!color) { c++; continue; }
+          var start = c;
+          while (c < gw && row[c] === ch) c++;
+          var runLen = c - start;
+          rects += '<rect x="' + (start - pad) + '" y="' + (r - pad) + '" width="' + (runLen + pad * 2) + '" height="' + (1 + pad * 2) + '" fill="' + color + '"/>';
         }
       }
       var par = align === 'bottom' ? 'xMidYMax meet' : 'xMidYMid meet';
-      return '<svg viewBox="0 0 ' + gw + ' ' + gh + '" preserveAspectRatio="' + par + '" xmlns="http://www.w3.org/2000/svg">' + rects + '</svg>';
+      return '<svg viewBox="0 0 ' + gw + ' ' + gh + '" preserveAspectRatio="' + par + '" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><g shape-rendering="crispEdges">' + rects + '</g></svg>';
     }
 
     /* Alto fijo (igual al de la pose de frente) multiplicado por el tamaño que
@@ -8129,6 +8145,7 @@
       /* ---------- Tocar para hablar / arrastrar para reubicar ---------- */
       wolfEl.addEventListener('pointerdown', function (e) {
         if (noteBoxEl.classList.contains('mascot-note-box-visible')) return;
+        e.preventDefault();
         isDragging = true;
         dragMoved = false;
         clearTimeout(wanderTimer);
@@ -8143,9 +8160,10 @@
 
       wolfEl.addEventListener('pointermove', function (e) {
         if (!isDragging) return;
+        e.preventDefault();
         var nx = e.clientX - dragOffsetX;
         var ny = e.clientY - dragOffsetY;
-        if (Math.abs(nx - posX) > 6 || Math.abs(ny - posY) > 6) {
+        if (Math.abs(nx - posX) > 4 || Math.abs(ny - posY) > 4) {
           if (!dragMoved) {
             dragMoved = true;
             stopRunAnimation();
