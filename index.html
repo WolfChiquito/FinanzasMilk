@@ -894,8 +894,12 @@
       opacity: 0;
       pointer-events: none;
     }
-    .mascot-wolf.mascot-facing-left { transform: scaleX(-1); }
-    .mascot-wolf.mascot-facing-right { transform: scaleX(1); }
+    /* Antes era un espejo plano (scaleX(-1)); ahora gira en el eje Y con
+       perspectiva, así el giro se ve como una vuelta en 3D real (con
+       escorzo) en vez de un aplastamiento 2D, aunque el dibujo siga siendo
+       pixel art puro (los rects internos no cambian). */
+    .mascot-wolf.mascot-facing-left { transform: perspective(700px) rotateY(180deg); }
+    .mascot-wolf.mascot-facing-right { transform: perspective(700px) rotateY(0deg); }
     .mascot-wolf.mascot-dragging { transition: none !important; cursor: grabbing; touch-action: none; }
     .mascot-sprite {
       width: 100%;
@@ -910,9 +914,15 @@
       0%, 100% { transform: translateY(0) rotate(0deg); }
       50% { transform: translateY(-4px) rotate(-2deg); }
     }
+    /* Rebote de carrera con un leve tambaleo en 3D (perspective + rotateY/
+       rotateX) para dar sensación de volumen mientras corre, en vez de un
+       simple desplazamiento plano en Y. El pixel art del sprite no cambia,
+       solo la forma en que se mueve en el espacio. */
     @keyframes mascotRunBounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
+      0%, 100% { transform: perspective(500px) translateY(0) rotateY(0deg) rotateX(0deg); }
+      25% { transform: perspective(500px) translateY(-1px) rotateY(-6deg) rotateX(3deg); }
+      50% { transform: perspective(500px) translateY(-3px) rotateY(0deg) rotateX(0deg); }
+      75% { transform: perspective(500px) translateY(-1px) rotateY(6deg) rotateX(-3deg); }
     }
     @keyframes mascotIdleSway {
       0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
@@ -7605,6 +7615,21 @@
       var custom = getCustomPhrases();
       return DEFAULT_PHRASES.concat(custom);
     }
+    /* Elige una frase al azar, pero dándole más peso a las que el usuario
+       registró (custom) frente a las preestablecidas (DEFAULT_PHRASES), para
+       que salgan con más frecuencia sin dejar de mostrar las de fábrica. */
+    var CUSTOM_PHRASE_WEIGHT = 3;
+    function pickWeightedRandomPhrase() {
+      var custom = getCustomPhrases();
+      if (!custom.length) return DEFAULT_PHRASES.length ? DEFAULT_PHRASES[Math.floor(Math.random() * DEFAULT_PHRASES.length)] : null;
+      var weighted = [];
+      for (var i = 0; i < DEFAULT_PHRASES.length; i++) weighted.push(DEFAULT_PHRASES[i]);
+      for (var j = 0; j < custom.length; j++) {
+        for (var w = 0; w < CUSTOM_PHRASE_WEIGHT; w++) weighted.push(custom[j]);
+      }
+      if (!weighted.length) return null;
+      return weighted[Math.floor(Math.random() * weighted.length)];
+    }
     function isMascotEnabled() {
       var v = localStorage.getItem(ENABLED_KEY);
       return v === null ? true : v === '1';
@@ -7917,9 +7942,8 @@
     }
 
     function sayRandomPhrase() {
-      var phrases = getAllPhrases();
-      if (!phrases.length) return;
-      var phrase = phrases[Math.floor(Math.random() * phrases.length)];
+      var phrase = pickWeightedRandomPhrase();
+      if (!phrase) return;
       showBubble(phrase);
     }
 
