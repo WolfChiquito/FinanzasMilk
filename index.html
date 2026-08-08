@@ -1910,13 +1910,31 @@
           <div id="credito-dates-fields" class="space-y-3 pt-2 border-t border-gray-800/40 mt-1 hidden">
             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fechas de la Tarjeta</label>
             <div class="grid grid-cols-2 gap-3">
-              <div class="space-y-1">
+              <div class="space-y-1 relative">
                 <label class="block text-[10px] font-semibold text-gray-500">Día de Corte</label>
-                <input type="number" id="new-acc-cutoff-day" min="1" max="31" placeholder="Ej. 15" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] text-white">
+                <button type="button" id="new-acc-cutoff-day-btn" onclick="window.toggleDayPicker('cutoff-day-picker-panel')" class="day-picker-trigger w-full flex items-center justify-between gap-1.5 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] hover:border-gray-600 transition-colors">
+                  <span id="new-acc-cutoff-day-label" class="text-gray-500 truncate">Elegir día</span>
+                  <i data-lucide="calendar-days" class="w-3.5 h-3.5 text-gray-500 shrink-0"></i>
+                </button>
+                <input type="hidden" id="new-acc-cutoff-day">
+                <div id="cutoff-day-picker-panel" class="day-picker-panel hidden absolute z-30 top-full left-0 mt-1.5 w-56 bg-gray-950 border border-gray-800 rounded-2xl shadow-2xl p-3">
+                  <p class="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-2 text-center">Selecciona el día</p>
+                  <div id="cutoff-day-picker-grid" class="grid grid-cols-7 gap-1"></div>
+                  <button type="button" onclick="window.clearDayPickerValue('new-acc-cutoff-day','new-acc-cutoff-day-label','Elegir día','cutoff-day-picker-panel')" class="w-full mt-2 text-[10px] text-gray-500 hover:text-gray-300 text-center py-1 border-t border-gray-800/60">Quitar selección</button>
+                </div>
               </div>
-              <div class="space-y-1">
+              <div class="space-y-1 relative">
                 <label class="block text-[10px] font-semibold text-gray-500">Día Límite de Pago</label>
-                <input type="number" id="new-acc-due-day" min="1" max="31" placeholder="Ej. 5" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#ff007f] text-white">
+                <button type="button" id="new-acc-due-day-btn" onclick="window.toggleDayPicker('due-day-picker-panel')" class="day-picker-trigger w-full flex items-center justify-between gap-1.5 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#ff007f] hover:border-gray-600 transition-colors">
+                  <span id="new-acc-due-day-label" class="text-gray-500 truncate">Elegir día</span>
+                  <i data-lucide="calendar-days" class="w-3.5 h-3.5 text-gray-500 shrink-0"></i>
+                </button>
+                <input type="hidden" id="new-acc-due-day">
+                <div id="due-day-picker-panel" class="day-picker-panel hidden absolute z-30 top-full right-0 mt-1.5 w-56 bg-gray-950 border border-gray-800 rounded-2xl shadow-2xl p-3">
+                  <p class="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-2 text-center">Selecciona el día</p>
+                  <div id="due-day-picker-grid" class="grid grid-cols-7 gap-1"></div>
+                  <button type="button" onclick="window.clearDayPickerValue('new-acc-due-day','new-acc-due-day-label','Elegir día','due-day-picker-panel')" class="w-full mt-2 text-[10px] text-gray-500 hover:text-gray-300 text-center py-1 border-t border-gray-800/60">Quitar selección</button>
+                </div>
               </div>
             </div>
             <div class="space-y-1">
@@ -4223,8 +4241,6 @@
       const typeRadio = document.querySelector('input[name="acc-type"][value="debito"]');
       const btn = document.getElementById('btn-save-account');
       const cancelBtn = document.getElementById('btn-cancel-account-edit');
-      const cutoffDay = document.getElementById('new-acc-cutoff-day');
-      const dueDay = document.getElementById('new-acc-due-day');
       const dueColor = document.getElementById('new-acc-due-color');
 
       if (title) title.textContent = "Crear Cuenta";
@@ -4233,8 +4249,8 @@
       if (balance) balance.value = '';
       if (date) date.value = new Date().toISOString().split('T')[0];
       if (typeRadio) typeRadio.checked = true;
-      if (cutoffDay) cutoffDay.value = '';
-      if (dueDay) dueDay.value = '';
+      clearDayPickerValue('new-acc-cutoff-day', 'new-acc-cutoff-day-label', 'Elegir día', 'cutoff-day-picker-panel');
+      clearDayPickerValue('new-acc-due-day', 'new-acc-due-day-label', 'Elegir día', 'due-day-picker-panel');
       if (dueColor) dueColor.value = '#ff007f';
       if (btn) btn.textContent = "+ Agregar Cuenta";
       if (cancelBtn) cancelBtn.classList.add('hidden');
@@ -4260,6 +4276,84 @@
     }
     document.querySelectorAll('input[name="acc-type"]').forEach(radio => {
       radio.addEventListener('change', toggleCreditoDatesFields);
+    });
+
+    // ===== Selector flotante tipo calendario (día 1-31) para Día de Corte y
+    // Día Límite de Pago de tarjetas de crédito =====
+    function buildDayPickerGrid(gridId, hiddenId, labelId, panelId, placeholder) {
+      const grid = document.getElementById(gridId);
+      if (!grid) return;
+      grid.innerHTML = '';
+      for (let d = 1; d <= 31; d++) {
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.textContent = d;
+        cell.className = 'day-picker-cell w-7 h-7 flex items-center justify-center rounded-lg text-[10px] font-semibold text-gray-300 bg-gray-900 border border-gray-800 hover:border-[#00f0ff] hover:text-[#00f0ff] transition-colors';
+        cell.addEventListener('click', () => selectDayPickerValue(hiddenId, labelId, panelId, d, placeholder));
+        grid.appendChild(cell);
+      }
+    }
+
+    function toggleDayPicker(panelId) {
+      document.querySelectorAll('.day-picker-panel').forEach(p => {
+        if (p.id === panelId) {
+          p.classList.toggle('hidden');
+        } else {
+          p.classList.add('hidden');
+        }
+      });
+    }
+
+    function closeAllDayPickers() {
+      document.querySelectorAll('.day-picker-panel').forEach(p => p.classList.add('hidden'));
+    }
+
+    function highlightDayPickerCell(panelId, day) {
+      const panel = document.getElementById(panelId);
+      if (!panel) return;
+      panel.querySelectorAll('.day-picker-cell').forEach((cell, idx) => {
+        if (idx + 1 === day) {
+          cell.classList.add('bg-[#7000ff]/30', 'border-[#7000ff]', 'text-white');
+        } else {
+          cell.classList.remove('bg-[#7000ff]/30', 'border-[#7000ff]', 'text-white');
+        }
+      });
+    }
+
+    function selectDayPickerValue(hiddenId, labelId, panelId, day, placeholder) {
+      const hidden = document.getElementById(hiddenId);
+      const label = document.getElementById(labelId);
+      if (hidden) hidden.value = day;
+      if (label) {
+        label.textContent = `Día ${day}`;
+        label.classList.remove('text-gray-500');
+        label.classList.add('text-white');
+      }
+      highlightDayPickerCell(panelId, day);
+      closeAllDayPickers();
+    }
+
+    function clearDayPickerValue(hiddenId, labelId, placeholder, panelId) {
+      const hidden = document.getElementById(hiddenId);
+      const label = document.getElementById(labelId);
+      if (hidden) hidden.value = '';
+      if (label) {
+        label.textContent = placeholder;
+        label.classList.add('text-gray-500');
+        label.classList.remove('text-white');
+      }
+      if (panelId) highlightDayPickerCell(panelId, 0);
+      closeAllDayPickers();
+    }
+
+    buildDayPickerGrid('cutoff-day-picker-grid', 'new-acc-cutoff-day', 'new-acc-cutoff-day-label', 'cutoff-day-picker-panel', 'Elegir día');
+    buildDayPickerGrid('due-day-picker-grid', 'new-acc-due-day', 'new-acc-due-day-label', 'due-day-picker-panel', 'Elegir día');
+
+    // Cierra los menús flotantes al hacer clic fuera de ellos.
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.day-picker-panel') && !e.target.closest('.day-picker-trigger')) {
+        closeAllDayPickers();
+      }
     });
 
     function renderAccountsManagerList() {
@@ -4475,8 +4569,6 @@
       const typeRadio = document.querySelector(`input[name="acc-type"][value="${acc.accountType || 'debito'}"]`);
       const btn = document.getElementById('btn-save-account');
       const cancelBtn = document.getElementById('btn-cancel-account-edit');
-      const cutoffDay = document.getElementById('new-acc-cutoff-day');
-      const dueDay = document.getElementById('new-acc-due-day');
       const dueColor = document.getElementById('new-acc-due-color');
 
       if (title) title.textContent = "Editar Cuenta";
@@ -4485,8 +4577,16 @@
       if (balance) balance.value = acc.initialBalance || '';
       if (date) date.value = acc.initialBalanceDate || new Date().toISOString().split('T')[0];
       if (typeRadio) typeRadio.checked = true;
-      if (cutoffDay) cutoffDay.value = acc.cutoffDay || '';
-      if (dueDay) dueDay.value = acc.paymentDueDay || '';
+      if (acc.cutoffDay) {
+        selectDayPickerValue('new-acc-cutoff-day', 'new-acc-cutoff-day-label', 'cutoff-day-picker-panel', parseInt(acc.cutoffDay, 10), 'Elegir día');
+      } else {
+        clearDayPickerValue('new-acc-cutoff-day', 'new-acc-cutoff-day-label', 'Elegir día', 'cutoff-day-picker-panel');
+      }
+      if (acc.paymentDueDay) {
+        selectDayPickerValue('new-acc-due-day', 'new-acc-due-day-label', 'due-day-picker-panel', parseInt(acc.paymentDueDay, 10), 'Elegir día');
+      } else {
+        clearDayPickerValue('new-acc-due-day', 'new-acc-due-day-label', 'Elegir día', 'due-day-picker-panel');
+      }
       if (dueColor) dueColor.value = acc.paymentDueColor || '#ff007f';
       if (btn) btn.textContent = "Actualizar Cuenta";
       if (cancelBtn) cancelBtn.classList.remove('hidden');
@@ -7431,6 +7531,8 @@
     window.openAccountManager = openAccountManager;
     window.closeAccountManager = closeAccountManager;
     window.applyBrandTemplate = applyBrandTemplate;
+    window.toggleDayPicker = toggleDayPicker;
+    window.clearDayPickerValue = clearDayPickerValue;
     window.showConfirm = showConfirm;
     window.closeConfirm = closeConfirm;
     window.triggerConfirm = triggerConfirm;
