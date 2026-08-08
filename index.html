@@ -501,6 +501,24 @@
       animation: today-glow 2s infinite ease-in-out;
     }
 
+    /* Destello con color personalizado para recordar la fecha límite de pago
+       de una tarjeta de crédito. El color lo define el usuario por cuenta y se
+       inyecta vía variables CSS en línea (--due-*) desde renderCalendar(). */
+    @keyframes due-glow {
+      0%, 100% {
+        box-shadow: 0 0 10px var(--due-shadow-soft, rgba(255, 0, 127, 0.4)), 0 0 20px var(--due-shadow-mid, rgba(255, 0, 127, 0.2));
+        border-color: var(--due-border, rgba(255, 0, 127, 0.6));
+      }
+      50% {
+        box-shadow: 0 0 25px var(--due-shadow-strong, rgba(255, 0, 127, 0.9)), 0 0 35px var(--due-shadow-strong2, rgba(255, 0, 127, 0.6)), 0 0 15px var(--due-shadow-soft, rgba(255, 0, 127, 0.3));
+        border-color: var(--due-border-strong, rgba(255, 0, 127, 0.9));
+      }
+    }
+    .due-destello {
+      opacity: 1;
+      animation: due-glow 2s infinite ease-in-out;
+    }
+
     /* Efecto Resaltador de Estudiante (Fluorescente, inclinado y dinámico) */
     .student-highlight {
       background: rgba(250, 255, 0, 0.25) !important;
@@ -1888,6 +1906,28 @@
             </div>
           </div>
 
+          <!-- Fechas de Corte / Límite de Pago (solo Crédito) NUEVO -->
+          <div id="credito-dates-fields" class="space-y-3 pt-2 border-t border-gray-800/40 mt-1 hidden">
+            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fechas de la Tarjeta</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-semibold text-gray-500">Día de Corte</label>
+                <input type="number" id="new-acc-cutoff-day" min="1" max="31" placeholder="Ej. 15" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#7000ff] text-white">
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-semibold text-gray-500">Día Límite de Pago</label>
+                <input type="number" id="new-acc-due-day" min="1" max="31" placeholder="Ej. 5" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#ff007f] text-white">
+              </div>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-[10px] font-semibold text-gray-500">Color de Recordatorio</label>
+              <div class="flex items-center gap-3">
+                <input type="color" id="new-acc-due-color" value="#ff007f" class="h-10 w-14 bg-gray-950 border border-gray-800 rounded-xl cursor-pointer p-1">
+                <span class="text-[10px] text-gray-500 leading-tight">Este color destellará en tu calendario el día límite de pago, cada mes.</span>
+              </div>
+            </div>
+          </div>
+
           <div class="space-y-2 pt-1">
             <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">¿Cómo registrar el saldo inicial?</label>
             <div class="flex gap-4">
@@ -1963,6 +2003,18 @@
           <div class="bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10">
             <span class="text-[9px] text-rose-450 font-bold uppercase tracking-wider block mb-1">Cargos/Gastos</span>
             <p id="detail-acc-expense" class="text-sm font-bold text-rose-400"></p>
+          </div>
+        </div>
+
+        <!-- Fechas de Corte / Límite de Pago (solo Crédito) NUEVO -->
+        <div id="detail-acc-credito-dates" class="grid grid-cols-2 gap-3 hidden">
+          <div class="bg-gray-900 p-3 rounded-2xl border border-gray-800">
+            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Día de Corte</span>
+            <p id="detail-acc-cutoff" class="text-sm font-bold text-gray-200"></p>
+          </div>
+          <div class="bg-gray-900 p-3 rounded-2xl border border-gray-800">
+            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Límite de Pago</span>
+            <p id="detail-acc-due" class="text-sm font-bold text-gray-200 flex items-center gap-1.5"></p>
           </div>
         </div>
 
@@ -3018,6 +3070,18 @@
       lucide.createIcons();
     }
 
+    // Convierte un color hex (#rrggbb) a una cadena rgba(...) con la opacidad indicada.
+    // Se usa para generar el destello de color personalizado del día límite de pago.
+    function hexToRgba(hex, alpha) {
+      if (!hex) return `rgba(255, 0, 127, ${alpha})`;
+      let h = hex.replace('#', '');
+      if (h.length === 3) h = h.split('').map(c => c + c).join('');
+      const r = parseInt(h.substring(0, 2), 16) || 0;
+      const g = parseInt(h.substring(2, 4), 16) || 0;
+      const b = parseInt(h.substring(4, 6), 16) || 0;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
     function renderCalendar() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
@@ -3050,6 +3114,15 @@
         const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
         const isSelected = selectedDateStr === dateStr;
         const dayMovements = movements.filter(m => m.date === dateStr);
+
+        // Tarjetas de crédito cuya "Fecha Límite de Pago" cae en este día del mes.
+        // Si el día límite (ej. 31) no existe en el mes actual (ej. Febrero), se
+        // recorre al último día disponible de ese mes.
+        const dueAccountsToday = accounts.filter(a => {
+          if (a.accountType !== 'credito' || !a.paymentDueDay || !a.paymentDueColor) return false;
+          const effectiveDay = Math.min(parseInt(a.paymentDueDay, 10), daysInMonth);
+          return effectiveDay === day;
+        });
         
         const btn = document.createElement('button');
         btn.onclick = () => window.openModal(dateStr);
@@ -3057,6 +3130,8 @@
         let baseClass = `relative h-24 md:h-28 rounded-[2.5rem] border flex flex-col justify-between items-center p-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer animate-pop `;
         if (isSelected) {
           baseClass += 'student-highlight';
+        } else if (dueAccountsToday.length > 0) {
+          baseClass += (isToday ? 'bg-[#7000ff]/15 text-[#00f0ff] font-bold ' : 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 ') + 'due-destello';
         } else if (isToday) {
           baseClass += 'bg-[#7000ff]/15 border-[#7000ff]/50 text-[#00f0ff] font-bold today-destello';
         } else {
@@ -3065,7 +3140,23 @@
         btn.className = baseClass;
         btn.style.animationDelay = `${(day * 0.01).toFixed(2)}s`;
 
+        if (dueAccountsToday.length > 0 && !isSelected) {
+          const dueColor = dueAccountsToday[0].paymentDueColor;
+          btn.style.setProperty('--due-shadow-soft', hexToRgba(dueColor, 0.4));
+          btn.style.setProperty('--due-shadow-mid', hexToRgba(dueColor, 0.2));
+          btn.style.setProperty('--due-shadow-strong', hexToRgba(dueColor, 0.9));
+          btn.style.setProperty('--due-shadow-strong2', hexToRgba(dueColor, 0.6));
+          btn.style.setProperty('--due-border', hexToRgba(dueColor, 0.6));
+          btn.style.setProperty('--due-border-strong', hexToRgba(dueColor, 0.95));
+          const dueNames = dueAccountsToday.map(a => `${a.emoji || '💳'} ${a.name}`).join(', ');
+          btn.title = `Pago de TDC: ${dueNames}`;
+        }
+
         let innerHTML = `<span class="text-xl md:text-2xl font-black tracking-tight w-full text-center mt-1 drop-shadow-sm">${day}</span>`;
+
+        if (dueAccountsToday.length > 0) {
+          innerHTML += `<span class="absolute top-1.5 right-1.5 text-xs" title="Pago de TDC">💳</span>`;
+        }
 
         if (dayMovements.length > 0) {
           let emojisHtml = dayMovements.slice(0, 3).map(m => {
@@ -3927,6 +4018,22 @@
       if (detailAccIncome) detailAccIncome.textContent = formatCurrency(incomeTotal);
       if (detailAccExpense) detailAccExpense.textContent = formatCurrency(expenseTotal);
 
+      const detailCreditoDates = document.getElementById('detail-acc-credito-dates');
+      const detailAccCutoff = document.getElementById('detail-acc-cutoff');
+      const detailAccDue = document.getElementById('detail-acc-due');
+      if (detailCreditoDates) {
+        if (acc.accountType === 'credito' && (acc.cutoffDay || acc.paymentDueDay)) {
+          detailCreditoDates.classList.remove('hidden');
+          if (detailAccCutoff) detailAccCutoff.textContent = acc.cutoffDay ? `Día ${acc.cutoffDay}` : 'No especificado';
+          if (detailAccDue) {
+            const colorDot = acc.paymentDueColor ? `<span class="inline-block w-2.5 h-2.5 rounded-full" style="background:${acc.paymentDueColor}"></span>` : '';
+            detailAccDue.innerHTML = acc.paymentDueDay ? `${colorDot}Día ${acc.paymentDueDay}` : 'No especificado';
+          }
+        } else {
+          detailCreditoDates.classList.add('hidden');
+        }
+      }
+
       const recentListContainer = document.getElementById('detail-recent-list');
       if (recentListContainer) {
         recentListContainer.innerHTML = '';
@@ -4116,6 +4223,9 @@
       const typeRadio = document.querySelector('input[name="acc-type"][value="debito"]');
       const btn = document.getElementById('btn-save-account');
       const cancelBtn = document.getElementById('btn-cancel-account-edit');
+      const cutoffDay = document.getElementById('new-acc-cutoff-day');
+      const dueDay = document.getElementById('new-acc-due-day');
+      const dueColor = document.getElementById('new-acc-due-color');
 
       if (title) title.textContent = "Crear Cuenta";
       if (emoji) emoji.value = '💵';
@@ -4123,14 +4233,34 @@
       if (balance) balance.value = '';
       if (date) date.value = new Date().toISOString().split('T')[0];
       if (typeRadio) typeRadio.checked = true;
+      if (cutoffDay) cutoffDay.value = '';
+      if (dueDay) dueDay.value = '';
+      if (dueColor) dueColor.value = '#ff007f';
       if (btn) btn.textContent = "+ Agregar Cuenta";
       if (cancelBtn) cancelBtn.classList.add('hidden');
+      toggleCreditoDatesFields();
     }
 
     const cancelAccEditBtn = document.getElementById('btn-cancel-account-edit');
     if (cancelAccEditBtn) {
       cancelAccEditBtn.addEventListener('click', resetAccountForm);
     }
+
+    // Muestra/oculta los campos de Día de Corte, Día Límite de Pago y Color
+    // de recordatorio únicamente cuando el tipo de cuenta seleccionado es Crédito.
+    function toggleCreditoDatesFields() {
+      const typeInput = document.querySelector('input[name="acc-type"]:checked');
+      const container = document.getElementById('credito-dates-fields');
+      if (!container) return;
+      if (typeInput && typeInput.value === 'credito') {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+    document.querySelectorAll('input[name="acc-type"]').forEach(radio => {
+      radio.addEventListener('change', toggleCreditoDatesFields);
+    });
 
     function renderAccountsManagerList() {
       const container = document.getElementById('accounts-manager-list');
@@ -4140,6 +4270,13 @@
       accounts.forEach(acc => {
         const typeBadge = acc.accountType === 'credito' 
           ? `<span class="text-[9px] font-bold text-rose-450 bg-rose-500/10 border border-rose-500/20 px-1.5 py-0.5 rounded ml-2 uppercase">Crédito</span>` 
+          : '';
+
+        const datesInfo = (acc.accountType === 'credito' && (acc.cutoffDay || acc.paymentDueDay))
+          ? `<span class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+              ${acc.cutoffDay ? `Corte: ${acc.cutoffDay}` : ''}${acc.cutoffDay && acc.paymentDueDay ? ' · ' : ''}${acc.paymentDueDay ? `Límite: ${acc.paymentDueDay}` : ''}
+              ${acc.paymentDueDay && acc.paymentDueColor ? `<span class="inline-block w-2 h-2 rounded-full" style="background:${acc.paymentDueColor}"></span>` : ''}
+            </span>`
           : '';
           
         container.innerHTML += `
@@ -4154,6 +4291,7 @@
                   ${acc.name} ${typeBadge}
                 </span>
                 ${acc.initialBalance > 0 ? `<span class="text-[10px] text-gray-400 mt-1">S. Inicial: ${formatCurrency(acc.initialBalance)} (${acc.initialBalanceDate})</span>` : ''}
+                ${datesInfo}
               </div>
             </div>
             <div class="flex items-center gap-1">
@@ -4337,6 +4475,9 @@
       const typeRadio = document.querySelector(`input[name="acc-type"][value="${acc.accountType || 'debito'}"]`);
       const btn = document.getElementById('btn-save-account');
       const cancelBtn = document.getElementById('btn-cancel-account-edit');
+      const cutoffDay = document.getElementById('new-acc-cutoff-day');
+      const dueDay = document.getElementById('new-acc-due-day');
+      const dueColor = document.getElementById('new-acc-due-color');
 
       if (title) title.textContent = "Editar Cuenta";
       if (emoji) emoji.value = acc.emoji;
@@ -4344,8 +4485,12 @@
       if (balance) balance.value = acc.initialBalance || '';
       if (date) date.value = acc.initialBalanceDate || new Date().toISOString().split('T')[0];
       if (typeRadio) typeRadio.checked = true;
+      if (cutoffDay) cutoffDay.value = acc.cutoffDay || '';
+      if (dueDay) dueDay.value = acc.paymentDueDay || '';
+      if (dueColor) dueColor.value = acc.paymentDueColor || '#ff007f';
       if (btn) btn.textContent = "Actualizar Cuenta";
       if (cancelBtn) cancelBtn.classList.remove('hidden');
+      toggleCreditoDatesFields();
     }
 
     const newAccForm = document.getElementById('new-account-form');
@@ -4358,6 +4503,9 @@
         const dateInput = document.getElementById('new-acc-date');
         const typeInput = document.querySelector('input[name="acc-type"]:checked');
         const initModeInput = document.querySelector('input[name="acc-init-mode"]:checked');
+        const cutoffDayInput = document.getElementById('new-acc-cutoff-day');
+        const dueDayInput = document.getElementById('new-acc-due-day');
+        const dueColorInput = document.getElementById('new-acc-due-color');
 
         const emoji = emojiInput ? emojiInput.value.trim() : '💳';
         const name = nameInput ? nameInput.value.trim() : '';
@@ -4365,6 +4513,16 @@
         const initialBalanceDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
         const accountType = typeInput ? typeInput.value : 'debito';
         const initMode = initModeInput ? initModeInput.value : 'preexistente';
+
+        // Fecha de corte, fecha límite de pago y color de recordatorio: solo aplican
+        // a cuentas de tipo Crédito. Para Débito se guardan como null para no dejar
+        // datos obsoletos si la cuenta cambia de tipo más adelante.
+        const cutoffDay = (accountType === 'credito' && cutoffDayInput && cutoffDayInput.value)
+          ? Math.min(31, Math.max(1, parseInt(cutoffDayInput.value, 10))) : null;
+        const paymentDueDay = (accountType === 'credito' && dueDayInput && dueDayInput.value)
+          ? Math.min(31, Math.max(1, parseInt(dueDayInput.value, 10))) : null;
+        const paymentDueColor = (accountType === 'credito' && dueColorInput)
+          ? dueColorInput.value : null;
 
         if (!name) return;
 
@@ -4388,7 +4546,10 @@
                 emoji: emoji,
                 initialBalance: 0,
                 initialBalanceDate: initialBalanceDate,
-                accountType: accountType
+                accountType: accountType,
+                cutoffDay: cutoffDay,
+                paymentDueDay: paymentDueDay,
+                paymentDueColor: paymentDueColor
               });
             } else {
               await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'accounts', editingAccountId), {
@@ -4396,7 +4557,10 @@
                 emoji: emoji,
                 initialBalance: initialBalance,
                 initialBalanceDate: initialBalanceDate,
-                accountType: accountType
+                accountType: accountType,
+                cutoffDay: cutoffDay,
+                paymentDueDay: paymentDueDay,
+                paymentDueColor: paymentDueColor
               });
             }
             
@@ -4415,6 +4579,9 @@
               initialBalanceDate: initialBalanceDate,
               isDefault: false,
               accountType: accountType,
+              cutoffDay: cutoffDay,
+              paymentDueDay: paymentDueDay,
+              paymentDueColor: paymentDueColor,
               timestamp: new Date().toISOString()
             });
 
