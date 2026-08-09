@@ -519,6 +519,65 @@
       animation: due-glow 2s infinite ease-in-out;
     }
 
+    /* Punto sutil que avisa que una tarjeta está por vencer (aparece dentro de
+       la ventana de aviso definida en renderCalendar). Es un pequeño halo
+       difuso que "respira" en opacidad, sin borde duro ni salto de escala,
+       para que se vea elegante y no invada la interfaz. Se posiciona en
+       absoluto para no mover ni empujar el resto del layout. */
+    @keyframes due-soon-glow {
+      0%, 100% { opacity: 0.45; box-shadow: 0 0 3px 1px currentColor; }
+      50% { opacity: 0.95; box-shadow: 0 0 8px 2px currentColor; }
+    }
+    .due-soon-bubble {
+      position: absolute;
+      top: 9px;
+      left: 9px;
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
+      animation: due-soon-glow 2.4s ease-in-out infinite;
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    /* Tooltip instantáneo (sin el retraso nativo de "title" del navegador)
+       para los días relacionados con el pago de una tarjeta de crédito.
+       Aparece de inmediato al pasar el cursor y desaparece igual de rápido,
+       sin desplazar ni redimensionar la celda del día. */
+    .day-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(2px);
+      background: #0b0d14;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.4;
+      padding: 6px 10px;
+      border-radius: 10px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.05s linear, transform 0.05s linear;
+      z-index: 50;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    }
+    .day-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #0b0d14;
+    }
+    #calendar-grid > button:hover > .day-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* Efecto Resaltador de Estudiante (Fluorescente, inclinado y dinámico) */
     .student-highlight {
       background: rgba(250, 255, 0, 0.25) !important;
@@ -3133,13 +3192,20 @@
         const isSelected = selectedDateStr === dateStr;
         const dayMovements = movements.filter(m => m.date === dateStr);
 
-        // Tarjetas de crédito cuya "Fecha Límite de Pago" cae en este día del mes.
+        // Tarjetas de crédito cuya "Fecha Límite de Pago" cae en este día del mes
+        // (dueAccountsToday, para el destello grande) y cuentas cuyo límite está
+        // a 0-4 días de este día (dueSoonAccounts, ventana de aviso del globito).
         // Si el día límite (ej. 31) no existe en el mes actual (ej. Febrero), se
         // recorre al último día disponible de ese mes.
-        const dueAccountsToday = accounts.filter(a => {
-          if (a.accountType !== 'credito' || !a.paymentDueDay || !a.paymentDueColor) return false;
+        const CREDIT_DUE_WARNING_DAYS = 3; // Tamaño de la ventana de aviso (incluye el día límite)
+        const dueAccountsToday = [];
+        const dueSoonAccounts = [];
+        accounts.forEach(a => {
+          if (a.accountType !== 'credito' || !a.paymentDueDay || !a.paymentDueColor) return;
           const effectiveDay = Math.min(parseInt(a.paymentDueDay, 10), daysInMonth);
-          return effectiveDay === day;
+          const diff = effectiveDay - day;
+          if (diff === 0) dueAccountsToday.push(a);
+          if (diff >= 0 && diff < CREDIT_DUE_WARNING_DAYS) dueSoonAccounts.push({ ...a, daysLeft: diff });
         });
         
         const btn = document.createElement('button');
@@ -3166,14 +3232,26 @@
           btn.style.setProperty('--due-shadow-strong2', hexToRgba(dueColor, 0.6));
           btn.style.setProperty('--due-border', hexToRgba(dueColor, 0.6));
           btn.style.setProperty('--due-border-strong', hexToRgba(dueColor, 0.95));
-          const dueNames = dueAccountsToday.map(a => `${a.emoji || '💳'} ${a.name}`).join(', ');
-          btn.title = `Pago de TDC: ${dueNames}`;
         }
 
         let innerHTML = `<span class="text-xl md:text-2xl font-black tracking-tight w-full text-center mt-1 drop-shadow-sm">${day}</span>`;
 
         if (dueAccountsToday.length > 0) {
-          innerHTML += `<span class="absolute top-1.5 right-1.5 text-xs" title="Pago de TDC">💳</span>`;
+          innerHTML += `<span class="absolute top-1.5 right-1.5 text-xs" aria-hidden="true">💳</span>`;
+        }
+
+        // Globito pequeño y parpadeante: aparece desde 5 días antes de la fecha
+        // límite de pago hasta el propio día de pago. No mueve la interfaz
+        // (posición absoluta) y el tooltip aparece de inmediato al pasar el
+        // cursor, sin el retraso nativo del navegador.
+        if (dueSoonAccounts.length > 0) {
+          const bubbleColor = dueSoonAccounts[0].paymentDueColor;
+          const tooltipLines = dueSoonAccounts.map(a => {
+            const who = `${a.emoji || '💳'} ${a.name}`;
+            return a.daysLeft === 0 ? `Hoy vence: ${who}` : `${who}: en ${a.daysLeft} día${a.daysLeft === 1 ? '' : 's'}`;
+          }).join('<br>');
+          innerHTML += `<span class="due-soon-bubble" style="background:${bubbleColor}; color:${bubbleColor};"></span>`;
+          innerHTML += `<span class="day-tooltip">${tooltipLines}</span>`;
         }
 
         if (dayMovements.length > 0) {
