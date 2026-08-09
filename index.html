@@ -485,20 +485,48 @@
       width: 100%;
     }
 
-    /* Animación de destello para el día actual */
+    /* Animación de destello para el día actual: amarillo neón */
     @keyframes today-glow {
       0%, 100% {
-        box-shadow: 0 0 10px rgba(112, 0, 255, 0.4), 0 0 20px rgba(0, 240, 255, 0.2);
-        border-color: rgba(112, 0, 255, 0.6);
+        box-shadow: 0 0 10px rgba(250, 255, 0, 0.4), 0 0 20px rgba(250, 255, 0, 0.2);
+        border-color: rgba(250, 255, 0, 0.6);
       }
       50% {
-        box-shadow: 0 0 25px rgba(112, 0, 255, 0.9), 0 0 35px rgba(0, 240, 255, 0.6), 0 0 15px rgba(250, 255, 0, 0.3);
-        border-color: rgba(0, 240, 255, 0.9);
+        box-shadow: 0 0 25px rgba(250, 255, 0, 0.9), 0 0 35px rgba(250, 255, 0, 0.55), 0 0 15px rgba(250, 255, 0, 0.3);
+        border-color: rgba(250, 255, 0, 0.95);
       }
     }
     .today-destello {
       opacity: 1;
       animation: today-glow 2s infinite ease-in-out;
+    }
+
+    /* Cuando el día actual coincide con la fecha límite de pago de una TDC: el
+       destello alterna entre el amarillo neón de "hoy" y el color propio de la
+       tarjeta, para poder identificar ambas cosas en el mismo día sin que se
+       mezclen en un solo tono confuso. Usa las mismas variables --due-* que ya
+       se inyectan desde renderCalendar(). */
+    @keyframes today-due-glow {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(250, 255, 0, 0.45), 0 0 18px rgba(250, 255, 0, 0.2);
+        border-color: rgba(250, 255, 0, 0.65);
+      }
+      25% {
+        box-shadow: 0 0 24px rgba(250, 255, 0, 0.95), 0 0 34px rgba(250, 255, 0, 0.55);
+        border-color: rgba(250, 255, 0, 0.95);
+      }
+      50% {
+        box-shadow: 0 0 10px var(--due-shadow-soft, rgba(255, 0, 127, 0.4)), 0 0 18px var(--due-shadow-mid, rgba(255, 0, 127, 0.2));
+        border-color: var(--due-border, rgba(255, 0, 127, 0.6));
+      }
+      75% {
+        box-shadow: 0 0 24px var(--due-shadow-strong, rgba(255, 0, 127, 0.9)), 0 0 34px var(--due-shadow-strong2, rgba(255, 0, 127, 0.6));
+        border-color: var(--due-border-strong, rgba(255, 0, 127, 0.95));
+      }
+    }
+    .today-due-destello {
+      opacity: 1;
+      animation: today-due-glow 3s infinite ease-in-out;
     }
 
     /* Destello con color personalizado para recordar la fecha límite de pago
@@ -3219,10 +3247,12 @@
         let baseClass = `relative h-24 md:h-28 rounded-[2.5rem] border flex flex-col justify-between items-center p-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer animate-pop `;
         if (isSelected) {
           baseClass += 'student-highlight';
+        } else if (isToday && dueAccountsToday.length > 0) {
+          baseClass += 'bg-[#faff00]/10 text-[#faff00] font-bold today-due-destello';
         } else if (dueAccountsToday.length > 0) {
-          baseClass += (isToday ? 'bg-[#7000ff]/15 text-[#00f0ff] font-bold ' : 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 ') + 'due-destello';
+          baseClass += 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 due-destello';
         } else if (isToday) {
-          baseClass += 'bg-[#7000ff]/15 border-[#7000ff]/50 text-[#00f0ff] font-bold today-destello';
+          baseClass += 'bg-[#faff00]/10 border-[#faff00]/50 text-[#faff00] font-bold today-destello';
         } else {
           baseClass += 'bg-gray-900/40 border-gray-800/80 text-gray-300 hover:border-gray-500 hover:bg-gray-800/60';
         }
