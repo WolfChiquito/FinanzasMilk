@@ -2003,6 +2003,10 @@
                 <span class="text-[10px] text-gray-500 leading-tight">Este color destellará en tu calendario el día límite de pago, cada mes.</span>
               </div>
             </div>
+            <p class="text-[10px] text-gray-500 leading-tight flex items-start gap-1.5 bg-gray-900/50 border border-gray-800 rounded-xl px-3 py-2">
+              <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-[#faff00] shrink-0 mt-0.5"></i>
+              <span>Cada mes te llegará solo, sin configurar nada más: una notificación push (si diste permiso) y un aviso al abrir la app, el día límite de pago.</span>
+            </p>
           </div>
 
           <div class="space-y-2 pt-1">
@@ -2967,6 +2971,7 @@
         renderAccountsSection();
         updateAccountsSelectors();
         renderApp();
+        checkCreditDuePopupToday();
       }, (error) => console.error("Error cargando cuentas:", error));
 
       const qSubcats = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories'));
@@ -4705,6 +4710,7 @@
         if (!name) return;
 
         try {
+          let newDocRef = null;
           if (editingAccountId) {
             if (initMode === 'ingreso' && initialBalance > 0) {
               await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), {
@@ -4750,7 +4756,7 @@
               }
             });
           } else {
-            const newDocRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'accounts'), {
+            newDocRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'accounts'), {
               name: name,
               emoji: emoji,
               initialBalance: initMode === 'preexistente' ? initialBalance : 0,
@@ -4779,6 +4785,13 @@
           }
           resetAccountForm();
           renderAccountsManagerList();
+          await syncCreditDueNotification({
+            id: editingAccountId || newDocRef.id,
+            name: name,
+            emoji: emoji,
+            accountType: accountType,
+            paymentDueDay: paymentDueDay
+          });
         } catch (error) {
           console.error("Error al procesar cuenta:", error);
         }
@@ -4792,6 +4805,7 @@
         async () => {
           try {
             await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'accounts', id));
+            await removeCreditDueNotification(id);
             if (editingAccountId === id) resetAccountForm();
             renderAccountsManagerList();
           } catch (error) {
@@ -5236,6 +5250,132 @@
       }
     };
 
+    // ===== Recordatorios automáticos de "Fecha Límite de Pago" de tarjetas de
+    // crédito. Reutilizan el mismo motor de notificaciones (push del navegador
+    // + reprogramación mensual) que ya tiene la app, marcados con
+    // source:'tdc_due' y accountId para poder identificarlos, actualizarlos o
+    // borrarlos automáticamente cuando la cuenta cambia. =====
+
+    // Calcula la próxima fecha (Date) en que cae el "día X" de cada mes,
+    // recortando al último día disponible si el mes es más corto (ej. día 31
+    // en Febrero). Siempre devuelve una fecha futura respecto a "ahora".
+    function computeNextCreditDueDate(dueDay, hour = 9, minute = 0) {
+      const now = new Date();
+      let year = now.getFullYear();
+      let month = now.getMonth();
+      let daysInTarget = new Date(year, month + 1, 0).getDate();
+      let effectiveDay = Math.min(dueDay, daysInTarget);
+      let candidate = new Date(year, month, effectiveDay, hour, minute, 0);
+      if (candidate <= now) {
+        month += 1;
+        daysInTarget = new Date(year, month + 1, 0).getDate();
+        effectiveDay = Math.min(dueDay, daysInTarget);
+        candidate = new Date(year, month, effectiveDay, hour, minute, 0);
+      }
+      return candidate;
+    }
+
+    // Crea o actualiza el recordatorio ligado a una cuenta de crédito. Si la
+    // cuenta ya no es de crédito o no tiene día límite, borra el recordatorio
+    // si existía. Se llama cada vez que se guarda una cuenta desde el
+    // formulario de "Gestionar Cuentas".
+    async function syncCreditDueNotification(account) {
+      try {
+        const existing = scheduledNotifications.find(n => n.source === 'tdc_due' && n.accountId === account.id);
+        const shouldHaveReminder = account.accountType === 'credito' && !!account.paymentDueDay;
+
+        if (!shouldHaveReminder) {
+          if (existing) {
+            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', existing.id));
+          }
+          return;
+        }
+
+        const nextDue = computeNextCreditDueDate(parseInt(account.paymentDueDay, 10));
+        const dateStr = nextDue.toISOString().split('T')[0];
+        const timeStr = `${String(nextDue.getHours()).padStart(2, '0')}:${String(nextDue.getMinutes()).padStart(2, '0')}`;
+        const reason = `💳 Hoy vence el pago de tu tarjeta ${account.emoji || '💳'} ${account.name}`;
+
+        if (existing) {
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', existing.id), {
+            date: dateStr,
+            time: timeStr,
+            reason: reason,
+            repeat: 'monthly',
+            triggered: false,
+            source: 'tdc_due',
+            accountId: account.id
+          });
+        } else {
+          await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), {
+            date: dateStr,
+            time: timeStr,
+            reason: reason,
+            repeat: 'monthly',
+            triggered: false,
+            source: 'tdc_due',
+            accountId: account.id,
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+          Notification.requestPermission();
+        }
+      } catch (e) {
+        console.error("Error al sincronizar recordatorio de pago de TDC:", e);
+      }
+    }
+
+    // Borra el recordatorio ligado a una cuenta (se usa al eliminar la cuenta).
+    async function removeCreditDueNotification(accountId) {
+      try {
+        const existing = scheduledNotifications.find(n => n.source === 'tdc_due' && n.accountId === accountId);
+        if (existing) {
+          await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', existing.id));
+        }
+      } catch (e) {
+        console.error("Error al eliminar recordatorio de pago de TDC:", e);
+      }
+    }
+
+    // Pop-up interno: si hoy es el día límite de pago de alguna tarjeta, lo
+    // avisa al abrir/recargar la app (una sola vez por día, usando
+    // localStorage como bandera, sin importar si llega o no la notificación
+    // push del sistema).
+    function checkCreditDuePopupToday() {
+      try {
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        const storageKey = `tdcDuePopupShown_${todayStr}`;
+        if (localStorage.getItem(storageKey)) return;
+
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = now.getDate();
+
+        const dueTodayAccounts = accounts.filter(a => {
+          if (a.accountType !== 'credito' || !a.paymentDueDay) return false;
+          const effectiveDay = Math.min(parseInt(a.paymentDueDay, 10), daysInMonth);
+          return effectiveDay === today;
+        });
+
+        if (dueTodayAccounts.length === 0) return;
+
+        localStorage.setItem(storageKey, '1');
+
+        const listText = dueTodayAccounts.map(a => `${a.emoji || '💳'} ${a.name}`).join(', ');
+        const text = dueTodayAccounts.length === 1
+          ? `Hoy es el día límite de pago de tu tarjeta ${listText}. No lo dejes pasar.`
+          : `Hoy es el día límite de pago de estas tarjetas: ${listText}. No las dejes pasar.`;
+
+        showConfirm("💳 Recordatorio de Pago", text, null, true);
+      } catch (e) {
+        console.error("Error al mostrar recordatorio de pago de TDC:", e);
+      }
+    }
+
     function startNotificationTicker() {
       setInterval(() => {
         const now = new Date();
@@ -5254,9 +5394,18 @@
               
               try {
                 if (n.repeat === 'monthly') {
-                  const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
-                  currentSchedDate.setMonth(currentSchedDate.getMonth() + 1);
-                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
+                  let newDateStr = null;
+                  if (n.source === 'tdc_due' && n.accountId) {
+                    const linkedAccount = accounts.find(a => a.id === n.accountId);
+                    if (linkedAccount && linkedAccount.paymentDueDay) {
+                      newDateStr = computeNextCreditDueDate(parseInt(linkedAccount.paymentDueDay, 10)).toISOString().split('T')[0];
+                    }
+                  }
+                  if (!newDateStr) {
+                    const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
+                    currentSchedDate.setMonth(currentSchedDate.getMonth() + 1);
+                    newDateStr = currentSchedDate.toISOString().split('T')[0];
+                  }
                   await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
                     date: newDateStr
                   });
