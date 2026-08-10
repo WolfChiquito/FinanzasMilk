@@ -496,6 +496,52 @@
       width: 100%;
     }
 
+    /* ===== TAREAS: lista simple de casillas tachables ===== */
+    .task-simple-input {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      outline: none;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 13px;
+      padding: 8px 10px;
+      color: inherit;
+      transition: border-color 0.15s ease;
+    }
+    .task-simple-input:focus {
+      border-color: rgba(0,240,255,0.5);
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 8px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: opacity 0.2s ease;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item-text {
+      font-size: 13px;
+      line-height: 19px;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      flex: 1;
+      min-width: 0;
+      padding-top: 1px;
+    }
+    .task-item-done { opacity: 0.5; }
+    .task-item-actions {
+      opacity: 1;
+      transition: opacity 0.15s ease;
+    }
+    @media (min-width: 640px) {
+      .task-item-actions { opacity: 0; }
+      .task-item:hover .task-item-actions,
+      .task-item:focus-within .task-item-actions { opacity: 1; }
+    }
+
     /* Animación de destello para el día actual: amarillo neón */
     @keyframes today-glow {
       0%, 100% {
@@ -1405,22 +1451,17 @@
             </div>
 
             <div class="tasks-board rounded-2xl p-3 border border-gray-800/80 bg-gray-950/40">
-              <form id="add-task-form" class="hidden mb-3 flex flex-col gap-2 animate-pop">
-                <div id="task-card-new-form" class="task-card task-new-card no-tape">
-                  <input type="text" id="new-task-input" maxlength="200" placeholder="Escribe una tarea..." class="task-card-input" style="background: rgba(255,255,255,0.3); color: inherit;" />
-                  <div id="task-picker-new-form"></div>
-                </div>
-                <div class="flex items-center justify-end gap-2">
-                  <button type="submit" class="p-2 bg-[#00f0ff]/15 text-[#00f0ff] rounded-lg hover:bg-[#00f0ff]/25 transition-colors flex-shrink-0" title="Guardar tarea">
-                    <i data-lucide="check" class="w-4 h-4"></i>
-                  </button>
-                  <button type="button" id="btn-cancel-add-task" class="p-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors flex-shrink-0" title="Cancelar">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                  </button>
-                </div>
+              <form id="add-task-form" class="hidden mb-3 flex items-center gap-2 animate-pop">
+                <input type="text" id="new-task-input" maxlength="200" placeholder="Escribe una tarea..." class="task-simple-input flex-1" />
+                <button type="submit" class="p-2 bg-[#00f0ff]/15 text-[#00f0ff] rounded-lg hover:bg-[#00f0ff]/25 transition-colors flex-shrink-0" title="Guardar tarea">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+                <button type="button" id="btn-cancel-add-task" class="p-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors flex-shrink-0" title="Cancelar">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
               </form>
 
-              <div id="tasks-list" class="space-y-3 max-h-72 overflow-y-auto overflow-x-hidden pt-3 pr-1">
+              <div id="tasks-list" class="space-y-1 max-h-72 overflow-y-auto overflow-x-hidden pt-1 pr-1">
                 <!-- Renderizado dinámico -->
               </div>
             </div>
@@ -6829,44 +6870,29 @@
       }
 
       tasks.forEach((t, idx) => {
-        const def = taskDefaultColor(t.id);
-        const tapeClass = def.tape;
-
         if (editingTaskId === t.id) {
-          const style = buildItemStyle(taskDraft.palette, taskDraft.color, taskDraft.opacity, 'task', undefined, taskDraft.font);
           container.innerHTML += `
-            <div id="task-card-edit-${t.id}" class="task-card ${tapeClass}" style="${style}">
-              <input type="text" id="task-edit-input-${t.id}" maxlength="200" value="${escapeHtml(t.text)}" class="task-card-input" />
-              <div id="task-picker-edit-${t.id}">${colorPickerHtml('task', taskDraft.palette, taskDraft.color, taskDraft.opacity, undefined, taskDraft.font)}</div>
-              <div class="flex justify-end gap-2 mt-2">
-                <button onclick="window.saveEditTask('${t.id}')" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Guardar">
+            <div class="task-item">
+              <input type="text" id="task-edit-input-${t.id}" maxlength="200" value="${escapeHtml(t.text)}" class="task-simple-input flex-1" />
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button onclick="window.saveEditTask('${t.id}')" class="p-1 hover:opacity-70 transition-opacity" title="Guardar">
                   <i data-lucide="check" class="w-4 h-4"></i>
                 </button>
-                <button onclick="window.cancelEditTask()" class="p-1 hover:opacity-70 transition-opacity flex-shrink-0" title="Cancelar">
+                <button onclick="window.cancelEditTask()" class="p-1 hover:opacity-70 transition-opacity" title="Cancelar">
                   <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
               </div>
             </div>
           `;
         } else {
-          const palette = t.palette || 'pastel';
-          const color = t.color || def.color;
-          const opacity = (typeof t.opacity === 'number') ? t.opacity : 0.75;
-          const font = t.font || DEFAULT_FONT;
-          const style = buildItemStyle(palette, color, opacity, 'task', undefined, font);
           const badge = t.eventMovementId
             ? '<span class="task-card-badge"><i data-lucide="calendar-check" class="w-3 h-3"></i>Evento</span>'
             : '';
           container.innerHTML += `
-            <div class="task-card ${tapeClass} ${t.completed ? 'task-card-done' : ''}" style="${style}">
-              <div class="flex items-start gap-2.5">
-                <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskCompleted('${t.id}')" class="mt-0.5 w-[18px] h-[18px] rounded-md cursor-pointer flex-shrink-0" style="accent-color: currentColor;" title="Marcar como completada" />
-                <div class="flex-1 min-w-0">
-                  <p class="task-card-text ${t.completed ? 'line-through' : ''}">${escapeHtml(t.text)}</p>
-                  ${badge}
-                </div>
-              </div>
-              <div class="task-card-actions flex justify-end items-center gap-0.5 mt-1">
+            <div class="task-item ${t.completed ? 'task-item-done' : ''}">
+              <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskCompleted('${t.id}')" class="mt-0.5 w-[18px] h-[18px] rounded-md cursor-pointer flex-shrink-0" style="accent-color: #00f0ff;" title="Marcar como completada" />
+              <div class="task-item-text ${t.completed ? 'line-through' : ''}">${escapeHtml(t.text)}${badge}</div>
+              <div class="task-item-actions flex items-center gap-0.5 flex-shrink-0">
                 <button onclick="window.moveTaskUp('${t.id}')" ${idx === 0 ? 'disabled' : ''} class="p-1 rounded-lg transition-opacity flex-shrink-0 ${idx === 0 ? 'opacity-25 cursor-not-allowed' : 'hover:opacity-70'}" title="Subir">
                   <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
                 </button>
@@ -6903,10 +6929,8 @@
     function showAddTaskInput() {
       const form = document.getElementById('add-task-form');
       const input = document.getElementById('new-task-input');
-      taskDraft = { ...DEFAULT_ITEM_STYLE };
       if (form) form.classList.remove('hidden');
       if (input) { input.value = ''; input.focus(); }
-      applyTaskDraftUI(true);
     }
 
     function hideAddTaskInput() {
@@ -6948,10 +6972,6 @@
             text: text,
             completed: false,
             eventMovementId: null,
-            palette: taskDraft.palette,
-            color: taskDraft.color,
-            opacity: taskDraft.opacity,
-            font: taskDraft.font,
             createdAt: new Date().toISOString()
           });
           openTaskCalendarPrompt(newTaskRef.id, text);
@@ -6974,14 +6994,6 @@
     }
 
     function startEditTask(id) {
-      const t = tasks.find(x => x.id === id);
-      const def = t ? taskDefaultColor(t.id) : { color: 'yellow' };
-      taskDraft = {
-        palette: (t && t.palette) || 'pastel',
-        color: (t && t.color) || def.color,
-        opacity: (t && typeof t.opacity === 'number') ? t.opacity : 0.75,
-        font: (t && t.font) || DEFAULT_FONT
-      };
       editingTaskId = id;
       renderTasks();
     }
@@ -6997,11 +7009,7 @@
       if (!text) return;
       try {
         await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', id), {
-          text,
-          palette: taskDraft.palette,
-          color: taskDraft.color,
-          opacity: taskDraft.opacity,
-          font: taskDraft.font
+          text
         });
         editingTaskId = null;
       } catch (error) {
