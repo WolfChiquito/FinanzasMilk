@@ -1478,6 +1478,84 @@
     .kia-mic-overlay.kia-mic-has-result .kia-mic-textfallback,
     .kia-mic-overlay.kia-mic-has-result .kia-mic-hint { display: none; }
 
+    /* Panel con scroll cuando el formulario editable crece */
+    .kia-mic-panel {
+      max-height: 88vh;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    /* ===== Formulario editable de confirmación (nota/tarea/gasto/ingreso/ahorro/pago TC/diecast) ===== */
+    .kia-mic-result-simple {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .kia-mic-edit-form {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .kia-mic-edit-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .kia-mic-edit-type {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(0,240,255,0.3);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #00f0ff;
+      outline: none;
+    }
+    .kia-mic-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+      text-align: left;
+    }
+    .kia-mic-field label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: rgba(209,213,219,0.75);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .kia-mic-field textarea,
+    .kia-mic-field input,
+    .kia-mic-field select {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 9px 11px;
+      font-size: 13px;
+      color: #f3f4f6;
+      outline: none;
+      font-family: inherit;
+      resize: none;
+    }
+    .kia-mic-field textarea:focus,
+    .kia-mic-field input:focus,
+    .kia-mic-field select:focus {
+      border-color: rgba(0,240,255,0.5);
+    }
+    .kia-mic-field-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .kia-mic-field-row .kia-mic-field { flex: 1; min-width: 0; }
+    .kia-mic-field select option { background: #0b0d14; color: #f3f4f6; }
+
     /* Lista de frases personalizadas en el modal de ajustes de Kia */
     .mascot-phrase-item {
       display: flex;
@@ -1935,6 +2013,17 @@
               </div>
               <div id="vault-view-body" class="p-5 max-h-[65vh] overflow-y-auto">
                 <!-- Renderizado dinámico -->
+              </div>
+              <div class="flex gap-2 p-4 border-t border-gray-800">
+                <button type="button" id="vault-view-edit-btn" onclick="window.startEditVaultItem()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 text-sm font-bold transition-colors">
+                  <i data-lucide="pencil" class="w-4 h-4"></i> Editar
+                </button>
+                <button type="button" id="vault-view-cancel-btn" onclick="window.cancelEditVaultItem()" class="hidden flex-1 py-2.5 rounded-xl bg-white/5 border border-gray-700 text-gray-300 text-sm font-bold hover:bg-white/10 transition-colors">
+                  Cancelar
+                </button>
+                <button type="button" id="vault-view-save-btn" onclick="window.saveEditVaultItem()" class="hidden flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-gray-950 text-sm font-bold transition-colors">
+                  Guardar cambios
+                </button>
               </div>
             </div>
           </div>
@@ -3162,6 +3251,8 @@
     let vaultActiveTab = 'guardar';
     let vaultSearchTerm = '';
     let vaultDraftImageData = null;
+    let vaultViewItemId = null; // id del elemento actualmente abierto en el visor de la Bóveda
+    let vaultEditImageData = null; // nueva imagen elegida al editar (si el usuario la reemplaza)
     const VAULT_PIN = '2527';
     let editingNoteId = null;
     let creatingNewNote = false;
@@ -8126,6 +8217,26 @@
       await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
     }
 
+    // Registra un pago de tarjeta de crédito (mismo formato que usa el formulario manual
+    // para el tipo 'pago_tc'): cuenta de origen de la que sale el dinero y, opcionalmente,
+    // la tarjeta/cuenta destino que se está pagando.
+    async function createKiaPagoTC(amount, concept, account, toAccount) {
+      const movementData = {
+        date: new Date().toISOString().split('T')[0],
+        type: 'pago_tc',
+        amount: amount || 0,
+        concept: concept,
+        accountId: account ? account.id : '',
+        account: account ? account.name : 'Efectivo',
+        subcategory: 'Pago de Tarjeta',
+        subcategoryEmoji: '💳',
+        toAccountId: toAccount ? toAccount.id : '',
+        toAccount: toAccount ? toAccount.name : '',
+        timestamp: new Date().toISOString()
+      };
+      await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+    }
+
     async function createKiaTask(text, dateStr, timeStr) {
       const newTaskRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'tasks'), {
         text: text,
@@ -8206,6 +8317,56 @@
     // Punto de entrada que usa el micrófono inteligente de la mascota (ver <script> de Kia al final del archivo).
     // Entiende lenguaje natural variado: "crea una nota...", "registra un evento...",
     // "compré un diecast...", "recuérdame que...", gastos/ingresos/ahorros, etc.
+    // ---- Puentes hacia window: el formulario editable de confirmación de Kia vive en
+    // un <script> normal (no módulo) más abajo en el archivo, así que no puede ver
+    // directamente 'accounts', 'CATEGORIES', 'customSubcategories' ni las funciones
+    // createKia*. Estas funciones exponen justo lo necesario para poblar el formulario
+    // y guardar con los valores que el usuario haya corregido ahí.
+    window.kiaGetAccountsList = function () {
+      return (accounts || []).map(a => ({ id: a.id, name: a.name, emoji: a.emoji || '' }));
+    };
+
+    window.kiaGetSubcategoriesForType = function (type) {
+      const subList = (customSubcategories && customSubcategories.length) ? customSubcategories : DEFAULT_SUBCATEGORIES;
+      return subList.filter(s => s.type === type).map(s => ({ name: s.name, emoji: s.emoji || '' }));
+    };
+
+    window.kiaExecuteSmartMicSave = async function (type, fields) {
+      const text = (fields.text || '').trim();
+      switch (type) {
+        case 'nota':
+          await saveMascotNote(text);
+          return '¡Guardado! Ya quedó tu notita 📝';
+        case 'tarea':
+          await createKiaTask(text, fields.dateStr || null, fields.timeStr || null);
+          return '¡Listo! Ya quedó agendado 📌';
+        case 'evento':
+          await createKiaTask(text, fields.dateStr || null, fields.timeStr || null);
+          return '¡Listo! Tu evento quedó agendado 📅';
+        case 'gasto':
+        case 'ingreso':
+        case 'ahorro': {
+          const acc = accounts.find(a => a.id === fields.accountId) || null;
+          await createKiaFinancialMovement(type, fields.amount || 0, text, fields.subcategoryName || 'General', acc);
+          return '¡Anotado! ' + CATEGORIES[type].emoji + ' se guardó tu ' + CATEGORIES[type].label.toLowerCase();
+        }
+        case 'pago_tc': {
+          const accFrom = accounts.find(a => a.id === fields.accountId) || null;
+          const accTo = accounts.find(a => a.id === fields.toAccountId) || null;
+          await createKiaPagoTC(fields.amount || 0, text, accFrom, accTo);
+          return '¡Anotado! 💳 se guardó tu pago de tarjeta';
+        }
+        case 'diecast': {
+          const accDie = accounts.find(a => a.id === fields.accountId) || null;
+          await createKiaDiecast(fields.amount || 0, text, accDie);
+          return '¡Agregado a tu colección DieCast! 🚗';
+        }
+        default:
+          await saveMascotNote(text);
+          return '¡Guardado! Ya quedó tu notita 📝';
+      }
+    };
+
     window.mascotHandleVoiceCommand = function (rawText) {
       const text = (rawText || '').trim();
       if (!text) return null;
@@ -8274,10 +8435,7 @@
           emoji: '🚗',
           title: 'DieCast' + (amount !== null ? ': $' + amount.toFixed(2) : ' (sin monto)'),
           detail: cleanConcept + (account ? ' · ' + account.name : ''),
-          save: async () => {
-            await createKiaDiecast(amount, cleanConcept, account);
-            return '¡Agregado a tu colección DieCast! 🚗';
-          }
+          fields: { text: cleanConcept, amount: amount || 0, subcategoryName: 'Colección DieCast', accountId: account ? account.id : '', toAccountId: '', dateStr: '', timeStr: '' }
         };
       }
 
@@ -8291,7 +8449,7 @@
           emoji: '📅',
           title: 'Evento',
           detail: cleanText + (dateStr ? ` — ${dateStr}${timeStr ? ' ' + timeStr : ''}` : ' (sin fecha detectada)'),
-          save: async () => { await createKiaTask(cleanText, dateStr, timeStr); return '¡Listo! Tu evento quedó agendado 📅'; }
+          fields: { text: cleanText, amount: 0, subcategoryName: '', accountId: '', toAccountId: '', dateStr: dateStr || '', timeStr: timeStr || '' }
         };
       }
 
@@ -8305,23 +8463,25 @@
           emoji: dateStr ? '⏰' : '✅',
           title: dateStr ? 'Recordatorio' : 'Tarea',
           detail: cleanText + (dateStr ? ` — ${dateStr}${timeStr ? ' ' + timeStr : ''}` : ''),
-          save: async () => { await createKiaTask(cleanText, dateStr, timeStr); return '¡Listo! Ya quedó agendado 📌'; }
+          fields: { text: cleanText, amount: 0, subcategoryName: '', accountId: '', toAccountId: '', dateStr: dateStr || '', timeStr: timeStr || '' }
         };
       }
 
       if (isGasto || isIngreso || isAhorro) {
-        const type = isGasto ? 'gasto' : (isIngreso ? 'ingreso' : 'ahorro');
-        const subcategoryName = findKiaSubcategory(t, type) || 'General';
+        let type = isGasto ? 'gasto' : (isIngreso ? 'ingreso' : 'ahorro');
+        // Si suena a pago de tarjeta de crédito, lo clasificamos así de una vez
+        // (el usuario igual puede corregirlo en la tarjeta de confirmación).
+        if (type === 'gasto' && has(['tarjeta de credito', 'tarjeta credito', 'tdc', 'pago de tarjeta', 'pago tarjeta', 'pago de la tarjeta', 'pago de mi tarjeta'])) {
+          type = 'pago_tc';
+        }
+        const subcategoryName = type === 'pago_tc' ? 'Pago de Tarjeta' : (findKiaSubcategory(t, type) || 'General');
         const account = findKiaAccount(t);
         return {
           type: type,
           emoji: CATEGORIES[type].emoji,
-          title: CATEGORIES[type].label + ': ' + subcategoryName,
+          title: CATEGORIES[type].label + (type === 'pago_tc' ? '' : ': ' + subcategoryName),
           detail: '$' + amount.toFixed(2) + (account ? ' · ' + account.name : ''),
-          save: async () => {
-            await createKiaFinancialMovement(type, amount, text, subcategoryName, account);
-            return '¡Anotado! ' + CATEGORIES[type].emoji + ' se guardó tu ' + CATEGORIES[type].label.toLowerCase();
-          }
+          fields: { text: text, amount: amount, subcategoryName: subcategoryName, accountId: account ? account.id : '', toAccountId: '', dateStr: '', timeStr: '' }
         };
       }
 
@@ -8337,7 +8497,7 @@
         emoji: '📝',
         title: 'Nota',
         detail: noteText,
-        save: async () => { await saveMascotNote(noteText); return '¡Guardado! Ya quedó tu notita 📝'; }
+        fields: { text: noteText, amount: 0, subcategoryName: '', accountId: '', toAccountId: '', dateStr: '', timeStr: '' }
       };
     };
 
@@ -8796,19 +8956,56 @@
       return div.innerHTML;
     }
 
-    function viewVaultItem(id) {
-      const item = vaultItems.find(v => v.id === id);
-      if (!item) return;
-      const modal = document.getElementById('vault-view-modal');
-      const content = document.getElementById('vault-view-content');
+    // Dibuja el contenido del visor en modo lectura o en modo edición.
+    function renderVaultViewBody(item, editing) {
       const body = document.getElementById('vault-view-body');
-      const dateEl = document.getElementById('vault-view-date');
-      if (dateEl) dateEl.textContent = item.createdAt ? new Date(item.createdAt).toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-      if (body) {
+      if (!body) return;
+      if (!editing) {
         body.innerHTML = item.type === 'image'
           ? `<img src="${item.image}" class="w-full rounded-xl border border-gray-800 mb-3" alt="Imagen guardada">${item.caption ? `<p class="text-sm text-gray-300">${escapeVaultHtml(item.caption)}</p>` : ''}`
           : `<p class="text-sm text-gray-200 whitespace-pre-wrap">${escapeVaultHtml(item.text)}</p>`;
+        return;
       }
+      if (item.type === 'image') {
+        vaultEditImageData = null;
+        body.innerHTML = `
+          <div class="relative mb-3">
+            <img id="vault-edit-image-preview" src="${item.image}" class="w-full rounded-xl border border-gray-800" alt="Imagen guardada">
+            <label class="absolute bottom-2 right-2 bg-gray-950/85 border border-gray-700 text-xs text-gray-200 px-2.5 py-1.5 rounded-lg cursor-pointer hover:border-[#00f0ff]/50 transition-colors">
+              Cambiar foto
+              <input type="file" accept="image/*" class="hidden" onchange="window.vaultEditHandleImageSelect(event)">
+            </label>
+          </div>
+          <label class="text-xs font-semibold text-gray-400 mb-1 block">Descripción</label>
+          <input type="text" id="vault-edit-caption-input" value="${escapeVaultHtml(item.caption || '')}" placeholder="Descripción (opcional)" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-sm text-white focus:border-[#00f0ff] outline-none">
+        `;
+      } else {
+        body.innerHTML = `
+          <textarea id="vault-edit-text-input" rows="6" maxlength="2000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-sm text-white focus:border-[#00f0ff] outline-none resize-none">${escapeVaultHtml(item.text)}</textarea>
+        `;
+      }
+    }
+
+    function setVaultViewEditingUI(editing) {
+      const editBtn = document.getElementById('vault-view-edit-btn');
+      const cancelBtn = document.getElementById('vault-view-cancel-btn');
+      const saveBtn = document.getElementById('vault-view-save-btn');
+      if (editBtn) editBtn.classList.toggle('hidden', editing);
+      if (cancelBtn) cancelBtn.classList.toggle('hidden', !editing);
+      if (saveBtn) saveBtn.classList.toggle('hidden', !editing);
+    }
+
+    function viewVaultItem(id) {
+      const item = vaultItems.find(v => v.id === id);
+      if (!item) return;
+      vaultViewItemId = id;
+      vaultEditImageData = null;
+      const modal = document.getElementById('vault-view-modal');
+      const content = document.getElementById('vault-view-content');
+      const dateEl = document.getElementById('vault-view-date');
+      if (dateEl) dateEl.textContent = item.createdAt ? new Date(item.createdAt).toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+      setVaultViewEditingUI(false);
+      renderVaultViewBody(item, false);
       if (modal && content) {
         modal.classList.remove('hidden');
         setTimeout(() => {
@@ -8818,7 +9015,88 @@
       }
     }
 
+    // Pasa el visor a modo edición, mostrando textarea (texto) o descripción + opción
+    // de reemplazar la foto (imagen), con los valores actuales ya cargados.
+    function startEditVaultItem() {
+      const item = vaultItems.find(v => v.id === vaultViewItemId);
+      if (!item) return;
+      setVaultViewEditingUI(true);
+      renderVaultViewBody(item, true);
+    }
+
+    // Descarta los cambios sin editar y vuelve al modo lectura con el valor original.
+    function cancelEditVaultItem() {
+      const item = vaultItems.find(v => v.id === vaultViewItemId);
+      vaultEditImageData = null;
+      if (!item) { closeVaultViewModal(); return; }
+      setVaultViewEditingUI(false);
+      renderVaultViewBody(item, false);
+    }
+
+    // Procesa la nueva foto elegida al editar un elemento de tipo imagen (mismo
+    // recorte/compresión que al guardar una imagen nueva en la Bóveda).
+    function vaultEditHandleImageSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onerror = () => window.alert('No se pudo leer la imagen seleccionada. Intenta con otra foto.');
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onerror = () => window.alert('No se pudo procesar esta imagen. Intenta con otra foto.');
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxSize = 900;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+          } else {
+            if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          vaultEditImageData = canvas.toDataURL('image/jpeg', 0.75);
+          const preview = document.getElementById('vault-edit-image-preview');
+          if (preview) preview.src = vaultEditImageData;
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Guarda los cambios hechos en el visor (texto editado, o descripción/foto de
+    // una imagen) directamente en Firestore.
+    async function saveEditVaultItem() {
+      const item = vaultItems.find(v => v.id === vaultViewItemId);
+      if (!item) return;
+      const updateData = {};
+      if (item.type === 'image') {
+        const captionInput = document.getElementById('vault-edit-caption-input');
+        updateData.caption = captionInput ? captionInput.value.trim() : (item.caption || '');
+        if (vaultEditImageData) updateData.image = vaultEditImageData;
+      } else {
+        const textInput = document.getElementById('vault-edit-text-input');
+        const newText = textInput ? textInput.value.trim() : '';
+        if (!newText) { window.alert('El texto no puede quedar vacío.'); return; }
+        updateData.text = newText;
+      }
+      try {
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems', item.id), updateData);
+        vaultEditImageData = null;
+        setVaultViewEditingUI(false);
+        renderVaultViewBody(Object.assign({}, item, updateData), false);
+      } catch (error) {
+        console.error("Error al actualizar elemento de la Bóveda:", error);
+        window.alert('No se pudieron guardar los cambios. Intenta de nuevo.');
+      }
+    }
+
     function closeVaultViewModal() {
+      vaultViewItemId = null;
+      vaultEditImageData = null;
+      setVaultViewEditingUI(false);
       const modal = document.getElementById('vault-view-modal');
       const content = document.getElementById('vault-view-content');
       if (modal && content) {
@@ -8857,6 +9135,10 @@
     window.closeVaultViewModal = closeVaultViewModal;
     window.deleteVaultItem = deleteVaultItem;
     window.saveVaultTextItem = saveVaultTextItem;
+    window.startEditVaultItem = startEditVaultItem;
+    window.cancelEditVaultItem = cancelEditVaultItem;
+    window.saveEditVaultItem = saveEditVaultItem;
+    window.vaultEditHandleImageSelect = vaultEditHandleImageSelect;
 
     async function moveTaskUp(id) {
       const idx = tasks.findIndex(t => t.id === id);
@@ -9205,10 +9487,66 @@
       <p id="kia-mic-transcript" class="kia-mic-transcript"></p>
 
       <div id="kia-mic-result" class="kia-mic-result">
-        <div class="kia-mic-result-icon" id="kia-mic-result-icon">📝</div>
-        <div class="kia-mic-result-body">
-          <p class="kia-mic-result-title" id="kia-mic-result-title">Nota</p>
-          <p class="kia-mic-result-detail" id="kia-mic-result-detail"></p>
+        <!-- Vista simple (solo para la Bóveda: abrir o guardar texto, sin campos financieros) -->
+        <div id="kia-mic-result-simple" class="kia-mic-result-simple">
+          <div class="kia-mic-result-icon" id="kia-mic-result-icon">📝</div>
+          <div class="kia-mic-result-body">
+            <p class="kia-mic-result-title" id="kia-mic-result-title">Nota</p>
+            <p class="kia-mic-result-detail" id="kia-mic-result-detail"></p>
+          </div>
+        </div>
+
+        <!-- Formulario editable: se muestra siempre antes de guardar (salvo Bóveda),
+             para poder corregir cuenta, monto, categoría, si es pago de TDC, etc. -->
+        <div id="kia-mic-edit-form" class="kia-mic-edit-form">
+          <div class="kia-mic-edit-header">
+            <select id="kia-mic-edit-type" class="kia-mic-edit-type" onchange="window.onSmartMicTypeChange()">
+              <option value="nota">📝 Nota</option>
+              <option value="tarea">✅ Tarea / Recordatorio</option>
+              <option value="evento">📅 Evento</option>
+              <option value="gasto">📉 Gasto</option>
+              <option value="ingreso">📈 Ingreso</option>
+              <option value="ahorro">💰 Ahorro</option>
+              <option value="pago_tc">💳 Pago de Tarjeta</option>
+              <option value="diecast">🚗 DieCast</option>
+            </select>
+          </div>
+
+          <div class="kia-mic-field">
+            <label for="kia-mic-edit-text">Concepto / texto</label>
+            <textarea id="kia-mic-edit-text" rows="2" maxlength="300"></textarea>
+          </div>
+
+          <div id="kia-mic-field-amount" class="kia-mic-field">
+            <label for="kia-mic-edit-amount">Monto</label>
+            <input type="number" id="kia-mic-edit-amount" step="0.01" min="0" placeholder="0.00" inputmode="decimal">
+          </div>
+
+          <div id="kia-mic-field-subcategory" class="kia-mic-field">
+            <label for="kia-mic-edit-subcategory">Categoría</label>
+            <select id="kia-mic-edit-subcategory"></select>
+          </div>
+
+          <div id="kia-mic-field-account" class="kia-mic-field">
+            <label id="kia-mic-account-label" for="kia-mic-edit-account">Cuenta</label>
+            <select id="kia-mic-edit-account"></select>
+          </div>
+
+          <div id="kia-mic-field-toaccount" class="kia-mic-field">
+            <label id="kia-mic-toaccount-label" for="kia-mic-edit-toaccount">Tarjeta a pagar</label>
+            <select id="kia-mic-edit-toaccount"></select>
+          </div>
+
+          <div class="kia-mic-field-row">
+            <div id="kia-mic-field-date" class="kia-mic-field">
+              <label for="kia-mic-edit-date">Fecha</label>
+              <input type="date" id="kia-mic-edit-date">
+            </div>
+            <div id="kia-mic-field-time" class="kia-mic-field">
+              <label for="kia-mic-edit-time">Hora</label>
+              <input type="time" id="kia-mic-edit-time">
+            </div>
+          </div>
         </div>
       </div>
       <div id="kia-mic-result-actions" class="kia-mic-result-actions">
@@ -9590,7 +9928,36 @@
     var micListening = false;
     var micBarsTimer = null;
     var micPendingResult = null;
+    var micLastFinalProcessed = '';
     var micSupportsSpeech = ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window);
+
+    // Colapsa frases/palabras repetidas al inicio del texto reconocido por voz
+    // (algunos motores de reconocimiento en móvil devuelven el disparador duplicado,
+    // p. ej. "nota nota que compré tacos" o "recuérdame recuérdame pagar la renta").
+    // Revisa de la frase más larga (hasta 6 palabras) a la más corta, y si las
+    // primeras N palabras son iguales a las siguientes N, quita la primera copia.
+    // Repite por si hubiera más de una duplicación.
+    function collapseRepeatedPhrase(text) {
+      if (!text) return text;
+      var words = text.split(/\s+/).filter(Boolean);
+      var changed = true;
+      var guard = 0;
+      while (changed && guard < 20) {
+        changed = false;
+        guard++;
+        var maxLen = Math.min(6, Math.floor(words.length / 2));
+        for (var len = maxLen; len >= 1; len--) {
+          var a = stripAccentsKia(words.slice(0, len).join(' ')).toLowerCase();
+          var b = stripAccentsKia(words.slice(len, len * 2).join(' ')).toLowerCase();
+          if (a && a === b) {
+            words = words.slice(len);
+            changed = true;
+            break;
+          }
+        }
+      }
+      return words.join(' ');
+    }
 
     function modalIsOpen() {
       var ids = ['modal', 'accounts-modal', 'subcategories-modal', 'account-details-modal',
@@ -9989,7 +10356,11 @@
           if (event.results[i].isFinal) final += chunk; else interim += chunk;
         }
         if (micTranscriptEl) micTranscriptEl.textContent = final || interim;
-        if (final.trim()) processSmartMicText(final.trim());
+        var trimmedFinal = final.trim();
+        if (trimmedFinal && trimmedFinal !== micLastFinalProcessed) {
+          micLastFinalProcessed = trimmedFinal;
+          processSmartMicText(trimmedFinal);
+        }
       };
       micRecognition.onerror = function (e) {
         stopMicListeningUI();
@@ -10039,6 +10410,7 @@
       }
       if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
       if (micTranscriptEl) micTranscriptEl.textContent = '';
+      micLastFinalProcessed = '';
       micListening = true;
       if (micOverlayEl) micOverlayEl.classList.add('kia-mic-listening');
       if (micStatusEl) micStatusEl.textContent = 'Escuchando... 👂';
@@ -10048,9 +10420,11 @@
 
     function processSmartMicText(text) {
       stopMicListeningUI();
+      var cleanText = collapseRepeatedPhrase(text);
+      if (micTranscriptEl) micTranscriptEl.textContent = cleanText;
       if (micStatusEl) micStatusEl.textContent = 'Pensando...';
       setTimeout(function () {
-        var result = (typeof window.mascotHandleVoiceCommand === 'function') ? window.mascotHandleVoiceCommand(text) : null;
+        var result = (typeof window.mascotHandleVoiceCommand === 'function') ? window.mascotHandleVoiceCommand(cleanText) : null;
         if (!result) {
           if (micStatusEl) micStatusEl.textContent = 'No entendí, intenta de nuevo';
           return;
@@ -10059,13 +10433,120 @@
       }, 350);
     }
 
+    // Íconos y etiquetas por tipo, usados por el selector de tipo y por la vista simple.
+    var KIA_TYPE_ICONS = { nota: '📝', tarea: '✅', evento: '📅', gasto: '📉', ingreso: '📈', ahorro: '💰', pago_tc: '💳', diecast: '🚗' };
+    var KIA_AMOUNT_TYPES = ['gasto', 'ingreso', 'ahorro', 'pago_tc', 'diecast'];
+    var KIA_SUBCATEGORY_TYPES = ['gasto', 'ingreso', 'ahorro'];
+
     function showSmartMicResult(result) {
       micPendingResult = result;
-      if (micResultIconEl) micResultIconEl.textContent = result.emoji || '📝';
-      if (micResultTitleEl) micResultTitleEl.textContent = result.title || '';
-      if (micResultDetailEl) micResultDetailEl.textContent = result.detail || '';
+      var simpleEl = document.getElementById('kia-mic-result-simple');
+      var formEl = document.getElementById('kia-mic-edit-form');
+      var isBoveda = result.type === 'boveda';
+      if (isBoveda) {
+        // La Bóveda tiene su propio flujo (abrir con PIN o guardar texto privado);
+        // no tiene sentido exponerla como movimiento financiero editable.
+        if (formEl) formEl.style.display = 'none';
+        if (simpleEl) simpleEl.style.display = 'flex';
+        if (micResultIconEl) micResultIconEl.textContent = result.emoji || '🔐';
+        if (micResultTitleEl) micResultTitleEl.textContent = result.title || '';
+        if (micResultDetailEl) micResultDetailEl.textContent = result.detail || '';
+      } else {
+        if (simpleEl) simpleEl.style.display = 'none';
+        if (formEl) formEl.style.display = 'flex';
+        populateSmartMicEditForm(result);
+      }
       if (micOverlayEl) micOverlayEl.classList.add('kia-mic-has-result');
     }
+
+    // Llena el formulario editable con lo que Kia entendió, para que el usuario
+    // pueda corregir el tipo, la cuenta, el monto, la categoría, etc. antes de guardar.
+    function populateSmartMicEditForm(result) {
+      var f = result.fields || {};
+      var typeSel = document.getElementById('kia-mic-edit-type');
+      if (typeSel) typeSel.value = result.type || 'nota';
+      var textEl = document.getElementById('kia-mic-edit-text');
+      if (textEl) textEl.value = f.text || '';
+      var amountEl = document.getElementById('kia-mic-edit-amount');
+      if (amountEl) amountEl.value = (typeof f.amount === 'number' && f.amount) ? f.amount : '';
+      var dateEl = document.getElementById('kia-mic-edit-date');
+      if (dateEl) dateEl.value = f.dateStr || '';
+      var timeEl = document.getElementById('kia-mic-edit-time');
+      if (timeEl) timeEl.value = f.timeStr || '';
+      populateSmartMicAccountSelects(f.accountId, f.toAccountId);
+      populateSmartMicSubcategorySelect(result.type, f.subcategoryName);
+      applySmartMicTypeVisibility(result.type);
+    }
+
+    function populateSmartMicAccountSelects(accountId, toAccountId) {
+      var accSel = document.getElementById('kia-mic-edit-account');
+      var toAccSel = document.getElementById('kia-mic-edit-toaccount');
+      var accountsList = (typeof window.kiaGetAccountsList === 'function') ? window.kiaGetAccountsList() : [];
+      var opts = accountsList.map(function (a) {
+        return '<option value="' + a.id + '">' + (a.emoji ? a.emoji + ' ' : '') + a.name + '</option>';
+      }).join('');
+      if (accSel) {
+        accSel.innerHTML = opts;
+        if (accountId) accSel.value = accountId;
+      }
+      if (toAccSel) {
+        toAccSel.innerHTML = '<option value="">Sin especificar</option>' + opts;
+        if (toAccountId) toAccSel.value = toAccountId;
+      }
+    }
+
+    function populateSmartMicSubcategorySelect(type, subcategoryName) {
+      var subSel = document.getElementById('kia-mic-edit-subcategory');
+      if (!subSel) return;
+      var filtered = (typeof window.kiaGetSubcategoriesForType === 'function') ? window.kiaGetSubcategoriesForType(type) : [];
+      if (!filtered.length) {
+        subSel.innerHTML = '<option value="General">General</option>';
+        return;
+      }
+      subSel.innerHTML = filtered.map(function (s) {
+        return '<option value="' + s.name + '">' + (s.emoji ? s.emoji + ' ' : '') + s.name + '</option>';
+      }).join('');
+      if (subcategoryName && filtered.some(function (s) { return s.name === subcategoryName; })) {
+        subSel.value = subcategoryName;
+      }
+    }
+
+    // Muestra/oculta campos del formulario según el tipo seleccionado, y ajusta
+    // etiquetas ("Pagar desde" / "Tarjeta a pagar" para Pago TC, etc.).
+    function applySmartMicTypeVisibility(type) {
+      var showAmount = KIA_AMOUNT_TYPES.indexOf(type) !== -1;
+      var showSubcategory = KIA_SUBCATEGORY_TYPES.indexOf(type) !== -1;
+      var showAccount = showAmount;
+      var showToAccount = (type === 'pago_tc' || type === 'ahorro');
+      var showDateTime = (type === 'tarea' || type === 'evento');
+
+      var set = function (id, show) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = show ? 'flex' : 'none';
+      };
+      set('kia-mic-field-amount', showAmount);
+      set('kia-mic-field-subcategory', showSubcategory);
+      set('kia-mic-field-account', showAccount);
+      set('kia-mic-field-toaccount', showToAccount);
+      set('kia-mic-field-date', showDateTime);
+      set('kia-mic-field-time', showDateTime);
+
+      var accLabel = document.getElementById('kia-mic-account-label');
+      if (accLabel) accLabel.textContent = (type === 'pago_tc') ? 'Pagar desde' : (type === 'ahorro' ? 'Cuenta origen' : 'Cuenta');
+      var toAccLabel = document.getElementById('kia-mic-toaccount-label');
+      if (toAccLabel) toAccLabel.textContent = (type === 'pago_tc') ? 'Tarjeta a pagar' : 'Cuenta de ahorro destino';
+
+      if (micResultIconEl) micResultIconEl.textContent = KIA_TYPE_ICONS[type] || '📝';
+    }
+
+    // Se dispara cuando el usuario cambia el tipo desde el selector (p. ej. de
+    // "Gasto" a "Pago de Tarjeta" si Kia no lo clasificó bien).
+    window.onSmartMicTypeChange = function () {
+      var typeSel = document.getElementById('kia-mic-edit-type');
+      var type = typeSel ? typeSel.value : 'nota';
+      populateSmartMicSubcategorySelect(type, null);
+      applySmartMicTypeVisibility(type);
+    };
 
     window.submitSmartMicText = function () {
       if (!micTextInput) return;
@@ -10085,9 +10566,49 @@
     window.confirmSmartMicResult = function () {
       if (!micPendingResult) return;
       var pending = micPendingResult;
+
+      if (pending.type === 'boveda') {
+        micPendingResult = null;
+        if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
+        Promise.resolve(pending.save()).then(function (msg) {
+          window.closeSmartMic();
+          pokeAnim();
+          showBubble(msg || '¡Listo! ✅');
+        }).catch(function (err) {
+          console.error('Error al guardar desde el micrófono de Kia:', err);
+          window.closeSmartMic();
+          showBubble('No se pudo guardar 😥 intenta otra vez');
+        });
+        return;
+      }
+
+      var typeSel = document.getElementById('kia-mic-edit-type');
+      var type = typeSel ? typeSel.value : (pending.type || 'nota');
+      var textEl = document.getElementById('kia-mic-edit-text');
+      var text = textEl ? textEl.value.trim() : '';
+      if (!text) {
+        if (textEl) textEl.focus();
+        return; // Sin texto no se guarda; el usuario sigue viendo el formulario para corregirlo.
+      }
+      var amountEl = document.getElementById('kia-mic-edit-amount');
+      var subSel = document.getElementById('kia-mic-edit-subcategory');
+      var accSel = document.getElementById('kia-mic-edit-account');
+      var toAccSel = document.getElementById('kia-mic-edit-toaccount');
+      var dateEl = document.getElementById('kia-mic-edit-date');
+      var timeEl = document.getElementById('kia-mic-edit-time');
+      var fields = {
+        text: text,
+        amount: amountEl ? parseFloat(amountEl.value) || 0 : 0,
+        subcategoryName: subSel ? subSel.value : 'General',
+        accountId: accSel ? accSel.value : '',
+        toAccountId: toAccSel ? toAccSel.value : '',
+        dateStr: dateEl ? dateEl.value : '',
+        timeStr: timeEl ? timeEl.value : ''
+      };
+
       micPendingResult = null;
       if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
-      Promise.resolve(pending.save()).then(function (msg) {
+      Promise.resolve(window.kiaExecuteSmartMicSave(type, fields)).then(function (msg) {
         window.closeSmartMic();
         pokeAnim();
         showBubble(msg || '¡Listo! ✅');
