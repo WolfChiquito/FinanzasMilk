@@ -9931,6 +9931,12 @@
     var micLastFinalProcessed = '';
     var micSupportsSpeech = ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window);
 
+    // Copia local (este script NO es un módulo, así que no puede ver la función
+    // stripAccentsKia definida dentro del <script type="module"> de más arriba).
+    function stripAccentsKiaLocal(s) {
+      return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
     // Colapsa frases/palabras repetidas al inicio del texto reconocido por voz
     // (algunos motores de reconocimiento en móvil devuelven el disparador duplicado,
     // p. ej. "nota nota que compré tacos" o "recuérdame recuérdame pagar la renta").
@@ -9947,8 +9953,8 @@
         guard++;
         var maxLen = Math.min(6, Math.floor(words.length / 2));
         for (var len = maxLen; len >= 1; len--) {
-          var a = stripAccentsKia(words.slice(0, len).join(' ')).toLowerCase();
-          var b = stripAccentsKia(words.slice(len, len * 2).join(' ')).toLowerCase();
+          var a = stripAccentsKiaLocal(words.slice(0, len).join(' ')).toLowerCase();
+          var b = stripAccentsKiaLocal(words.slice(len, len * 2).join(' ')).toLowerCase();
           if (a && a === b) {
             words = words.slice(len);
             changed = true;
