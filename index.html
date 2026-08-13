@@ -1271,6 +1271,213 @@
       background: linear-gradient(90deg, #00f0ff, #7000ff);
     }
 
+    /* ===== MICRÓFONO INTELIGENTE DE KIA (doble toque) ===== */
+    .kia-mic-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(circle at 50% 30%, rgba(112,0,255,0.18), rgba(5,4,9,0.92) 65%);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .kia-mic-overlay.kia-mic-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .kia-mic-close {
+      position: absolute;
+      top: max(18px, env(safe-area-inset-top));
+      right: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #f3f4f6;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .kia-mic-panel {
+      width: min(340px, 92vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transform: scale(0.92) translateY(10px);
+      opacity: 0;
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .kia-mic-overlay.kia-mic-visible .kia-mic-panel {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+    .kia-mic-orb-wrap {
+      position: relative;
+      width: 132px;
+      height: 132px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .kia-mic-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1.5px solid rgba(0, 240, 255, 0.4);
+      opacity: 0;
+    }
+    .kia-mic-overlay.kia-mic-visible .kia-mic-ring {
+      animation: kiaMicRingPulse 2.6s cubic-bezier(0.2,0.7,0.3,1) infinite;
+    }
+    .kia-mic-ring-2 { animation-delay: 0.5s !important; border-color: rgba(112,0,255,0.4); }
+    .kia-mic-ring-3 { animation-delay: 1s !important; border-color: rgba(255,0,127,0.35); }
+    @keyframes kiaMicRingPulse {
+      0% { transform: scale(0.7); opacity: 0.9; }
+      100% { transform: scale(1.55); opacity: 0; }
+    }
+    .kia-mic-overlay.kia-mic-listening .kia-mic-ring { animation-duration: 1.3s; }
+    .kia-mic-orb {
+      position: relative;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 35% 30%, #1a1330, #0b0d14 70%);
+      box-shadow: 0 0 20px rgba(0,240,255,0.35), 0 0 46px rgba(112,0,255,0.25), inset 0 0 14px rgba(0,240,255,0.15);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: kiaMicOrbBreathe 3.2s ease-in-out infinite;
+    }
+    .kia-mic-orb:active { transform: scale(0.94); }
+    @keyframes kiaMicOrbBreathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.045); }
+    }
+    .kia-mic-overlay.kia-mic-listening .kia-mic-orb {
+      animation: kiaMicOrbListening 0.9s ease-in-out infinite;
+      box-shadow: 0 0 30px rgba(255,0,127,0.5), 0 0 60px rgba(0,240,255,0.35), inset 0 0 16px rgba(255,0,127,0.25);
+    }
+    @keyframes kiaMicOrbListening {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.09); }
+    }
+    .kia-mic-orb-icon { font-size: 34px; filter: drop-shadow(0 0 8px rgba(0,240,255,0.6)); }
+    .kia-mic-bars {
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      height: 30px;
+      margin-bottom: 10px;
+    }
+    .kia-mic-overlay.kia-mic-listening .kia-mic-bars { display: flex; }
+    .kia-mic-bars span {
+      display: block;
+      width: 4px;
+      min-height: 4px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, #00f0ff, #7000ff);
+      transition: height 0.12s ease;
+    }
+    .kia-mic-status {
+      font-size: 13px;
+      font-weight: 600;
+      color: #d1d5db;
+      margin: 0 0 6px;
+      min-height: 18px;
+    }
+    .kia-mic-transcript {
+      font-size: 14.5px;
+      color: #f3f4f6;
+      min-height: 20px;
+      margin: 0 0 14px;
+      line-height: 1.4;
+      max-height: 70px;
+      overflow-y: auto;
+    }
+    .kia-mic-result {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,240,255,0.3);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .kia-mic-overlay.kia-mic-has-result .kia-mic-result { display: flex; }
+    .kia-mic-result-icon { font-size: 26px; flex-shrink: 0; }
+    .kia-mic-result-title { font-size: 13px; font-weight: 700; color: #00f0ff; margin: 0; }
+    .kia-mic-result-detail { font-size: 12.5px; color: #d1d5db; margin: 2px 0 0; word-break: break-word; }
+    .kia-mic-result-actions {
+      display: none;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+    .kia-mic-overlay.kia-mic-has-result .kia-mic-result-actions { display: flex; }
+    .kia-mic-result-actions button {
+      flex: 1;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 10px;
+      border-radius: 12px;
+      color: #d1d5db;
+      background: rgba(255,255,255,0.06);
+    }
+    .kia-mic-result-actions button.primary {
+      color: #050409;
+      background: linear-gradient(90deg, #00f0ff, #7000ff);
+    }
+    .kia-mic-textfallback {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .kia-mic-textfallback input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #f3f4f6;
+      outline: none;
+    }
+    .kia-mic-textfallback input:focus { border-color: rgba(0,240,255,0.5); }
+    .kia-mic-textfallback button {
+      width: 40px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #00f0ff, #7000ff);
+      color: #050409;
+      font-size: 15px;
+      border: none;
+    }
+    .kia-mic-hint {
+      font-size: 10.5px;
+      color: rgba(209,213,219,0.6);
+      margin: 12px 0 0;
+      line-height: 1.4;
+    }
+    .kia-mic-overlay.kia-mic-has-result .kia-mic-orb-wrap,
+    .kia-mic-overlay.kia-mic-has-result .kia-mic-status,
+    .kia-mic-overlay.kia-mic-has-result .kia-mic-transcript,
+    .kia-mic-overlay.kia-mic-has-result .kia-mic-textfallback,
+    .kia-mic-overlay.kia-mic-has-result .kia-mic-hint { display: none; }
+
     /* Lista de frases personalizadas en el modal de ajustes de Kia */
     .mascot-phrase-item {
       display: flex;
@@ -7639,6 +7846,225 @@
     }
     window.saveMascotNote = saveMascotNote;
 
+    // ==================== MICRÓFONO INTELIGENTE DE KIA ====================
+    // Interpreta el texto dictado (o escrito) desde el micrófono de la mascota
+    // y decide qué crear: nota, tarea/recordatorio, gasto, ingreso o ahorro.
+    // No guarda nada por su cuenta: regresa un resumen + una función save()
+    // que sólo se ejecuta si el usuario confirma en la tarjeta de Kia.
+    function stripAccentsKia(s) {
+      return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function findFirstAmountKia(text) {
+      const matches = text.match(/\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d+/g);
+      if (!matches || !matches.length) return null;
+      let raw = matches[0];
+      if (raw.includes(',') && raw.includes('.')) {
+        raw = raw.replace(/,/g, '');
+      } else if (raw.includes(',')) {
+        const parts = raw.split(',');
+        raw = parts[parts.length - 1].length === 3 ? raw.replace(/,/g, '') : raw.replace(',', '.');
+      }
+      const val = parseFloat(raw);
+      return isNaN(val) ? null : val;
+    }
+
+    function findKiaSubcategory(t, type) {
+      const dictionaries = {
+        gasto: [
+          { keys: ['comida', 'comi', 'restaurante', 'tacos', 'super', 'supermercado', 'cafe', 'desayuno', 'almuerzo', 'cena', 'antojo'], name: 'Comida' },
+          { keys: ['uber', 'taxi', 'gasolina', 'camion', 'metro', 'transporte', 'autobus', 'pasaje', 'didi'], name: 'Transporte' },
+          { keys: ['luz', 'agua', 'internet', 'renta', 'netflix', 'servicio', 'telefono', 'celular'], name: 'Servicios' },
+          { keys: ['cine', 'boleto', 'juego', 'diversion', 'concierto', 'salida', 'peli'], name: 'Diversión' },
+          { keys: ['ropa', 'zapatos', 'amazon', 'compras', 'tienda'], name: 'Compras' }
+        ],
+        ingreso: [
+          { keys: ['sueldo', 'salario', 'nomina', 'quincena'], name: 'Sueldo' },
+          { keys: ['inversion', 'dividendo', 'accion', 'cripto'], name: 'Inversiones' },
+          { keys: ['regalo', 'aguinaldo'], name: 'Regalos' }
+        ],
+        ahorro: [
+          { keys: ['emergencia', 'fondo'], name: 'Fondo Emergencias' },
+          { keys: ['viaje', 'vacacion'], name: 'Viajes' }
+        ]
+      };
+      const list = dictionaries[type] || [];
+      for (const entry of list) {
+        if (entry.keys.some(k => t.includes(k))) return entry.name;
+      }
+      return null;
+    }
+
+    function findKiaAccount(t) {
+      const found = accounts.find(a => t.includes(stripAccentsKia(a.name).toLowerCase()));
+      if (found) return found;
+      return accounts.find(a => a.isDefault) || accounts[0] || null;
+    }
+
+    // Detecta fecha/hora en frases como "mañana a las 5pm" o "el viernes a las 9:30".
+    function findKiaDateTime(t) {
+      const now = new Date();
+      let date = null;
+
+      if (/pasado\s*manana/.test(t)) {
+        date = new Date(now); date.setDate(date.getDate() + 2);
+      } else if (/\bmanana\b/.test(t)) {
+        date = new Date(now); date.setDate(date.getDate() + 1);
+      } else if (/\bhoy\b/.test(t)) {
+        date = new Date(now);
+      } else {
+        const days = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+        for (let i = 0; i < days.length; i++) {
+          if (t.includes(days[i])) {
+            date = new Date(now);
+            let diff = (i - now.getDay() + 7) % 7;
+            if (diff === 0) diff = 7;
+            date.setDate(date.getDate() + diff);
+            break;
+          }
+        }
+      }
+
+      let time = null;
+      if (/\d{1,2}(:\d{2})?\s*(am|pm)/.test(t) || t.includes(' a las ')) {
+        const timeMatch = t.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|de la manana|de la tarde|de la noche)?/);
+        if (timeMatch) {
+          let h = parseInt(timeMatch[1], 10);
+          const m = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
+          const suffix = timeMatch[3] || '';
+          if ((suffix.includes('pm') || suffix.includes('tarde') || suffix.includes('noche')) && h < 12) h += 12;
+          if (suffix.includes('am') && h === 12) h = 0;
+          if (h >= 0 && h <= 23 && m >= 0 && m <= 59) time = { h, m };
+        }
+      }
+
+      return {
+        dateStr: date ? date.toISOString().split('T')[0] : null,
+        timeStr: time ? String(time.h).padStart(2, '0') + ':' + String(time.m).padStart(2, '0') : null
+      };
+    }
+
+    async function createKiaFinancialMovement(type, amount, concept, subcategoryName, account) {
+      const subList = (customSubcategories && customSubcategories.length) ? customSubcategories : DEFAULT_SUBCATEGORIES;
+      const subObj = subList.find(s => s.type === type && s.name === subcategoryName);
+      const movementData = {
+        date: new Date().toISOString().split('T')[0],
+        type: type,
+        amount: amount,
+        concept: concept,
+        accountId: account ? account.id : '',
+        account: account ? account.name : 'Efectivo',
+        subcategory: subObj ? subObj.name : (subcategoryName || 'General'),
+        subcategoryEmoji: subObj ? subObj.emoji : (CATEGORIES[type] ? CATEGORIES[type].emoji : '🏷️'),
+        timestamp: new Date().toISOString()
+      };
+      await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+    }
+
+    async function createKiaTask(text, dateStr, timeStr) {
+      const newTaskRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'tasks'), {
+        text: text,
+        completed: false,
+        eventMovementId: null,
+        palette: DEFAULT_ITEM_STYLE.palette,
+        color: DEFAULT_ITEM_STYLE.color,
+        opacity: DEFAULT_ITEM_STYLE.opacity,
+        font: DEFAULT_ITEM_STYLE.font,
+        isList: false,
+        subitems: [],
+        createdAt: new Date().toISOString()
+      });
+
+      if (dateStr) {
+        const movementData = {
+          date: dateStr,
+          type: 'evento',
+          amount: 0,
+          concept: text,
+          accountId: '',
+          account: '',
+          subcategory: 'Evento',
+          subcategoryEmoji: CATEGORIES.evento.emoji,
+          notificationId: null,
+          timestamp: new Date().toISOString()
+        };
+        if (timeStr) {
+          const notifyData = {
+            date: dateStr,
+            time: timeStr,
+            reason: text,
+            repeat: 'once',
+            triggered: false,
+            timestamp: new Date().toISOString()
+          };
+          const newNotifRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'notifications'), notifyData);
+          movementData.notificationId = newNotifRef.id;
+          if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+          }
+        }
+        const newMovementRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+        await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', newTaskRef.id), {
+          eventMovementId: newMovementRef.id
+        });
+      }
+    }
+
+    // Punto de entrada que usa el micrófono inteligente de la mascota (ver <script> de Kia al final del archivo).
+    window.mascotHandleVoiceCommand = function (rawText) {
+      const text = (rawText || '').trim();
+      if (!text) return null;
+      const t = stripAccentsKia(text).toLowerCase();
+      const has = (arr) => arr.some(k => t.includes(k));
+
+      const isTask = has(['recuerdame', 'recuerda que', 'recordatorio', 'no olvides', 'tengo que', 'pendiente', 'tarea de', 'agregar tarea']);
+      const amount = findFirstAmountKia(t);
+      const isGasto = !isTask && amount !== null && has(['gaste', 'gasto', 'pague', 'pago de', 'compre', 'costo', 'salio en']);
+      const isIngreso = !isTask && !isGasto && amount !== null && has(['ingreso', 'recibi', 'cobre', 'deposito', 'deposite', 'me pagaron']);
+      const isAhorro = !isTask && !isGasto && !isIngreso && amount !== null && has(['ahorre', 'ahorro', 'guarde', 'aparte']);
+      const isExplicitNote = has(['anota', 'apunta', 'nota que', 'nota:']);
+
+      if (isTask) {
+        const { dateStr, timeStr } = findKiaDateTime(t);
+        const cleanText = text.replace(/^(recu[eé]rdame( que)?|recordatorio( de)?|no olvides( que)?|tengo que)\s*/i, '').trim() || text;
+        return {
+          type: 'tarea',
+          emoji: dateStr ? '⏰' : '✅',
+          title: dateStr ? 'Recordatorio' : 'Tarea',
+          detail: cleanText + (dateStr ? ` — ${dateStr}${timeStr ? ' ' + timeStr : ''}` : ''),
+          save: async () => { await createKiaTask(cleanText, dateStr, timeStr); return '¡Listo! Ya quedó agendado 📌'; }
+        };
+      }
+
+      if (isGasto || isIngreso || isAhorro) {
+        const type = isGasto ? 'gasto' : (isIngreso ? 'ingreso' : 'ahorro');
+        const subcategoryName = findKiaSubcategory(t, type) || 'General';
+        const account = findKiaAccount(t);
+        return {
+          type: type,
+          emoji: CATEGORIES[type].emoji,
+          title: CATEGORIES[type].label + ': ' + subcategoryName,
+          detail: '$' + amount.toFixed(2) + (account ? ' · ' + account.name : ''),
+          save: async () => {
+            await createKiaFinancialMovement(type, amount, text, subcategoryName, account);
+            return '¡Anotado! ' + CATEGORIES[type].emoji + ' se guardó tu ' + CATEGORIES[type].label.toLowerCase();
+          }
+        };
+      }
+
+      // Cualquier otra cosa (incluye "anota"/"apunta" y todo lo no reconocido con certeza) se guarda como notita.
+      const noteText = isExplicitNote
+        ? (text.replace(/^(anota( que)?|apunta( que)?|apuntame( que)?|nota( que)?:?)\s*/i, '').trim() || text)
+        : text;
+      return {
+        type: 'nota',
+        emoji: '📝',
+        title: 'Nota',
+        detail: noteText,
+        save: async () => { await saveMascotNote(noteText); return '¡Guardado! Ya quedó tu notita 📝'; }
+      };
+    };
+
     function startEditNote(id) {
       const idx = stickyNotes.findIndex(x => x.id === id);
       const n = idx >= 0 ? stickyNotes[idx] : null;
@@ -8149,6 +8575,47 @@
     </div>
   </div>
 
+  <!-- Micrófono inteligente de Kia: aparece al hacer doble toque sobre la mascota.
+       Permite dictar (o escribir) una nota, tarea/recordatorio, gasto, ingreso o
+       ahorro; Kia lo interpreta y muestra una tarjeta de confirmación antes de guardar. -->
+  <div id="kia-mic-overlay" class="kia-mic-overlay">
+    <button type="button" class="kia-mic-close" onclick="window.closeSmartMic()" aria-label="Cerrar">✕</button>
+    <div class="kia-mic-panel">
+      <div class="kia-mic-orb-wrap">
+        <div class="kia-mic-ring kia-mic-ring-1"></div>
+        <div class="kia-mic-ring kia-mic-ring-2"></div>
+        <div class="kia-mic-ring kia-mic-ring-3"></div>
+        <button type="button" id="kia-mic-orb" class="kia-mic-orb" onclick="window.toggleSmartMicListening()" aria-label="Hablar con Kia">
+          <span class="kia-mic-orb-icon">🎙️</span>
+        </button>
+      </div>
+      <div id="kia-mic-bars" class="kia-mic-bars">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p id="kia-mic-status" class="kia-mic-status">Toca el micrófono y pídeme algo...</p>
+      <p id="kia-mic-transcript" class="kia-mic-transcript"></p>
+
+      <div id="kia-mic-result" class="kia-mic-result">
+        <div class="kia-mic-result-icon" id="kia-mic-result-icon">📝</div>
+        <div class="kia-mic-result-body">
+          <p class="kia-mic-result-title" id="kia-mic-result-title">Nota</p>
+          <p class="kia-mic-result-detail" id="kia-mic-result-detail"></p>
+        </div>
+      </div>
+      <div id="kia-mic-result-actions" class="kia-mic-result-actions">
+        <button type="button" onclick="window.cancelSmartMicResult()">Cancelar</button>
+        <button type="button" class="primary" onclick="window.confirmSmartMicResult()">Guardar</button>
+      </div>
+
+      <div class="kia-mic-textfallback">
+        <input type="text" id="kia-mic-text-input" placeholder="O escribe aquí lo que necesitas..." maxlength="300">
+        <button type="button" onclick="window.submitSmartMicText()" aria-label="Enviar">➤</button>
+      </div>
+
+      <p class="kia-mic-hint">Ej: "gasté 150 en tacos", "recuérdame pagar la renta mañana a las 9am", "ahorré 500 para el viaje"</p>
+    </div>
+  </div>
+
   <script>
   (function () {
     'use strict';
@@ -8507,6 +8974,14 @@
     var dragOffsetX = 0, dragOffsetY = 0;
     var suppressNextClick = false;
     var POS_KEY = 'mascotPos';
+
+    /* ---------- Micrófono inteligente (doble toque) ---------- */
+    var micOverlayEl, micStatusEl, micTranscriptEl, micBarsEl, micResultIconEl, micResultTitleEl, micResultDetailEl, micTextInput;
+    var micRecognition = null;
+    var micListening = false;
+    var micBarsTimer = null;
+    var micPendingResult = null;
+    var micSupportsSpeech = ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window);
 
     function modalIsOpen() {
       var ids = ['modal', 'accounts-modal', 'subcategories-modal', 'account-details-modal',
@@ -8878,12 +9353,174 @@
       pokeAnim();
       triggerTapFace();
       clickResolveTimer = setTimeout(function () {
-        if (clickTimestamps.length > 0 && clickTimestamps.length < 3) {
+        if (clickTimestamps.length === 2) {
+          openSmartMic();
+        } else if (clickTimestamps.length === 1) {
           sayRandomPhrase();
         }
         clickTimestamps = [];
       }, 300);
     }
+
+    /* ---------- Micrófono inteligente (doble toque): pide crear notas, tareas,
+       recordatorios, gastos, ingresos o ahorros por voz (o texto) ---------- */
+    function setupSmartMicRecognition() {
+      if (!micSupportsSpeech || micRecognition) return;
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      micRecognition = new SR();
+      micRecognition.lang = 'es-MX';
+      micRecognition.continuous = false;
+      micRecognition.interimResults = true;
+      micRecognition.maxAlternatives = 1;
+
+      micRecognition.onresult = function (event) {
+        var interim = '', final = '';
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+          var chunk = event.results[i][0].transcript;
+          if (event.results[i].isFinal) final += chunk; else interim += chunk;
+        }
+        if (micTranscriptEl) micTranscriptEl.textContent = final || interim;
+        if (final.trim()) processSmartMicText(final.trim());
+      };
+      micRecognition.onerror = function (e) {
+        stopMicListeningUI();
+        if (micStatusEl) {
+          micStatusEl.textContent = (e && e.error === 'not-allowed')
+            ? 'Necesito permiso del micrófono 🎙️'
+            : 'No te escuché bien, intenta de nuevo o escribe abajo';
+        }
+      };
+      micRecognition.onend = function () {
+        stopMicListeningUI();
+      };
+    }
+
+    function startMicBarsAnim() {
+      clearInterval(micBarsTimer);
+      if (!micBarsEl) return;
+      var bars = micBarsEl.querySelectorAll('span');
+      micBarsTimer = setInterval(function () {
+        bars.forEach(function (b) { b.style.height = (4 + Math.random() * 26) + 'px'; });
+      }, 120);
+    }
+    function stopMicBarsAnim() {
+      clearInterval(micBarsTimer);
+      micBarsTimer = null;
+      if (micBarsEl) micBarsEl.querySelectorAll('span').forEach(function (b) { b.style.height = '4px'; });
+    }
+
+    function stopMicListeningUI() {
+      micListening = false;
+      stopMicBarsAnim();
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-listening');
+      if (micStatusEl && micOverlayEl && !micOverlayEl.classList.contains('kia-mic-has-result')) {
+        micStatusEl.textContent = 'Toca el micrófono y pídeme algo...';
+      }
+    }
+
+    window.toggleSmartMicListening = function () {
+      if (!micSupportsSpeech) {
+        if (micTextInput) micTextInput.focus();
+        return;
+      }
+      setupSmartMicRecognition();
+      if (micListening) {
+        try { micRecognition.stop(); } catch (e) {}
+        return;
+      }
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
+      if (micTranscriptEl) micTranscriptEl.textContent = '';
+      micListening = true;
+      if (micOverlayEl) micOverlayEl.classList.add('kia-mic-listening');
+      if (micStatusEl) micStatusEl.textContent = 'Escuchando... 👂';
+      startMicBarsAnim();
+      try { micRecognition.start(); } catch (e) {}
+    };
+
+    function processSmartMicText(text) {
+      stopMicListeningUI();
+      if (micStatusEl) micStatusEl.textContent = 'Pensando...';
+      setTimeout(function () {
+        var result = (typeof window.mascotHandleVoiceCommand === 'function') ? window.mascotHandleVoiceCommand(text) : null;
+        if (!result) {
+          if (micStatusEl) micStatusEl.textContent = 'No entendí, intenta de nuevo';
+          return;
+        }
+        showSmartMicResult(result);
+      }, 350);
+    }
+
+    function showSmartMicResult(result) {
+      micPendingResult = result;
+      if (micResultIconEl) micResultIconEl.textContent = result.emoji || '📝';
+      if (micResultTitleEl) micResultTitleEl.textContent = result.title || '';
+      if (micResultDetailEl) micResultDetailEl.textContent = result.detail || '';
+      if (micOverlayEl) micOverlayEl.classList.add('kia-mic-has-result');
+    }
+
+    window.submitSmartMicText = function () {
+      if (!micTextInput) return;
+      var val = micTextInput.value.trim();
+      if (!val) return;
+      micTextInput.value = '';
+      processSmartMicText(val);
+    };
+
+    window.cancelSmartMicResult = function () {
+      micPendingResult = null;
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
+      if (micStatusEl) micStatusEl.textContent = 'Toca el micrófono y pídeme algo...';
+      if (micTranscriptEl) micTranscriptEl.textContent = '';
+    };
+
+    window.confirmSmartMicResult = function () {
+      if (!micPendingResult) return;
+      var pending = micPendingResult;
+      micPendingResult = null;
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
+      Promise.resolve(pending.save()).then(function (msg) {
+        window.closeSmartMic();
+        pokeAnim();
+        showBubble(msg || '¡Listo! ✅');
+      }).catch(function (err) {
+        console.error('Error al guardar desde el micrófono de Kia:', err);
+        window.closeSmartMic();
+        showBubble('No se pudo guardar 😥 intenta otra vez');
+      });
+    };
+
+    function openSmartMic() {
+      if (!micOverlayEl) return;
+      closeNoteBox();
+      clearTimeout(wanderTimer);
+      bubbleEl.classList.remove('mascot-bubble-visible');
+      micPendingResult = null;
+      if (micTranscriptEl) micTranscriptEl.textContent = '';
+      if (micTextInput) micTextInput.value = '';
+      micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-listening');
+      if (micStatusEl) {
+        micStatusEl.textContent = micSupportsSpeech
+          ? 'Toca el micrófono y pídeme algo...'
+          : 'Escribe abajo lo que necesitas...';
+      }
+      micOverlayEl.classList.add('kia-mic-visible');
+      if (micSupportsSpeech) {
+        setTimeout(function () { window.toggleSmartMicListening(); }, 350);
+      } else if (micTextInput) {
+        setTimeout(function () { micTextInput.focus(); }, 350);
+      }
+    }
+
+    window.closeSmartMic = function () {
+      if (micRecognition && micListening) {
+        try { micRecognition.stop(); } catch (e) {}
+      }
+      stopMicBarsAnim();
+      micListening = false;
+      micPendingResult = null;
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-visible', 'kia-mic-listening', 'kia-mic-has-result');
+      scheduleWander();
+    };
 
     /* ---------- Modal de ajustes de Kia (frases + activar/desactivar) ---------- */
     function renderMascotPhrasesList() {
@@ -8990,6 +9627,19 @@
       bubbleEl = document.getElementById('mascot-speech-bubble');
       noteBoxEl = document.getElementById('mascot-note-box');
       noteTextarea = document.getElementById('mascot-note-textarea');
+      micOverlayEl = document.getElementById('kia-mic-overlay');
+      micStatusEl = document.getElementById('kia-mic-status');
+      micTranscriptEl = document.getElementById('kia-mic-transcript');
+      micBarsEl = document.getElementById('kia-mic-bars');
+      micResultIconEl = document.getElementById('kia-mic-result-icon');
+      micResultTitleEl = document.getElementById('kia-mic-result-title');
+      micResultDetailEl = document.getElementById('kia-mic-result-detail');
+      micTextInput = document.getElementById('kia-mic-text-input');
+      if (micTextInput) {
+        micTextInput.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') { e.preventDefault(); window.submitSmartMicText(); }
+        });
+      }
       if (!wolfEl || !spriteEl) return;
 
       setSpriteBox(WOLF_GRID_W, WOLF_GRID_H);
@@ -9010,6 +9660,7 @@
       /* ---------- Tocar para hablar / arrastrar para reubicar ---------- */
       wolfEl.addEventListener('pointerdown', function (e) {
         if (noteBoxEl.classList.contains('mascot-note-box-visible')) return;
+        if (micOverlayEl && micOverlayEl.classList.contains('kia-mic-visible')) return;
         e.preventDefault();
         isDragging = true;
         dragMoved = false;
