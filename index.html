@@ -1705,6 +1705,10 @@
             <h2 class="text-xl font-bold text-white flex items-center gap-2">
               <i data-lucide="layout-grid" class="w-5 h-5 text-[#7000ff]"></i> Widgets
             </h2>
+            <button id="btn-open-vault" onclick="window.openVaultPinModal()" class="relative flex items-center gap-1.5 px-3 py-1.5 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg text-xs font-bold transition-colors cursor-pointer shadow-sm print:hidden" title="Bóveda privada (protegida con PIN)">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Bóveda
+              <span id="vault-items-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-[#ff007f] text-white text-[9px] font-bold leading-none">0</span>
+            </button>
           </div>
 
           <!-- APARTADO DE TAREAS -->
@@ -1804,6 +1808,132 @@
                 </button>
               </div>
               <div id="notes-trash-list" class="p-4 space-y-2 max-h-[65vh] overflow-y-auto">
+                <!-- Renderizado dinámico -->
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL: PIN DE LA BÓVEDA -->
+          <div id="vault-pin-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-all duration-300">
+            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-cyan w-full max-w-xs overflow-hidden transform scale-95 transition-all duration-300" id="vault-pin-content">
+              <div class="flex justify-between items-start p-6 pb-2">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
+                    <i data-lucide="lock" class="w-4.5 h-4.5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-white leading-tight">Bóveda Privada</h3>
+                    <span class="text-xs text-gray-500">Ingresa tu PIN para continuar</span>
+                  </div>
+                </div>
+                <button onclick="window.closeVaultPinModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                  <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+              </div>
+              <form id="vault-pin-form" class="p-6 pt-4 space-y-4" onsubmit="return window.submitVaultPin(event)">
+                <input
+                  type="password"
+                  id="vault-pin-input"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  maxlength="4"
+                  placeholder="••••"
+                  class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-4 text-center text-3xl tracking-[0.6em] focus:border-[#00f0ff] outline-none text-white"
+                />
+                <p id="vault-pin-error" class="hidden text-xs font-semibold text-rose-400 text-center">PIN incorrecto, intenta de nuevo.</p>
+                <button type="submit" class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[#00f0ff]/20 to-[#7000ff]/20 border border-[#00f0ff]/40 hover:border-[#00f0ff]/70 text-[#00f0ff] rounded-2xl text-sm font-bold transition-colors">
+                  <i data-lucide="shield-check" class="w-4 h-4"></i> Desbloquear
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- MODAL: CONTENIDO DE LA BÓVEDA -->
+          <div id="vault-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-all duration-300">
+            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-purple w-full max-w-lg overflow-hidden transform scale-95 transition-all duration-300 flex flex-col" id="vault-modal-content" style="max-height:85vh;">
+              <div class="flex justify-between items-start p-6 pb-4 border-b border-gray-800 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
+                    <i data-lucide="shield-check" class="w-4.5 h-4.5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-white leading-tight">Bóveda Privada</h3>
+                    <span class="text-xs text-gray-500">Guarda imágenes y textos, con historial y búsqueda</span>
+                  </div>
+                </div>
+                <button onclick="window.closeVaultModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                  <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <!-- Pestañas -->
+              <div class="flex items-center gap-2 px-6 pt-4 flex-shrink-0">
+                <button id="vault-tab-btn-guardar" onclick="window.setVaultTab('guardar')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer">
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Guardar
+                </button>
+                <button id="vault-tab-btn-historial" onclick="window.setVaultTab('historial')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer">
+                  <i data-lucide="history" class="w-3.5 h-3.5"></i> Historial
+                </button>
+              </div>
+
+              <!-- SECCIÓN: GUARDAR -->
+              <div id="vault-tab-guardar" class="p-6 space-y-5 overflow-y-auto">
+                <div>
+                  <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Guardar texto
+                  </h4>
+                  <textarea id="vault-text-input" rows="3" placeholder="Escribe el texto que quieres guardar en la bóveda..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm resize-none"></textarea>
+                  <button onclick="window.saveVaultTextFromForm()" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-[#00f0ff]/15 hover:bg-[#00f0ff]/25 border border-[#00f0ff]/30 text-[#00f0ff] rounded-xl text-xs font-bold transition-colors">
+                    <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar texto
+                  </button>
+                </div>
+
+                <div class="h-px bg-gray-800/80"></div>
+
+                <div>
+                  <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <i data-lucide="image" class="w-3.5 h-3.5 text-[#faff00]"></i> Guardar imagen
+                  </h4>
+                  <input type="file" id="vault-image-input" accept="image/*" class="hidden" onchange="window.vaultHandleImageSelect(event)">
+                  <div id="vault-image-drop" onclick="document.getElementById('vault-image-input').click()" class="w-full aspect-video max-h-48 rounded-2xl border-2 border-dashed border-gray-800 hover:border-[#faff00]/50 flex items-center justify-center cursor-pointer overflow-hidden bg-gray-900/60 transition-colors">
+                    <img id="vault-image-preview" src="" class="hidden w-full h-full object-contain" alt="Vista previa">
+                    <div id="vault-image-placeholder" class="flex flex-col items-center gap-1.5 text-gray-500">
+                      <i data-lucide="upload" class="w-6 h-6"></i>
+                      <span class="text-xs font-semibold">Toca para elegir una imagen</span>
+                    </div>
+                  </div>
+                  <input type="text" id="vault-image-caption" maxlength="120" placeholder="Descripción o palabras clave (opcional)..." class="mt-2 w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 focus:border-[#faff00] outline-none text-white text-sm">
+                  <button onclick="window.saveVaultImageFromForm()" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-[#faff00]/15 hover:bg-[#faff00]/25 border border-[#faff00]/30 text-[#faff00] rounded-xl text-xs font-bold transition-colors">
+                    <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar imagen
+                  </button>
+                </div>
+              </div>
+
+              <!-- SECCIÓN: HISTORIAL -->
+              <div id="vault-tab-historial" class="hidden flex-col flex-1 min-h-0">
+                <div class="px-6 pt-4 pb-2 flex-shrink-0">
+                  <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="vault-search-input" oninput="window.filterVaultSearch(this.value)" placeholder="Buscar por palabra clave..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-3 py-2.5 focus:border-[#00f0ff] outline-none text-white text-sm">
+                  </div>
+                </div>
+                <div id="vault-history-list" class="px-6 pb-6 space-y-2 overflow-y-auto flex-1 min-h-0">
+                  <!-- Renderizado dinámico -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL: VISOR DE UN ELEMENTO DE LA BÓVEDA -->
+          <div id="vault-view-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[115] hidden opacity-0 transition-all duration-300">
+            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="vault-view-content">
+              <div class="flex justify-between items-start p-5 border-b border-gray-800">
+                <span id="vault-view-date" class="text-xs text-gray-500 font-semibold"></span>
+                <button onclick="window.closeVaultViewModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                  <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+              </div>
+              <div id="vault-view-body" class="p-5 max-h-[65vh] overflow-y-auto">
                 <!-- Renderizado dinámico -->
               </div>
             </div>
@@ -3027,6 +3157,12 @@
     let taskPendingCalendar = null;
     let stickyNotes = [];
     let stickyNotesTrash = []; // Notas eliminadas: se conservan aquí 3 meses antes de borrarse definitivamente
+    let vaultItems = []; // Bóveda privada: imágenes y textos guardados, protegidos con PIN
+    let vaultUnlocked = false;
+    let vaultActiveTab = 'guardar';
+    let vaultSearchTerm = '';
+    let vaultDraftImageData = null;
+    const VAULT_PIN = '2527';
     let editingNoteId = null;
     let creatingNewNote = false;
     let stickyNoteZCounter = 0; // Define qué nota queda "encima" al arrastrarla/editarla
@@ -3390,6 +3526,17 @@
         renderNotesTrash();
         purgeExpiredTrashNotes();
       }, (error) => console.error("Error cargando notas adhesivas:", error));
+
+      const qVaultItems = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems'));
+      onSnapshot(qVaultItems, (snapshot) => {
+        vaultItems = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        vaultItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        updateVaultBadge();
+        renderVaultHistory();
+      }, (error) => console.error("Error cargando la Bóveda:", error));
 
       startNotificationTicker();
     }
@@ -7961,6 +8108,24 @@
       await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
     }
 
+    // Registra una compra de la colección DieCast (mismo formato que usa el formulario manual,
+    // pero sin foto: la voz no puede capturar una imagen).
+    async function createKiaDiecast(amount, concept, account) {
+      const movementData = {
+        date: new Date().toISOString().split('T')[0],
+        type: 'diecast',
+        amount: amount || 0,
+        concept: concept,
+        accountId: account ? account.id : '',
+        account: account ? account.name : 'Efectivo',
+        subcategory: 'Colección DieCast',
+        subcategoryEmoji: '🚗',
+        photo: '',
+        timestamp: new Date().toISOString()
+      };
+      await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+    }
+
     async function createKiaTask(text, dateStr, timeStr) {
       const newTaskRef = await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'tasks'), {
         text: text,
@@ -8010,23 +8175,131 @@
       }
     }
 
+    // Quita del texto original (con acentos, tal cual lo dijo/escribió el usuario) la frase
+    // disparadora que Kia detectó, para quedarse solo con el contenido real. Prueba varios
+    // patrones (frases más largas primero) y si ninguno aplica, regresa el texto completo.
+    function stripKiaTrigger(text, patterns) {
+      for (const p of patterns) {
+        const cleaned = text.replace(p, '').trim();
+        if (cleaned && cleaned.toLowerCase() !== text.toLowerCase()) return cleaned;
+      }
+      return text;
+    }
+
+    // Limpieza específica para DieCast: quita verbos de compra, la palabra "diecast" y
+    // la frase de costo ("por 350 pesos"), dejando solo lo que realmente importa (ej. "Mustang").
+    // Si no queda nada útil, usa un nombre genérico en vez de guardar basura como concepto.
+    function cleanDiecastConcept(text) {
+      let s = text;
+      s = s.replace(/^(registra(me)?|anota(me)?|agrega(me)?|compr[eé]|me\s+compr[eé]|adquir[ií]|consegu[ií])\s*/i, '');
+      s = s.replace(/^(un|una|otro|otra)\s+/i, '');
+      s = s.replace(/\bdie\s*cast\b/gi, ' ');
+      s = s.replace(/\bque\s+(me\s+)?compr[eé](?=\s|$)/gi, ' ');
+      s = s.replace(/\b(por|de)\s+\$?\d[\d.,]*\s*(pesos|mxn|dolares|dólares|usd)?\b/gi, ' ');
+      s = s.replace(/\s{2,}/g, ' ').trim();
+      s = s.replace(/^(del|de|un|una|el|la)\s+/i, '');
+      s = s.trim();
+      if (!s || s.length < 2) s = 'Colección DieCast';
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
     // Punto de entrada que usa el micrófono inteligente de la mascota (ver <script> de Kia al final del archivo).
+    // Entiende lenguaje natural variado: "crea una nota...", "registra un evento...",
+    // "compré un diecast...", "recuérdame que...", gastos/ingresos/ahorros, etc.
     window.mascotHandleVoiceCommand = function (rawText) {
       const text = (rawText || '').trim();
       if (!text) return null;
       const t = stripAccentsKia(text).toLowerCase();
       const has = (arr) => arr.some(k => t.includes(k));
 
-      const isTask = has(['recuerdame', 'recuerda que', 'recordatorio', 'no olvides', 'tengo que', 'pendiente', 'tarea de', 'agregar tarea']);
-      const amount = findFirstAmountKia(t);
-      const isGasto = !isTask && amount !== null && has(['gaste', 'gasto', 'pague', 'pago de', 'compre', 'costo', 'salio en']);
-      const isIngreso = !isTask && !isGasto && amount !== null && has(['ingreso', 'recibi', 'cobre', 'deposito', 'deposite', 'me pagaron']);
-      const isAhorro = !isTask && !isGasto && !isIngreso && amount !== null && has(['ahorre', 'ahorro', 'guarde', 'aparte']);
-      const isExplicitNote = has(['anota', 'apunta', 'nota que', 'nota:']);
+      // ---- Bóveda privada: "abre la bóveda" solo la abre (pide PIN);
+      // "guarda/anota esto en la bóveda: ..." guarda el texto directo, sin exponer imágenes por voz.
+      const isVault = has(['boveda']);
+      if (isVault) {
+        const isOpenVault = has(['abre', 'abrir', 'abreme', 'muestra', 'entra', 'entrar']) && !has(['guarda', 'anota', 'apunta']);
+        if (isOpenVault) {
+          return {
+            type: 'boveda',
+            emoji: '🔐',
+            title: 'Bóveda Privada',
+            detail: 'Abrir la bóveda (te pediré tu PIN)',
+            save: async () => { window.openVaultPinModal(); return 'Aquí tienes, ingresa tu PIN 🔐'; }
+          };
+        }
+        const cleanVaultText = text.replace(/^.*?b[oó]veda\s*:?\s*/i, '').trim() || text;
+        return {
+          type: 'boveda',
+          emoji: '🔐',
+          title: 'Guardar en Bóveda',
+          detail: cleanVaultText,
+          save: async () => { await saveVaultTextItem(cleanVaultText, 'voz'); return '¡Guardado en tu Bóveda! 🔐'; }
+        };
+      }
 
-      if (isTask) {
+      // ---- DieCast: mencionar la palabra ya es una señal clara y específica de esta app,
+      // así que se reconoce con o sin monto (antes se perdía como nota suelta si no había número).
+      const isDiecast = has(['diecast', 'die cast', 'coleccion diecast']);
+
+      // ---- Evento / cita en el calendario ----
+      const isEvent = !isDiecast && has([
+        'evento', 'agendame', 'agenda una', 'agenda un', 'agenda para', 'agenda el',
+        'programa una', 'programa un', 'programame', 'cita con', 'cita de', 'cita el',
+        'registra un evento', 'registra una cita', 'crea un evento', 'crear evento',
+        'nuevo evento', 'agregar evento', 'anota un evento'
+      ]);
+
+      // ---- Tarea / recordatorio pendiente (sin ser un evento con fecha explícita) ----
+      const isReminder = !isDiecast && !isEvent && has([
+        'recuerdame', 'recuerda que', 'recordatorio', 'no olvides', 'tengo que',
+        'pendiente', 'tarea de', 'agregar tarea', 'crea una tarea', 'crear tarea',
+        'nueva tarea', 'agrega una tarea', 'agregame una tarea', 'anota una tarea'
+      ]);
+
+      const isTask = isEvent || isReminder;
+      const amount = findFirstAmountKia(t);
+      const isGasto = !isTask && !isDiecast && amount !== null && has(['gaste', 'gasto', 'pague', 'pago de', 'compre', 'costo', 'salio en']);
+      const isIngreso = !isTask && !isDiecast && !isGasto && amount !== null && has(['ingreso', 'recibi', 'cobre', 'deposito', 'deposite', 'me pagaron']);
+      const isAhorro = !isTask && !isDiecast && !isGasto && !isIngreso && amount !== null && has(['ahorre', 'ahorro', 'guarde', 'aparte']);
+      const isExplicitNote = !isTask && !isDiecast && has([
+        'anota', 'apunta', 'apuntame', 'nota que', 'nota de', 'nota:', 'crea una nota', 'crear nota',
+        'nueva nota', 'haz una nota', 'hazme una nota', 'agrega una nota', 'agregame una nota',
+        'guarda una nota', 'guardar nota', 'escribe una nota', 'escribeme una nota'
+      ]);
+
+      if (isDiecast) {
+        const account = findKiaAccount(t);
+        const cleanConcept = cleanDiecastConcept(text);
+        return {
+          type: 'diecast',
+          emoji: '🚗',
+          title: 'DieCast' + (amount !== null ? ': $' + amount.toFixed(2) : ' (sin monto)'),
+          detail: cleanConcept + (account ? ' · ' + account.name : ''),
+          save: async () => {
+            await createKiaDiecast(amount, cleanConcept, account);
+            return '¡Agregado a tu colección DieCast! 🚗';
+          }
+        };
+      }
+
+      if (isEvent) {
         const { dateStr, timeStr } = findKiaDateTime(t);
-        const cleanText = text.replace(/^(recu[eé]rdame( que)?|recordatorio( de)?|no olvides( que)?|tengo que)\s*/i, '').trim() || text;
+        const cleanText = stripKiaTrigger(text, [
+          /^(registra(me)?|crea(me)?|crear|agrega(me)?|programa(me)?|agenda(me)?|nuevo|nueva|anota(me)?)\s*(un|una|el|la)?\s*(evento|cita)\s*(de|del|para|con|el|:)?\s*/i
+        ]);
+        return {
+          type: 'evento',
+          emoji: '📅',
+          title: 'Evento',
+          detail: cleanText + (dateStr ? ` — ${dateStr}${timeStr ? ' ' + timeStr : ''}` : ' (sin fecha detectada)'),
+          save: async () => { await createKiaTask(cleanText, dateStr, timeStr); return '¡Listo! Tu evento quedó agendado 📅'; }
+        };
+      }
+
+      if (isReminder) {
+        const { dateStr, timeStr } = findKiaDateTime(t);
+        const cleanText = stripKiaTrigger(text, [
+          /^(recu[eé]rdame( que)?|recordatorio( de)?|no olvides( que)?|tengo que|crea(me)?( una)? tarea( de)?|agrega(me)?( una)? tarea( de)?|nueva tarea( de)?|anota(me)?( una)? tarea( de)?)\s*/i
+        ]);
         return {
           type: 'tarea',
           emoji: dateStr ? '⏰' : '✅',
@@ -8052,9 +8325,12 @@
         };
       }
 
-      // Cualquier otra cosa (incluye "anota"/"apunta" y todo lo no reconocido con certeza) se guarda como notita.
+      // Cualquier otra cosa (incluye "anota"/"apunta"/"crea una nota" y todo lo no
+      // reconocido con certeza) se guarda como notita.
       const noteText = isExplicitNote
-        ? (text.replace(/^(anota( que)?|apunta( que)?|apuntame( que)?|nota( que)?:?)\s*/i, '').trim() || text)
+        ? stripKiaTrigger(text, [
+            /^(anota(me)?( que| de)?|apunta(me)?( que| de)?|nota( que| de)?:?|crea(me)?( una)? nota( que| de)?:?|crear nota:?|nueva nota:?|haz(me)?( una)? nota( que| de)?:?|agrega(me)?( una)? nota( que| de)?:?|guarda(me)?( una)? nota( que| de)?:?|guardar nota:?|escribe(me)?( una)? nota( que| de)?:?)\s*/i
+          ])
         : text;
       return {
         type: 'nota',
@@ -8251,6 +8527,336 @@
     window.deleteNoteForever = deleteNoteForever;
     window.openNotesTrashModal = openNotesTrashModal;
     window.closeNotesTrashModal = closeNotesTrashModal;
+
+    // ==================== BÓVEDA PRIVADA ====================
+    // Espacio protegido con PIN para guardar imágenes y textos, con
+    // historial de búsqueda por palabra clave. También se puede abrir
+    // y alimentar por voz a través de Kia (ver mascotHandleVoiceCommand).
+    function updateVaultBadge() {
+      const badge = document.getElementById('vault-items-badge');
+      if (!badge) return;
+      if (vaultItems.length > 0) {
+        badge.textContent = vaultItems.length > 99 ? '99+' : vaultItems.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function openVaultPinModal() {
+      const modal = document.getElementById('vault-pin-modal');
+      const content = document.getElementById('vault-pin-content');
+      const input = document.getElementById('vault-pin-input');
+      const err = document.getElementById('vault-pin-error');
+      if (input) input.value = '';
+      if (err) err.classList.add('hidden');
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+          if (input) input.focus();
+        }, 10);
+      }
+    }
+
+    function closeVaultPinModal() {
+      const modal = document.getElementById('vault-pin-modal');
+      const content = document.getElementById('vault-pin-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+      }
+    }
+
+    function submitVaultPin(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('vault-pin-input');
+      const err = document.getElementById('vault-pin-error');
+      const val = input ? input.value.trim() : '';
+      if (val === VAULT_PIN) {
+        vaultUnlocked = true;
+        closeVaultPinModal();
+        openVaultModal();
+      } else {
+        if (err) err.classList.remove('hidden');
+        if (input) {
+          input.value = '';
+          input.focus();
+          input.classList.add('animate-pop');
+          setTimeout(() => input.classList.remove('animate-pop'), 300);
+        }
+      }
+      return false;
+    }
+
+    function openVaultModal() {
+      if (!vaultUnlocked) { openVaultPinModal(); return; }
+      const modal = document.getElementById('vault-modal');
+      const content = document.getElementById('vault-modal-content');
+      setVaultTab('guardar');
+      resetVaultForm();
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeVaultModal() {
+      const modal = document.getElementById('vault-modal');
+      const content = document.getElementById('vault-modal-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+      }
+    }
+
+    function setVaultTab(tab) {
+      vaultActiveTab = tab;
+      const guardarPanel = document.getElementById('vault-tab-guardar');
+      const historialPanel = document.getElementById('vault-tab-historial');
+      const btnGuardar = document.getElementById('vault-tab-btn-guardar');
+      const btnHistorial = document.getElementById('vault-tab-btn-historial');
+      const activeClasses = ['bg-[#7000ff]/20', 'text-[#00f0ff]', 'border', 'border-[#00f0ff]/30'];
+      const inactiveClasses = ['text-gray-400', 'hover:bg-gray-900'];
+      if (guardarPanel && historialPanel) {
+        guardarPanel.classList.toggle('hidden', tab !== 'guardar');
+        historialPanel.classList.toggle('hidden', tab !== 'historial');
+        historialPanel.classList.toggle('flex', tab === 'historial');
+      }
+      if (btnGuardar && btnHistorial) {
+        [btnGuardar, btnHistorial].forEach(b => { activeClasses.concat(inactiveClasses).forEach(c => b.classList.remove(c)); });
+        const activeBtn = tab === 'guardar' ? btnGuardar : btnHistorial;
+        const inactiveBtn = tab === 'guardar' ? btnHistorial : btnGuardar;
+        activeClasses.forEach(c => activeBtn.classList.add(c));
+        inactiveClasses.forEach(c => inactiveBtn.classList.add(c));
+      }
+      if (tab === 'historial') renderVaultHistory();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function resetVaultForm() {
+      const textInput = document.getElementById('vault-text-input');
+      const captionInput = document.getElementById('vault-image-caption');
+      const preview = document.getElementById('vault-image-preview');
+      const placeholder = document.getElementById('vault-image-placeholder');
+      const fileInput = document.getElementById('vault-image-input');
+      if (textInput) textInput.value = '';
+      if (captionInput) captionInput.value = '';
+      if (fileInput) fileInput.value = '';
+      if (preview) { preview.src = ''; preview.classList.add('hidden'); }
+      if (placeholder) placeholder.classList.remove('hidden');
+      vaultDraftImageData = null;
+    }
+
+    async function saveVaultTextItem(text, source) {
+      const clean = (text || '').trim();
+      if (!clean) return;
+      try {
+        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems'), {
+          type: 'text',
+          text: clean,
+          source: source || 'manual',
+          createdAt: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error("Error al guardar texto en la Bóveda:", error);
+      }
+    }
+
+    async function saveVaultImageItem(imageDataUrl, caption) {
+      if (!imageDataUrl) return;
+      try {
+        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems'), {
+          type: 'image',
+          image: imageDataUrl,
+          caption: (caption || '').trim(),
+          source: 'manual',
+          createdAt: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error("Error al guardar imagen en la Bóveda:", error);
+      }
+    }
+
+    function saveVaultTextFromForm() {
+      const input = document.getElementById('vault-text-input');
+      const val = input ? input.value.trim() : '';
+      if (!val) return;
+      saveVaultTextItem(val).then(() => {
+        if (input) input.value = '';
+        setVaultTab('historial');
+      });
+    }
+
+    function vaultHandleImageSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onerror = () => window.alert('No se pudo leer la imagen seleccionada. Intenta con otra foto.');
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onerror = () => window.alert('No se pudo procesar esta imagen. Intenta con otra foto.');
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxSize = 900;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+          } else {
+            if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          vaultDraftImageData = canvas.toDataURL('image/jpeg', 0.75);
+          const preview = document.getElementById('vault-image-preview');
+          const placeholder = document.getElementById('vault-image-placeholder');
+          if (preview && placeholder) {
+            preview.src = vaultDraftImageData;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+          }
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveVaultImageFromForm() {
+      if (!vaultDraftImageData) { window.alert('Primero elige una imagen.'); return; }
+      const captionInput = document.getElementById('vault-image-caption');
+      const caption = captionInput ? captionInput.value : '';
+      saveVaultImageItem(vaultDraftImageData, caption).then(() => {
+        resetVaultForm();
+        setVaultTab('historial');
+      });
+    }
+
+    function filterVaultSearch(value) {
+      vaultSearchTerm = (value || '').toLowerCase();
+      renderVaultHistory();
+    }
+
+    function vaultItemMatchesSearch(item, term) {
+      if (!term) return true;
+      const haystack = ((item.text || '') + ' ' + (item.caption || '')).toLowerCase();
+      return haystack.includes(term);
+    }
+
+    function renderVaultHistory() {
+      const list = document.getElementById('vault-history-list');
+      if (!list) return;
+      const filtered = vaultItems.filter(item => vaultItemMatchesSearch(item, vaultSearchTerm));
+
+      if (vaultItems.length === 0) {
+        list.innerHTML = '<p class="text-center text-sm text-gray-500 py-8">Tu Bóveda está vacía. Guarda tu primera imagen o texto.</p>';
+        return;
+      }
+      if (filtered.length === 0) {
+        list.innerHTML = '<p class="text-center text-sm text-gray-500 py-8">No hay resultados para tu búsqueda.</p>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(item => {
+        const dateLabel = item.createdAt ? new Date(item.createdAt).toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+        const preview = item.type === 'image'
+          ? `<img src="${item.image}" class="w-12 h-12 rounded-lg object-cover border border-gray-800 flex-shrink-0" alt="Imagen guardada">`
+          : `<div class="w-12 h-12 rounded-lg bg-[#00f0ff]/10 border border-[#00f0ff]/20 flex items-center justify-center flex-shrink-0"><i data-lucide="file-text" class="w-5 h-5 text-[#00f0ff]"></i></div>`;
+        const label = item.type === 'image' ? (item.caption || 'Imagen sin descripción') : item.text;
+        return `
+          <div class="flex items-center gap-3 bg-gray-900/50 border border-gray-800 rounded-xl p-2.5 hover:border-[#7000ff]/30 transition-colors">
+            <button onclick="window.viewVaultItem('${item.id}')" class="flex items-center gap-3 flex-1 min-w-0 text-left">
+              ${preview}
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-gray-200 truncate">${escapeVaultHtml(label)}</p>
+                <span class="text-[10px] text-gray-500">${dateLabel}</span>
+              </div>
+            </button>
+            <button onclick="window.deleteVaultItem('${item.id}')" class="p-1.5 text-gray-500 hover:text-rose-400 transition-colors flex-shrink-0" title="Eliminar">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function escapeVaultHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    function viewVaultItem(id) {
+      const item = vaultItems.find(v => v.id === id);
+      if (!item) return;
+      const modal = document.getElementById('vault-view-modal');
+      const content = document.getElementById('vault-view-content');
+      const body = document.getElementById('vault-view-body');
+      const dateEl = document.getElementById('vault-view-date');
+      if (dateEl) dateEl.textContent = item.createdAt ? new Date(item.createdAt).toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+      if (body) {
+        body.innerHTML = item.type === 'image'
+          ? `<img src="${item.image}" class="w-full rounded-xl border border-gray-800 mb-3" alt="Imagen guardada">${item.caption ? `<p class="text-sm text-gray-300">${escapeVaultHtml(item.caption)}</p>` : ''}`
+          : `<p class="text-sm text-gray-200 whitespace-pre-wrap">${escapeVaultHtml(item.text)}</p>`;
+      }
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+    }
+
+    function closeVaultViewModal() {
+      const modal = document.getElementById('vault-view-modal');
+      const content = document.getElementById('vault-view-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+      }
+    }
+
+    function deleteVaultItem(id) {
+      showConfirm(
+        "¿Eliminar de la Bóveda?",
+        "Este elemento se borrará por completo y no podrá recuperarse.",
+        async () => {
+          try {
+            await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems', id));
+          } catch (error) {
+            console.error("Error al eliminar elemento de la Bóveda:", error);
+          }
+        },
+        false
+      );
+    }
+
+    window.openVaultPinModal = openVaultPinModal;
+    window.closeVaultPinModal = closeVaultPinModal;
+    window.submitVaultPin = submitVaultPin;
+    window.openVaultModal = openVaultModal;
+    window.closeVaultModal = closeVaultModal;
+    window.setVaultTab = setVaultTab;
+    window.saveVaultTextFromForm = saveVaultTextFromForm;
+    window.vaultHandleImageSelect = vaultHandleImageSelect;
+    window.saveVaultImageFromForm = saveVaultImageFromForm;
+    window.filterVaultSearch = filterVaultSearch;
+    window.viewVaultItem = viewVaultItem;
+    window.closeVaultViewModal = closeVaultViewModal;
+    window.deleteVaultItem = deleteVaultItem;
+    window.saveVaultTextItem = saveVaultTextItem;
 
     async function moveTaskUp(id) {
       const idx = tasks.findIndex(t => t.id === id);
@@ -8482,7 +9088,10 @@
       { id: 'task-calendar-modal', closeFunc: closeTaskCalendarPrompt },
       { id: 'notes-trash-modal', closeFunc: closeNotesTrashModal },
       { id: 'calc-widget-modal', closeFunc: closeCalcWidgetModal },
-      { id: 'mascot-settings-modal', closeFunc: () => window.closeMascotSettingsModal && window.closeMascotSettingsModal() }
+      { id: 'mascot-settings-modal', closeFunc: () => window.closeMascotSettingsModal && window.closeMascotSettingsModal() },
+      { id: 'vault-pin-modal', closeFunc: () => window.closeVaultPinModal() },
+      { id: 'vault-modal', closeFunc: () => window.closeVaultModal() },
+      { id: 'vault-view-modal', closeFunc: () => window.closeVaultViewModal() }
     ];
 
     modalContainers.forEach(modal => {
@@ -8988,7 +9597,7 @@
         'profile-settings-modal', 'title-settings-modal', 'password-settings-modal',
         'confirm-modal', 'hover-images-modal', 'diecast-view-modal', 'category-summary-modal',
         'notification-settings-modal', 'task-calendar-modal', 'notes-trash-modal',
-        'calc-widget-modal', 'mascot-settings-modal'];
+        'calc-widget-modal', 'mascot-settings-modal', 'vault-pin-modal', 'vault-modal', 'vault-view-modal'];
       for (var i = 0; i < ids.length; i++) {
         var el = document.getElementById(ids[i]);
         if (el && !el.classList.contains('hidden')) return true;
