@@ -608,15 +608,17 @@
       width: 100%;
     }
 
-    /* Animación de destello para el día actual: amarillo neón */
+    /* Animación de destello para el día actual: el color lo define el usuario
+       (por defecto amarillo neón) y se inyecta vía las variables --today-*
+       desde renderCalendar(), igual que ya se hace con el color de las TDC. */
     @keyframes today-glow {
       0%, 100% {
-        box-shadow: 0 0 10px rgba(250, 255, 0, 0.4), 0 0 20px rgba(250, 255, 0, 0.2);
-        border-color: rgba(250, 255, 0, 0.6);
+        box-shadow: 0 0 10px var(--today-shadow-soft, rgba(250, 255, 0, 0.4)), 0 0 20px var(--today-shadow-mid, rgba(250, 255, 0, 0.2));
+        border-color: var(--today-border, rgba(250, 255, 0, 0.6));
       }
       50% {
-        box-shadow: 0 0 25px rgba(250, 255, 0, 0.9), 0 0 35px rgba(250, 255, 0, 0.55), 0 0 15px rgba(250, 255, 0, 0.3);
-        border-color: rgba(250, 255, 0, 0.95);
+        box-shadow: 0 0 25px var(--today-shadow-strong, rgba(250, 255, 0, 0.9)), 0 0 35px var(--today-shadow-strong2, rgba(250, 255, 0, 0.6)), 0 0 15px var(--today-shadow-soft, rgba(250, 255, 0, 0.3));
+        border-color: var(--today-border-strong, rgba(250, 255, 0, 0.95));
       }
     }
     .today-destello {
@@ -625,18 +627,18 @@
     }
 
     /* Cuando el día actual coincide con la fecha límite de pago de una TDC: el
-       destello alterna entre el amarillo neón de "hoy" y el color propio de la
+       destello alterna entre el color de "hoy" y el color propio de la
        tarjeta, para poder identificar ambas cosas en el mismo día sin que se
        mezclen en un solo tono confuso. Usa las mismas variables --due-* que ya
        se inyectan desde renderCalendar(). */
     @keyframes today-due-glow {
       0%, 100% {
-        box-shadow: 0 0 10px rgba(250, 255, 0, 0.45), 0 0 18px rgba(250, 255, 0, 0.2);
-        border-color: rgba(250, 255, 0, 0.65);
+        box-shadow: 0 0 10px var(--today-shadow-soft, rgba(250, 255, 0, 0.45)), 0 0 18px var(--today-shadow-mid, rgba(250, 255, 0, 0.2));
+        border-color: var(--today-border, rgba(250, 255, 0, 0.65));
       }
       25% {
-        box-shadow: 0 0 24px rgba(250, 255, 0, 0.95), 0 0 34px rgba(250, 255, 0, 0.55);
-        border-color: rgba(250, 255, 0, 0.95);
+        box-shadow: 0 0 24px var(--today-shadow-strong, rgba(250, 255, 0, 0.95)), 0 0 34px var(--today-shadow-strong2, rgba(250, 255, 0, 0.55));
+        border-color: var(--today-border-strong, rgba(250, 255, 0, 0.95));
       }
       50% {
         box-shadow: 0 0 10px var(--due-shadow-soft, rgba(255, 0, 127, 0.4)), 0 0 18px var(--due-shadow-mid, rgba(255, 0, 127, 0.2));
@@ -650,6 +652,14 @@
     .today-due-destello {
       opacity: 1;
       animation: today-due-glow 3s infinite ease-in-out;
+    }
+    /* Variante estática (sin parpadeo) del día de hoy + TDC, usada cuando el
+       usuario apaga los destellos de las TDC en Ajustes. Mantiene el color
+       visible pero sin animación. */
+    .today-due-static {
+      opacity: 1;
+      box-shadow: 0 0 10px var(--today-shadow-soft, rgba(250, 255, 0, 0.45)), 0 0 18px var(--today-shadow-mid, rgba(250, 255, 0, 0.2));
+      border-color: var(--today-border, rgba(250, 255, 0, 0.65));
     }
 
     /* Destello con color personalizado para recordar la fecha límite de pago
@@ -669,12 +679,21 @@
       opacity: 1;
       animation: due-glow 2s infinite ease-in-out;
     }
+    /* Variante estática (sin parpadeo) para cuando el usuario apaga los
+       destellos de las TDC en Ajustes: conserva el color e indicador, pero
+       sin la animación de brillo. */
+    .due-static {
+      opacity: 1;
+      box-shadow: 0 0 10px var(--due-shadow-soft, rgba(255, 0, 127, 0.4)), 0 0 18px var(--due-shadow-mid, rgba(255, 0, 127, 0.2));
+      border-color: var(--due-border, rgba(255, 0, 127, 0.6));
+    }
 
     /* Punto sutil que avisa que una tarjeta está por vencer (aparece dentro de
-       la ventana de aviso definida en renderCalendar). Es un pequeño halo
-       difuso que "respira" en opacidad, sin borde duro ni salto de escala,
-       para que se vea elegante y no invada la interfaz. Se posiciona en
-       absoluto para no mover ni empujar el resto del layout. */
+       la ventana de aviso definida en renderCalendar, solo si los destellos de
+       TDC están encendidos en Ajustes). Es un pequeño halo difuso que "respira"
+       en opacidad, sin borde duro ni salto de escala, para que se vea elegante
+       y no invada la interfaz. Se posiciona en absoluto para no mover ni
+       empujar el resto del layout. */
     @keyframes due-soon-glow {
       0%, 100% { opacity: 0.45; box-shadow: 0 0 3px 1px currentColor; }
       50% { opacity: 0.95; box-shadow: 0 0 8px 2px currentColor; }
@@ -686,9 +705,9 @@
       width: 6px;
       height: 6px;
       border-radius: 9999px;
-      animation: due-soon-glow 2.4s ease-in-out infinite;
       z-index: 6;
       pointer-events: none;
+      animation: due-soon-glow 2.4s ease-in-out infinite;
     }
 
     /* Tooltip instantáneo (sin el retraso nativo de "title" del navegador)
@@ -1271,7 +1290,7 @@
       background: linear-gradient(90deg, #00f0ff, #7000ff);
     }
 
-    /* ===== MICRÓFONO INTELIGENTE DE KIA (doble toque) ===== */
+    /* ===== MICRÓFONO INTELIGENTE DE KIA — estilo minimalista tipo Siri ===== */
     .kia-mic-overlay {
       position: fixed;
       inset: 0;
@@ -1280,11 +1299,12 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: radial-gradient(circle at 50% 30%, rgba(112,0,255,0.18), rgba(5,4,9,0.92) 65%);
-      backdrop-filter: blur(10px);
+      background: rgba(4, 3, 8, 0.78);
+      backdrop-filter: blur(28px) saturate(140%);
+      -webkit-backdrop-filter: blur(28px) saturate(140%);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.35s ease;
     }
     .kia-mic-overlay.kia-mic-visible {
       opacity: 1;
@@ -1294,183 +1314,231 @@
       position: absolute;
       top: max(18px, env(safe-area-inset-top));
       right: 18px;
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #f3f4f6;
-      font-size: 16px;
+      border: none;
+      color: rgba(255,255,255,0.55);
+      font-size: 14px;
       cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
     }
+    .kia-mic-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
     .kia-mic-panel {
-      width: min(340px, 92vw);
+      width: min(320px, 90vw);
+      max-height: 88vh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      transform: scale(0.92) translateY(10px);
+      transform: scale(0.94) translateY(8px);
       opacity: 0;
-      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1);
+      scrollbar-width: none;
     }
+    .kia-mic-panel::-webkit-scrollbar { display: none; }
     .kia-mic-overlay.kia-mic-visible .kia-mic-panel {
       transform: scale(1) translateY(0);
       opacity: 1;
     }
+
+    /* Halo único y suave alrededor del orbe: reemplaza los tres anillos
+       anteriores por un solo resplandor difuso que "respira", más limpio. */
     .kia-mic-orb-wrap {
       position: relative;
-      width: 132px;
-      height: 132px;
+      width: 128px;
+      height: 128px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 18px;
+      margin-bottom: 22px;
     }
     .kia-mic-ring {
       position: absolute;
-      inset: 0;
+      inset: -6px;
       border-radius: 50%;
-      border: 1.5px solid rgba(0, 240, 255, 0.4);
-      opacity: 0;
+      background: radial-gradient(circle, rgba(0,240,255,0.22), rgba(112,0,255,0.14) 55%, transparent 72%);
+      opacity: 0.85;
+      animation: kiaHaloBreathe 3.4s ease-in-out infinite;
     }
-    .kia-mic-overlay.kia-mic-visible .kia-mic-ring {
-      animation: kiaMicRingPulse 2.6s cubic-bezier(0.2,0.7,0.3,1) infinite;
+    @keyframes kiaHaloBreathe {
+      0%, 100% { transform: scale(0.94); opacity: 0.6; }
+      50% { transform: scale(1.14); opacity: 1; }
     }
-    .kia-mic-ring-2 { animation-delay: 0.5s !important; border-color: rgba(112,0,255,0.4); }
-    .kia-mic-ring-3 { animation-delay: 1s !important; border-color: rgba(255,0,127,0.35); }
-    @keyframes kiaMicRingPulse {
-      0% { transform: scale(0.7); opacity: 0.9; }
-      100% { transform: scale(1.55); opacity: 0; }
+    .kia-mic-overlay.kia-mic-listening .kia-mic-ring {
+      animation-duration: 1.5s;
+      background: radial-gradient(circle, rgba(255,0,127,0.28), rgba(0,240,255,0.16) 55%, transparent 72%);
     }
-    .kia-mic-overlay.kia-mic-listening .kia-mic-ring { animation-duration: 1.3s; }
+
+    /* Orbe: esfera translúcida con gradiente vivo (azul→violeta→rosa), como el
+       orbe de Siri, con un brillo interno sutil en la esquina superior. */
     .kia-mic-orb {
       position: relative;
-      width: 88px;
-      height: 88px;
+      width: 92px;
+      height: 92px;
       border-radius: 50%;
       border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at 35% 30%, #1a1330, #0b0d14 70%);
-      box-shadow: 0 0 20px rgba(0,240,255,0.35), 0 0 46px rgba(112,0,255,0.25), inset 0 0 14px rgba(0,240,255,0.15);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      animation: kiaMicOrbBreathe 3.2s ease-in-out infinite;
+      background:
+        radial-gradient(circle at 32% 26%, rgba(255,255,255,0.35), transparent 42%),
+        conic-gradient(from 0deg, #00f0ff, #7000ff, #ff007f, #00f0ff);
+      background-size: 100%, 220% 220%;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45), inset 0 0 18px rgba(255,255,255,0.08);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      animation: kiaOrbDrift 7s linear infinite, kiaOrbBreathe 3.2s ease-in-out infinite;
     }
     .kia-mic-orb:active { transform: scale(0.94); }
-    @keyframes kiaMicOrbBreathe {
+    @keyframes kiaOrbDrift {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+    @keyframes kiaOrbBreathe {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.045); }
+      50% { transform: scale(1.04); }
     }
     .kia-mic-overlay.kia-mic-listening .kia-mic-orb {
-      animation: kiaMicOrbListening 0.9s ease-in-out infinite;
-      box-shadow: 0 0 30px rgba(255,0,127,0.5), 0 0 60px rgba(0,240,255,0.35), inset 0 0 16px rgba(255,0,127,0.25);
+      animation: kiaOrbDrift 2.6s linear infinite, kiaOrbListening 0.85s ease-in-out infinite;
+      box-shadow: 0 8px 36px rgba(255,0,127,0.35), inset 0 0 20px rgba(255,255,255,0.12);
     }
-    @keyframes kiaMicOrbListening {
+    @keyframes kiaOrbListening {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.09); }
+      50% { transform: scale(1.08); }
     }
-    .kia-mic-orb-icon { font-size: 34px; filter: drop-shadow(0 0 8px rgba(0,240,255,0.6)); }
+    .kia-mic-orb-icon {
+      position: relative;
+      width: 30px;
+      height: 30px;
+      color: rgba(255,255,255,0.95);
+      filter: drop-shadow(0 1px 4px rgba(0,0,0,0.35));
+    }
+
+    /* Onda de voz minimalista: barras delgadas y parejas, sin recuadro. */
     .kia-mic-bars {
       display: none;
-      align-items: flex-end;
+      align-items: center;
       justify-content: center;
-      gap: 4px;
-      height: 30px;
-      margin-bottom: 10px;
+      gap: 5px;
+      height: 26px;
+      margin-bottom: 14px;
     }
     .kia-mic-overlay.kia-mic-listening .kia-mic-bars { display: flex; }
     .kia-mic-bars span {
       display: block;
-      width: 4px;
+      width: 3px;
       min-height: 4px;
       border-radius: 3px;
-      background: linear-gradient(180deg, #00f0ff, #7000ff);
+      background: linear-gradient(180deg, #00f0ff, #7000ff, #ff007f);
       transition: height 0.12s ease;
     }
+
     .kia-mic-status {
-      font-size: 13px;
-      font-weight: 600;
-      color: #d1d5db;
-      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: rgba(255,255,255,0.88);
+      margin: 0 0 4px;
       min-height: 18px;
     }
     .kia-mic-transcript {
-      font-size: 14.5px;
-      color: #f3f4f6;
-      min-height: 20px;
-      margin: 0 0 14px;
-      line-height: 1.4;
-      max-height: 70px;
+      font-size: 13.5px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.5);
+      min-height: 18px;
+      margin: 0 0 16px;
+      line-height: 1.45;
+      max-height: 64px;
       overflow-y: auto;
     }
+
+    /* Tarjeta de resultado / formulario: vidrio esmerilado, sin bordes duros. */
     .kia-mic-result {
       display: none;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(0,240,255,0.3);
-      border-radius: 16px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 14px;
       text-align: left;
     }
     .kia-mic-overlay.kia-mic-has-result .kia-mic-result { display: flex; }
-    .kia-mic-result-icon { font-size: 26px; flex-shrink: 0; }
-    .kia-mic-result-title { font-size: 13px; font-weight: 700; color: #00f0ff; margin: 0; }
-    .kia-mic-result-detail { font-size: 12.5px; color: #d1d5db; margin: 2px 0 0; word-break: break-word; }
+    .kia-mic-result-icon { font-size: 24px; flex-shrink: 0; }
+    .kia-mic-result-title { font-size: 13px; font-weight: 600; color: #fff; margin: 0; }
+    .kia-mic-result-detail { font-size: 12.5px; font-weight: 400; color: rgba(255,255,255,0.55); margin: 2px 0 0; word-break: break-word; }
+
     .kia-mic-result-actions {
       display: none;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     .kia-mic-overlay.kia-mic-has-result .kia-mic-result-actions { display: flex; }
     .kia-mic-result-actions button {
       flex: 1;
-      font-size: 12.5px;
-      font-weight: 700;
-      padding: 10px;
-      border-radius: 12px;
-      color: #d1d5db;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 11px;
+      border-radius: 999px;
+      color: rgba(255,255,255,0.75);
       background: rgba(255,255,255,0.06);
+      transition: background 0.2s ease, transform 0.15s ease;
     }
+    .kia-mic-result-actions button:active { transform: scale(0.97); }
     .kia-mic-result-actions button.primary {
       color: #050409;
       background: linear-gradient(90deg, #00f0ff, #7000ff);
+      font-weight: 700;
     }
+
     .kia-mic-textfallback {
       display: flex;
+      align-items: center;
       gap: 8px;
       width: 100%;
-      margin-top: 4px;
+      margin-top: 2px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 4px 4px 4px 16px;
     }
     .kia-mic-textfallback input {
       flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 12px;
-      padding: 10px 12px;
+      background: transparent;
+      border: none;
+      padding: 8px 0;
       font-size: 13px;
+      font-weight: 400;
       color: #f3f4f6;
       outline: none;
     }
-    .kia-mic-textfallback input:focus { border-color: rgba(0,240,255,0.5); }
+    .kia-mic-textfallback input::placeholder { color: rgba(255,255,255,0.35); }
     .kia-mic-textfallback button {
-      width: 40px;
-      border-radius: 12px;
-      background: linear-gradient(90deg, #00f0ff, #7000ff);
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00f0ff, #7000ff);
       color: #050409;
-      font-size: 15px;
+      font-size: 14px;
       border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .kia-mic-hint {
       font-size: 10.5px;
-      color: rgba(209,213,219,0.6);
-      margin: 12px 0 0;
-      line-height: 1.4;
+      font-weight: 400;
+      color: rgba(255,255,255,0.32);
+      margin: 14px 0 0;
+      line-height: 1.5;
     }
     .kia-mic-overlay.kia-mic-has-result .kia-mic-orb-wrap,
     .kia-mic-overlay.kia-mic-has-result .kia-mic-status,
@@ -1478,24 +1546,17 @@
     .kia-mic-overlay.kia-mic-has-result .kia-mic-textfallback,
     .kia-mic-overlay.kia-mic-has-result .kia-mic-hint { display: none; }
 
-    /* Panel con scroll cuando el formulario editable crece */
-    .kia-mic-panel {
-      max-height: 88vh;
-      overflow-y: auto;
-      padding-right: 2px;
-    }
-
     /* ===== Formulario editable de confirmación (nota/tarea/gasto/ingreso/ahorro/pago TC/diecast) ===== */
     .kia-mic-result-simple {
       display: none;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       width: 100%;
     }
     .kia-mic-edit-form {
       display: none;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       width: 100%;
     }
     .kia-mic-edit-header {
@@ -1506,47 +1567,51 @@
     }
     .kia-mic-edit-type {
       flex: 1;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(0,240,255,0.3);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #00f0ff;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fff;
       outline: none;
+      appearance: none;
+      -webkit-appearance: none;
     }
     .kia-mic-field {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
       width: 100%;
       text-align: left;
     }
     .kia-mic-field label {
-      font-size: 10.5px;
-      font-weight: 700;
-      color: rgba(209,213,219,0.75);
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.06em;
     }
     .kia-mic-field textarea,
     .kia-mic-field input,
     .kia-mic-field select {
       width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 12px;
-      padding: 9px 11px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 14px;
+      padding: 10px 12px;
       font-size: 13px;
+      font-weight: 400;
       color: #f3f4f6;
       outline: none;
       font-family: inherit;
       resize: none;
+      transition: border-color 0.2s ease;
     }
     .kia-mic-field textarea:focus,
     .kia-mic-field input:focus,
     .kia-mic-field select:focus {
-      border-color: rgba(0,240,255,0.5);
+      border-color: rgba(0,240,255,0.45);
     }
     .kia-mic-field-row {
       display: flex;
@@ -1700,6 +1765,9 @@
               </button>
               <button onclick="openNotificationSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#faff00]/10 rounded-xl transition-colors">
                 <i data-lucide="bell" class="w-4 h-4 text-[#faff00]"></i> Notificaciones Celular
+              </button>
+              <button onclick="openCalendarSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#faff00]/10 rounded-xl transition-colors">
+                <i data-lucide="calendar" class="w-4 h-4 text-[#faff00]"></i> Ajustes de Calendario
               </button>
               <button onclick="openPasswordSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#ff007f]/10 rounded-xl transition-colors">
                 <i data-lucide="key" class="w-4 h-4 text-[#ff007f]"></i> Contraseña de Bóveda
@@ -2973,6 +3041,51 @@
     </div>
   </div>
 
+  <!-- MODAL DE AJUSTES DE CALENDARIO -->
+  <div id="calendar-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="calendar-settings-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="calendar" class="text-[#faff00] w-5 h-5"></i>
+          <span class="text-white">Ajustes de Calendario</span>
+        </h3>
+        <button onclick="closeCalendarSettingsModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3 space-y-2.5">
+          <div>
+            <p class="text-xs font-bold text-white">Color del destello de "Hoy"</p>
+            <p class="text-[10px] text-gray-500">El color con el que brilla el día actual en el calendario</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input type="color" id="today-glow-color-input" value="#faff00"
+              oninput="previewTodayGlowColor(this.value)"
+              onchange="saveTodayGlowColor(this.value)"
+              class="h-10 w-14 bg-gray-950 border border-gray-800 rounded-xl cursor-pointer p-1">
+            <span class="text-[11px] text-gray-400">Toca el color para elegir uno nuevo</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3">
+          <div>
+            <p class="text-xs font-bold text-white">Destellos de TDC</p>
+            <p class="text-[10px] text-gray-500">Enciende o apaga el parpadeo de las fechas límite de pago</p>
+          </div>
+          <button id="tdc-glow-toggle-btn" onclick="toggleTdcGlow()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff] shrink-0 ml-3">
+            <span id="tdc-glow-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+          </button>
+        </div>
+
+        <p class="text-[11px] text-gray-400 leading-relaxed">
+          Al apagar los destellos, las fechas de pago de tus tarjetas se siguen marcando con su color, solo dejan de parpadear.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL DE AJUSTES DE CONTRASEÑA -->
   <div id="password-settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden opacity-0 transition-all duration-300">
     <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 w-full max-w-sm overflow-hidden transform scale-95 transition-all duration-300" id="password-settings-content">
@@ -3253,6 +3366,9 @@
     let vaultDraftImageData = null;
     let vaultViewItemId = null; // id del elemento actualmente abierto en el visor de la Bóveda
     let vaultEditImageData = null; // nueva imagen elegida al editar (si el usuario la reemplaza)
+    // Ajustes visuales del calendario: color del destello del día de hoy y si
+    // se muestran (o no) los destellos/parpadeos de las fechas límite de TDC.
+    let calendarSettings = { todayGlowColor: '#faff00', tdcGlowEnabled: true };
     const VAULT_PIN = '2527';
     let editingNoteId = null;
     let creatingNewNote = false;
@@ -3668,6 +3784,20 @@
           applyThemeMode('dark');
         }
       }, (error) => console.error("Error sincronizando tema:", error));
+
+      const calendarSettingsDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'calendar');
+      onSnapshot(calendarSettingsDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          calendarSettings.todayGlowColor = data.todayGlowColor || '#faff00';
+          calendarSettings.tdcGlowEnabled = (typeof data.tdcGlowEnabled === 'boolean') ? data.tdcGlowEnabled : true;
+        } else {
+          calendarSettings.todayGlowColor = '#faff00';
+          calendarSettings.tdcGlowEnabled = true;
+        }
+        updateCalendarSettingsUI();
+        renderCalendar();
+      }, (error) => console.error("Error sincronizando ajustes del calendario:", error));
       
       const imagesDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'hoverImages');
       onSnapshot(imagesDocRef, async (docSnap) => {
@@ -3774,6 +3904,78 @@
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
+    // ==================== AJUSTES VISUALES DEL CALENDARIO ====================
+    function openCalendarSettingsModal() {
+      updateCalendarSettingsUI();
+      const modalElement = document.getElementById('calendar-settings-modal');
+      const content = document.getElementById('calendar-settings-content');
+      if (modalElement && content) {
+        modalElement.classList.remove('hidden');
+        setTimeout(() => {
+          modalElement.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
+      }
+      const dropdown = document.getElementById('profile-dropdown-menu');
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    function closeCalendarSettingsModal() {
+      const modalElement = document.getElementById('calendar-settings-modal');
+      const content = document.getElementById('calendar-settings-content');
+      if (modalElement && content) {
+        modalElement.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modalElement.classList.add('hidden'), 300);
+      }
+    }
+
+    // Refleja calendarSettings en los controles del modal (color y switch).
+    function updateCalendarSettingsUI() {
+      const colorInput = document.getElementById('today-glow-color-input');
+      if (colorInput) colorInput.value = calendarSettings.todayGlowColor || '#faff00';
+      const toggleBtn = document.getElementById('tdc-glow-toggle-btn');
+      const toggleDot = document.getElementById('tdc-glow-toggle-dot');
+      if (toggleBtn) toggleBtn.classList.toggle('bg-[#7000ff]', !!calendarSettings.tdcGlowEnabled);
+      if (toggleBtn) toggleBtn.classList.toggle('bg-gray-700', !calendarSettings.tdcGlowEnabled);
+      if (toggleDot) toggleDot.classList.toggle('translate-x-5', !!calendarSettings.tdcGlowEnabled);
+      if (toggleDot) toggleDot.classList.toggle('translate-x-0', !calendarSettings.tdcGlowEnabled);
+    }
+
+    // Vista previa instantánea mientras el usuario elige el color (no guarda todavía).
+    function previewTodayGlowColor(value) {
+      calendarSettings.todayGlowColor = value;
+      renderCalendar();
+    }
+
+    // Guarda en Firestore el color elegido para el destello del día de hoy.
+    async function saveTodayGlowColor(value) {
+      calendarSettings.todayGlowColor = value;
+      renderCalendar();
+      try {
+        await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'calendar'), {
+          todayGlowColor: value
+        }, { merge: true });
+      } catch (error) {
+        console.error("Error al guardar el color del día de hoy:", error);
+      }
+    }
+
+    // Enciende/apaga los destellos (parpadeos) de las fechas límite de TDC.
+    async function toggleTdcGlow() {
+      const newValue = !calendarSettings.tdcGlowEnabled;
+      calendarSettings.tdcGlowEnabled = newValue;
+      updateCalendarSettingsUI();
+      renderCalendar();
+      try {
+        await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'calendar'), {
+          tdcGlowEnabled: newValue
+        }, { merge: true });
+      } catch (error) {
+        console.error("Error al guardar el ajuste de destellos de TDC:", error);
+      }
+    }
+
     function renderCalendar() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
@@ -3825,16 +4027,19 @@
         
         const btn = document.createElement('button');
         btn.onclick = () => window.openModal(dateStr);
-        
+
+        const tdcGlowOn = calendarSettings.tdcGlowEnabled !== false;
+        const todayColor = calendarSettings.todayGlowColor || '#faff00';
+
         let baseClass = `relative h-24 md:h-28 rounded-[2.5rem] border flex flex-col justify-between items-center p-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer animate-pop `;
         if (isSelected) {
           baseClass += 'student-highlight';
         } else if (isToday && dueAccountsToday.length > 0) {
-          baseClass += 'bg-[#faff00]/10 text-[#faff00] font-bold today-due-destello';
+          baseClass += 'font-bold ' + (tdcGlowOn ? 'today-due-destello' : 'today-due-static');
         } else if (dueAccountsToday.length > 0) {
-          baseClass += 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 due-destello';
+          baseClass += 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 ' + (tdcGlowOn ? 'due-destello' : 'due-static');
         } else if (isToday) {
-          baseClass += 'bg-[#faff00]/10 border-[#faff00]/50 text-[#faff00] font-bold today-destello';
+          baseClass += 'font-bold today-destello';
         } else {
           baseClass += 'bg-gray-900/40 border-gray-800/80 text-gray-300 hover:border-gray-500 hover:bg-gray-800/60';
         }
@@ -3851,6 +4056,20 @@
           btn.style.setProperty('--due-border-strong', hexToRgba(dueColor, 0.95));
         }
 
+        if (isToday && !isSelected) {
+          btn.style.setProperty('--today-shadow-soft', hexToRgba(todayColor, 0.4));
+          btn.style.setProperty('--today-shadow-mid', hexToRgba(todayColor, 0.2));
+          btn.style.setProperty('--today-shadow-strong', hexToRgba(todayColor, 0.9));
+          btn.style.setProperty('--today-shadow-strong2', hexToRgba(todayColor, 0.6));
+          btn.style.setProperty('--today-border', hexToRgba(todayColor, 0.6));
+          btn.style.setProperty('--today-border-strong', hexToRgba(todayColor, 0.95));
+          btn.style.backgroundColor = hexToRgba(todayColor, 0.1);
+          btn.style.color = todayColor;
+          if (dueAccountsToday.length === 0) {
+            btn.style.borderColor = hexToRgba(todayColor, 0.5);
+          }
+        }
+
         let innerHTML = `<span class="text-xl md:text-2xl font-black tracking-tight w-full text-center mt-1 drop-shadow-sm">${day}</span>`;
 
         if (dueAccountsToday.length > 0) {
@@ -3860,8 +4079,9 @@
         // Globito pequeño y parpadeante: aparece desde 5 días antes de la fecha
         // límite de pago hasta el propio día de pago. No mueve la interfaz
         // (posición absoluta) y el tooltip aparece de inmediato al pasar el
-        // cursor, sin el retraso nativo del navegador.
-        if (dueSoonAccounts.length > 0) {
+        // cursor, sin el retraso nativo del navegador. Si el usuario apagó los
+        // destellos de TDC en Ajustes, este aviso también se apaga por completo.
+        if (dueSoonAccounts.length > 0 && tdcGlowOn) {
           const bubbleColor = dueSoonAccounts[0].paymentDueColor;
           const tooltipLines = dueSoonAccounts.map(a => {
             const who = `${a.emoji || '💳'} ${a.name}`;
@@ -6806,12 +7026,22 @@
     }
 
     const movementForm = document.getElementById('movement-form');
+    let isSubmittingMovement = false; // Evita duplicados si el usuario toca "Guardar" dos veces seguidas
     if (movementForm) {
       movementForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!selectedDateStr) return;
+        if (isSubmittingMovement) return; // Ya se está guardando: ignora el segundo toque/submit
 
-        const amountInput = document.getElementById('form-amount');
+        const saveBtn = document.getElementById('btn-save-movement');
+        isSubmittingMovement = true;
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        }
+
+        try {
+          const amountInput = document.getElementById('form-amount');
         const conceptInput = document.getElementById('form-concept');
         const subcatIdInput = document.getElementById('form-subcategory');
         const accountIdInput = document.getElementById('form-account');
@@ -6932,6 +7162,13 @@
         } catch (error) {
           console.error("Error al guardar/actualizar:", error);
           window.alert('No se pudo guardar el registro. Si subiste una foto, prueba con una imagen más pequeña o de menor calidad e inténtalo de nuevo.');
+        }
+        } finally {
+          isSubmittingMovement = false;
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
         }
       });
     }
@@ -8094,7 +8331,18 @@
     }
 
     function findFirstAmountKia(text) {
-      const matches = text.match(/\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d+/g);
+      // Antes: /\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?|\d+/g
+      // Esa primera alternativa (con el * en vez de +) hacía match parcial en números
+      // sin separador de miles: para "1500" el motor de regex encontraba "150" como
+      // coincidencia válida (3 dígitos + cero repeticiones del grupo de miles) y se
+      // quedaba con eso, sin intentar la segunda alternativa "\d+" que sí habría
+      // capturado el número completo. Resultado: cualquier cifra de 4+ dígitos sin
+      // comas se guardaba truncada a sus primeros 3 dígitos.
+      // Ahora: la primera alternativa exige AL MENOS un grupo de miles (el + en vez
+      // de *), así que solo aplica a números realmente separados por comas/puntos
+      // (ej. "1,500" o "12.500,50"); cualquier otro número entero, sin importar su
+      // longitud, cae en la segunda alternativa y se captura completo.
+      const matches = text.match(/\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?/g);
       if (!matches || !matches.length) return null;
       let raw = matches[0];
       if (raw.includes(',') && raw.includes('.')) {
@@ -8133,9 +8381,29 @@
       return null;
     }
 
+    // Palabras genéricas que no ayudan a distinguir una cuenta de otra (para que
+    // "mi tarjeta de crédito" no compita por puntos contra el nombre real de la cuenta).
+    const KIA_ACCOUNT_STOPWORDS = ['de', 'la', 'el', 'los', 'las', 'mi', 'mis', 'con', 'tarjeta', 'cuenta', 'banco', 'del'];
+
     function findKiaAccount(t) {
-      const found = accounts.find(a => t.includes(stripAccentsKia(a.name).toLowerCase()));
-      if (found) return found;
+      // 1) Coincidencia exacta: el nombre completo de la cuenta aparece tal cual.
+      const exact = accounts.find(a => t.includes(stripAccentsKia(a.name).toLowerCase()));
+      if (exact) return exact;
+
+      // 2) Coincidencia parcial: el usuario solo dijo una palabra distintiva del
+      // nombre (ej. "con mi tarjeta Nu" cuando la cuenta se llama "Nu Bank Crédito").
+      // Antes, si no se decía el nombre completo, la cuenta se "cortaba" y se perdía
+      // sin más — ahora se busca la cuenta con más palabras propias mencionadas.
+      let best = null;
+      let bestScore = 0;
+      accounts.forEach(a => {
+        const words = stripAccentsKia(a.name).toLowerCase().split(/\s+/).filter(w => w.length >= 3 && !KIA_ACCOUNT_STOPWORDS.includes(w));
+        let score = 0;
+        words.forEach(w => { if (t.includes(w)) score++; });
+        if (score > bestScore) { bestScore = score; best = a; }
+      });
+      if (best) return best;
+
       return accounts.find(a => a.isDefault) || accounts[0] || null;
     }
 
@@ -8305,6 +8573,8 @@
       s = s.replace(/^(registra(me)?|anota(me)?|agrega(me)?|compr[eé]|me\s+compr[eé]|adquir[ií]|consegu[ií])\s*/i, '');
       s = s.replace(/^(un|una|otro|otra)\s+/i, '');
       s = s.replace(/\bdie\s*cast\b/gi, ' ');
+      s = s.replace(/\bdai\s*cast\b/gi, ' ');
+      s = s.replace(/\bcasting\b/gi, ' ');
       s = s.replace(/\bque\s+(me\s+)?compr[eé](?=\s|$)/gi, ' ');
       s = s.replace(/\b(por|de)\s+\$?\d[\d.,]*\s*(pesos|mxn|dolares|dólares|usd)?\b/gi, ' ');
       s = s.replace(/\s{2,}/g, ' ').trim();
@@ -8399,7 +8669,11 @@
 
       // ---- DieCast: mencionar la palabra ya es una señal clara y específica de esta app,
       // así que se reconoce con o sin monto (antes se perdía como nota suelta si no había número).
-      const isDiecast = has(['diecast', 'die cast', 'coleccion diecast']);
+      // "Diecast" no es una palabra en español, así que el reconocimiento de voz suele
+      // transcribirla como algo fonéticamente parecido — sobre todo "casting" (palabra
+      // común que sí reconoce), o partida/mal pronunciada como "dai cast"/"daicast".
+      // Se incluyen esas variantes para que no se pierda ni se confunda con un Gasto.
+      const isDiecast = has(['diecast', 'die cast', 'dai cast', 'daicast', 'coleccion diecast', 'casting']);
 
       // ---- Evento / cita en el calendario ----
       const isEvent = !isDiecast && has([
@@ -9367,6 +9641,7 @@
       { id: 'diecast-view-modal', closeFunc: closeDiecastView },
       { id: 'category-summary-modal', closeFunc: closeCategorySummaryModal },
       { id: 'notification-settings-modal', closeFunc: closeNotificationSettingsModal },
+      { id: 'calendar-settings-modal', closeFunc: closeCalendarSettingsModal },
       { id: 'task-calendar-modal', closeFunc: closeTaskCalendarPrompt },
       { id: 'notes-trash-modal', closeFunc: closeNotesTrashModal },
       { id: 'calc-widget-modal', closeFunc: closeCalcWidgetModal },
@@ -9433,6 +9708,11 @@
     window.closeCategorySummaryModal = closeCategorySummaryModal;
     window.openNotificationSettingsModal = openNotificationSettingsModal;
     window.closeNotificationSettingsModal = closeNotificationSettingsModal;
+    window.openCalendarSettingsModal = openCalendarSettingsModal;
+    window.closeCalendarSettingsModal = closeCalendarSettingsModal;
+    window.previewTodayGlowColor = previewTodayGlowColor;
+    window.saveTodayGlowColor = saveTodayGlowColor;
+    window.toggleTdcGlow = toggleTdcGlow;
     window.openCalcWidgetModal = openCalcWidgetModal;
     window.closeCalcWidgetModal = closeCalcWidgetModal;
 
@@ -9473,15 +9753,13 @@
     <button type="button" class="kia-mic-close" onclick="window.closeSmartMic()" aria-label="Cerrar">✕</button>
     <div class="kia-mic-panel">
       <div class="kia-mic-orb-wrap">
-        <div class="kia-mic-ring kia-mic-ring-1"></div>
-        <div class="kia-mic-ring kia-mic-ring-2"></div>
-        <div class="kia-mic-ring kia-mic-ring-3"></div>
+        <div class="kia-mic-ring"></div>
         <button type="button" id="kia-mic-orb" class="kia-mic-orb" onclick="window.toggleSmartMicListening()" aria-label="Hablar con Kia">
-          <span class="kia-mic-orb-icon">🎙️</span>
+          <i data-lucide="mic" class="kia-mic-orb-icon"></i>
         </button>
       </div>
       <div id="kia-mic-bars" class="kia-mic-bars">
-        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
       </div>
       <p id="kia-mic-status" class="kia-mic-status">Toca el micrófono y pídeme algo...</p>
       <p id="kia-mic-transcript" class="kia-mic-transcript"></p>
@@ -9556,7 +9834,7 @@
 
       <div class="kia-mic-textfallback">
         <input type="text" id="kia-mic-text-input" placeholder="O escribe aquí lo que necesitas..." maxlength="300">
-        <button type="button" onclick="window.submitSmartMicText()" aria-label="Enviar">➤</button>
+        <button type="button" onclick="window.submitSmartMicText()" aria-label="Enviar"><i data-lucide="arrow-up" style="width:16px;height:16px;"></i></button>
       </div>
 
       <p class="kia-mic-hint">Ej: "gasté 150 en tacos", "recuérdame pagar la renta mañana a las 9am", "ahorré 500 para el viaje"</p>
@@ -9970,7 +10248,8 @@
         'profile-settings-modal', 'title-settings-modal', 'password-settings-modal',
         'confirm-modal', 'hover-images-modal', 'diecast-view-modal', 'category-summary-modal',
         'notification-settings-modal', 'task-calendar-modal', 'notes-trash-modal',
-        'calc-widget-modal', 'mascot-settings-modal', 'vault-pin-modal', 'vault-modal', 'vault-view-modal'];
+        'calc-widget-modal', 'mascot-settings-modal', 'vault-pin-modal', 'vault-modal', 'vault-view-modal',
+        'calendar-settings-modal'];
       for (var i = 0; i < ids.length; i++) {
         var el = document.getElementById(ids[i]);
         if (el && !el.classList.contains('hidden')) return true;
