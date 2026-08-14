@@ -1598,6 +1598,64 @@
     }
     .kia-mic-query-actions button:active { transform: scale(0.97); }
 
+    /* ===== Modo error: no se entendió lo que se dijo (habla poco clara, error del
+       micrófono, etc.). Reusa la vista simple (icono + título + detalle) con un
+       tono rojizo, y dos botones: Cerrar o Reintentar (vuelve a escuchar). ===== */
+    .kia-mic-overlay.kia-mic-error-mode .kia-mic-result-title { color: #ff5e7e; }
+    .kia-mic-overlay.kia-mic-error-mode .kia-mic-result { border-color: rgba(255,94,126,0.25); }
+    .kia-mic-error-actions {
+      display: none;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .kia-mic-overlay.kia-mic-error-mode .kia-mic-error-actions { display: flex; }
+    .kia-mic-overlay.kia-mic-error-mode .kia-mic-result-actions,
+    .kia-mic-overlay.kia-mic-error-mode .kia-mic-query-actions { display: none !important; }
+    .kia-mic-error-actions button {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 11px;
+      border-radius: 999px;
+      color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.06);
+      transition: transform 0.15s ease;
+    }
+    .kia-mic-error-actions button:active { transform: scale(0.97); }
+    .kia-mic-error-actions button.primary {
+      color: #050409;
+      background: linear-gradient(90deg, #ff5e7e, #ff007f);
+      font-weight: 700;
+    }
+
+    /* Aviso de "no estoy muy segura" cuando Kia no reconoció ningún tipo claro y
+       guardó lo dicho como nota de todos modos (para no perder nada), avisando
+       antes de que el usuario confirme guardar. */
+    .kia-mic-warning-banner {
+      display: none;
+      width: 100%;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #ffb347;
+      background: rgba(255,179,71,0.1);
+      border: 1px solid rgba(255,179,71,0.25);
+      border-radius: 12px;
+      padding: 9px 11px;
+      line-height: 1.4;
+    }
+
+    /* Pequeño "shake" rojo cuando se intenta guardar sin texto en el campo editable. */
+    @keyframes kiaFieldShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    .kia-mic-field-error {
+      border-color: #ff5e7e !important;
+      animation: kiaFieldShake 0.3s ease;
+    }
+
     /* ===== Formulario editable de confirmación (nota/tarea/gasto/ingreso/ahorro/pago TC/diecast) ===== */
     .kia-mic-result-simple {
       display: none;
@@ -9011,8 +9069,31 @@
         };
       }
 
+      // ---- Habla poco clara: si lo que se transcribió es puro "eh", "um", ruido, o
+      // quedó vacío tras limpiar acentos, no tiene caso adivinar y guardar cualquier
+      // cosa como nota — es mejor avisarle al usuario (con voz) que no se entendió.
+      function looksLikeUnclearSpeech(str) {
+        const words = str.trim().split(/\s+/).filter(Boolean);
+        if (!words.length) return true;
+        const FILLERS = ['eh', 'ehh', 'este', 'esto', 'um', 'uh', 'uhh', 'mmm', 'mm', 'o', 'sea', 'osea', 'pues', 'aja', 'oye', 'oiga', 'ay'];
+        const meaningful = words.filter(w => w.length >= 2 && !FILLERS.includes(w));
+        return meaningful.length === 0;
+      }
+      if (!isExplicitNote && looksLikeUnclearSpeech(t)) {
+        return {
+          type: 'error',
+          emoji: '❓',
+          title: 'No entendí bien',
+          detail: 'No logré entender "' + text + '". ¿Puedes repetirlo o escribirlo abajo?',
+          speak: 'No logré entender bien lo que dijiste. ¿Puedes repetirlo o escribirlo?'
+        };
+      }
+
       // Cualquier otra cosa (incluye "anota"/"apunta"/"crea una nota" y todo lo no
-      // reconocido con certeza) se guarda como notita.
+      // reconocido con certeza) se guarda como notita. Si NO fue un "anota"/"apunta"
+      // explícito, es una suposición de Kia (no encontró ningún otro tipo que
+      // encajara) — se marca como poco segura para avisar al usuario por voz y con
+      // un aviso visual antes de que confirme guardar.
       const noteText = isExplicitNote
         ? stripKiaTrigger(text, [
             /^(anota(me)?( que| de)?|apunta(me)?( que| de)?|nota( que| de)?:?|crea(me)?( una)? nota( que| de)?:?|crear nota:?|nueva nota:?|haz(me)?( una)? nota( que| de)?:?|agrega(me)?( una)? nota( que| de)?:?|guarda(me)?( una)? nota( que| de)?:?|guardar nota:?|escribe(me)?( una)? nota( que| de)?:?)\s*/i
@@ -9021,8 +9102,10 @@
       return {
         type: 'nota',
         emoji: '📝',
-        title: 'Nota',
+        title: isExplicitNote ? 'Nota' : 'Nota (no muy segura)',
         detail: noteText,
+        lowConfidence: !isExplicitNote,
+        speak: isExplicitNote ? null : 'No estoy muy segura de haber entendido, así que lo guardé como nota. Revisa que esté bien antes de guardar.',
         fields: { text: noteText, amount: 0, subcategoryName: '', accountId: '', toAccountId: '', dateStr: '', timeStr: '' }
       };
     };
@@ -9466,9 +9549,6 @@
                 <span class="text-[10px] text-gray-500">${dateLabel}</span>
               </div>
             </button>
-            <button onclick="window.editVaultItemFromList('${item.id}')" class="p-1.5 text-gray-500 hover:text-[#00f0ff] transition-colors flex-shrink-0" title="Editar">
-              <i data-lucide="pencil" class="w-4 h-4"></i>
-            </button>
             <button onclick="window.deleteVaultItem('${item.id}')" class="p-1.5 text-gray-500 hover:text-rose-400 transition-colors flex-shrink-0" title="Eliminar">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
@@ -9551,13 +9631,6 @@
       if (!item) return;
       setVaultViewEditingUI(true);
       renderVaultViewBody(item, true);
-    }
-
-    // Acceso rápido desde el listado: abre el visor de un registro y entra directo
-    // en modo edición, sin que el usuario tenga que pulsar "Editar" dos veces.
-    function editVaultItemFromList(id) {
-      viewVaultItem(id);
-      startEditVaultItem();
     }
 
     // Descarta los cambios sin editar y vuelve al modo lectura con el valor original.
@@ -9672,7 +9745,6 @@
     window.deleteVaultItem = deleteVaultItem;
     window.saveVaultTextItem = saveVaultTextItem;
     window.startEditVaultItem = startEditVaultItem;
-    window.editVaultItemFromList = editVaultItemFromList;
     window.cancelEditVaultItem = cancelEditVaultItem;
     window.saveEditVaultItem = saveEditVaultItem;
     window.vaultEditHandleImageSelect = vaultEditHandleImageSelect;
@@ -10040,6 +10112,7 @@
         <!-- Formulario editable: se muestra siempre antes de guardar (salvo Bóveda),
              para poder corregir cuenta, monto, categoría, si es pago de TDC, etc. -->
         <div id="kia-mic-edit-form" class="kia-mic-edit-form">
+          <div id="kia-mic-warning-banner" class="kia-mic-warning-banner"></div>
           <div class="kia-mic-edit-header">
             <select id="kia-mic-edit-type" class="kia-mic-edit-type" onchange="window.onSmartMicTypeChange()">
               <option value="nota">📝 Nota</option>
@@ -10100,6 +10173,10 @@
       </div>
       <div id="kia-mic-query-actions" class="kia-mic-query-actions">
         <button type="button" class="primary" onclick="window.closeSmartMicQuery()">Cerrar</button>
+      </div>
+      <div id="kia-mic-error-actions" class="kia-mic-error-actions">
+        <button type="button" onclick="window.closeSmartMicQuery()">Cerrar</button>
+        <button type="button" class="primary" onclick="window.retrySmartMicListening()">Reintentar</button>
       </div>
 
       <div class="kia-mic-textfallback">
@@ -10919,11 +10996,23 @@
       };
       micRecognition.onerror = function (e) {
         stopMicListeningUI();
-        if (micStatusEl) {
-          micStatusEl.textContent = (e && e.error === 'not-allowed')
-            ? 'Necesito permiso del micrófono 🎙️'
-            : 'No te escuché bien, intenta de nuevo o escribe abajo';
+        var code = e && e.error;
+        var msg;
+        if (code === 'not-allowed' || code === 'permission-denied' || code === 'service-not-allowed') {
+          msg = 'Necesito permiso para usar el micrófono. Revisa los permisos de tu navegador.';
+        } else if (code === 'no-speech') {
+          msg = 'No escuché nada. Intenta de nuevo, más cerca del micrófono.';
+        } else if (code === 'audio-capture') {
+          msg = 'No encontré un micrófono disponible en este dispositivo.';
+        } else if (code === 'network') {
+          msg = 'Hubo un problema de conexión. Intenta de nuevo.';
+        } else if (code === 'aborted') {
+          return; // El usuario mismo canceló (ej. tocó el orbe de nuevo); no hace falta avisar.
+        } else {
+          msg = 'No te escuché bien. Intenta de nuevo o escribe abajo.';
         }
+        if (micStatusEl) micStatusEl.textContent = msg;
+        speakMascotText(msg);
       };
       micRecognition.onend = function () {
         stopMicListeningUI();
@@ -10981,7 +11070,9 @@
       setTimeout(function () {
         var result = (typeof window.mascotHandleVoiceCommand === 'function') ? window.mascotHandleVoiceCommand(cleanText) : null;
         if (!result) {
-          if (micStatusEl) micStatusEl.textContent = 'No entendí, intenta de nuevo';
+          var emptyMsg = 'No entendí lo que dijiste. ¿Puedes repetirlo?';
+          if (micStatusEl) micStatusEl.textContent = emptyMsg;
+          speakMascotText(emptyMsg);
           return;
         }
         showSmartMicResult(result);
@@ -10997,11 +11088,28 @@
       micPendingResult = result;
       var simpleEl = document.getElementById('kia-mic-result-simple');
       var formEl = document.getElementById('kia-mic-edit-form');
+      var warningEl = document.getElementById('kia-mic-warning-banner');
       var isBoveda = result.type === 'boveda';
       var isQuery = result.type === 'query';
+      var isError = result.type === 'error';
       if (micOverlayEl) micOverlayEl.classList.toggle('kia-mic-query-mode', isQuery);
-      if (isQuery) {
+      if (micOverlayEl) micOverlayEl.classList.toggle('kia-mic-error-mode', isError);
+      if (warningEl) warningEl.style.display = 'none';
+
+      if (isError) {
+        // No se entendió bien lo que se dijo: se avisa con voz y visualmente,
+        // en vez de adivinar y guardar algo que el usuario no pidió.
+        if (formEl) formEl.style.display = 'none';
+        if (simpleEl) simpleEl.style.display = 'flex';
+        if (micResultIconEl) micResultIconEl.textContent = result.emoji || '❓';
+        if (micResultTitleEl) micResultTitleEl.textContent = result.title || 'No entendí bien';
+        if (micResultDetailEl) micResultDetailEl.textContent = result.detail || '';
+        speakMascotText(result.speak || result.detail || result.title || 'No entendí bien, intenta de nuevo.');
+      } else if (isQuery) {
         renderSmartMicQueryResults(result);
+        if (!(result.queryResults && result.queryResults.length) && result.queryEmptyMessage) {
+          speakMascotText(result.queryEmptyMessage);
+        }
       } else if (isBoveda) {
         // La Bóveda tiene su propio flujo (abrir con PIN o guardar texto privado);
         // no tiene sentido exponerla como movimiento financiero editable.
@@ -11014,6 +11122,14 @@
         if (simpleEl) simpleEl.style.display = 'none';
         if (formEl) formEl.style.display = 'flex';
         populateSmartMicEditForm(result);
+        // Kia no reconoció ningún tipo con certeza y lo guardó como nota "por si
+        // acaso" — se avisa con un banner y por voz, sin bloquear el guardado
+        // (el usuario puede corregir el tipo o el texto ahí mismo).
+        if (result.lowConfidence && warningEl) {
+          warningEl.textContent = '⚠️ No estoy muy segura de haber entendido bien. Revisa que esté correcto antes de guardar.';
+          warningEl.style.display = 'block';
+          if (result.speak) speakMascotText(result.speak);
+        }
       }
       if (micOverlayEl) micOverlayEl.classList.add('kia-mic-has-result');
     }
@@ -11053,9 +11169,16 @@
     // Cierra el panel de resultados de una consulta (no hay nada que guardar).
     window.closeSmartMicQuery = function () {
       micPendingResult = null;
-      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-query-mode');
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-query-mode', 'kia-mic-error-mode');
       if (micStatusEl) micStatusEl.textContent = 'Toca el micrófono y pídeme algo...';
       if (micTranscriptEl) micTranscriptEl.textContent = '';
+    };
+
+    // Botón "Reintentar" del modo error: cierra el aviso y vuelve a activar el
+    // micrófono de inmediato, para no obligar al usuario a tocar el orbe otra vez.
+    window.retrySmartMicListening = function () {
+      window.closeSmartMicQuery();
+      setTimeout(function () { window.toggleSmartMicListening(); }, 200);
     };
 
     // Llena el formulario editable con lo que Kia entendió, para que el usuario
@@ -11186,7 +11309,14 @@
       var textEl = document.getElementById('kia-mic-edit-text');
       var text = textEl ? textEl.value.trim() : '';
       if (!text) {
-        if (textEl) textEl.focus();
+        if (textEl) {
+          textEl.focus();
+          textEl.classList.remove('kia-mic-field-error');
+          void textEl.offsetWidth; // fuerza el reinicio de la animación si se dispara dos veces seguidas
+          textEl.classList.add('kia-mic-field-error');
+          setTimeout(function () { textEl.classList.remove('kia-mic-field-error'); }, 900);
+        }
+        speakMascotText('Escribe o di algo antes de guardar.');
         return; // Sin texto no se guarda; el usuario sigue viendo el formulario para corregirlo.
       }
       var amountEl = document.getElementById('kia-mic-edit-amount');
@@ -11226,7 +11356,7 @@
       micPendingResult = null;
       if (micTranscriptEl) micTranscriptEl.textContent = '';
       if (micTextInput) micTextInput.value = '';
-      micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-listening', 'kia-mic-query-mode');
+      micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-listening', 'kia-mic-query-mode', 'kia-mic-error-mode');
       if (micStatusEl) {
         micStatusEl.textContent = micSupportsSpeech
           ? 'Toca el micrófono y pídeme algo...'
@@ -11247,7 +11377,7 @@
       stopMicBarsAnim();
       micListening = false;
       micPendingResult = null;
-      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-visible', 'kia-mic-listening', 'kia-mic-has-result', 'kia-mic-query-mode');
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-visible', 'kia-mic-listening', 'kia-mic-has-result', 'kia-mic-query-mode', 'kia-mic-error-mode');
       scheduleWander();
     };
 
