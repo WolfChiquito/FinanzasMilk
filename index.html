@@ -9131,6 +9131,7 @@
           type: 'query',
           emoji: '🔎',
           title: 'Resultados',
+          queryCategory: queryCategory,
           queryResults: items,
           queryEmptyMessage: emptyMessage
         };
@@ -11267,6 +11268,39 @@
     var KIA_AMOUNT_TYPES = ['gasto', 'ingreso', 'ahorro', 'pago_tc', 'diecast'];
     var KIA_SUBCATEGORY_TYPES = ['gasto', 'ingreso', 'ahorro'];
 
+    // Arma la frase que Kia DICE en voz alta cuando una consulta ("muéstrame...",
+    // "cuánto tengo...") sí tiene resultados. Antes, con resultados encontrados,
+    // Kia se quedaba callada y el saldo solo se veía escrito en la tarjeta; ahora
+    // también lo dice, sobre todo para cuentas, que es donde más importa el monto.
+    function buildKiaQuerySpeech(items, category) {
+      if (!items || !items.length) return '';
+      if (category === 'cuenta') {
+        var phrases = items.map(function (it) {
+          var isCredit = it.subtitle === 'Tarjeta de crédito';
+          return (isCredit ? 'debes ' : 'tienes ') + (it.detail || '$0.00') + ' en ' + (it.title || 'tu cuenta');
+        });
+        var joined = phrases.length === 1 ? phrases[0]
+          : (phrases.length === 2 ? phrases[0] + ' y ' + phrases[1]
+            : phrases.slice(0, -1).join(', ') + ' y ' + phrases[phrases.length - 1]);
+        var sentence = joined.charAt(0).toUpperCase() + joined.slice(1) + '.';
+        // Si ninguna de las cuentas es tarjeta de crédito (que es deuda, no dinero
+        // disponible), se suma un total para responder justo "cuánto tengo en total".
+        var soloDebito = items.every(function (it) { return it.subtitle !== 'Tarjeta de crédito'; });
+        if (items.length > 1 && soloDebito) {
+          var total = items.reduce(function (sum, it) {
+            var n = parseFloat(String(it.detail || '0').replace(/[^0-9.-]/g, ''));
+            return sum + (isNaN(n) ? 0 : n);
+          }, 0);
+          sentence += ' En total, $' + total.toFixed(2) + '.';
+        }
+        return sentence;
+      }
+      if (items.length === 1) {
+        return 'Encontré ' + (items[0].title || 'un resultado') + (items[0].detail ? ', ' + items[0].detail : '') + '.';
+      }
+      return 'Encontré ' + items.length + ' resultados. Revisa la lista.';
+    }
+
     function showSmartMicResult(result) {
       micPendingResult = result;
       var simpleEl = document.getElementById('kia-mic-result-simple');
@@ -11290,7 +11324,9 @@
         speakMascotText(result.speak || result.detail || result.title || 'No entendí bien, intenta de nuevo.');
       } else if (isQuery) {
         renderSmartMicQueryResults(result);
-        if (!(result.queryResults && result.queryResults.length) && result.queryEmptyMessage) {
+        if (result.queryResults && result.queryResults.length) {
+          speakMascotText(buildKiaQuerySpeech(result.queryResults, result.queryCategory));
+        } else if (result.queryEmptyMessage) {
           speakMascotText(result.queryEmptyMessage);
         }
       } else if (isBoveda) {
