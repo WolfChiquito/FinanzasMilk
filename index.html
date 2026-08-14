@@ -1546,6 +1546,58 @@
     .kia-mic-overlay.kia-mic-has-result .kia-mic-textfallback,
     .kia-mic-overlay.kia-mic-has-result .kia-mic-hint { display: none; }
 
+    /* ===== Modo consulta: "muéstrame...", "busca...". En vez del formulario de
+       confirmar/guardar, se muestra una lista de resultados de la base de datos real
+       y un único botón "Cerrar" (no hay nada que guardar, solo consultar). ===== */
+    .kia-mic-overlay.kia-mic-query-mode .kia-mic-result-simple,
+    .kia-mic-overlay.kia-mic-query-mode .kia-mic-edit-form { display: none !important; }
+    .kia-mic-overlay.kia-mic-query-mode .kia-mic-result { flex-direction: column; align-items: stretch; }
+    .kia-mic-overlay.kia-mic-query-mode .kia-mic-result-actions { display: none !important; }
+
+    .kia-mic-query-results {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-height: 46vh;
+      overflow-y: auto;
+    }
+    .kia-mic-overlay.kia-mic-query-mode .kia-mic-query-results { display: flex; }
+    .kia-mic-query-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      text-align: left;
+    }
+    .kia-mic-query-item-icon { font-size: 19px; flex-shrink: 0; margin-top: 1px; }
+    .kia-mic-query-item-title { font-size: 12.5px; font-weight: 600; color: #fff; margin: 0; line-height: 1.35; word-break: break-word; }
+    .kia-mic-query-item-subtitle { font-size: 11px; font-weight: 500; color: #00f0ff; margin: 2px 0 0; }
+    .kia-mic-query-item-detail { font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.5); margin: 2px 0 0; }
+    .kia-mic-query-empty { font-size: 12.5px; font-weight: 400; color: rgba(255,255,255,0.5); padding: 8px 2px; }
+
+    .kia-mic-query-actions {
+      display: none;
+      width: 100%;
+      margin-top: 12px;
+      margin-bottom: 16px;
+    }
+    .kia-mic-overlay.kia-mic-query-mode .kia-mic-query-actions { display: flex; }
+    .kia-mic-query-actions button {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 11px;
+      border-radius: 999px;
+      color: #050409;
+      background: linear-gradient(90deg, #00f0ff, #7000ff);
+      transition: transform 0.15s ease;
+    }
+    .kia-mic-query-actions button:active { transform: scale(0.97); }
+
     /* ===== Formulario editable de confirmación (nota/tarea/gasto/ingreso/ahorro/pago TC/diecast) ===== */
     .kia-mic-result-simple {
       display: none;
@@ -8584,6 +8636,158 @@
       return s.charAt(0).toUpperCase() + s.slice(1);
     }
 
+    // ==================== CONSULTAS POR VOZ ("muéstrame...", "busca...") ====================
+    // Formatea una fecha guardada (YYYY-MM-DD o ISO) a algo legible y corto.
+    function kiaFormatDate(dateStr) {
+      if (!dateStr) return '';
+      try {
+        const d = new Date(dateStr.length <= 10 ? dateStr + 'T00:00:00' : dateStr);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+      } catch (e) { return ''; }
+    }
+
+    // Filtros temporales rápidos ("de hoy", "de ayer", "esta semana", "este mes").
+    function kiaDateInRange(dateStr, filter) {
+      if (!filter || !dateStr) return true;
+      const d = new Date(dateStr.length <= 10 ? dateStr + 'T00:00:00' : dateStr);
+      if (isNaN(d.getTime())) return true;
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if (filter === 'today') {
+        return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate();
+      }
+      if (filter === 'yesterday') {
+        const y = new Date(today); y.setDate(y.getDate() - 1);
+        return d.getFullYear() === y.getFullYear() && d.getMonth() === y.getMonth() && d.getDate() === y.getDate();
+      }
+      if (filter === 'week') {
+        const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 7);
+        return d >= weekAgo && d <= today;
+      }
+      if (filter === 'month') {
+        return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth();
+      }
+      return true;
+    }
+
+    // Compara texto ignorando acentos/mayúsculas (igual que el resto del parser de Kia).
+    function kiaTextMatches(haystack, searchText) {
+      if (!searchText) return true;
+      return stripAccentsKia((haystack || '').toLowerCase()).includes(stripAccentsKia(searchText.toLowerCase()));
+    }
+
+    // Busca en la base de datos real (notas, tareas, movimientos financieros, cuentas
+    // o Bóveda) según la categoría detectada y, si el usuario dio pistas, por texto y
+    // por fecha. Regresa hasta 5 resultados, del más reciente al más viejo.
+    function runKiaQuery(category, searchText, dateFilter) {
+      const MOVEMENT_TYPES = ['gasto', 'ingreso', 'ahorro', 'pago_tc', 'diecast'];
+      const items = [];
+
+      if (category === 'boveda') {
+        if (!vaultUnlocked) {
+          return { items: [], emptyMessage: 'Tu Bóveda está bloqueada 🔒 Ábrela con tu PIN para poder buscar ahí.' };
+        }
+        const list = vaultItems
+          .filter(v => kiaTextMatches(v.type === 'image' ? (v.caption || '') : (v.text || ''), searchText))
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+          .slice(0, 5);
+        list.forEach(v => {
+          items.push({
+            icon: v.type === 'image' ? '🖼️' : '🔐',
+            title: v.type === 'image' ? (v.caption || 'Imagen sin descripción') : (v.text || '').slice(0, 90),
+            subtitle: 'Bóveda',
+            detail: kiaFormatDate(v.createdAt)
+          });
+        });
+        return { items, emptyMessage: 'No encontré nada en tu Bóveda con eso 🤔' };
+      }
+
+      if (category === 'nota') {
+        const list = stickyNotes
+          .filter(n => kiaTextMatches(n.text, searchText))
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+          .slice(0, 5);
+        list.forEach(n => {
+          items.push({ icon: '📝', title: (n.text || '').slice(0, 90), subtitle: 'Nota', detail: kiaFormatDate(n.createdAt) });
+        });
+        return { items, emptyMessage: 'No encontré ninguna nota con eso 🤔' };
+      }
+
+      if (category === 'tarea' || category === 'evento') {
+        const list = tasks
+          .filter(tk => kiaTextMatches(tk.text, searchText))
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+          .slice(0, 5);
+        list.forEach(tk => {
+          items.push({
+            icon: tk.completed ? '✅' : '🔲',
+            title: (tk.text || '').slice(0, 90),
+            subtitle: tk.completed ? 'Tarea completada' : 'Tarea pendiente',
+            detail: kiaFormatDate(tk.createdAt)
+          });
+        });
+        return { items, emptyMessage: 'No encontré ninguna tarea con eso 🤔' };
+      }
+
+      if (category === 'cuenta') {
+        const list = accounts.filter(a => kiaTextMatches(a.name, searchText)).slice(0, 6);
+        list.forEach(a => {
+          let balance = parseFloat(a.initialBalance || 0);
+          movements.forEach(m => {
+            const isTransfer = m.type === 'pago_tc' || (m.type === 'ahorro' && !!m.toAccountId);
+            if (a.accountType === 'credito') {
+              if (isTransfer) {
+                if (m.toAccountId === a.id) balance -= m.amount;
+                if (m.accountId === a.id) balance += m.amount;
+              } else if (m.accountId === a.id || m.account === a.name) {
+                if (m.type === 'ingreso' || m.type === 'ahorro') balance -= m.amount;
+                else if (m.type === 'gasto' || m.type === 'diecast') balance += m.amount;
+              }
+            } else {
+              if (isTransfer) {
+                if (m.accountId === a.id) balance -= m.amount;
+                if (m.toAccountId === a.id) balance += m.amount;
+              } else if (m.accountId === a.id || m.account === a.name) {
+                if (m.type === 'ingreso' || m.type === 'ahorro') balance += m.amount;
+                else if (m.type === 'gasto' || m.type === 'diecast') balance -= m.amount;
+              }
+            }
+          });
+          items.push({
+            icon: a.emoji || '💳',
+            title: a.name,
+            subtitle: a.accountType === 'credito' ? 'Tarjeta de crédito' : 'Cuenta',
+            detail: '$' + balance.toFixed(2)
+          });
+        });
+        return { items, emptyMessage: 'No encontré ninguna cuenta con eso 🤔' };
+      }
+
+      // Categoría "movimiento": gasto, ingreso, ahorro, pago de TDC, DieCast, o
+      // cualquier registro financiero si no se especificó un tipo (p. ej. "registro").
+      const list = movements
+        .filter(m => {
+          if (category !== 'movimiento' && MOVEMENT_TYPES.includes(category) && m.type !== category) return false;
+          if (category === 'movimiento' && !MOVEMENT_TYPES.includes(m.type)) return false;
+          if (!kiaDateInRange(m.date, dateFilter)) return false;
+          const hay = (m.concept || '') + ' ' + (m.subcategory || '') + ' ' + (m.account || '');
+          return kiaTextMatches(hay, searchText);
+        })
+        .sort((a, b) => new Date(b.date || b.timestamp || 0) - new Date(a.date || a.timestamp || 0))
+        .slice(0, 5);
+      list.forEach(m => {
+        const cat = CATEGORIES[m.type] || {};
+        items.push({
+          icon: m.type === 'diecast' ? '🚗' : (cat.emoji || '📄'),
+          title: m.concept || 'Sin concepto',
+          subtitle: (m.type === 'diecast' ? 'DieCast' : (cat.label || m.type)) + (m.subcategory ? ' · ' + m.subcategory : ''),
+          detail: '$' + (m.amount || 0).toFixed(2) + (m.date ? ' · ' + kiaFormatDate(m.date) : '') + (m.account ? ' · ' + m.account : '')
+        });
+      });
+      return { items, emptyMessage: 'No encontré ningún registro con eso 🤔' };
+    }
+
     // Punto de entrada que usa el micrófono inteligente de la mascota (ver <script> de Kia al final del archivo).
     // Entiende lenguaje natural variado: "crea una nota...", "registra un evento...",
     // "compré un diecast...", "recuérdame que...", gastos/ingresos/ahorros, etc.
@@ -8643,11 +8847,59 @@
       const t = stripAccentsKia(text).toLowerCase();
       const has = (arr) => arr.some(k => t.includes(k));
 
+      // ---- Consultas: "muéstrame...", "busca...", "¿cuánto tengo en...?", "dime mi último
+      // gasto", etc. Tiene la máxima prioridad: si el usuario quiere VER algo que ya
+      // guardó, no debe interpretarse como una orden para crear un registro nuevo (por
+      // ejemplo "muéstrame el gasto de 500 en tacos" NO debe crear un gasto nuevo).
+      const isQuery = has([
+        'muestrame', 'ensename', 'checame', 'checa', 'revisame', 'revisa',
+        'buscame', 'busca', 'encuentrame', 'encuentra', 'dime', 'mostrar',
+        'quiero ver', 'ver mi', 'ver el', 'ver la', 'ver los', 'ver las',
+        'cuanto tengo', 'cuanto gaste', 'cuanto he gastado', 'cuanto llevo',
+        'que tengo en', 'que hay en'
+      ]);
+      if (isQuery) {
+        let queryCategory = 'movimiento';
+        if (has(['boveda'])) queryCategory = 'boveda';
+        else if (has(['diecast', 'die cast', 'dai cast', 'daicast', 'casting', 'coleccion'])) queryCategory = 'diecast';
+        else if (has(['nota', 'notas'])) queryCategory = 'nota';
+        else if (has(['tarea', 'tareas', 'recordatorio', 'recordatorios', 'pendiente', 'pendientes'])) queryCategory = 'tarea';
+        else if (has(['evento', 'eventos', 'cita', 'citas'])) queryCategory = 'evento';
+        else if (has(['pago de tarjeta', 'pago tarjeta', 'tarjeta de credito', 'tdc', 'pago tc'])) queryCategory = 'pago_tc';
+        else if (has(['cuenta', 'cuentas', 'saldo', 'balance'])) queryCategory = 'cuenta';
+        else if (has(['gasto', 'gastos', 'gaste', 'compra', 'compras'])) queryCategory = 'gasto';
+        else if (has(['ingreso', 'ingresos'])) queryCategory = 'ingreso';
+        else if (has(['ahorro', 'ahorros'])) queryCategory = 'ahorro';
+
+        let dateFilter = null;
+        if (has(['hoy'])) dateFilter = 'today';
+        else if (has(['ayer'])) dateFilter = 'yesterday';
+        else if (has(['esta semana'])) dateFilter = 'week';
+        else if (has(['este mes'])) dateFilter = 'month';
+
+        // Quita las palabras disparadoras y de categoría para quedarse solo con las
+        // palabras clave reales que el usuario quiere buscar (ej. "tacos", "Nissan GTR").
+        const searchText = t
+          .replace(/\b(muestrame|ensename|checame|checa|revisame|revisa|buscame|busca|encuentrame|encuentra|dime|mostrar|quiero|ver)\b/g, ' ')
+          .replace(/\b(el|la|los|las|un|una|unos|unas|de|del|mi|mis|que|se|me|tengo|hoy|ayer|esta|semana|este|mes|registro|registros|nota|notas|tarea|tareas|recordatorio|recordatorios|pendiente|pendientes|evento|eventos|cita|citas|gasto|gastos|gaste|compra|compras|ingreso|ingresos|ahorro|ahorros|diecast|die|cast|dai|daicast|casting|coleccion|boveda|cuenta|cuentas|saldo|balance|pago|tarjeta|credito|tdc|ultimo|ultima|ultimos|ultimas|reciente|recientes|en|con)\b/g, ' ')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+
+        const { items, emptyMessage } = runKiaQuery(queryCategory, searchText, dateFilter);
+        return {
+          type: 'query',
+          emoji: '🔎',
+          title: 'Resultados',
+          queryResults: items,
+          queryEmptyMessage: emptyMessage
+        };
+      }
+
       // ---- Bóveda privada: "abre la bóveda" solo la abre (pide PIN);
       // "guarda/anota esto en la bóveda: ..." guarda el texto directo, sin exponer imágenes por voz.
       const isVault = has(['boveda']);
       if (isVault) {
-        const isOpenVault = has(['abre', 'abrir', 'abreme', 'muestra', 'entra', 'entrar']) && !has(['guarda', 'anota', 'apunta']);
+        const isOpenVault = has(['abre', 'abrir', 'abreme', 'entra', 'entrar']) && !has(['guarda', 'anota', 'apunta']);
         if (isOpenVault) {
           return {
             type: 'boveda',
@@ -9826,10 +10078,17 @@
             </div>
           </div>
         </div>
+
+        <!-- Lista de resultados: se usa cuando el usuario pide VER algo ya guardado
+             ("muéstrame...", "busca...") en vez de crear un registro nuevo. -->
+        <div id="kia-mic-query-results" class="kia-mic-query-results"></div>
       </div>
       <div id="kia-mic-result-actions" class="kia-mic-result-actions">
         <button type="button" onclick="window.cancelSmartMicResult()">Cancelar</button>
         <button type="button" class="primary" onclick="window.confirmSmartMicResult()">Guardar</button>
+      </div>
+      <div id="kia-mic-query-actions" class="kia-mic-query-actions">
+        <button type="button" class="primary" onclick="window.closeSmartMicQuery()">Cerrar</button>
       </div>
 
       <div class="kia-mic-textfallback">
@@ -10728,7 +10987,11 @@
       var simpleEl = document.getElementById('kia-mic-result-simple');
       var formEl = document.getElementById('kia-mic-edit-form');
       var isBoveda = result.type === 'boveda';
-      if (isBoveda) {
+      var isQuery = result.type === 'query';
+      if (micOverlayEl) micOverlayEl.classList.toggle('kia-mic-query-mode', isQuery);
+      if (isQuery) {
+        renderSmartMicQueryResults(result);
+      } else if (isBoveda) {
         // La Bóveda tiene su propio flujo (abrir con PIN o guardar texto privado);
         // no tiene sentido exponerla como movimiento financiero editable.
         if (formEl) formEl.style.display = 'none';
@@ -10743,6 +11006,46 @@
       }
       if (micOverlayEl) micOverlayEl.classList.add('kia-mic-has-result');
     }
+
+    // Dibuja la lista de resultados cuando el usuario pidió VER algo ya guardado
+    // ("muéstrame...", "busca..."), leyendo directo de la base de datos real.
+    function renderSmartMicQueryResults(result) {
+      var container = document.getElementById('kia-mic-query-results');
+      if (!container) return;
+      var items = result.queryResults || [];
+      if (!items.length) {
+        container.innerHTML = '<p class="kia-mic-query-empty">' + (result.queryEmptyMessage || 'No encontré nada con eso 🤔') + '</p>';
+        return;
+      }
+      container.innerHTML = items.map(function (it) {
+        return '<div class="kia-mic-query-item">'
+          + '<span class="kia-mic-query-item-icon">' + (it.icon || '📄') + '</span>'
+          + '<div>'
+          + '<p class="kia-mic-query-item-title">' + escapeSmartMicHtml(it.title || '') + '</p>'
+          + (it.subtitle ? '<p class="kia-mic-query-item-subtitle">' + escapeSmartMicHtml(it.subtitle) + '</p>' : '')
+          + (it.detail ? '<p class="kia-mic-query-item-detail">' + escapeSmartMicHtml(it.detail) + '</p>' : '')
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    // Escapa HTML básico para no romper el marcado con texto que el usuario haya
+    // guardado (notas, conceptos, etc. pueden contener < > & " sin querer decir HTML).
+    function escapeSmartMicHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Cierra el panel de resultados de una consulta (no hay nada que guardar).
+    window.closeSmartMicQuery = function () {
+      micPendingResult = null;
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-query-mode');
+      if (micStatusEl) micStatusEl.textContent = 'Toca el micrófono y pídeme algo...';
+      if (micTranscriptEl) micTranscriptEl.textContent = '';
+    };
 
     // Llena el formulario editable con lo que Kia entendió, para que el usuario
     // pueda corregir el tipo, la cuenta, el monto, la categoría, etc. antes de guardar.
@@ -10912,7 +11215,7 @@
       micPendingResult = null;
       if (micTranscriptEl) micTranscriptEl.textContent = '';
       if (micTextInput) micTextInput.value = '';
-      micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-listening');
+      micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-listening', 'kia-mic-query-mode');
       if (micStatusEl) {
         micStatusEl.textContent = micSupportsSpeech
           ? 'Toca el micrófono y pídeme algo...'
@@ -10933,7 +11236,7 @@
       stopMicBarsAnim();
       micListening = false;
       micPendingResult = null;
-      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-visible', 'kia-mic-listening', 'kia-mic-has-result');
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-visible', 'kia-mic-listening', 'kia-mic-has-result', 'kia-mic-query-mode');
       scheduleWander();
     };
 
