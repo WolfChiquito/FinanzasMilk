@@ -1911,9 +1911,6 @@
               <button onclick="openNotificationSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#faff00]/10 rounded-xl transition-colors">
                 <i data-lucide="bell" class="w-4 h-4 text-[#faff00]"></i> Notificaciones Celular
               </button>
-              <button onclick="openCalendarSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#faff00]/10 rounded-xl transition-colors">
-                <i data-lucide="calendar" class="w-4 h-4 text-[#faff00]"></i> Ajustes de Calendario
-              </button>
               <button onclick="openPasswordSettingsModal()" class="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-[#ff007f]/10 rounded-xl transition-colors">
                 <i data-lucide="key" class="w-4 h-4 text-[#ff007f]"></i> Contraseña de Bóveda
               </button>
@@ -1976,6 +1973,12 @@
 
               <button id="btn-next-month" class="p-1 sm:p-2 hover:bg-gray-800 rounded-md transition-colors text-gray-400 hover:text-[#00f0ff]">
                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
+              </button>
+
+              <div class="w-px h-5 bg-gray-800 mx-0.5"></div>
+
+              <button id="btn-calendar-settings" onclick="openCalendarSettingsModal()" class="p-1 sm:p-2 hover:bg-gray-800 rounded-md transition-colors text-gray-400 hover:text-[#faff00]" title="Ajustes de Calendario">
+                <i data-lucide="settings" class="w-4 h-4 sm:w-5 sm:h-5"></i>
               </button>
             </div>
           </div>
