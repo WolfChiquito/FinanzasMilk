@@ -653,14 +653,6 @@
       opacity: 1;
       animation: today-due-glow 3s infinite ease-in-out;
     }
-    /* Variante estática (sin parpadeo) del día de hoy + TDC, usada cuando el
-       usuario apaga los destellos de las TDC en Ajustes. Mantiene el color
-       visible pero sin animación. */
-    .today-due-static {
-      opacity: 1;
-      box-shadow: 0 0 10px var(--today-shadow-soft, rgba(250, 255, 0, 0.45)), 0 0 18px var(--today-shadow-mid, rgba(250, 255, 0, 0.2));
-      border-color: var(--today-border, rgba(250, 255, 0, 0.65));
-    }
 
     /* Destello con color personalizado para recordar la fecha límite de pago
        de una tarjeta de crédito. El color lo define el usuario por cuenta y se
@@ -678,14 +670,6 @@
     .due-destello {
       opacity: 1;
       animation: due-glow 2s infinite ease-in-out;
-    }
-    /* Variante estática (sin parpadeo) para cuando el usuario apaga los
-       destellos de las TDC en Ajustes: conserva el color e indicador, pero
-       sin la animación de brillo. */
-    .due-static {
-      opacity: 1;
-      box-shadow: 0 0 10px var(--due-shadow-soft, rgba(255, 0, 127, 0.4)), 0 0 18px var(--due-shadow-mid, rgba(255, 0, 127, 0.2));
-      border-color: var(--due-border, rgba(255, 0, 127, 0.6));
     }
 
     /* Punto sutil que avisa que una tarjeta está por vencer (aparece dentro de
@@ -3233,7 +3217,7 @@
         <div class="flex items-center justify-between bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3">
           <div>
             <p class="text-xs font-bold text-white">Destellos de TDC</p>
-            <p class="text-[10px] text-gray-500">Enciende o apaga el parpadeo de las fechas límite de pago</p>
+            <p class="text-[10px] text-gray-500">Muestra u oculta por completo el aviso de fechas límite de pago</p>
           </div>
           <button id="tdc-glow-toggle-btn" onclick="toggleTdcGlow()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff] shrink-0 ml-3">
             <span id="tdc-glow-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
@@ -3241,7 +3225,7 @@
         </div>
 
         <p class="text-[11px] text-gray-400 leading-relaxed">
-          Al apagar los destellos, las fechas de pago de tus tarjetas se siguen marcando con su color, solo dejan de parpadear.
+          Apagado: las fechas de pago dejan de marcarse por completo en el calendario (sin color, sin ícono 💳 y sin aviso de "vence pronto"). Encendido: se destacan con parpadeo, color e ícono.
         </p>
       </div>
     </div>
@@ -4191,14 +4175,19 @@
 
         const tdcGlowOn = calendarSettings.tdcGlowEnabled !== false;
         const todayColor = calendarSettings.todayGlowColor || '#faff00';
+        // Si "Destellos de TDC" está apagado en Ajustes, el aviso de fecha
+        // límite se apaga POR COMPLETO (sin color, sin ícono, sin globito),
+        // no solo se le quita el parpadeo. showDueMark es la única bandera
+        // que decide si este día se pinta como día de pago de una TDC.
+        const showDueMark = dueAccountsToday.length > 0 && tdcGlowOn;
 
         let baseClass = `relative h-24 md:h-28 rounded-[2.5rem] border flex flex-col justify-between items-center p-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer animate-pop `;
         if (isSelected) {
           baseClass += 'student-highlight';
-        } else if (isToday && dueAccountsToday.length > 0) {
-          baseClass += 'font-bold ' + (tdcGlowOn ? 'today-due-destello' : 'today-due-static');
-        } else if (dueAccountsToday.length > 0) {
-          baseClass += 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 ' + (tdcGlowOn ? 'due-destello' : 'due-static');
+        } else if (isToday && showDueMark) {
+          baseClass += 'font-bold today-due-destello';
+        } else if (showDueMark) {
+          baseClass += 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 due-destello';
         } else if (isToday) {
           baseClass += 'font-bold today-destello';
         } else {
@@ -4207,7 +4196,7 @@
         btn.className = baseClass;
         btn.style.animationDelay = `${(day * 0.01).toFixed(2)}s`;
 
-        if (dueAccountsToday.length > 0 && !isSelected) {
+        if (showDueMark && !isSelected) {
           const dueColor = dueAccountsToday[0].paymentDueColor;
           btn.style.setProperty('--due-shadow-soft', hexToRgba(dueColor, 0.4));
           btn.style.setProperty('--due-shadow-mid', hexToRgba(dueColor, 0.2));
@@ -4226,14 +4215,14 @@
           btn.style.setProperty('--today-border-strong', hexToRgba(todayColor, 0.95));
           btn.style.backgroundColor = hexToRgba(todayColor, 0.1);
           btn.style.color = todayColor;
-          if (dueAccountsToday.length === 0) {
+          if (!showDueMark) {
             btn.style.borderColor = hexToRgba(todayColor, 0.5);
           }
         }
 
         let innerHTML = `<span class="text-xl md:text-2xl font-black tracking-tight w-full text-center mt-1 drop-shadow-sm">${day}</span>`;
 
-        if (dueAccountsToday.length > 0) {
+        if (showDueMark) {
           innerHTML += `<span class="hidden sm:block absolute top-1.5 right-1.5 text-xs" aria-hidden="true">💳</span>`;
         }
 
