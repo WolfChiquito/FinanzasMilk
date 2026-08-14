@@ -1977,6 +1977,17 @@
 
               <div class="w-px h-5 bg-gray-800 mx-0.5"></div>
 
+              <!-- Toggle rápido: activa/desactiva los recordatorios (destellos) de pago de TDC sin abrir el modal de ajustes -->
+              <div class="flex items-center gap-1.5" title="Recordatorios de pago de TDC: activar/desactivar">
+                <span onclick="toggleTdcGlow()" class="cursor-pointer shrink-0 leading-none">
+                  <i data-lucide="bell" id="tdc-glow-quick-toggle-icon-on" class="w-3.5 h-3.5 text-[#7000ff]"></i>
+                  <i data-lucide="bell-off" id="tdc-glow-quick-toggle-icon-off" class="w-3.5 h-3.5 text-gray-500 hidden"></i>
+                </span>
+                <button id="btn-tdc-glow-quick-toggle" onclick="toggleTdcGlow()" class="relative w-9 h-5 rounded-full transition-colors bg-[#7000ff] shrink-0">
+                  <span id="tdc-glow-quick-toggle-dot" class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform translate-x-4"></span>
+                </button>
+              </div>
+
               <button id="btn-calendar-settings" onclick="openCalendarSettingsModal()" class="p-1 sm:p-2 hover:bg-gray-800 rounded-md transition-colors text-gray-400 hover:text-[#faff00]" title="Ajustes de Calendario">
                 <i data-lucide="settings" class="w-4 h-4 sm:w-5 sm:h-5"></i>
               </button>
@@ -4088,6 +4099,18 @@
       if (toggleBtn) toggleBtn.classList.toggle('bg-gray-700', !calendarSettings.tdcGlowEnabled);
       if (toggleDot) toggleDot.classList.toggle('translate-x-5', !!calendarSettings.tdcGlowEnabled);
       if (toggleDot) toggleDot.classList.toggle('translate-x-0', !calendarSettings.tdcGlowEnabled);
+
+      // Toggle rápido junto al engranaje del calendario (misma fuente de verdad que el switch del modal).
+      const quickToggleBtn = document.getElementById('btn-tdc-glow-quick-toggle');
+      const quickToggleDot = document.getElementById('tdc-glow-quick-toggle-dot');
+      const quickToggleIconOn = document.getElementById('tdc-glow-quick-toggle-icon-on');
+      const quickToggleIconOff = document.getElementById('tdc-glow-quick-toggle-icon-off');
+      if (quickToggleBtn) quickToggleBtn.classList.toggle('bg-[#7000ff]', !!calendarSettings.tdcGlowEnabled);
+      if (quickToggleBtn) quickToggleBtn.classList.toggle('bg-gray-700', !calendarSettings.tdcGlowEnabled);
+      if (quickToggleDot) quickToggleDot.classList.toggle('translate-x-4', !!calendarSettings.tdcGlowEnabled);
+      if (quickToggleDot) quickToggleDot.classList.toggle('translate-x-0', !calendarSettings.tdcGlowEnabled);
+      if (quickToggleIconOn) quickToggleIconOn.classList.toggle('hidden', !calendarSettings.tdcGlowEnabled);
+      if (quickToggleIconOff) quickToggleIconOff.classList.toggle('hidden', !!calendarSettings.tdcGlowEnabled);
     }
 
     // Vista previa instantánea mientras el usuario elige el color (no guarda todavía).
