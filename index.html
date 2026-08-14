@@ -9466,6 +9466,9 @@
                 <span class="text-[10px] text-gray-500">${dateLabel}</span>
               </div>
             </button>
+            <button onclick="window.editVaultItemFromList('${item.id}')" class="p-1.5 text-gray-500 hover:text-[#00f0ff] transition-colors flex-shrink-0" title="Editar">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
             <button onclick="window.deleteVaultItem('${item.id}')" class="p-1.5 text-gray-500 hover:text-rose-400 transition-colors flex-shrink-0" title="Eliminar">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
@@ -9548,6 +9551,13 @@
       if (!item) return;
       setVaultViewEditingUI(true);
       renderVaultViewBody(item, true);
+    }
+
+    // Acceso rápido desde el listado: abre el visor de un registro y entra directo
+    // en modo edición, sin que el usuario tenga que pulsar "Editar" dos veces.
+    function editVaultItemFromList(id) {
+      viewVaultItem(id);
+      startEditVaultItem();
     }
 
     // Descarta los cambios sin editar y vuelve al modo lectura con el valor original.
@@ -9662,6 +9672,7 @@
     window.deleteVaultItem = deleteVaultItem;
     window.saveVaultTextItem = saveVaultTextItem;
     window.startEditVaultItem = startEditVaultItem;
+    window.editVaultItemFromList = editVaultItemFromList;
     window.cancelEditVaultItem = cancelEditVaultItem;
     window.saveEditVaultItem = saveEditVaultItem;
     window.vaultEditHandleImageSelect = vaultEditHandleImageSelect;
