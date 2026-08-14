@@ -1574,10 +1574,60 @@
       text-align: left;
     }
     .kia-mic-query-item-icon { font-size: 19px; flex-shrink: 0; margin-top: 1px; }
+    .kia-mic-query-item-body { flex: 1; min-width: 0; }
     .kia-mic-query-item-title { font-size: 12.5px; font-weight: 600; color: #fff; margin: 0; line-height: 1.35; word-break: break-word; }
     .kia-mic-query-item-subtitle { font-size: 11px; font-weight: 500; color: #00f0ff; margin: 2px 0 0; }
     .kia-mic-query-item-detail { font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.5); margin: 2px 0 0; }
     .kia-mic-query-empty { font-size: 12.5px; font-weight: 400; color: rgba(255,255,255,0.5); padding: 8px 2px; }
+
+    /* Botones de editar/eliminar de cada resultado mostrado por voz. */
+    .kia-mic-query-item-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .kia-mic-query-item-actions button {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      font-size: 12px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .kia-mic-query-item-actions button:active { transform: scale(0.9); }
+
+    /* Confirmación inline de "¿eliminar?" dentro de la misma tarjeta (en vez de un
+       segundo modal encima del micrófono, que quedaría oculto por su z-index). */
+    .kia-mic-query-item-confirm {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .kia-mic-query-item-confirm span {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      margin-right: 2px;
+    }
+    .kia-mic-query-item-confirm button {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.08);
+      white-space: nowrap;
+    }
+    .kia-mic-query-item-confirm button.danger {
+      color: #050409;
+      background: linear-gradient(90deg, #ff5e7e, #ff007f);
+    }
 
     .kia-mic-query-actions {
       display: none;
@@ -1688,6 +1738,7 @@
       appearance: none;
       -webkit-appearance: none;
     }
+    .kia-mic-edit-type:disabled { opacity: 0.55; cursor: not-allowed; }
     .kia-mic-field {
       display: flex;
       flex-direction: column;
@@ -8752,10 +8803,14 @@
           .slice(0, 5);
         list.forEach(v => {
           items.push({
+            id: v.id,
+            kind: 'boveda',
             icon: v.type === 'image' ? '🖼️' : '🔐',
             title: v.type === 'image' ? (v.caption || 'Imagen sin descripción') : (v.text || '').slice(0, 90),
             subtitle: 'Bóveda',
-            detail: kiaFormatDate(v.createdAt)
+            detail: kiaFormatDate(v.createdAt),
+            editable: false,
+            deletable: true
           });
         });
         return { items, emptyMessage: 'No encontré nada en tu Bóveda con eso 🤔' };
@@ -8767,7 +8822,17 @@
           .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
           .slice(0, 5);
         list.forEach(n => {
-          items.push({ icon: '📝', title: (n.text || '').slice(0, 90), subtitle: 'Nota', detail: kiaFormatDate(n.createdAt) });
+          items.push({
+            id: n.id,
+            kind: 'nota',
+            icon: '📝',
+            title: (n.text || '').slice(0, 90),
+            subtitle: 'Nota',
+            detail: kiaFormatDate(n.createdAt),
+            editable: true,
+            deletable: true,
+            fields: { text: n.text || '', amount: 0, subcategoryName: '', accountId: '', toAccountId: '', dateStr: '', timeStr: '' }
+          });
         });
         return { items, emptyMessage: 'No encontré ninguna nota con eso 🤔' };
       }
@@ -8779,10 +8844,15 @@
           .slice(0, 5);
         list.forEach(tk => {
           items.push({
+            id: tk.id,
+            kind: 'tarea',
             icon: tk.completed ? '✅' : '🔲',
             title: (tk.text || '').slice(0, 90),
             subtitle: tk.completed ? 'Tarea completada' : 'Tarea pendiente',
-            detail: kiaFormatDate(tk.createdAt)
+            detail: kiaFormatDate(tk.createdAt),
+            editable: true,
+            deletable: true,
+            fields: { text: tk.text || '', amount: 0, subcategoryName: '', accountId: '', toAccountId: '', dateStr: '', timeStr: '' }
           });
         });
         return { items, emptyMessage: 'No encontré ninguna tarea con eso 🤔' };
@@ -8813,10 +8883,17 @@
             }
           });
           items.push({
+            id: a.id,
+            kind: 'cuenta',
             icon: a.emoji || '💳',
             title: a.name,
             subtitle: a.accountType === 'credito' ? 'Tarjeta de crédito' : 'Cuenta',
-            detail: '$' + balance.toFixed(2)
+            detail: '$' + balance.toFixed(2),
+            // Editar/eliminar una cuenta afecta el saldo y el historial completo, así
+            // que por seguridad eso se sigue haciendo desde la sección de Cuentas, no
+            // por voz — aquí solo se consulta el saldo.
+            editable: false,
+            deletable: false
           });
         });
         return { items, emptyMessage: 'No encontré ninguna cuenta con eso 🤔' };
@@ -8837,10 +8914,23 @@
       list.forEach(m => {
         const cat = CATEGORIES[m.type] || {};
         items.push({
+          id: m.id,
+          kind: m.type,
           icon: m.type === 'diecast' ? '🚗' : (cat.emoji || '📄'),
           title: m.concept || 'Sin concepto',
           subtitle: (m.type === 'diecast' ? 'DieCast' : (cat.label || m.type)) + (m.subcategory ? ' · ' + m.subcategory : ''),
-          detail: '$' + (m.amount || 0).toFixed(2) + (m.date ? ' · ' + kiaFormatDate(m.date) : '') + (m.account ? ' · ' + m.account : '')
+          detail: '$' + (m.amount || 0).toFixed(2) + (m.date ? ' · ' + kiaFormatDate(m.date) : '') + (m.account ? ' · ' + m.account : ''),
+          editable: true,
+          deletable: true,
+          fields: {
+            text: m.concept || '',
+            amount: m.amount || 0,
+            subcategoryName: m.subcategory || '',
+            accountId: m.accountId || '',
+            toAccountId: m.toAccountId || '',
+            dateStr: m.date || '',
+            timeStr: ''
+          }
         });
       });
       return { items, emptyMessage: 'No encontré ningún registro con eso 🤔' };
@@ -8899,6 +8989,80 @@
       }
     };
 
+    // Elimina (o mueve a papelera, según el tipo) un elemento mostrado en los
+    // resultados de una consulta por voz. "kind" viene del mismo campo que arma
+    // runKiaQuery: gasto/ingreso/ahorro/pago_tc/diecast/nota/tarea/boveda.
+    window.kiaDeleteQueryItem = async function (kind, id) {
+      try {
+        if (['gasto', 'ingreso', 'ahorro', 'pago_tc', 'diecast'].includes(kind)) {
+          const movementToDelete = movements.find(m => m.id === id);
+          await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id));
+          if (movementToDelete && movementToDelete.notificationId) {
+            try {
+              await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', movementToDelete.notificationId));
+            } catch (notifError) {
+              console.error("Error al borrar el recordatorio vinculado:", notifError);
+            }
+          }
+        } else if (kind === 'nota') {
+          // Igual que al borrar una nota desde la app: se manda a la papelera
+          // (se elimina definitivamente después de 3 meses), no se pierde al toque.
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), {
+            deletedAt: new Date().toISOString()
+          });
+        } else if (kind === 'tarea' || kind === 'evento') {
+          await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', id));
+        } else if (kind === 'boveda') {
+          await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems', id));
+        } else {
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Error al eliminar desde el micrófono de Kia:', error);
+        return false;
+      }
+    };
+
+    // Actualiza un elemento ya existente (mostrado en resultados de voz) con los
+    // valores que el usuario haya corregido en el formulario editable del micrófono.
+    window.kiaUpdateQueryItem = async function (kind, id, fields) {
+      const text = (fields.text || '').trim();
+      try {
+        if (kind === 'nota') {
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'stickyNotes', id), { text: text });
+        } else if (kind === 'tarea' || kind === 'evento') {
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'tasks', id), { text: text });
+        } else if (['gasto', 'ingreso', 'ahorro', 'diecast'].includes(kind)) {
+          const acc = accounts.find(a => a.id === fields.accountId) || null;
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id), {
+            amount: fields.amount || 0,
+            concept: text,
+            subcategory: fields.subcategoryName || 'General',
+            accountId: acc ? acc.id : '',
+            account: acc ? acc.name : 'Efectivo'
+          });
+        } else if (kind === 'pago_tc') {
+          const accFrom = accounts.find(a => a.id === fields.accountId) || null;
+          const accTo = accounts.find(a => a.id === fields.toAccountId) || null;
+          await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', id), {
+            amount: fields.amount || 0,
+            concept: text,
+            accountId: accFrom ? accFrom.id : '',
+            account: accFrom ? accFrom.name : 'Efectivo',
+            toAccountId: accTo ? accTo.id : '',
+            toAccount: accTo ? accTo.name : ''
+          });
+        } else {
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('Error al actualizar desde el micrófono de Kia:', error);
+        return false;
+      }
+    };
+
     window.mascotHandleVoiceCommand = function (rawText) {
       const text = (rawText || '').trim();
       if (!text) return null;
@@ -8909,13 +9073,29 @@
       // gasto", etc. Tiene la máxima prioridad: si el usuario quiere VER algo que ya
       // guardó, no debe interpretarse como una orden para crear un registro nuevo (por
       // ejemplo "muéstrame el gasto de 500 en tacos" NO debe crear un gasto nuevo).
+      // ---- Consultas: "muéstrame...", "que me muestre...", "busca...", "¿cuánto tengo
+      // en...?", "dime mi último gasto", etc. Tiene la máxima prioridad: si el usuario
+      // quiere VER algo que ya guardó, no debe interpretarse como una orden para crear
+      // un registro nuevo (por ejemplo "muéstrame el gasto de 500 en tacos" NO debe
+      // crear un gasto nuevo).
+      // Antes solo se reconocía "muéstrame" tal cual (imperativo); frases igual de
+      // comunes como "que me muestre", "que me muestres" o "enséñenme" (subjuntivo u
+      // otras conjugaciones) no disparaban la consulta. Ahora se usa una expresión
+      // regular sobre la raíz del verbo (muestr.../ensen...) para cubrir cualquier
+      // conjugación, no solo la forma exacta "muéstrame". También se incluyen
+      // "elimina/borra/modifica/cambia..." porque esos resultados se muestran con
+      // botones de editar y eliminar listos para usarse (ver runKiaQuery).
       const isQuery = has([
-        'muestrame', 'ensename', 'checame', 'checa', 'revisame', 'revisa',
+        'checame', 'checa', 'revisame', 'revisa',
         'buscame', 'busca', 'encuentrame', 'encuentra', 'dime', 'mostrar',
         'quiero ver', 'ver mi', 'ver el', 'ver la', 'ver los', 'ver las',
         'cuanto tengo', 'cuanto gaste', 'cuanto he gastado', 'cuanto llevo',
-        'que tengo en', 'que hay en'
-      ]);
+        'que tengo en', 'que hay en', 'cuanto he ahorrado', 'cuanto he ingresado',
+        'como voy', 'como van mis',
+        'elimina', 'eliminame', 'borra', 'borrame', 'quita', 'quitame',
+        'modifica', 'modificame', 'cambia', 'cambiame', 'actualiza', 'actualizame',
+        'corrige', 'corrigeme', 'edita', 'editame'
+      ]) || /\bmuestr[a-z]*\b/.test(t) || /\bensen[a-z]*\b/.test(t);
       if (isQuery) {
         let queryCategory = 'movimiento';
         if (has(['boveda'])) queryCategory = 'boveda';
@@ -8925,9 +9105,9 @@
         else if (has(['evento', 'eventos', 'cita', 'citas'])) queryCategory = 'evento';
         else if (has(['pago de tarjeta', 'pago tarjeta', 'tarjeta de credito', 'tdc', 'pago tc'])) queryCategory = 'pago_tc';
         else if (has(['cuenta', 'cuentas', 'saldo', 'balance'])) queryCategory = 'cuenta';
-        else if (has(['gasto', 'gastos', 'gaste', 'compra', 'compras'])) queryCategory = 'gasto';
-        else if (has(['ingreso', 'ingresos'])) queryCategory = 'ingreso';
-        else if (has(['ahorro', 'ahorros'])) queryCategory = 'ahorro';
+        else if (has(['gasto', 'gastos', 'gaste', 'gastado', 'gastados', 'compra', 'compras'])) queryCategory = 'gasto';
+        else if (has(['ingreso', 'ingresos', 'ingresado', 'ingresados'])) queryCategory = 'ingreso';
+        else if (has(['ahorro', 'ahorros', 'ahorrado', 'ahorrados'])) queryCategory = 'ahorro';
 
         let dateFilter = null;
         if (has(['hoy'])) dateFilter = 'today';
@@ -8935,11 +9115,14 @@
         else if (has(['esta semana'])) dateFilter = 'week';
         else if (has(['este mes'])) dateFilter = 'month';
 
-        // Quita las palabras disparadoras y de categoría para quedarse solo con las
-        // palabras clave reales que el usuario quiere buscar (ej. "tacos", "Nissan GTR").
+        // Quita las palabras disparadoras, las de categoría y las muletillas/relleno
+        // típicas de una pregunta hablada, para quedarse solo con las palabras clave
+        // reales que el usuario quiere buscar (ej. "tacos", "Nissan GTR").
         const searchText = t
-          .replace(/\b(muestrame|ensename|checame|checa|revisame|revisa|buscame|busca|encuentrame|encuentra|dime|mostrar|quiero|ver)\b/g, ' ')
-          .replace(/\b(el|la|los|las|un|una|unos|unas|de|del|mi|mis|que|se|me|tengo|hoy|ayer|esta|semana|este|mes|registro|registros|nota|notas|tarea|tareas|recordatorio|recordatorios|pendiente|pendientes|evento|eventos|cita|citas|gasto|gastos|gaste|compra|compras|ingreso|ingresos|ahorro|ahorros|diecast|die|cast|dai|daicast|casting|coleccion|boveda|cuenta|cuentas|saldo|balance|pago|tarjeta|credito|tdc|ultimo|ultima|ultimos|ultimas|reciente|recientes|en|con)\b/g, ' ')
+          .replace(/\bmuestr[a-z]*\b/g, ' ')
+          .replace(/\bensen[a-z]*\b/g, ' ')
+          .replace(/\b(checame|checa|revisame|revisa|buscame|busca|encuentrame|encuentra|dime|mostrar|quiero|ver|elimina|eliminame|borra|borrame|quita|quitame|modifica|modificame|cambia|cambiame|actualiza|actualizame|corrige|corrigeme|edita|editame)\b/g, ' ')
+          .replace(/\b(el|la|los|las|un|una|unos|unas|de|del|mi|mis|que|se|me|tengo|hoy|ayer|esta|semana|este|mes|registro|registros|movimiento|movimientos|nota|notas|tarea|tareas|recordatorio|recordatorios|pendiente|pendientes|evento|eventos|cita|citas|gasto|gastos|gaste|gastado|gastados|compra|compras|ingreso|ingresos|ingresado|ingresados|ahorro|ahorros|ahorrado|ahorrados|diecast|diecasts|die|cast|dai|daicast|casting|castings|coleccion|boveda|cuenta|cuentas|saldo|balance|pago|tarjeta|credito|tdc|ultimo|ultima|ultimos|ultimas|reciente|recientes|todo|toda|todos|todas|algun|alguna|algunos|algunas|tipo|cuanto|cuanta|cuantos|cuantas|como|voy|llevo|he|has|hay|favor|porfa|por|en|con)\b/g, ' ')
           .replace(/\s{2,}/g, ' ')
           .trim();
 
@@ -11136,25 +11319,117 @@
 
     // Dibuja la lista de resultados cuando el usuario pidió VER algo ya guardado
     // ("muéstrame...", "busca..."), leyendo directo de la base de datos real.
+    // Guarda los resultados de la última consulta mostrada, para que los botones de
+    // editar/eliminar de cada tarjeta sepan a qué elemento exacto se refieren.
+    var micCurrentQueryItems = [];
+    // Cuando se está editando un elemento YA EXISTENTE (desde una consulta), estos
+    // guardan su id y tipo para que "Guardar" actualice en vez de crear uno nuevo.
+    var micEditingExistingId = null;
+    var micEditingExistingKind = null;
+
+    // Limpia el estado de "editando un elemento ya existente" y desbloquea el
+    // selector de tipo, para volver al comportamiento normal de crear algo nuevo.
+    function resetSmartMicEditingExisting() {
+      micEditingExistingId = null;
+      micEditingExistingKind = null;
+      var typeSel = document.getElementById('kia-mic-edit-type');
+      if (typeSel) typeSel.disabled = false;
+      var warningEl = document.getElementById('kia-mic-warning-banner');
+      if (warningEl) warningEl.style.display = 'none';
+    }
+
     function renderSmartMicQueryResults(result) {
       var container = document.getElementById('kia-mic-query-results');
       if (!container) return;
-      var items = result.queryResults || [];
-      if (!items.length) {
+      micCurrentQueryItems = result.queryResults || [];
+      if (!micCurrentQueryItems.length) {
         container.innerHTML = '<p class="kia-mic-query-empty">' + (result.queryEmptyMessage || 'No encontré nada con eso 🤔') + '</p>';
         return;
       }
-      container.innerHTML = items.map(function (it) {
+      container.innerHTML = micCurrentQueryItems.map(function (it, idx) {
+        var actions = '';
+        if (it._confirmingDelete) {
+          actions = '<div class="kia-mic-query-item-confirm">'
+            + '<span>¿Eliminar?</span>'
+            + '<button type="button" onclick="window.cancelDeleteSmartMicQueryItem(' + idx + ')">No</button>'
+            + '<button type="button" class="danger" onclick="window.confirmDeleteSmartMicQueryItem(' + idx + ')">Sí, borrar</button>'
+            + '</div>';
+        } else if (it.editable || it.deletable) {
+          actions = '<div class="kia-mic-query-item-actions">'
+            + (it.editable ? '<button type="button" onclick="window.editSmartMicQueryItem(' + idx + ')" aria-label="Editar">✏️</button>' : '')
+            + (it.deletable ? '<button type="button" onclick="window.deleteSmartMicQueryItem(' + idx + ')" aria-label="Eliminar">🗑️</button>' : '')
+            + '</div>';
+        }
         return '<div class="kia-mic-query-item">'
           + '<span class="kia-mic-query-item-icon">' + (it.icon || '📄') + '</span>'
-          + '<div>'
+          + '<div class="kia-mic-query-item-body">'
           + '<p class="kia-mic-query-item-title">' + escapeSmartMicHtml(it.title || '') + '</p>'
           + (it.subtitle ? '<p class="kia-mic-query-item-subtitle">' + escapeSmartMicHtml(it.subtitle) + '</p>' : '')
           + (it.detail ? '<p class="kia-mic-query-item-detail">' + escapeSmartMicHtml(it.detail) + '</p>' : '')
           + '</div>'
+          + actions
           + '</div>';
       }).join('');
     }
+
+    // Primer toque en 🗑️: solo pide confirmación (no borra todavía).
+    window.deleteSmartMicQueryItem = function (idx) {
+      var it = micCurrentQueryItems[idx];
+      if (!it) return;
+      it._confirmingDelete = true;
+      renderSmartMicQueryResults({ queryResults: micCurrentQueryItems });
+    };
+
+    window.cancelDeleteSmartMicQueryItem = function (idx) {
+      var it = micCurrentQueryItems[idx];
+      if (!it) return;
+      it._confirmingDelete = false;
+      renderSmartMicQueryResults({ queryResults: micCurrentQueryItems });
+    };
+
+    // Segundo toque, en "Sí, borrar": ahora sí elimina de verdad en Firestore.
+    window.confirmDeleteSmartMicQueryItem = function (idx) {
+      var it = micCurrentQueryItems[idx];
+      if (!it || !it.id) return;
+      Promise.resolve(window.kiaDeleteQueryItem(it.kind, it.id)).then(function (ok) {
+        if (ok) {
+          micCurrentQueryItems.splice(idx, 1);
+          renderSmartMicQueryResults({ queryResults: micCurrentQueryItems, queryEmptyMessage: 'Ya no hay más resultados con eso 🤔' });
+          speakMascotText('Listo, lo eliminé.');
+        } else {
+          it._confirmingDelete = false;
+          renderSmartMicQueryResults({ queryResults: micCurrentQueryItems });
+          speakMascotText('No pude eliminarlo, intenta de nuevo.');
+        }
+      });
+    };
+
+    // Cambia del modo consulta al formulario editable (el mismo que usa la
+    // confirmación al crear algo nuevo), precargado con los datos del elemento
+    // elegido, para poder corregir monto, cuenta, categoría, texto, etc.
+    window.editSmartMicQueryItem = function (idx) {
+      var it = micCurrentQueryItems[idx];
+      if (!it || !it.editable || !it.id) return;
+      micEditingExistingId = it.id;
+      micEditingExistingKind = it.kind;
+      micPendingResult = { type: it.kind }; // para que confirmSmartMicResult no aborte por falta de "pendiente"
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-query-mode');
+      if (micOverlayEl) micOverlayEl.classList.add('kia-mic-has-result');
+      var simpleEl = document.getElementById('kia-mic-result-simple');
+      var formEl = document.getElementById('kia-mic-edit-form');
+      if (simpleEl) simpleEl.style.display = 'none';
+      if (formEl) formEl.style.display = 'flex';
+      populateSmartMicEditForm({ type: it.kind, fields: it.fields || {} });
+      // Al editar un elemento que ya existe, el tipo se bloquea (cambiar de "nota" a
+      // "gasto" a medio editar dejaría datos a medias); solo se corrigen sus campos.
+      var typeSel = document.getElementById('kia-mic-edit-type');
+      if (typeSel) typeSel.disabled = true;
+      var warningEl = document.getElementById('kia-mic-warning-banner');
+      if (warningEl) {
+        warningEl.textContent = '✏️ Editando un registro existente.';
+        warningEl.style.display = 'block';
+      }
+    };
 
     // Escapa HTML básico para no romper el marcado con texto que el usuario haya
     // guardado (notas, conceptos, etc. pueden contener < > & " sin querer decir HTML).
@@ -11169,6 +11444,7 @@
     // Cierra el panel de resultados de una consulta (no hay nada que guardar).
     window.closeSmartMicQuery = function () {
       micPendingResult = null;
+      resetSmartMicEditingExisting();
       if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-query-mode', 'kia-mic-error-mode');
       if (micStatusEl) micStatusEl.textContent = 'Toca el micrófono y pídeme algo...';
       if (micTranscriptEl) micTranscriptEl.textContent = '';
@@ -11280,6 +11556,7 @@
 
     window.cancelSmartMicResult = function () {
       micPendingResult = null;
+      resetSmartMicEditingExisting();
       if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
       if (micStatusEl) micStatusEl.textContent = 'Toca el micrófono y pídeme algo...';
       if (micTranscriptEl) micTranscriptEl.textContent = '';
@@ -11335,6 +11612,26 @@
         timeStr: timeEl ? timeEl.value : ''
       };
 
+      // Si se llegó aquí editando un elemento que YA existía (desde una consulta de
+      // voz), se actualiza ese registro en vez de crear uno nuevo.
+      if (micEditingExistingId) {
+        var editId = micEditingExistingId;
+        var editKind = micEditingExistingKind;
+        micPendingResult = null;
+        resetSmartMicEditingExisting();
+        if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
+        Promise.resolve(window.kiaUpdateQueryItem(editKind, editId, fields)).then(function (ok) {
+          window.closeSmartMic();
+          pokeAnim();
+          showBubble(ok ? '¡Actualizado! ✏️ Ya quedaron los cambios' : 'No se pudo actualizar 😥 intenta otra vez');
+        }).catch(function (err) {
+          console.error('Error al actualizar desde el micrófono de Kia:', err);
+          window.closeSmartMic();
+          showBubble('No se pudo actualizar 😥 intenta otra vez');
+        });
+        return;
+      }
+
       micPendingResult = null;
       if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
       Promise.resolve(window.kiaExecuteSmartMicSave(type, fields)).then(function (msg) {
@@ -11354,6 +11651,7 @@
       clearTimeout(wanderTimer);
       bubbleEl.classList.remove('mascot-bubble-visible');
       micPendingResult = null;
+      resetSmartMicEditingExisting();
       if (micTranscriptEl) micTranscriptEl.textContent = '';
       if (micTextInput) micTextInput.value = '';
       micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-listening', 'kia-mic-query-mode', 'kia-mic-error-mode');
@@ -11377,6 +11675,7 @@
       stopMicBarsAnim();
       micListening = false;
       micPendingResult = null;
+      resetSmartMicEditingExisting();
       if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-visible', 'kia-mic-listening', 'kia-mic-has-result', 'kia-mic-query-mode', 'kia-mic-error-mode');
       scheduleWander();
     };
