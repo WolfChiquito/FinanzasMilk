@@ -132,6 +132,55 @@
       text-shadow: 0 0 8px rgba(250, 255, 0, 0.6);
     }
 
+    /* ===== WIDGETS COMPACTABLES (Tareas / Notas / Calculadora) ===== */
+    .widget-collapse-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      color: #9ca3af;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+    .widget-collapse-btn:hover {
+      background: rgba(0, 240, 255, 0.18);
+      color: #00f0ff;
+      border-color: rgba(0, 240, 255, 0.5);
+    }
+    .widget-collapse-btn:active {
+      transform: scale(0.9);
+    }
+    .widget-collapse-btn .widget-collapse-icon {
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 13px;
+      height: 13px;
+    }
+    .widget-collapsible-body {
+      display: grid;
+      grid-template-rows: 1fr;
+      opacity: 1;
+      transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, margin 0.35s ease;
+    }
+    .widget-collapsible-body > div {
+      overflow: hidden;
+      min-height: 0;
+    }
+    .widget-section-collapsed .widget-collapsible-body {
+      grid-template-rows: 0fr;
+      opacity: 0;
+    }
+    .widget-section-collapsed .widget-collapse-btn .widget-collapse-icon {
+      transform: rotate(-90deg);
+    }
+    .widget-section-collapsed .widget-collapse-btn {
+      color: #00f0ff;
+      background: rgba(0, 240, 255, 0.15);
+    }
+
     /* ===== NOTAS ADHESIVAS (Sticky Notes) ===== */
     .sticky-notes-board {
       min-height: 90px;
@@ -2023,11 +2072,17 @@
                 <i data-lucide="list-checks" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Tareas
                 <span id="tasks-progress-badge" class="hidden normal-case tracking-normal text-[10px] font-bold text-[#00f0ff] bg-[#00f0ff]/10 border border-[#00f0ff]/25 rounded-full px-2 py-0.5"></span>
               </h3>
-              <button id="btn-add-task" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Añadir tarea">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button id="btn-add-task" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Añadir tarea">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                </button>
+                <button type="button" class="widget-collapse-btn" title="Compactar / expandir" onclick="window.toggleWidgetSection('tasks-section', this)">
+                  <i data-lucide="chevron-down" class="widget-collapse-icon"></i>
+                </button>
+              </div>
             </div>
 
+            <div class="widget-collapsible-body"><div>
             <div id="tasks-progress-track" class="hidden w-full h-1 bg-gray-900 rounded-full overflow-hidden mb-2.5">
               <div id="tasks-progress-bar" class="h-full bg-gradient-to-r from-[#7000ff] to-[#00f0ff] rounded-full transition-all duration-500" style="width:0%"></div>
             </div>
@@ -2054,6 +2109,7 @@
                 <!-- Renderizado dinámico -->
               </div>
             </div>
+            </div></div>
           </div>
 
           <!-- APARTADO DE NOTAS ADHESIVAS -->
@@ -2070,14 +2126,19 @@
                 <button id="btn-add-note" onclick="window.showAddNoteInput()" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#faff00] border border-[#faff00]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Añadir nota">
                   <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                 </button>
+                <button type="button" class="widget-collapse-btn" title="Compactar / expandir" onclick="window.toggleWidgetSection('sticky-notes-section', this)">
+                  <i data-lucide="chevron-down" class="widget-collapse-icon"></i>
+                </button>
               </div>
             </div>
 
+            <div class="widget-collapsible-body"><div>
             <div id="sticky-notes-board" class="sticky-notes-board rounded-xl p-3 border border-gray-800/80 bg-gray-950/40">
               <div id="sticky-notes-grid">
                 <!-- Renderizado dinámico -->
               </div>
             </div>
+            </div></div>
           </div>
 
           <!-- WIDGET: CALCULADORA INTELIGENTE (justo abajo de las notas, en espacio chico) -->
@@ -2086,13 +2147,20 @@
               <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                 <i data-lucide="calculator" class="w-3.5 h-3.5 text-[#ff9f0a]"></i> Calculadora Inteligente
               </h3>
-              <button onclick="window.openCalcWidgetModal()" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Agrandar calculadora">
-                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button onclick="window.openCalcWidgetModal()" class="flex items-center justify-center w-6 h-6 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg transition-colors cursor-pointer" title="Agrandar calculadora">
+                  <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+                </button>
+                <button type="button" class="widget-collapse-btn" title="Compactar / expandir" onclick="window.toggleWidgetSection('calc-widget-section', this)">
+                  <i data-lucide="chevron-down" class="widget-collapse-icon"></i>
+                </button>
+              </div>
             </div>
+            <div class="widget-collapsible-body"><div>
             <div class="w-full mx-auto rounded-2xl overflow-hidden border border-gray-800 bg-black shadow-lg" style="max-width:300px; height:460px;">
               <iframe id="calc-widget-iframe" title="Calculadora Inteligente" style="width:100%; height:100%; border:0; display:block;" loading="lazy"></iframe>
             </div>
+            </div></div>
           </div>
 
           <!-- MODAL: PAPELERA DE NOTAS -->
@@ -3970,6 +4038,20 @@
           }
         }
       }, (error) => console.error("Error sincronizando imágenes:", error));
+
+      const widgetCollapseDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'widgetCollapse');
+      onSnapshot(widgetCollapseDocRef, (docSnap) => {
+        const data = docSnap.exists() ? docSnap.data() : {};
+        window.applyWidgetCollapseState(data);
+      }, (error) => console.error("Error sincronizando widgets compactados:", error));
+
+      window.saveWidgetCollapseState = async function (sectionId, collapsed) {
+        try {
+          await setDoc(widgetCollapseDocRef, { [sectionId]: collapsed }, { merge: true });
+        } catch (e) {
+          console.error("Error guardando estado del widget:", e);
+        }
+      };
 
       updateBiometricLoginUI();
       updateBiometricSettingsUI();
@@ -11950,6 +12032,71 @@
       document.addEventListener('DOMContentLoaded', initMascot);
     } else {
       initMascot();
+    }
+  })();
+  </script>
+
+  <!-- ===== WIDGETS COMPACTABLES: lógica de compactar/ocultar con sincronización en la nube ===== -->
+  <script>
+  (function () {
+    var COLLAPSE_KEY = 'widgetCollapseState';
+    var WIDGET_IDS = ['tasks-section', 'sticky-notes-section', 'calc-widget-section'];
+
+    function readLocalCache() {
+      try { return JSON.parse(localStorage.getItem(COLLAPSE_KEY)) || {}; } catch (err) { return {}; }
+    }
+
+    function writeLocalCache(state) {
+      try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(state)); } catch (err) {}
+    }
+
+    function applyCollapsed(sectionId, collapsed) {
+      var section = document.getElementById(sectionId);
+      if (!section) return;
+      section.classList.toggle('widget-section-collapsed', collapsed);
+      var btn = section.querySelector('.widget-collapse-btn');
+      if (btn) btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+
+    // Llamado desde el módulo de Firebase cuando llega el estado guardado en la nube
+    // (así se refleja igual en cualquier dispositivo donde se abra la app).
+    window.applyWidgetCollapseState = function (remoteState) {
+      var state = Object.assign({}, remoteState);
+      writeLocalCache(state);
+      WIDGET_IDS.forEach(function (id) {
+        applyCollapsed(id, !!state[id]);
+      });
+    };
+
+    window.toggleWidgetSection = function (sectionId) {
+      var section = document.getElementById(sectionId);
+      if (!section) return;
+      var collapsed = !section.classList.contains('widget-section-collapsed');
+      applyCollapsed(sectionId, collapsed);
+
+      var state = readLocalCache();
+      state[sectionId] = collapsed;
+      writeLocalCache(state);
+
+      // Guarda en Firestore para que el estado se mantenga igual en otros dispositivos.
+      if (typeof window.saveWidgetCollapseState === 'function') {
+        window.saveWidgetCollapseState(sectionId, collapsed);
+      }
+    };
+
+    // Mientras carga la conexión con la nube, aplica de inmediato lo último
+    // guardado localmente para evitar parpadeos.
+    function initWidgetCollapseFromCache() {
+      var state = readLocalCache();
+      WIDGET_IDS.forEach(function (id) {
+        applyCollapsed(id, !!state[id]);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initWidgetCollapseFromCache);
+    } else {
+      initWidgetCollapseFromCache();
     }
   })();
   </script>
