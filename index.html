@@ -3602,6 +3602,14 @@
     let stickyNoteZCounter = 0; // Define qué nota queda "encima" al arrastrarla/editarla
     
     let currentDate = new Date();
+    // Evita que el aviso interno de pago de TDC se dispare varias veces: Firestore
+    // puede re-entregar el snapshot de "accounts" más de una vez por sesión (al
+    // reconectar, al editar cualquier cuenta, etc.), así que sin este candado el
+    // aviso podía reaparecer aunque ya se hubiera mostrado en esa misma apertura.
+    let tdcDuePopupCheckedThisSession = false;
+    // Última fecha (YYYY-MM-DD) en que el usuario cerró el aviso de pago de TDC,
+    // sincronizada desde Firestore (ver listener de "tdcDuePopup" más abajo).
+    let tdcDuePopupLastDismissed = null;
     let selectedDateStr = null;
     let editingId = null; 
     let editingAccountId = null; 
@@ -3613,6 +3621,7 @@
     let searchQuery = '';
     let inactivityTimeout;
     let confirmCallback = null; 
+    let confirmOnCloseCallback = null;
     let currentDieCastPhoto = ''; // Fotografía guardada del modal
 
     // Guardado de la clave maestra cargada de Firestore
@@ -3913,7 +3922,10 @@
         renderAccountsSection();
         updateAccountsSelectors();
         renderApp();
-        checkCreditDuePopupToday();
+        if (!tdcDuePopupCheckedThisSession) {
+          tdcDuePopupCheckedThisSession = true;
+          checkCreditDuePopupToday();
+        }
       }, (error) => console.error("Error cargando cuentas:", error));
 
       const qSubcats = query(collection(db, 'artifacts', APP_ID, 'public', 'data', 'subcategories'));
@@ -4050,6 +4062,23 @@
           await setDoc(widgetCollapseDocRef, { [sectionId]: collapsed }, { merge: true });
         } catch (e) {
           console.error("Error guardando estado del widget:", e);
+        }
+      };
+
+      // Recuerda, en la nube, qué día fue la última vez que el usuario cerró el
+      // aviso interno de pago de TDC. Así, aunque abra la app en otro dispositivo
+      // o el navegador borre el localStorage, el aviso no se repite el mismo día
+      // una vez que ya le dio "Cerrar".
+      const tdcDuePopupDocRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'tdcDuePopup');
+      onSnapshot(tdcDuePopupDocRef, (docSnap) => {
+        tdcDuePopupLastDismissed = docSnap.exists() ? (docSnap.data().lastDismissedDate || null) : null;
+      }, (error) => console.error("Error sincronizando aviso de pago de TDC:", error));
+
+      window.saveTdcDuePopupDismissed = async function (dateStr) {
+        try {
+          await setDoc(tdcDuePopupDocRef, { lastDismissedDate: dateStr }, { merge: true });
+        } catch (e) {
+          console.error("Error guardando aviso de pago de TDC:", e);
         }
       };
 
@@ -5329,7 +5358,7 @@
       if (nameInput) nameInput.value = name;
     }
 
-    function showConfirm(title, text, callback, isAlert = false) {
+    function showConfirm(title, text, callback, isAlert = false, onClose = null) {
       const confirmTitle = document.getElementById('confirm-title');
       const confirmText = document.getElementById('confirm-text');
       const confirmIconBox = document.getElementById('confirm-icon-box');
@@ -5339,6 +5368,7 @@
       if (confirmTitle) confirmTitle.textContent = title;
       if (confirmText) confirmText.textContent = text;
       confirmCallback = callback;
+      confirmOnCloseCallback = onClose;
       
       if (isAlert) {
         actionBtn.classList.add('hidden');
@@ -5371,6 +5401,13 @@
         setTimeout(() => modalElement.classList.add('hidden'), 300);
       }
       confirmCallback = null;
+      if (typeof confirmOnCloseCallback === 'function') {
+        const onClose = confirmOnCloseCallback;
+        confirmOnCloseCallback = null;
+        onClose();
+      } else {
+        confirmOnCloseCallback = null;
+      }
     }
 
     function triggerConfirm() {
@@ -6429,21 +6466,27 @@
       }
     }
 
-    // Pop-up interno: si hoy es el día límite de pago de alguna tarjeta, lo
-    // avisa al abrir/recargar la app (una sola vez por día, usando
-    // localStorage como bandera, sin importar si llega o no la notificación
-    // push del sistema).
+    // Pop-up interno: si hoy es el día límite de pago de alguna tarjeta, lo avisa
+    // al abrir/recargar la app UNA sola vez al día. Usa fecha local (no UTC) y
+    // revisa tanto localStorage (rápido, este dispositivo) como el ajuste
+    // sincronizado en Firestore (para que, si ya le diste "Cerrar" en otro
+    // dispositivo o el navegador borró el localStorage, no se repita igual). La
+    // bandera de "ya lo cerré hoy" se guarda SOLO cuando el usuario realmente
+    // cierra/acepta el aviso, no antes de mostrarlo.
     function checkCreditDuePopupToday() {
       try {
         const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
-        const storageKey = `tdcDuePopupShown_${todayStr}`;
-        if (localStorage.getItem(storageKey)) return;
-
         const year = now.getFullYear();
         const month = now.getMonth();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
         const today = now.getDate();
+        const todayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(today).padStart(2, '0')}`;
+
+        const storageKey = `tdcDuePopupShown_${todayStr}`;
+        const alreadyShownLocally = !!localStorage.getItem(storageKey);
+        const alreadyShownRemotely = tdcDuePopupLastDismissed === todayStr;
+        if (alreadyShownLocally || alreadyShownRemotely) return;
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         const dueTodayAccounts = accounts.filter(a => {
           if (a.accountType !== 'credito' || !a.paymentDueDay) return false;
@@ -6453,14 +6496,20 @@
 
         if (dueTodayAccounts.length === 0) return;
 
-        localStorage.setItem(storageKey, '1');
-
         const listText = dueTodayAccounts.map(a => `${a.emoji || '💳'} ${a.name}`).join(', ');
         const text = dueTodayAccounts.length === 1
           ? `Hoy es el día límite de pago de tu tarjeta ${listText}. No lo dejes pasar.`
           : `Hoy es el día límite de pago de estas tarjetas: ${listText}. No las dejes pasar.`;
 
-        showConfirm("💳 Recordatorio de Pago", text, null, true);
+        showConfirm("💳 Recordatorio de Pago", text, null, true, function () {
+          // Se ejecuta al darle "Cerrar" (el "Aceptar" de este aviso): a partir de
+          // aquí no vuelve a salir hoy, ni en este dispositivo ni en otros.
+          localStorage.setItem(storageKey, '1');
+          tdcDuePopupLastDismissed = todayStr;
+          if (typeof window.saveTdcDuePopupDismissed === 'function') {
+            window.saveTdcDuePopupDismissed(todayStr);
+          }
+        });
       } catch (e) {
         console.error("Error al mostrar recordatorio de pago de TDC:", e);
       }
