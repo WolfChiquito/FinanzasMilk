@@ -1611,6 +1611,11 @@
       background: #fff;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
       transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      line-height: 1;
     }
     .header-kia-switch.is-on .header-kia-switch-dot {
       transform: translateX(15px);
@@ -2153,7 +2158,7 @@
         <!-- KIA: activar/desactivar + micrófono para llamarla, todo en un solo control -->
         <div class="header-kia-pill" title="Kia">
           <button type="button" id="header-kia-switch" class="header-kia-switch" onclick="window.toggleMascotVisibility()" aria-label="Activar o desactivar a Kia">
-            <span class="header-kia-switch-dot"></span>
+            <span class="header-kia-switch-dot" id="header-kia-switch-dot">🐾</span>
           </button>
           <button type="button" id="header-kia-mic-btn" class="header-kia-mic-btn" onclick="window.openSmartMic()" aria-label="Llamar a Kia por voz" title="Llamar a Kia">
             <i data-lucide="mic" class="w-4 h-4"></i>
@@ -12558,6 +12563,8 @@
       var on = isMascotEnabled();
       var headerSwitch = document.getElementById('header-kia-switch');
       if (headerSwitch) headerSwitch.classList.toggle('is-on', on);
+      var headerDot = document.getElementById('header-kia-switch-dot');
+      if (headerDot) headerDot.textContent = on ? '🐾' : '💤';
     }
 
     /* ---------- Modal de ajustes de Kia (frases + activar/desactivar) ---------- */
