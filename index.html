@@ -12159,24 +12159,21 @@
 
     // Expone openSmartMic globalmente: el botón del header (fuera de este IIFE)
     // necesita poder "llamar a Kia" con un solo tap, igual que el doble toque
-    // sobre la mascota flotante.
+    // sobre la mascota flotante. Funciona aunque Kia esté apagada (el interruptor
+    // solo controla si el muñeco anda paseándose por la pantalla; el micrófono
+    // para dar instrucciones por voz sigue disponible siempre desde aquí).
     window.openSmartMic = function () {
-      if (!isMascotEnabled()) return; // Kia está apagada: no tiene sentido abrir su micrófono.
       openSmartMic();
     };
 
-    // Sincroniza el interruptor de Kia y el botón de micrófono del header con el
-    // estado real (activada/desactivada), tanto al cargar la app como cada vez
-    // que se prende/apaga desde cualquier lugar (header o modal de ajustes).
+    // Sincroniza el interruptor de Kia del header con el estado real
+    // (activada/desactivada), tanto al cargar la app como cada vez que se
+    // prende/apaga desde cualquier lugar (header o modal de ajustes). El botón
+    // de micrófono no depende de este interruptor: siempre está disponible.
     function updateHeaderKiaUI() {
       var on = isMascotEnabled();
       var headerSwitch = document.getElementById('header-kia-switch');
-      var headerMicBtn = document.getElementById('header-kia-mic-btn');
       if (headerSwitch) headerSwitch.classList.toggle('is-on', on);
-      if (headerMicBtn) {
-        headerMicBtn.disabled = !on;
-        headerMicBtn.title = on ? 'Llamar a Kia' : 'Activa a Kia para poder llamarla';
-      }
     }
 
     /* ---------- Modal de ajustes de Kia (frases + activar/desactivar) ---------- */
