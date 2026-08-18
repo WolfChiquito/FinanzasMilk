@@ -592,6 +592,48 @@
       filter: saturate(0.45);
     }
 
+    /* ===== CHECK CIRCULAR DE TAREAS (color acorde a la nota, se rellena al marcar) ===== */
+    .task-check-circle {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: background-color 0.2s ease, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+    .task-check-circle:hover {
+      transform: scale(1.12);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.14);
+    }
+    .task-check-circle:active {
+      transform: scale(0.88);
+    }
+    .task-check-circle:checked {
+      background: currentColor;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    }
+    .task-check-circle:checked::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 47%;
+      width: 5px;
+      height: 10px;
+      border: solid var(--check-mark, #fff);
+      border-width: 0 2.5px 2.5px 0;
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+    .task-check-circle:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.35);
+    }
+
     .task-card-text {
       font-family: var(--item-font, 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif);
       font-size: 13px;
@@ -7903,6 +7945,17 @@
 
     // Construye el estilo inline (fondo + transparencia + texto + resplandor neón + tipografía) para una nota o tarea
     // lineOpacity solo aplica a notas: controla qué tanto se ven las líneas de cuaderno de fondo
+    // Elige palomita blanca u oscura según el brillo del color de texto de la nota, para que siempre se lea bien al rellenar el círculo
+    function idealCheckColor(hex) {
+      const h = String(hex || '').replace('#', '');
+      if (h.length < 6) return '#ffffff';
+      const r = parseInt(h.substring(0, 2), 16);
+      const g = parseInt(h.substring(2, 4), 16);
+      const b = parseInt(h.substring(4, 6), 16);
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      return luminance > 0.6 ? '#2b2b2b' : '#ffffff';
+    }
+
     function buildItemStyle(palette, color, opacity, kind, lineOpacity, font) {
       const pal = COLOR_PALETTES[palette] ? palette : 'pastel';
       const colKey = COLOR_PALETTES[pal][color] ? color : Object.keys(COLOR_PALETTES[pal])[0];
@@ -7912,7 +7965,7 @@
         ? ((typeof lineOpacity === 'number' && lineOpacity >= 0 && lineOpacity <= 1) ? lineOpacity : DEFAULT_NOTE_LINE_OPACITY)
         : 0.16;
       const fontFamily = (FONT_OPTIONS[font] || FONT_OPTIONS[DEFAULT_FONT]).family;
-      let style = `background: rgba(${c.bg}, ${alpha}); color: ${c.text}; --note-line-color: rgba(${c.line}, ${lineAlpha}); --item-font: ${fontFamily};`;
+      let style = `background: rgba(${c.bg}, ${alpha}); color: ${c.text}; --note-line-color: rgba(${c.line}, ${lineAlpha}); --item-font: ${fontFamily}; --check-mark: ${idealCheckColor(c.text)};`;
       if (pal === 'neon') {
         const shadowOffset = kind === 'task' ? '2px 5px 12px' : '3px 6px 14px';
         style += ` box-shadow: 0 0 14px rgba(${c.bg},0.55), 0 0 28px rgba(${c.bg},0.28), ${shadowOffset} rgba(0,0,0,0.5); border: 1px solid rgba(${c.bg},0.65);`;
@@ -8215,7 +8268,7 @@
           container.innerHTML += `
             <div class="task-card ${tapeClass} ${t.completed ? 'task-card-done' : ''}" style="${style}">
               <div class="flex items-start gap-2.5">
-                <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskCompleted('${t.id}')" class="mt-0.5 w-[18px] h-[18px] rounded-md cursor-pointer flex-shrink-0" style="accent-color: currentColor;" title="Marcar como completada" />
+                <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTaskCompleted('${t.id}')" class="task-check-circle mt-0.5 flex-shrink-0" title="Marcar como completada" />
                 <div class="flex-1 min-w-0">
                   <p class="task-card-text ${t.completed ? 'line-through' : ''}">${escapeHtml(t.text)}</p>
                   ${badge}
