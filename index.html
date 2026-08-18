@@ -763,6 +763,95 @@
       animation: due-glow 2s infinite ease-in-out;
     }
 
+    /* Destello de "Corte" (fecha de corte de una tarjeta de crédito). A propósito
+       usa un patrón distinto al de "Hoy" y "Pago": parpadeo a "pasos" (brusco,
+       no una respiración suave) + borde punteado, con su propio color
+       (--cutoff-*), para que de un vistazo se note que es un aviso diferente
+       y no se confunda con el día actual. */
+    @keyframes cutoff-glow {
+      0%, 100% {
+        box-shadow: 0 0 8px var(--cutoff-shadow-soft, rgba(255, 140, 0, 0.35)), 0 0 16px var(--cutoff-shadow-mid, rgba(255, 140, 0, 0.15));
+        border-color: var(--cutoff-border, rgba(255, 140, 0, 0.5));
+      }
+      50% {
+        box-shadow: 0 0 22px var(--cutoff-shadow-strong, rgba(255, 140, 0, 0.95)), 0 0 30px var(--cutoff-shadow-strong2, rgba(255, 140, 0, 0.6));
+        border-color: var(--cutoff-border-strong, rgba(255, 140, 0, 0.95));
+      }
+    }
+    .cutoff-destello {
+      opacity: 1;
+      border-style: dashed !important;
+      animation: cutoff-glow 1.3s infinite steps(5, jump-end);
+    }
+
+    /* Cuando "Hoy" coincide con un día de Corte: alterna el color de "hoy" con
+       el color de corte, conservando el mismo patrón a pasos + borde
+       punteado (en vez del brillo continuo de today-glow), para diferenciar
+       claramente esta combinación de la de "hoy + pago". */
+    @keyframes today-cutoff-glow {
+      0%, 100% {
+        box-shadow: 0 0 10px var(--today-shadow-soft, rgba(250, 255, 0, 0.45)), 0 0 18px var(--today-shadow-mid, rgba(250, 255, 0, 0.2));
+        border-color: var(--today-border, rgba(250, 255, 0, 0.65));
+      }
+      25% {
+        box-shadow: 0 0 24px var(--today-shadow-strong, rgba(250, 255, 0, 0.95)), 0 0 34px var(--today-shadow-strong2, rgba(250, 255, 0, 0.55));
+        border-color: var(--today-border-strong, rgba(250, 255, 0, 0.95));
+      }
+      50% {
+        box-shadow: 0 0 8px var(--cutoff-shadow-soft, rgba(255, 140, 0, 0.4)), 0 0 16px var(--cutoff-shadow-mid, rgba(255, 140, 0, 0.2));
+        border-color: var(--cutoff-border, rgba(255, 140, 0, 0.6));
+      }
+      75% {
+        box-shadow: 0 0 20px var(--cutoff-shadow-strong, rgba(255, 140, 0, 0.9)), 0 0 28px var(--cutoff-shadow-strong2, rgba(255, 140, 0, 0.6));
+        border-color: var(--cutoff-border-strong, rgba(255, 140, 0, 0.95));
+      }
+    }
+    .today-cutoff-destello {
+      opacity: 1;
+      border-style: dashed !important;
+      animation: today-cutoff-glow 2.4s infinite steps(8, jump-end);
+    }
+
+    /* Mini-banner "PAGO" / "CORTE": etiqueta compacta dentro de la celda del
+       día que avisa sin ambigüedad si ese día es fecha límite de pago y/o
+       fecha de corte de alguna tarjeta. Parpadea "a pasos" (brusco), un
+       patrón distinto al brillo continuo del destello de "Hoy", para que
+       ambos avisos se distingan claramente incluso si coinciden en la misma
+       celda. Se oculta por completo si "Mini-banner en el día" está apagado
+       en Ajustes. */
+    @keyframes mini-banner-pulse {
+      0%, 100% { opacity: 0.78; transform: scale(1); }
+      20% { opacity: 1; transform: scale(1.06); }
+      40% { opacity: 0.78; transform: scale(1); }
+    }
+    .tdc-mini-banner-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 0 1px;
+      max-width: 100%;
+    }
+    .tdc-mini-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5px;
+      font-size: 6px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1;
+      padding: 1.5px 4px;
+      border-radius: 9999px;
+      white-space: nowrap;
+      color: #0b0d14;
+      animation: mini-banner-pulse 1.8s infinite steps(6, jump-end);
+    }
+    @media (min-width: 768px) {
+      .tdc-mini-banner { font-size: 7.5px; padding: 2px 6px; }
+    }
+
     /* Punto sutil que avisa que una tarjeta está por vencer (aparece dentro de
        la ventana de aviso definida en renderCalendar, solo si los destellos de
        TDC están encendidos en Ajustes). Es un pequeño halo difuso que "respira"
@@ -3441,8 +3530,8 @@
 
         <div class="flex items-center justify-between bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3">
           <div>
-            <p class="text-xs font-bold text-white">Destellos de TDC</p>
-            <p class="text-[10px] text-gray-500">Muestra u oculta por completo el aviso de fechas límite de pago</p>
+            <p class="text-xs font-bold text-white">Destellos de Pago (TDC)</p>
+            <p class="text-[10px] text-gray-500">Muestra u oculta el aviso de fechas límite de pago</p>
           </div>
           <button id="tdc-glow-toggle-btn" onclick="toggleTdcGlow()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff] shrink-0 ml-3">
             <span id="tdc-glow-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
@@ -3452,6 +3541,54 @@
         <p class="text-[11px] text-gray-400 leading-relaxed">
           Apagado: las fechas de pago dejan de marcarse por completo en el calendario (sin color, sin ícono 💳 y sin aviso de "vence pronto"). Encendido: se destacan con parpadeo, color e ícono.
         </p>
+
+        <!-- NUEVO: destello independiente para el Día de Corte, con su propio
+             color y patrón de parpadeo (a pasos + borde punteado) para que
+             nunca se confunda con el destello de "Hoy" ni con el de "Pago". -->
+        <div class="bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-white">Destellos de Corte</p>
+              <p class="text-[10px] text-gray-500">Avisa también el día de corte de cada tarjeta, con destello propio</p>
+            </div>
+            <button id="cutoff-glow-toggle-btn" onclick="toggleCutoffGlow()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff] shrink-0 ml-3">
+              <span id="cutoff-glow-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
+            <input type="color" id="cutoff-glow-color-input" value="#ff8c00"
+              oninput="previewCutoffGlowColor(this.value)"
+              onchange="saveCutoffGlowColor(this.value)"
+              class="h-10 w-14 bg-gray-950 border border-gray-800 rounded-xl cursor-pointer p-1">
+            <span class="text-[11px] text-gray-400">Color del destello del día de corte (distinto al de "Hoy" y al de "Pago")</span>
+          </div>
+        </div>
+
+        <!-- NUEVO: ventana de aviso anticipado configurable (antes fija en 3 días) -->
+        <div class="bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3 space-y-2">
+          <div>
+            <p class="text-xs font-bold text-white">Días de aviso anticipado</p>
+            <p class="text-[10px] text-gray-500">Cuántos días antes de la fecha límite aparece el globito de "vence pronto"</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input type="range" id="due-warning-days-input" min="0" max="10" step="1" value="3"
+              oninput="previewDueWarningDays(this.value)"
+              onchange="saveDueWarningDays(this.value)"
+              class="w-full accent-[#faff00] cursor-pointer">
+            <span id="due-warning-days-value" class="text-xs font-bold text-white w-6 text-center shrink-0">3</span>
+          </div>
+        </div>
+
+        <!-- NUEVO: mini-banner "PAGO"/"CORTE" dentro de la celda del día -->
+        <div class="flex items-center justify-between bg-gray-900/70 border border-gray-800 rounded-2xl px-4 py-3">
+          <div>
+            <p class="text-xs font-bold text-white">Mini-banner en el día</p>
+            <p class="text-[10px] text-gray-500">Muestra una etiqueta "PAGO" / "CORTE" dentro de la celda del día</p>
+          </div>
+          <button id="mini-banner-toggle-btn" onclick="toggleMiniBanner()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff] shrink-0 ml-3">
+            <span id="mini-banner-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -3738,7 +3875,16 @@
     let vaultEditImageData = null; // nueva imagen elegida al editar (si el usuario la reemplaza)
     // Ajustes visuales del calendario: color del destello del día de hoy y si
     // se muestran (o no) los destellos/parpadeos de las fechas límite de TDC.
-    let calendarSettings = { todayGlowColor: '#faff00', tdcGlowEnabled: true };
+    let calendarSettings = {
+      todayGlowColor: '#faff00',
+      tdcGlowEnabled: true,
+      // NUEVO: parámetros del destello/mini-banner de "Corte", independientes
+      // de los de "Pago", para poder personalizar más el recordatorio de TDC.
+      cutoffGlowEnabled: true,
+      cutoffGlowColor: '#ff8c00',
+      dueWarningDays: 3,
+      showMiniBanner: true
+    };
     const VAULT_PIN = '2527';
     let editingNoteId = null;
     let creatingNewNote = false;
@@ -4186,9 +4332,17 @@
           const data = docSnap.data();
           calendarSettings.todayGlowColor = data.todayGlowColor || '#faff00';
           calendarSettings.tdcGlowEnabled = (typeof data.tdcGlowEnabled === 'boolean') ? data.tdcGlowEnabled : true;
+          calendarSettings.cutoffGlowEnabled = (typeof data.cutoffGlowEnabled === 'boolean') ? data.cutoffGlowEnabled : true;
+          calendarSettings.cutoffGlowColor = data.cutoffGlowColor || '#ff8c00';
+          calendarSettings.dueWarningDays = (typeof data.dueWarningDays === 'number') ? data.dueWarningDays : 3;
+          calendarSettings.showMiniBanner = (typeof data.showMiniBanner === 'boolean') ? data.showMiniBanner : true;
         } else {
           calendarSettings.todayGlowColor = '#faff00';
           calendarSettings.tdcGlowEnabled = true;
+          calendarSettings.cutoffGlowEnabled = true;
+          calendarSettings.cutoffGlowColor = '#ff8c00';
+          calendarSettings.dueWarningDays = 3;
+          calendarSettings.showMiniBanner = true;
         }
         updateCalendarSettingsUI();
         renderCalendar();
@@ -4378,6 +4532,30 @@
       if (quickToggleDot) quickToggleDot.classList.toggle('translate-x-0', !calendarSettings.tdcGlowEnabled);
       if (quickToggleIconOn) quickToggleIconOn.classList.toggle('hidden', !calendarSettings.tdcGlowEnabled);
       if (quickToggleIconOff) quickToggleIconOff.classList.toggle('hidden', !!calendarSettings.tdcGlowEnabled);
+
+      // NUEVO: refleja los parámetros de Corte, días de aviso y mini-banner.
+      const cutoffColorInput = document.getElementById('cutoff-glow-color-input');
+      if (cutoffColorInput) cutoffColorInput.value = calendarSettings.cutoffGlowColor || '#ff8c00';
+
+      const cutoffToggleBtn = document.getElementById('cutoff-glow-toggle-btn');
+      const cutoffToggleDot = document.getElementById('cutoff-glow-toggle-dot');
+      if (cutoffToggleBtn) cutoffToggleBtn.classList.toggle('bg-[#7000ff]', !!calendarSettings.cutoffGlowEnabled);
+      if (cutoffToggleBtn) cutoffToggleBtn.classList.toggle('bg-gray-700', !calendarSettings.cutoffGlowEnabled);
+      if (cutoffToggleDot) cutoffToggleDot.classList.toggle('translate-x-5', !!calendarSettings.cutoffGlowEnabled);
+      if (cutoffToggleDot) cutoffToggleDot.classList.toggle('translate-x-0', !calendarSettings.cutoffGlowEnabled);
+
+      const warningDaysInput = document.getElementById('due-warning-days-input');
+      const warningDaysValue = document.getElementById('due-warning-days-value');
+      const warningDays = (typeof calendarSettings.dueWarningDays === 'number') ? calendarSettings.dueWarningDays : 3;
+      if (warningDaysInput) warningDaysInput.value = warningDays;
+      if (warningDaysValue) warningDaysValue.textContent = warningDays;
+
+      const miniBannerToggleBtn = document.getElementById('mini-banner-toggle-btn');
+      const miniBannerToggleDot = document.getElementById('mini-banner-toggle-dot');
+      if (miniBannerToggleBtn) miniBannerToggleBtn.classList.toggle('bg-[#7000ff]', !!calendarSettings.showMiniBanner);
+      if (miniBannerToggleBtn) miniBannerToggleBtn.classList.toggle('bg-gray-700', !calendarSettings.showMiniBanner);
+      if (miniBannerToggleDot) miniBannerToggleDot.classList.toggle('translate-x-5', !!calendarSettings.showMiniBanner);
+      if (miniBannerToggleDot) miniBannerToggleDot.classList.toggle('translate-x-0', !calendarSettings.showMiniBanner);
     }
 
     // Vista previa instantánea mientras el usuario elige el color (no guarda todavía).
@@ -4411,6 +4589,78 @@
         }, { merge: true });
       } catch (error) {
         console.error("Error al guardar el ajuste de destellos de TDC:", error);
+      }
+    }
+
+    // NUEVO: enciende/apaga el destello (independiente) del Día de Corte.
+    async function toggleCutoffGlow() {
+      const newValue = !calendarSettings.cutoffGlowEnabled;
+      calendarSettings.cutoffGlowEnabled = newValue;
+      updateCalendarSettingsUI();
+      renderCalendar();
+      try {
+        await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'calendar'), {
+          cutoffGlowEnabled: newValue
+        }, { merge: true });
+      } catch (error) {
+        console.error("Error al guardar el ajuste de destellos de Corte:", error);
+      }
+    }
+
+    // NUEVO: vista previa instantánea del color del destello de Corte.
+    function previewCutoffGlowColor(value) {
+      calendarSettings.cutoffGlowColor = value;
+      renderCalendar();
+    }
+
+    // NUEVO: guarda en Firestore el color elegido para el destello de Corte.
+    async function saveCutoffGlowColor(value) {
+      calendarSettings.cutoffGlowColor = value;
+      renderCalendar();
+      try {
+        await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'calendar'), {
+          cutoffGlowColor: value
+        }, { merge: true });
+      } catch (error) {
+        console.error("Error al guardar el color del destello de Corte:", error);
+      }
+    }
+
+    // NUEVO: vista previa instantánea de la ventana de aviso anticipado (días).
+    function previewDueWarningDays(value) {
+      const days = Math.max(0, Math.min(10, parseInt(value, 10) || 0));
+      calendarSettings.dueWarningDays = days;
+      const label = document.getElementById('due-warning-days-value');
+      if (label) label.textContent = days;
+      renderCalendar();
+    }
+
+    // NUEVO: guarda en Firestore los días de aviso anticipado.
+    async function saveDueWarningDays(value) {
+      const days = Math.max(0, Math.min(10, parseInt(value, 10) || 0));
+      calendarSettings.dueWarningDays = days;
+      renderCalendar();
+      try {
+        await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'calendar'), {
+          dueWarningDays: days
+        }, { merge: true });
+      } catch (error) {
+        console.error("Error al guardar los días de aviso anticipado:", error);
+      }
+    }
+
+    // NUEVO: enciende/apaga el mini-banner "PAGO"/"CORTE" dentro de la celda del día.
+    async function toggleMiniBanner() {
+      const newValue = !calendarSettings.showMiniBanner;
+      calendarSettings.showMiniBanner = newValue;
+      updateCalendarSettingsUI();
+      renderCalendar();
+      try {
+        await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'calendar'), {
+          showMiniBanner: newValue
+        }, { merge: true });
+      } catch (error) {
+        console.error("Error al guardar el ajuste del mini-banner:", error);
       }
     }
 
@@ -4452,35 +4702,63 @@
         // a 0-4 días de este día (dueSoonAccounts, ventana de aviso del globito).
         // Si el día límite (ej. 31) no existe en el mes actual (ej. Febrero), se
         // recorre al último día disponible de ese mes.
-        const CREDIT_DUE_WARNING_DAYS = 3; // Tamaño de la ventana de aviso (incluye el día límite)
+        // NUEVO: días de aviso anticipado configurables desde Ajustes (antes
+        // fijo en 3). Se usa tanto para el globito de "Pago" como para el de
+        // "Corte".
+        const CREDIT_DUE_WARNING_DAYS = (typeof calendarSettings.dueWarningDays === 'number') ? calendarSettings.dueWarningDays : 3;
         const dueAccountsToday = [];
         const dueSoonAccounts = [];
+        // NUEVO: cuentas de crédito cuyo "Día de Corte" cae en este día del
+        // mes (para el destello/mini-banner de "Corte", independiente del de "Pago").
+        const cutoffAccountsToday = [];
+        const cutoffSoonAccounts = [];
         accounts.forEach(a => {
-          if (a.accountType !== 'credito' || !a.paymentDueDay || !a.paymentDueColor) return;
-          const effectiveDay = Math.min(parseInt(a.paymentDueDay, 10), daysInMonth);
-          const diff = effectiveDay - day;
-          if (diff === 0) dueAccountsToday.push(a);
-          if (diff >= 0 && diff < CREDIT_DUE_WARNING_DAYS) dueSoonAccounts.push({ ...a, daysLeft: diff });
+          if (a.accountType !== 'credito') return;
+          if (a.paymentDueDay && a.paymentDueColor) {
+            const effectiveDay = Math.min(parseInt(a.paymentDueDay, 10), daysInMonth);
+            const diff = effectiveDay - day;
+            if (diff === 0) dueAccountsToday.push(a);
+            if (diff >= 0 && diff < CREDIT_DUE_WARNING_DAYS) dueSoonAccounts.push({ ...a, daysLeft: diff });
+          }
+          if (a.cutoffDay) {
+            const effectiveCutoffDay = Math.min(parseInt(a.cutoffDay, 10), daysInMonth);
+            const cutoffDiff = effectiveCutoffDay - day;
+            if (cutoffDiff === 0) cutoffAccountsToday.push(a);
+            if (cutoffDiff >= 0 && cutoffDiff < CREDIT_DUE_WARNING_DAYS) cutoffSoonAccounts.push({ ...a, daysLeft: cutoffDiff });
+          }
         });
         
         const btn = document.createElement('button');
         btn.onclick = () => window.openModal(dateStr);
 
         const tdcGlowOn = calendarSettings.tdcGlowEnabled !== false;
+        const cutoffGlowOn = calendarSettings.cutoffGlowEnabled !== false; // NUEVO
         const todayColor = calendarSettings.todayGlowColor || '#faff00';
-        // Si "Destellos de TDC" está apagado en Ajustes, el aviso de fecha
+        const cutoffColor = calendarSettings.cutoffGlowColor || '#ff8c00'; // NUEVO
+        const miniBannerOn = calendarSettings.showMiniBanner !== false; // NUEVO
+        // Si "Destellos de Pago" está apagado en Ajustes, el aviso de fecha
         // límite se apaga POR COMPLETO (sin color, sin ícono, sin globito),
         // no solo se le quita el parpadeo. showDueMark es la única bandera
         // que decide si este día se pinta como día de pago de una TDC.
         const showDueMark = dueAccountsToday.length > 0 && tdcGlowOn;
+        // NUEVO: igual que showDueMark, pero para el Día de Corte, controlado
+        // por su propio interruptor ("Destellos de Corte").
+        const showCutoffMark = cutoffAccountsToday.length > 0 && cutoffGlowOn;
 
         let baseClass = `relative h-24 md:h-28 rounded-[2.5rem] border flex flex-col justify-between items-center p-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:ring-2 focus:ring-[#7000ff] focus:outline-none cursor-pointer animate-pop `;
         if (isSelected) {
           baseClass += 'student-highlight';
         } else if (isToday && showDueMark) {
           baseClass += 'font-bold today-due-destello';
+        } else if (isToday && showCutoffMark) {
+          // NUEVO: "hoy" + "corte" usa su propio destello (a pasos, borde
+          // punteado) para no confundirse con "hoy" a secas ni con "hoy + pago".
+          baseClass += 'font-bold today-cutoff-destello';
         } else if (showDueMark) {
           baseClass += 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 due-destello';
+        } else if (showCutoffMark) {
+          // NUEVO: día de corte (sin coincidir con "hoy" ni con "pago").
+          baseClass += 'bg-gray-900/40 text-gray-300 hover:bg-gray-800/60 cutoff-destello';
         } else if (isToday) {
           baseClass += 'font-bold today-destello';
         } else {
@@ -4499,6 +4777,16 @@
           btn.style.setProperty('--due-border-strong', hexToRgba(dueColor, 0.95));
         }
 
+        if (showCutoffMark && !isSelected) {
+          // NUEVO: variables CSS del destello de Corte (color propio, distinto al de "Pago").
+          btn.style.setProperty('--cutoff-shadow-soft', hexToRgba(cutoffColor, 0.35));
+          btn.style.setProperty('--cutoff-shadow-mid', hexToRgba(cutoffColor, 0.15));
+          btn.style.setProperty('--cutoff-shadow-strong', hexToRgba(cutoffColor, 0.95));
+          btn.style.setProperty('--cutoff-shadow-strong2', hexToRgba(cutoffColor, 0.6));
+          btn.style.setProperty('--cutoff-border', hexToRgba(cutoffColor, 0.5));
+          btn.style.setProperty('--cutoff-border-strong', hexToRgba(cutoffColor, 0.95));
+        }
+
         if (isToday && !isSelected) {
           btn.style.setProperty('--today-shadow-soft', hexToRgba(todayColor, 0.4));
           btn.style.setProperty('--today-shadow-mid', hexToRgba(todayColor, 0.2));
@@ -4508,7 +4796,7 @@
           btn.style.setProperty('--today-border-strong', hexToRgba(todayColor, 0.95));
           btn.style.backgroundColor = hexToRgba(todayColor, 0.1);
           btn.style.color = todayColor;
-          if (!showDueMark) {
+          if (!showDueMark && !showCutoffMark) {
             btn.style.borderColor = hexToRgba(todayColor, 0.5);
           }
         }
@@ -4518,17 +4806,46 @@
         if (showDueMark) {
           innerHTML += `<span class="hidden sm:block absolute top-1.5 right-1.5 text-xs" aria-hidden="true">💳</span>`;
         }
+        if (showCutoffMark) {
+          // NUEVO: ícono propio del día de corte (distinto al de "Pago" 💳),
+          // en la esquina opuesta para que ambos puedan convivir en el mismo día.
+          innerHTML += `<span class="hidden sm:block absolute top-1.5 left-1.5 text-xs" aria-hidden="true">✂️</span>`;
+        }
 
-        // Globito pequeño y parpadeante: aparece desde 5 días antes de la fecha
-        // límite de pago hasta el propio día de pago. No mueve la interfaz
-        // (posición absoluta) y el tooltip aparece de inmediato al pasar el
-        // cursor, sin el retraso nativo del navegador. Si el usuario apagó los
-        // destellos de TDC en Ajustes, este aviso también se apaga por completo.
-        if (dueSoonAccounts.length > 0 && tdcGlowOn) {
-          const bubbleColor = dueSoonAccounts[0].paymentDueColor;
-          const tooltipLines = dueSoonAccounts.map(a => {
+        // NUEVO: mini-banner "PAGO" / "CORTE" dentro de la celda del día,
+        // debajo del número. Usa un destello a "pasos" (mini-banner-pulse),
+        // deliberadamente distinto al brillo continuo del destello de "Hoy",
+        // para que se identifique a simple vista como un aviso diferente.
+        // Se apaga por completo si "Mini-banner en el día" está apagado en Ajustes.
+        if (miniBannerOn && (showDueMark || showCutoffMark)) {
+          innerHTML += `<div class="tdc-mini-banner-row">`;
+          if (showDueMark) {
+            const dueBannerColor = dueAccountsToday[0].paymentDueColor;
+            innerHTML += `<span class="tdc-mini-banner" style="background:${dueBannerColor};">💳 Pago</span>`;
+          }
+          if (showCutoffMark) {
+            innerHTML += `<span class="tdc-mini-banner" style="background:${cutoffColor};">✂️ Corte</span>`;
+          }
+          innerHTML += `</div>`;
+        }
+
+        // Globito pequeño y parpadeante: aparece desde varios días antes de la
+        // fecha límite de pago (o de corte) hasta el propio día. No mueve la
+        // interfaz (posición absoluta) y el tooltip aparece de inmediato al
+        // pasar el cursor, sin el retraso nativo del navegador. Si el usuario
+        // apagó el destello correspondiente en Ajustes, este aviso también se
+        // apaga por completo.
+        const soonAccountsCombined = []
+          .concat(tdcGlowOn ? dueSoonAccounts.map(a => ({ ...a, kind: 'pago' })) : [])
+          .concat(cutoffGlowOn ? cutoffSoonAccounts.map(a => ({ ...a, kind: 'corte' })) : []);
+        if (soonAccountsCombined.length > 0) {
+          const bubbleColor = soonAccountsCombined[0].kind === 'corte'
+            ? cutoffColor
+            : soonAccountsCombined[0].paymentDueColor;
+          const tooltipLines = soonAccountsCombined.map(a => {
             const who = `${a.emoji || '💳'} ${a.name}`;
-            return a.daysLeft === 0 ? `Hoy vence: ${who}` : `${who}: en ${a.daysLeft} día${a.daysLeft === 1 ? '' : 's'}`;
+            const label = a.kind === 'corte' ? 'corte' : 'vence';
+            return a.daysLeft === 0 ? `Hoy ${label}: ${who}` : `${who} (${label}): en ${a.daysLeft} día${a.daysLeft === 1 ? '' : 's'}`;
           }).join('<br>');
           innerHTML += `<span class="due-soon-bubble" style="background:${bubbleColor}; color:${bubbleColor};"></span>`;
           innerHTML += `<span class="day-tooltip">${tooltipLines}</span>`;
@@ -10719,6 +11036,12 @@
     window.previewTodayGlowColor = previewTodayGlowColor;
     window.saveTodayGlowColor = saveTodayGlowColor;
     window.toggleTdcGlow = toggleTdcGlow;
+    window.toggleCutoffGlow = toggleCutoffGlow;
+    window.previewCutoffGlowColor = previewCutoffGlowColor;
+    window.saveCutoffGlowColor = saveCutoffGlowColor;
+    window.previewDueWarningDays = previewDueWarningDays;
+    window.saveDueWarningDays = saveDueWarningDays;
+    window.toggleMiniBanner = toggleMiniBanner;
     window.openCalcWidgetModal = openCalcWidgetModal;
     window.closeCalcWidgetModal = closeCalcWidgetModal;
 
