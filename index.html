@@ -1169,19 +1169,27 @@
       transform: scale(1.05);
     }
 
-    /* Adaptaciones de altura para móviles */
+    /* Días del calendario: círculo perfecto en cualquier ancho de pantalla.
+       Antes esta forma solo se forzaba dentro de @media (max-width:640px),
+       por eso en escritorio quedaban ovalados: heredaban h-24/md:h-28 +
+       rounded-[2.5rem] de renderCalendar(), donde el ancho de la columna del
+       grid casi nunca coincide con esa altura fija. Al fijar aspect-ratio 1/1
+       el alto siempre iguala al ancho de la celda, en cualquier resolución. */
+    #calendar-grid > button, #calendar-grid > div {
+      aspect-ratio: 1 / 1 !important;
+      height: auto !important;
+      width: 100% !important;
+      border-radius: 9999px !important; /* Círculo perfecto */
+      padding: 0.2rem !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
+    /* Ajuste tipográfico exclusivo de móvil: el círculo es más pequeño ahí,
+       así que el número necesita reducirse para no saturar el espacio. */
     @media (max-width: 640px) {
-      #calendar-grid > button, #calendar-grid > div {
-        aspect-ratio: 1 / 1 !important;
-        height: auto !important;
-        width: 100% !important;
-        border-radius: 9999px !important; /* Círculo perfecto */
-        padding: 0.2rem !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-      }
       #calendar-grid > button > span {
         font-size: 1.15rem !important; /* Mantiene el número visible sin saturar el espacio */
         margin-top: 0 !important;
