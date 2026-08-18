@@ -1431,6 +1431,89 @@
       0% { filter: hue-rotate(0deg); }
       100% { filter: hue-rotate(360deg); }
     }
+
+    /* ===== Botón de Kia en el header: interruptor on/off + micrófono para llamarla ===== */
+    .header-kia-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(3, 7, 18, 0.75);
+      border: 1px solid rgba(112, 0, 255, 0.25);
+      border-radius: 14px;
+      padding: 6px 8px 6px 12px;
+      transition: border-color 0.2s ease;
+    }
+    .header-kia-pill:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+    }
+    .header-kia-switch {
+      position: relative;
+      width: 34px;
+      height: 19px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #374151;
+      transition: background-color 0.25s ease, box-shadow 0.25s ease;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .header-kia-switch.is-on {
+      background: linear-gradient(90deg, #7000ff, #00f0ff);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+    }
+    .header-kia-switch-dot {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .header-kia-switch.is-on .header-kia-switch-dot {
+      transform: translateX(15px);
+    }
+    .header-kia-mic-btn {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background:
+        radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.35), transparent 42%),
+        conic-gradient(from 0deg, #00f0ff, #7000ff, #ff007f, #00f0ff);
+      background-size: 100%, 220% 220%;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+      animation: kiaOrbDrift 7s linear infinite;
+    }
+    .header-kia-mic-btn:hover {
+      transform: scale(1.06);
+    }
+    .header-kia-mic-btn:active {
+      transform: scale(0.92);
+    }
+    .header-kia-mic-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      animation: none;
+      filter: grayscale(0.7);
+      transform: none;
+    }
+    .header-kia-mic-btn i {
+      width: 15px;
+      height: 15px;
+      color: #fff;
+      filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+    }
     @keyframes kiaOrbBreathe {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.04); }
@@ -1927,6 +2010,16 @@
         <button id="theme-toggle" class="p-2.5 md:p-3 bg-gray-950/80 border border-gray-800 rounded-xl hover:border-[#00f0ff]/30 transition-colors text-gray-400 hover:text-[#00f0ff]" title="Alternar tema (Claro / Oscuro / Automático)">
           <i data-lucide="sun" id="theme-icon" class="w-5 h-5"></i>
         </button>
+
+        <!-- KIA: activar/desactivar + micrófono para llamarla, todo en un solo control -->
+        <div class="header-kia-pill" title="Kia">
+          <button type="button" id="header-kia-switch" class="header-kia-switch" onclick="window.toggleMascotVisibility()" aria-label="Activar o desactivar a Kia">
+            <span class="header-kia-switch-dot"></span>
+          </button>
+          <button type="button" id="header-kia-mic-btn" class="header-kia-mic-btn" onclick="window.openSmartMic()" aria-label="Llamar a Kia por voz" title="Llamar a Kia">
+            <i data-lucide="mic" class="w-4 h-4"></i>
+          </button>
+        </div>
 
         <!-- DROPDOWN DE USUARIO EN LUGAR DE BOTÓN SIMPLE -->
         <div class="relative">
@@ -3809,11 +3902,24 @@
 
     const formatCurrency = (amount) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
 
+    // Convierte un Date a "YYYY-MM-DD" usando SU FECHA LOCAL (no UTC). Usar
+    // date.toISOString().split('T')[0] es un bug clásico: toISOString() convierte
+    // a UTC, así que cualquier hora local desde las 18:00 en adelante (México es
+    // UTC-6) se recorre al día siguiente en UTC y termina guardando "mañana" en
+    // vez de "hoy". Todo lo que deba representar el día del calendario local
+    // (fecha de un gasto/ingreso/evento, "hoy" para un input de fecha, etc.) debe
+    // pasar por aquí en vez de toISOString().
+    function localDateStr(d) {
+      const dt = d instanceof Date ? d : new Date(d);
+      return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+    }
+    function todayLocalStr() { return localDateStr(new Date()); }
+
     const DEFAULT_ACCOUNTS = [
-      { id: 'acc_efectivo', name: 'Efectivo', emoji: '💵', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' },
-      { id: 'acc_tarjeta', name: 'Tarjeta', emoji: '💳', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' },
-      { id: 'acc_banco', name: 'Banco', emoji: '🏦', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' },
-      { id: 'acc_mercadolibre', name: 'MercadoLibre', emoji: '📦', initialBalance: 0, initialBalanceDate: new Date().toISOString().split('T')[0], isDefault: true, accountType: 'debito' }
+      { id: 'acc_efectivo', name: 'Efectivo', emoji: '💵', initialBalance: 0, initialBalanceDate: todayLocalStr(), isDefault: true, accountType: 'debito' },
+      { id: 'acc_tarjeta', name: 'Tarjeta', emoji: '💳', initialBalance: 0, initialBalanceDate: todayLocalStr(), isDefault: true, accountType: 'debito' },
+      { id: 'acc_banco', name: 'Banco', emoji: '🏦', initialBalance: 0, initialBalanceDate: todayLocalStr(), isDefault: true, accountType: 'debito' },
+      { id: 'acc_mercadolibre', name: 'MercadoLibre', emoji: '📦', initialBalance: 0, initialBalanceDate: todayLocalStr(), isDefault: true, accountType: 'debito' }
     ];
 
     // Ordena las cuentas según el orden manual guardado (campo 'order').
@@ -3909,7 +4015,7 @@
               name: acc.name,
               emoji: acc.emoji,
               initialBalance: acc.initialBalance || 0,
-              initialBalanceDate: acc.initialBalanceDate || new Date().toISOString().split('T')[0],
+              initialBalanceDate: acc.initialBalanceDate || todayLocalStr(),
               isDefault: false,
               accountType: acc.accountType || 'debito',
               order: i,
@@ -5457,7 +5563,7 @@
       if (emoji) emoji.value = '💵';
       if (name) name.value = '';
       if (balance) balance.value = '';
-      if (date) date.value = new Date().toISOString().split('T')[0];
+      if (date) date.value = todayLocalStr();
       if (typeRadio) typeRadio.checked = true;
       clearDayPickerValue('new-acc-cutoff-day', 'new-acc-cutoff-day-label', 'Elegir día', 'cutoff-day-picker-panel');
       clearDayPickerValue('new-acc-due-day', 'new-acc-due-day-label', 'Elegir día', 'due-day-picker-panel');
@@ -5785,7 +5891,7 @@
       if (emoji) emoji.value = acc.emoji;
       if (name) name.value = acc.name;
       if (balance) balance.value = acc.initialBalance || '';
-      if (date) date.value = acc.initialBalanceDate || new Date().toISOString().split('T')[0];
+      if (date) date.value = acc.initialBalanceDate || todayLocalStr();
       if (typeRadio) typeRadio.checked = true;
       if (acc.cutoffDay) {
         selectDayPickerValue('new-acc-cutoff-day', 'new-acc-cutoff-day-label', 'cutoff-day-picker-panel', parseInt(acc.cutoffDay, 10), 'Elegir día');
@@ -5820,7 +5926,7 @@
         const emoji = emojiInput ? emojiInput.value.trim() : '💳';
         const name = nameInput ? nameInput.value.trim() : '';
         const initialBalance = balanceInput ? (parseFloat(balanceInput.value) || 0) : 0;
-        const initialBalanceDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
+        const initialBalanceDate = dateInput ? dateInput.value : todayLocalStr();
         const accountType = typeInput ? typeInput.value : 'debito';
         const initMode = initModeInput ? initModeInput.value : 'preexistente';
 
@@ -6419,7 +6525,7 @@
         }
 
         const nextDue = computeNextCreditDueDate(parseInt(account.paymentDueDay, 10));
-        const dateStr = nextDue.toISOString().split('T')[0];
+        const dateStr = localDateStr(nextDue);
         const timeStr = `${String(nextDue.getHours()).padStart(2, '0')}:${String(nextDue.getMinutes()).padStart(2, '0')}`;
         const reason = `💳 Hoy vence el pago de tu tarjeta ${account.emoji || '💳'} ${account.name}`;
 
@@ -6559,13 +6665,13 @@
                   if (n.source === 'tdc_due' && n.accountId) {
                     const linkedAccount = accounts.find(a => a.id === n.accountId);
                     if (linkedAccount && linkedAccount.paymentDueDay) {
-                      newDateStr = computeNextCreditDueDate(parseInt(linkedAccount.paymentDueDay, 10)).toISOString().split('T')[0];
+                      newDateStr = localDateStr(computeNextCreditDueDate(parseInt(linkedAccount.paymentDueDay, 10)));
                     }
                   }
                   if (!newDateStr) {
                     const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
                     currentSchedDate.setMonth(currentSchedDate.getMonth() + 1);
-                    newDateStr = currentSchedDate.toISOString().split('T')[0];
+                    newDateStr = localDateStr(currentSchedDate);
                   }
                   await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
                     date: newDateStr
@@ -6573,7 +6679,7 @@
                 } else if (n.repeat === 'annually') {
                   const currentSchedDate = new Date(`${n.date}T${n.time}:00`);
                   currentSchedDate.setFullYear(currentSchedDate.getFullYear() + 1);
-                  const newDateStr = currentSchedDate.toISOString().split('T')[0];
+                  const newDateStr = localDateStr(currentSchedDate);
                   await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'notifications', n.id), {
                     date: newDateStr
                   });
@@ -8795,7 +8901,7 @@
       }
 
       return {
-        dateStr: date ? date.toISOString().split('T')[0] : null,
+        dateStr: date ? localDateStr(date) : null,
         timeStr: time ? String(time.h).padStart(2, '0') + ':' + String(time.m).padStart(2, '0') : null
       };
     }
@@ -8804,7 +8910,7 @@
       const subList = (customSubcategories && customSubcategories.length) ? customSubcategories : DEFAULT_SUBCATEGORIES;
       const subObj = subList.find(s => s.type === type && s.name === subcategoryName);
       const movementData = {
-        date: new Date().toISOString().split('T')[0],
+        date: todayLocalStr(),
         type: type,
         amount: amount,
         concept: concept,
@@ -8821,7 +8927,7 @@
     // pero sin foto: la voz no puede capturar una imagen).
     async function createKiaDiecast(amount, concept, account) {
       const movementData = {
-        date: new Date().toISOString().split('T')[0],
+        date: todayLocalStr(),
         type: 'diecast',
         amount: amount || 0,
         concept: concept,
@@ -8840,7 +8946,7 @@
     // la tarjeta/cuenta destino que se está pagando.
     async function createKiaPagoTC(amount, concept, account, toAccount) {
       const movementData = {
-        date: new Date().toISOString().split('T')[0],
+        date: todayLocalStr(),
         type: 'pago_tc',
         amount: amount || 0,
         concept: concept,
@@ -9097,7 +9203,7 @@
         list.forEach(a => {
           let balance = parseFloat(a.initialBalance || 0);
           movements.forEach(m => {
-            const isTransfer = m.type === 'pago_tc' || (m.type === 'ahorro' && !!m.toAccountId);
+            const isTransfer = isTransferMovement(m);
             if (a.accountType === 'credito') {
               if (isTransfer) {
                 if (m.toAccountId === a.id) balance -= m.amount;
@@ -10281,7 +10387,7 @@
       const dateInput = document.getElementById('task-calendar-date');
       const timeInput = document.getElementById('task-calendar-time');
       const notifyInput = document.getElementById('task-calendar-notify');
-      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+      if (dateInput) dateInput.value = todayLocalStr();
       if (timeInput) timeInput.value = '';
       if (notifyInput) notifyInput.checked = false;
 
@@ -12051,6 +12157,28 @@
       scheduleWander();
     };
 
+    // Expone openSmartMic globalmente: el botón del header (fuera de este IIFE)
+    // necesita poder "llamar a Kia" con un solo tap, igual que el doble toque
+    // sobre la mascota flotante.
+    window.openSmartMic = function () {
+      if (!isMascotEnabled()) return; // Kia está apagada: no tiene sentido abrir su micrófono.
+      openSmartMic();
+    };
+
+    // Sincroniza el interruptor de Kia y el botón de micrófono del header con el
+    // estado real (activada/desactivada), tanto al cargar la app como cada vez
+    // que se prende/apaga desde cualquier lugar (header o modal de ajustes).
+    function updateHeaderKiaUI() {
+      var on = isMascotEnabled();
+      var headerSwitch = document.getElementById('header-kia-switch');
+      var headerMicBtn = document.getElementById('header-kia-mic-btn');
+      if (headerSwitch) headerSwitch.classList.toggle('is-on', on);
+      if (headerMicBtn) {
+        headerMicBtn.disabled = !on;
+        headerMicBtn.title = on ? 'Llamar a Kia' : 'Activa a Kia para poder llamarla';
+      }
+    }
+
     /* ---------- Modal de ajustes de Kia (frases + activar/desactivar) ---------- */
     function renderMascotPhrasesList() {
       var list = document.getElementById('mascot-phrases-list');
@@ -12091,6 +12219,7 @@
       var next = !isMascotEnabled();
       setMascotEnabled(next);
       updateMascotToggleUI();
+      updateHeaderKiaUI();
       applyMascotVisibility();
     };
 
@@ -12259,6 +12388,7 @@
       });
 
       applyMascotVisibility();
+      updateHeaderKiaUI();
       scheduleBlink();
       scheduleIdleGesture();
       scheduleTailWag();
