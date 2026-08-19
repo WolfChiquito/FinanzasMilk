@@ -9509,9 +9509,10 @@
       return stripAccentsKia((haystack || '').toLowerCase()).includes(stripAccentsKia(searchText.toLowerCase()));
     }
 
-    // Busca en la base de datos real (notas, tareas, movimientos financieros, cuentas
-    // o Bóveda) según la categoría detectada y, si el usuario dio pistas, por texto y
-    // por fecha. Regresa hasta 5 resultados, del más reciente al más viejo.
+    // Busca en la base de datos real (notas, tareas, eventos, movimientos financieros,
+    // cuentas o Bóveda) según la categoría detectada y, si el usuario dio pistas, por
+    // texto y por fecha. Regresa hasta 5 resultados (del más reciente al más viejo)
+    // para la mayoría de categorías; los eventos son la excepción — ver más abajo.
     function runKiaQuery(category, searchText, dateFilter) {
       const MOVEMENT_TYPES = ['gasto', 'ingreso', 'ahorro', 'pago_tc', 'diecast'];
       const items = [];
@@ -9560,7 +9561,7 @@
         return { items, emptyMessage: 'No encontré ninguna nota con eso 🤔' };
       }
 
-      if (category === 'tarea' || category === 'evento') {
+      if (category === 'tarea') {
         const list = tasks
           .filter(tk => kiaTextMatches(tk.text, searchText))
           .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
@@ -9579,6 +9580,38 @@
           });
         });
         return { items, emptyMessage: 'No encontré ninguna tarea con eso 🤔' };
+      }
+
+      // Los eventos viven como movimientos tipo 'evento' (con fecha real en el
+      // calendario), enlazados 1 a 1 con una tarea vía eventMovementId. Antes esta
+      // categoría reutilizaba la búsqueda de "tarea" (por texto de creación, tope de
+      // 5, sin fecha real) y de paso mezclaba pendientes sin fecha como si fueran
+      // eventos. Ahora se busca directo en los eventos reales del calendario, se
+      // respeta el filtro de fecha ("de marzo", "esta semana", etc.), se ordena
+      // cronológicamente y, si no se dio una palabra clave, se listan TODOS los
+      // eventos que haya (hasta un tope generoso) en vez de solo los últimos 5.
+      if (category === 'evento') {
+        const list = movements
+          .filter(m => m.type === 'evento')
+          .filter(m => kiaDateInRange(m.date, dateFilter))
+          .filter(m => kiaTextMatches(m.concept, searchText))
+          .sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0))
+          .slice(0, searchText || dateFilter ? 15 : 30);
+        list.forEach(m => {
+          const linkedTask = tasks.find(tk => tk.eventMovementId === m.id);
+          items.push({
+            id: linkedTask ? linkedTask.id : m.id,
+            kind: 'evento',
+            icon: '📅',
+            title: (m.concept || 'Evento').slice(0, 90),
+            subtitle: (linkedTask && linkedTask.completed) ? 'Evento completado' : 'Evento' + (m.notificationId ? ' · con recordatorio 🔔' : ''),
+            detail: kiaFormatDate(m.date),
+            editable: !!linkedTask,
+            deletable: !!linkedTask,
+            fields: { text: m.concept || '', amount: 0, subcategoryName: '', accountId: '', toAccountId: '', dateStr: m.date || '', timeStr: '' }
+          });
+        });
+        return { items, emptyMessage: searchText ? 'No encontré ningún evento con eso 🤔' : 'No tienes eventos guardados en tu calendario 🤔' };
       }
 
       if (category === 'cuenta') {
