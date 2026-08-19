@@ -181,6 +181,33 @@
       background: rgba(0, 240, 255, 0.15);
     }
 
+    /* ===== Selector de estilo de voz de Kia (Ardilla / Formal) ===== */
+    .mascot-voice-style-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: #030712;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #9ca3af;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .mascot-voice-style-btn:hover {
+      border-color: rgba(0, 240, 255, 0.35);
+      color: #e5e7eb;
+    }
+    .mascot-voice-style-btn.mascot-voice-style-active {
+      background: linear-gradient(90deg, rgba(112, 0, 255, 0.25), rgba(0, 240, 255, 0.25));
+      border-color: rgba(0, 240, 255, 0.5);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
     /* ===== NOTAS ADHESIVAS (Sticky Notes) ===== */
     .sticky-notes-board {
       min-height: 90px;
@@ -3359,10 +3386,20 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs font-bold text-white">Voz de Kia</p>
-              <p class="text-[10px] text-gray-500">Sus frases se escuchan con vocecita de ardilla 🐿️</p>
+              <p class="text-[10px] text-gray-500">Elige cómo suena cuando te habla</p>
             </div>
             <button id="mascot-voice-toggle-btn" onclick="toggleMascotVoice()" class="relative w-11 h-6 rounded-full transition-colors bg-[#7000ff] shrink-0 ml-3">
               <span id="mascot-voice-toggle-dot" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-0.5">
+            <button type="button" id="mascot-voice-style-ardilla" onclick="setMascotVoiceStyleUI('ardilla')" class="mascot-voice-style-btn">
+              <span class="text-base leading-none">🐿️</span>
+              <span>Ardilla</span>
+            </button>
+            <button type="button" id="mascot-voice-style-formal" onclick="setMascotVoiceStyleUI('formal')" class="mascot-voice-style-btn">
+              <span class="text-base leading-none">✨</span>
+              <span>Formal</span>
             </button>
           </div>
           <button type="button" onclick="testMascotVoice()" class="w-full flex items-center justify-center gap-2 bg-gray-950 border border-gray-800 hover:border-[#00f0ff] rounded-xl px-3 py-2 text-[11px] font-semibold text-gray-300 hover:text-white transition-colors">
@@ -11504,6 +11541,7 @@
     var ENABLED_KEY = 'mascotEnabled';
     var SIZE_KEY = 'mascotSizeScale';
     var VOICE_KEY = 'mascotVoiceEnabled';
+    var VOICE_STYLE_KEY = 'mascotVoiceStyle';
 
     function getMascotSizeScale() {
       var v = parseFloat(localStorage.getItem(SIZE_KEY));
@@ -11555,6 +11593,16 @@
     }
     function setMascotVoiceEnabled(val) {
       try { localStorage.setItem(VOICE_KEY, val ? '1' : '0'); } catch (e) {}
+    }
+    // Estilo de voz: 'ardilla' (dulce/agudita, el original) o 'formal' (más
+    // grave, pausada y natural, buscando voces "premium/mejoradas" del sistema
+    // para acercarse al tipo de voz elegante estilo Siri).
+    function getMascotVoiceStyle() {
+      var v = localStorage.getItem(VOICE_STYLE_KEY);
+      return v === 'formal' ? 'formal' : 'ardilla';
+    }
+    function setMascotVoiceStyle(style) {
+      try { localStorage.setItem(VOICE_STYLE_KEY, style === 'formal' ? 'formal' : 'ardilla'); } catch (e) {}
     }
 
     /* ---------- Elementos ---------- */
@@ -11817,9 +11865,17 @@
       if (!voices || !voices.length) return null;
       var esVoices = voices.filter(function (v) { return /^es/i.test(v.lang); });
       var pool = esVoices.length ? esVoices : voices;
+      var style = getMascotVoiceStyle();
       // Nombres de voz que suelen sonar más agudos/dulces en los motores
       // habituales (Chrome, Edge, iOS) para acercarse más al efecto "ardilla".
-      var preferred = ['mónica', 'monica', 'paulina', 'sabina', 'helena', 'elvira', 'lucia', 'lucía', 'female', 'mujer'];
+      var preferredArdilla = ['mónica', 'monica', 'paulina', 'sabina', 'helena', 'elvira', 'lucia', 'lucía', 'female', 'mujer'];
+      // Para el estilo "Formal", se buscan primero las voces "premium/mejoradas"
+      // que ofrecen macOS, iOS, Chrome y Edge — son las de mejor calidad y las
+      // que más se acercan a una voz natural tipo Siri. Si no hay ninguna
+      // "premium", se cae a voces neutras/masculinas conocidas por sonar serias.
+      var preferredFormalTop = ['premium', 'enhanced', 'mejorada', 'natural', 'google', 'microsoft'];
+      var preferredFormalFallback = ['jorge', 'diego', 'juan', 'raul', 'raúl', 'pablo', 'carlos', 'male', 'hombre'];
+      var preferred = style === 'formal' ? preferredFormalTop.concat(preferredFormalFallback) : preferredArdilla;
       for (var i = 0; i < pool.length; i++) {
         var name = pool[i].name.toLowerCase();
         for (var j = 0; j < preferred.length; j++) {
@@ -11853,8 +11909,14 @@
             var voice = pickMascotVoice();
             if (voice) { utter.voice = voice; utter.lang = voice.lang; }
             else { utter.lang = 'es-MX'; }
-            utter.pitch = 1.8;  // agudito, tipo ardilla
-            utter.rate = 1.15;  // un poco más rápido y alegre
+            var style = getMascotVoiceStyle();
+            if (style === 'formal') {
+              utter.pitch = 1.0;  // tono natural, sin agudizar
+              utter.rate = 0.98;  // pausada y clara, más elegante
+            } else {
+              utter.pitch = 1.8;  // agudito, tipo ardilla
+              utter.rate = 1.15;  // un poco más rápido y alegre
+            }
             utter.volume = 1;
             synth.speak(utter);
           } catch (e) {}
@@ -11873,8 +11935,26 @@
       updateMascotVoiceToggleUI();
     };
 
+    window.setMascotVoiceStyleUI = function (style) {
+      setMascotVoiceStyle(style);
+      updateMascotVoiceStyleUI();
+      window.testMascotVoice();
+    };
+
+    function updateMascotVoiceStyleUI() {
+      var style = getMascotVoiceStyle();
+      var btnArdilla = document.getElementById('mascot-voice-style-ardilla');
+      var btnFormal = document.getElementById('mascot-voice-style-formal');
+      if (btnArdilla) btnArdilla.classList.toggle('mascot-voice-style-active', style === 'ardilla');
+      if (btnFormal) btnFormal.classList.toggle('mascot-voice-style-active', style === 'formal');
+    }
+
     window.testMascotVoice = function () {
-      speakMascotTextForce('¡Hola! Así sueno cuando te hablo. ¿Te gusta mi vocecita?');
+      var style = getMascotVoiceStyle();
+      var phrase = style === 'formal'
+        ? 'Hola, así sueno con mi voz formal. ¿Te gusta más así?'
+        : '¡Hola! Así sueno cuando te hablo. ¿Te gusta mi vocecita?';
+      speakMascotTextForce(phrase);
     };
 
     function updateMascotVoiceToggleUI() {
@@ -12673,6 +12753,7 @@
       renderMascotPhrasesList();
       updateMascotToggleUI();
       updateMascotVoiceToggleUI();
+      updateMascotVoiceStyleUI();
       var sizeSlider = document.getElementById('mascot-size-slider');
       var sizeInput = document.getElementById('mascot-size-input');
       var sizeLabel = document.getElementById('mascot-size-value');
@@ -12810,6 +12891,7 @@
 
       applyMascotVisibility();
       updateHeaderKiaUI();
+      updateMascotVoiceStyleUI();
       scheduleBlink();
       scheduleIdleGesture();
       scheduleTailWag();
