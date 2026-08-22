@@ -9330,6 +9330,10 @@
     }
 
     // Detecta fecha/hora en frases como "mañana a las 5pm" o "el viernes a las 9:30".
+    // Horas dichas con palabra en vez de dígito ("a la una", "a las tres"), para
+    // el mismo caso que findKiaDateTime ya cubre con números.
+    const KIA_HOUR_WORDS = { una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9, diez: 10, once: 11, doce: 12 };
+
     function findKiaDateTime(t) {
       const now = new Date();
       let date = null;
@@ -9376,17 +9380,87 @@
         }
       }
 
+      // Fecha relativa en días/semanas ("en 3 dias", "dentro de 2 semanas", "en
+      // una semana", "la proxima semana"): forma muy natural de pedir un
+      // recordatorio a futuro sin decir el día exacto, que antes no se
+      // reconocía en absoluto (se guardaba sin fecha). Solo se intenta si nada
+      // de lo anterior (más específico) ya encontró una fecha.
+      if (date === null) {
+        const relDaysMatch = t.match(/\b(?:en|dentro de)\s+(\d{1,2})\s+d[ií]as?\b/);
+        const relWeeksMatch = t.match(/\b(?:en|dentro de)\s+(\d{1,2})\s+semanas?\b/);
+        if (relDaysMatch) {
+          date = new Date(now); date.setDate(date.getDate() + parseInt(relDaysMatch[1], 10));
+        } else if (relWeeksMatch) {
+          date = new Date(now); date.setDate(date.getDate() + (7 * parseInt(relWeeksMatch[1], 10)));
+        } else if (/\ben una semana\b/.test(t) || /\bla (proxima semana|semana que viene|semana entrante)\b/.test(t)) {
+          date = new Date(now); date.setDate(date.getDate() + 7);
+        }
+      }
+
+      // Fecha numérica corta ("15/08", "15-08-2027"): el habla casi nunca genera
+      // una fecha con "/", pero es una forma común de escribirla a mano en el
+      // cuadro de texto de Kia cuando el micrófono no entendió bien. Día y mes
+      // en ese orden, igual que el resto de la app.
+      if (date === null) {
+        const numericDateMatch = t.match(/\b(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?\b/);
+        if (numericDateMatch) {
+          const day = parseInt(numericDateMatch[1], 10);
+          const monthNum = parseInt(numericDateMatch[2], 10) - 1;
+          let year = numericDateMatch[3] ? parseInt(numericDateMatch[3], 10) : now.getFullYear();
+          if (year < 100) year += 2000;
+          if (day >= 1 && day <= 31 && monthNum >= 0 && monthNum <= 11) {
+            const candidate = new Date(year, monthNum, day);
+            if (!isNaN(candidate.getTime())) date = candidate;
+          }
+        }
+      }
+
       let time = null;
+      // 1) Hora numérica ("a las 5", "5:30pm", "a las 3 de la tarde"). Se agrega
+      // soporte opcional para "y media"/"y cuarto" entre la hora y el
+      // am/pm/tarde-noche (antes esa parte se ignoraba por completo y el minuto
+      // siempre quedaba en 0, ej. "a las 3 y media" se guardaba como 3:00 en vez
+      // de 3:30).
       if (/\d{1,2}(:\d{2})?\s*(am|pm)/.test(t) || t.includes(' a las ')) {
-        const timeMatch = t.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm|de la manana|de la tarde|de la noche)?/);
+        const timeMatch = t.match(/(\d{1,2})(?::(\d{2}))?\s*(?:y\s+(media|cuarto))?\s*(am|pm|de la manana|de la tarde|de la noche)?/);
         if (timeMatch) {
           let h = parseInt(timeMatch[1], 10);
-          const m = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
-          const suffix = timeMatch[3] || '';
+          const m = timeMatch[2] ? parseInt(timeMatch[2], 10) : (timeMatch[3] === 'media' ? 30 : (timeMatch[3] === 'cuarto' ? 15 : 0));
+          const suffix = timeMatch[4] || '';
           if ((suffix.includes('pm') || suffix.includes('tarde') || suffix.includes('noche')) && h < 12) h += 12;
           if (suffix.includes('am') && h === 12) h = 0;
           if (h >= 0 && h <= 23 && m >= 0 && m <= 59) time = { h, m };
         }
+      }
+
+      // 2) Hora dicha con palabra ("a la una", "a las tres y cuarto de la
+      // tarde"), que el paso anterior no captura porque exige un dígito. Solo
+      // se intenta si el paso anterior no encontró nada, para no tocar ningún
+      // caso que ya funcionaba.
+      if (!time) {
+        const hourWordsPattern = Object.keys(KIA_HOUR_WORDS).join('|');
+        const wordTimeMatch = t.match(new RegExp('\\ba\\s+la[s]?\\s+(' + hourWordsPattern + ')\\b(?:\\s+y\\s+(media|cuarto))?\\s*(am|pm|de la manana|de la tarde|de la noche)?'));
+        if (wordTimeMatch) {
+          let h = KIA_HOUR_WORDS[wordTimeMatch[1]];
+          const m = wordTimeMatch[2] === 'media' ? 30 : (wordTimeMatch[2] === 'cuarto' ? 15 : 0);
+          const suffix = wordTimeMatch[3] || '';
+          if ((suffix.includes('pm') || suffix.includes('tarde') || suffix.includes('noche')) && h < 12) h += 12;
+          if (suffix.includes('am') && h === 12) h = 0;
+          time = { h, m };
+        }
+      }
+
+      // 3) Franja del día sin hora exacta ("por la tarde", "en la noche", "a
+      // mediodia"): antes, sin una hora precisa, el recordatorio se guardaba
+      // sin hora y la notificación nunca llegaba a sonar. Se usa una hora
+      // aproximada típica para esa franja, solo cuando nada más específico se
+      // encontró arriba.
+      if (!time) {
+        if (/\bmedio\s*dia\b/.test(t)) time = { h: 12, m: 0 };
+        else if (/\bmedia\s*noche\b/.test(t)) time = { h: 0, m: 0 };
+        else if (/\b(por|en)\s+la\s+manana\b/.test(t)) time = { h: 9, m: 0 };
+        else if (/\b(por|en)\s+la\s+tarde\b/.test(t)) time = { h: 15, m: 0 };
+        else if (/\b(por|en)\s+la\s+noche\b/.test(t)) time = { h: 20, m: 0 };
       }
 
       return {
@@ -9394,6 +9468,7 @@
         timeStr: time ? String(time.h).padStart(2, '0') + ':' + String(time.m).padStart(2, '0') : null
       };
     }
+
 
     async function createKiaFinancialMovement(type, amount, concept, subcategoryName, account) {
       const subList = (customSubcategories && customSubcategories.length) ? customSubcategories : DEFAULT_SUBCATEGORIES;
@@ -9941,7 +10016,7 @@
       const isPrevMonthNav = has(['mes anterior', 'anterior mes', 'mes pasado', 'mes previo', 'atrasa el mes', 'retrocede el mes', 'regresa un mes', 'un mes atras', 'retrocede un mes']);
       const isTodayNav = has(['ve a hoy', 'llevame a hoy', 'llevame al dia de hoy', 'regresa a hoy', 'regresame a hoy', 'vuelve a hoy', 'ir a hoy', 'calendario de hoy', 'hoy en el calendario', 'muestrame hoy en el calendario']);
       const explicitNavVerb = has(['ve a', 'vete a', 'llevame a', 'llevame al', 'ir a', 'ir al', 'cambia a', 'cambiame a', 'cambia el calendario', 'navega a', 'navegame a', 'muestrame el calendario', 'muestra el calendario', 'ensename el calendario', 'abre el calendario en', 'abre el calendario de', 'pon el calendario en', 'pon el calendario de']);
-      const isCalendarNav = !has(['evento', 'eventos', 'cita', 'citas', 'tarea', 'tareas', 'recordatorio', 'nota', 'notas', 'gasto', 'ingreso', 'ahorro', 'diecast']) &&
+      const isCalendarNav = !has(['evento', 'eventos', 'cita', 'citas', 'tarea', 'tareas', 'recordatorio', 'nota', 'notas', 'gasto', 'ingreso', 'ahorro', 'diecast', 'reunion', 'junta']) &&
         (isNextMonthNav || isPrevMonthNav || isTodayNav || (explicitNavVerb && (navMonthIdx !== null || isTodayNav)) || (has(['calendario']) && navMonthIdx !== null));
 
       if (isCalendarNav) {
@@ -10118,30 +10193,44 @@
       const isDiecast = has(['diecast', 'die cast', 'dai cast', 'daicast', 'coleccion diecast', 'casting']);
 
       // ---- Evento / cita en el calendario ----
+      // Antes solo se reconocía con un verbo explícito de agendar + "evento"/"cita"
+      // ("agenda un evento", "crea una cita"). Se agregan las formas SUSTANTIVAS que
+      // la gente usa igual de seguido para lo mismo ("tengo una junta", "reunión con
+      // mi jefe", "cita con el doctor") y "agenda"/"cita" sueltas, que antes solo
+      // contaban si iban pegadas a una palabra muy específica justo después.
       const isEvent = !isDiecast && has([
-        'evento', 'agendame', 'agenda una', 'agenda un', 'agenda para', 'agenda el',
-        'programa una', 'programa un', 'programame', 'cita con', 'cita de', 'cita el',
+        'evento', 'agendame', 'agenda una', 'agenda un', 'agenda para', 'agenda el', 'agenda',
+        'programa una', 'programa un', 'programame', 'cita con', 'cita de', 'cita el', 'cita',
+        'reunion', 'reunion con', 'junta', 'junta con', 'llamada con',
         'registra un evento', 'registra una cita', 'crea un evento', 'crear evento',
         'nuevo evento', 'agregar evento', 'anota un evento'
       ]);
 
       // ---- Tarea / recordatorio pendiente (sin ser un evento con fecha explícita) ----
+      // Se agregan sinónimos comunes de "recuérdame" ("avísame", "acuérdame"), la
+      // forma de alarma ("ponme una alarma/un recordatorio") y frases sin verbo de
+      // recordar pero con el mismo sentido ("que no se me olvide", "necesito
+      // recordar"), que antes cazan como nota de baja confianza en vez de tarea.
       const isReminder = !isDiecast && !isEvent && has([
-        'recuerdame', 'recuerda que', 'recordatorio', 'no olvides', 'tengo que',
+        'recuerdame', 'recuerda que', 'acuerdame', 'acuerdate que', 'avisame', 'avisame que',
+        'recordatorio', 'no olvides', 'no se me olvide', 'que no se me olvide', 'necesito recordar',
+        'tengo que',
         'pendiente', 'tarea de', 'agregar tarea', 'crea una tarea', 'crear tarea',
-        'nueva tarea', 'agrega una tarea', 'agregame una tarea', 'anota una tarea'
+        'nueva tarea', 'agrega una tarea', 'agregame una tarea', 'anota una tarea',
+        'ponme una alarma', 'pon una alarma', 'ponme un recordatorio', 'pon un recordatorio', 'alarma de'
       ]);
 
       const isTask = isEvent || isReminder;
       const amount = findFirstAmountKia(t);
-      const isGasto = !isTask && !isDiecast && amount !== null && has(['gaste', 'gasto', 'pague', 'pago de', 'compre', 'costo', 'salio en']);
-      const isIngreso = !isTask && !isDiecast && !isGasto && amount !== null && has(['ingreso', 'recibi', 'cobre', 'deposito', 'deposite', 'me pagaron']);
+      const isGasto = !isTask && !isDiecast && amount !== null && has(['gaste', 'gasto', 'pague', 'pago de', 'compre', 'costo', 'salio en', 'se me fue en', 'se me fueron']);
+      const isIngreso = !isTask && !isDiecast && !isGasto && amount !== null && has(['ingreso', 'recibi', 'cobre', 'deposito', 'deposite', 'me pagaron', 'me dieron', 'gane']);
       const isAhorro = !isTask && !isDiecast && !isGasto && !isIngreso && amount !== null && has(['ahorre', 'ahorro', 'guarde', 'aparte']);
       const isExplicitNote = !isTask && !isDiecast && has([
         'anota', 'apunta', 'apuntame', 'nota que', 'nota de', 'nota:', 'crea una nota', 'crear nota',
         'nueva nota', 'haz una nota', 'hazme una nota', 'agrega una nota', 'agregame una nota',
         'guarda una nota', 'guardar nota', 'escribe una nota', 'escribeme una nota'
       ]);
+
 
       if (isDiecast) {
         const account = findKiaAccount(t);
@@ -10157,8 +10246,12 @@
 
       if (isEvent) {
         const { dateStr, timeStr } = findKiaDateTime(t);
+        // Se agrega un segundo patrón para frases SIN verbo de agendar al inicio
+        // ("tengo una junta con mi jefe...", "tengo cita con el doctor..."), que
+        // antes se guardaban con el "tengo (una)" pegado al concepto.
         const cleanText = stripKiaTrigger(text, [
-          /^(registra(me)?|crea(me)?|crear|agrega(me)?|programa(me)?|agenda(me)?|nuevo|nueva|anota(me)?)\s*(un|una|el|la)?\s*(evento|cita)\s*(de|del|para|con|el|:)?\s*/i
+          /^(registra(me)?|crea(me)?|crear|agrega(me)?|programa(me)?|agenda(me)?|nuevo|nueva|anota(me)?)\s*(un|una|el|la)?\s*(evento|cita|reunion|reunión|junta|llamada)\s*(de|del|para|con|el|:)?\s*/i,
+          /^tengo\s*(un|una)?\s*(evento|cita|reunion|reunión|junta|llamada)\s*(de|del|para|con|el|:)?\s*/i
         ]);
         return {
           type: 'evento',
@@ -10171,8 +10264,11 @@
 
       if (isReminder) {
         const { dateStr, timeStr } = findKiaDateTime(t);
+        // Se agregan los sinónimos nuevos de la lista de arriba (avísame/acuérdame/
+        // alarma/"que no se me olvide"/"necesito recordar") para que también se
+        // les quite el disparador y no se queden pegados al concepto guardado.
         const cleanText = stripKiaTrigger(text, [
-          /^(recu[eé]rdame( que)?|recordatorio( de)?|no olvides( que)?|tengo que|crea(me)?( una)? tarea( de)?|agrega(me)?( una)? tarea( de)?|nueva tarea( de)?|anota(me)?( una)? tarea( de)?)\s*/i
+          /^(recu[eé]rdame( que)?|acu[eé]rdame( que)?|av[ií]same( que)?|recordatorio( de)?|no olvides( que)?|no se me olvide( que)?|que no se me olvide( que)?|necesito recordar( que)?|tengo que|crea(me)?( una)? tarea( de)?|agrega(me)?( una)? tarea( de)?|nueva tarea( de)?|anota(me)?( una)? tarea( de)?|pon(me)?( una)? (alarma|recordatorio)( de| para)?)\s*/i
         ]);
         return {
           type: 'tarea',
@@ -10187,7 +10283,9 @@
         let type = isGasto ? 'gasto' : (isIngreso ? 'ingreso' : 'ahorro');
         // Si suena a pago de tarjeta de crédito, lo clasificamos así de una vez
         // (el usuario igual puede corregirlo en la tarjeta de confirmación).
-        if (type === 'gasto' && has(['tarjeta de credito', 'tarjeta credito', 'tdc', 'pago de tarjeta', 'pago tarjeta', 'pago de la tarjeta', 'pago de mi tarjeta'])) {
+        // Se agregan las formas con "pagué" (pretérito), que antes solo se
+        // reconocían con el sustantivo "pago" ("pago de tarjeta").
+        if (type === 'gasto' && has(['tarjeta de credito', 'tarjeta credito', 'tdc', 'pago de tarjeta', 'pago tarjeta', 'pago de la tarjeta', 'pago de mi tarjeta', 'pague mi tarjeta', 'pague la tarjeta', 'pague tarjeta'])) {
           type = 'pago_tc';
         }
         const subcategoryName = type === 'pago_tc' ? 'Pago de Tarjeta' : (findKiaSubcategory(t, type) || 'General');
