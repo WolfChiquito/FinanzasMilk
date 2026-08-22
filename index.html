@@ -939,6 +939,53 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* Tooltip individual por emoji de evento/movimiento dentro del día
+       (distinto del .day-tooltip de arriba, que es uno solo por celda).
+       Cada emoji queda envuelto en .event-emoji-wrap (posición relativa)
+       para que su .event-emoji-tooltip aparezca justo encima de ESE
+       emoji en particular, al pasar el cursor sobre él, sin el retraso
+       nativo del navegador. */
+    .event-emoji-wrap {
+      position: relative;
+      display: inline-flex;
+    }
+    .event-emoji-tooltip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%) translateY(2px);
+      background: #0b0d14;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.35;
+      padding: 6px 10px;
+      border-radius: 10px;
+      white-space: normal;
+      max-width: 150px;
+      width: max-content;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.05s linear, transform 0.05s linear;
+      z-index: 60;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    }
+    .event-emoji-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #0b0d14;
+    }
+    .event-emoji-wrap:hover > .event-emoji-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* Efecto Resaltador de Estudiante (Fluorescente, inclinado y dinámico) */
     .student-highlight {
       background: rgba(250, 255, 0, 0.25) !important;
@@ -4898,7 +4945,12 @@
             const tooltipTitle = m.type === 'evento'
               ? `${m.concept || 'Evento'}${m.notificationId ? ' 🔔' : ''}`
               : `${m.subcategory || CATEGORIES[m.type]?.label}: ${formatCurrency(m.amount)}`;
-            return `<span class="text-[11px] md:text-sm" title="${tooltipTitle}">${m.subcategoryEmoji || (CATEGORIES[m.type] ? CATEGORIES[m.type].emoji : '🏷️')}</span>`;
+            const emojiChar = m.subcategoryEmoji || (CATEGORIES[m.type] ? CATEGORIES[m.type].emoji : '🏷️');
+            // Se envuelve el emoji en .event-emoji-wrap para que el texto
+            // (.event-emoji-tooltip) aparezca justo encima de ESE emoji al
+            // pasar el cursor, de inmediato y sin depender del "title" nativo
+            // del navegador (que además tarda en aparecer).
+            return `<span class="event-emoji-wrap"><span class="text-[11px] md:text-sm">${emojiChar}</span><span class="event-emoji-tooltip">${escapeHtml(tooltipTitle)}</span></span>`;
           }).join('');
           if (dayMovements.length > 3) emojisHtml += `<span class="text-[10px] text-gray-400 font-bold">+${dayMovements.length - 3}</span>`;
           
