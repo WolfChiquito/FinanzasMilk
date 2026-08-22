@@ -9219,23 +9219,40 @@
     const KIA_ACCOUNT_STOPWORDS = ['de', 'la', 'el', 'los', 'las', 'mi', 'mis', 'con', 'tarjeta', 'cuenta', 'banco', 'del'];
 
     function findKiaAccount(t) {
-      // 1) Coincidencia exacta: el nombre completo de la cuenta aparece tal cual.
-      const exact = accounts.find(a => t.includes(stripAccentsKia(a.name).toLowerCase()));
-      if (exact) return exact;
+      // Separa nombres compuestos "pegados" (ej. "MercadoLibre") en sus palabras
+      // reales ("Mercado Libre") usando el cambio de minúscula a mayúscula como
+      // límite de palabra. Esto es clave porque el usuario dice esas palabras
+      // por separado al hablar ("gasté en mercado libre"), aunque el nombre
+      // guardado no tenga espacio. Debe ir ANTES de pasar a minúsculas, porque
+      // el patrón depende de la diferencia entre mayúsculas y minúsculas.
+      function splitCompoundWords(name) {
+        return stripAccentsKia(name).replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+      }
 
-      // 2) Coincidencia parcial: el usuario solo dijo una palabra distintiva del
-      // nombre (ej. "con mi tarjeta Nu" cuando la cuenta se llama "Nu Bank Crédito").
-      // Antes, si no se decía el nombre completo, la cuenta se "cortaba" y se perdía
-      // sin más — ahora se busca la cuenta con más palabras propias mencionadas.
+      // 1) Coincidencia por palabras distintivas: se evalúa PRIMERO por ser la más
+      // específica (ej. "con mi tarjeta Nu" -> "Nu Bank Crédito"). Esto también
+      // evita que una cuenta genérica como "Tarjeta" o "Banco" se quede con el
+      // match solo por aparecer su nombre dentro del texto, cuando el usuario en
+      // realidad mencionó una cuenta más específica (ej. "pagué con mi tarjeta
+      // BBVA" debe reconocer "BBVA", no la cuenta genérica "Tarjeta" — "tarjeta"
+      // está en las palabras vacías, "bbva" no). De paso cubre nombres compuestos
+      // como "MercadoLibre" -> "mercado" + "libre", sin importar si el usuario
+      // los dice pegados o separados.
       let best = null;
       let bestScore = 0;
       accounts.forEach(a => {
-        const words = stripAccentsKia(a.name).toLowerCase().split(/\s+/).filter(w => w.length >= 3 && !KIA_ACCOUNT_STOPWORDS.includes(w));
+        const words = splitCompoundWords(a.name).toLowerCase().split(/\s+/).filter(w => w.length >= 3 && !KIA_ACCOUNT_STOPWORDS.includes(w));
         let score = 0;
         words.forEach(w => { if (t.includes(w)) score++; });
         if (score > bestScore) { bestScore = score; best = a; }
       });
       if (best) return best;
+
+      // 2) Nombre completo tal cual: rescata cuentas cuyo nombre entero cae en las
+      // palabras vacías del paso anterior (ej. la cuenta genérica "Tarjeta" o
+      // "Banco"), para cuando el usuario solo dijo eso y nada más específico.
+      const exact = accounts.find(a => t.includes(splitCompoundWords(a.name).toLowerCase()));
+      if (exact) return exact;
 
       return accounts.find(a => a.isDefault) || accounts[0] || null;
     }
