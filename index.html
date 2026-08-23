@@ -1429,6 +1429,59 @@
       70% { transform: scale(1.08) rotate(-4deg); }
       100% { transform: scale(1); }
     }
+    /* Resplandor de aura detrás de Kia al tocarla: un halo suave que crece y
+       se desvanece, para acompañar los destellos de abajo con un brillo real
+       alrededor de su silueta (no solo partículas sueltas). Va en su propia
+       capa con z-index negativo para quedar SIEMPRE detrás del sprite. */
+    .mascot-aura-glow {
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      width: 150%;
+      height: 150%;
+      transform: translate(-50%, -50%) scale(0.55);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,0,127,0.55) 0%, rgba(0,240,255,0.32) 45%, rgba(255,0,127,0) 72%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .mascot-wolf.mascot-aura-active .mascot-aura-glow {
+      animation: mascotAuraPulse 0.8s ease-out;
+    }
+    @keyframes mascotAuraPulse {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      30% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.05); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.4); }
+    }
+    /* Destellos (corazones/estrellas/brillos) que salen disparados de Kia al
+       tocarla. Vive en su propia capa (encima del sprite) para no interferir
+       con las animaciones de transform que ya tiene el sprite (bob/poke/etc).
+       Cada partícula recibe su propio --fx-x/--fx-y/--fx-rot/--fx-duration/
+       --fx-delay desde JS (spawnMascotFx): --fx-x/--fx-y ya no son un arco
+       fijo hacia arriba, sino la dirección que se aleja de Kia según en qué
+       punto de su silueta nació esa partícula, para que el estallido se vea
+       como un aura completa a su alrededor y no un chorro desde un solo punto. */
+    .mascot-fx-layer {
+      position: absolute;
+      inset: 0;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .mascot-fx-particle {
+      position: absolute;
+      font-size: 15px;
+      line-height: 1;
+      will-change: transform, opacity;
+      animation: mascotFxFloat var(--fx-duration, 0.9s) cubic-bezier(0.16, 0.8, 0.3, 1) forwards;
+      animation-delay: var(--fx-delay, 0s);
+    }
+    @keyframes mascotFxFloat {
+      0% { transform: translate(-50%, -50%) translate(0, 0) scale(0.3) rotate(0deg); opacity: 0; }
+      22% { transform: translate(-50%, -50%) translate(calc(var(--fx-x) * 0.3), calc(var(--fx-y) * 0.3)) scale(1.2) rotate(var(--fx-rot)); opacity: 1; }
+      100% { transform: translate(-50%, -50%) translate(var(--fx-x), var(--fx-y)) scale(0.6) rotate(var(--fx-rot)); opacity: 0; }
+    }
     .mascot-speech-bubble {
       position: absolute;
       bottom: 100%;
@@ -11304,8 +11357,11 @@
   <!-- ===== MASCOTA: KIA (PIXEL ART) ===== -->
   <div id="mascot-wolf" class="mascot-wolf mascot-idle-state mascot-facing-right" style="display:none;">
     <div id="mascot-speech-bubble" class="mascot-speech-bubble"></div>
+    <div id="mascot-aura-glow" class="mascot-aura-glow"></div>
     <div id="mascot-sprite" class="mascot-sprite"></div>
+    <div id="mascot-fx-layer" class="mascot-fx-layer"></div>
   </div>
+
 
   <!-- Cuadro flotante: aparece al tocar a Kia 3 veces seguidas -->
   <div id="mascot-note-box" class="mascot-note-box">
@@ -12153,8 +12209,54 @@
     function pokeAnim() {
       if (!wolfEl) return;
       wolfEl.classList.add('mascot-poked');
+      // Clase aparte para el aura (no reutiliza 'mascot-poked') porque esa se
+      // quita a los 360ms -justo lo que dura el squish de mascotPoke- y el
+      // pulso del aura necesita más tiempo (0.8s) para no cortarse a la mitad.
+      wolfEl.classList.add('mascot-aura-active');
+      spawnMascotFx();
       setTimeout(function () { wolfEl.classList.remove('mascot-poked'); }, 360);
+      setTimeout(function () { wolfEl.classList.remove('mascot-aura-active'); }, 900);
     }
+
+    // Destellos bonitos (corazones/estrellas/brillitos) cada vez que se toca a
+    // Kia. Cada partícula es un <span> suelto con un emoji al azar que NACE en
+    // un punto al azar alrededor de su silueta (ángulo 0-360°) y luego se aleja
+    // siguiendo ESE MISMO ángulo (--fx-x/--fx-y), en vez de salir siempre del
+    // mismo punto central hacia arriba: así el estallido se ve como un aura
+    // completa rodeándola, no un chorro desde un solo lugar. Se autodestruye
+    // sola cuando termina su animación para no ir acumulando nodos en el DOM.
+    var MASCOT_FX_EMOJIS = ['💖', '💕', '✨', '⭐', '💫', '💗', '🌟'];
+    function spawnMascotFx() {
+      var layer = document.getElementById('mascot-fx-layer');
+      if (!layer) return;
+      var count = 7 + Math.floor(Math.random() * 3); // entre 7 y 9 por toque
+      for (var i = 0; i < count; i++) {
+        var span = document.createElement('span');
+        span.className = 'mascot-fx-particle';
+        span.textContent = MASCOT_FX_EMOJIS[Math.floor(Math.random() * MASCOT_FX_EMOJIS.length)];
+        // Ángulo repartido en el círculo completo (+ variación al azar) para
+        // que, con varias partículas por toque, queden parejas alrededor de
+        // Kia en vez de amontonarse todas del mismo lado por puro azar.
+        var angle = ((Math.PI * 2) / count) * i + (Math.random() * 0.9 - 0.45);
+        var startRadius = 30 + Math.random() * 12; // % (mismo radio en X e Y; el 61x93 de la caja ya la hace más alta que ancha)
+        var startLeft = 50 + Math.cos(angle) * startRadius;
+        var startTop = 46 + Math.sin(angle) * startRadius;
+        var drift = 16 + Math.random() * 16; // px que se aleja siguiendo ese mismo ángulo
+        span.style.left = startLeft + '%';
+        span.style.top = startTop + '%';
+        span.style.setProperty('--fx-x', Math.round(Math.cos(angle) * drift) + 'px');
+        span.style.setProperty('--fx-y', Math.round(Math.sin(angle) * drift) + 'px');
+        span.style.setProperty('--fx-rot', (Math.random() * 50 - 25) + 'deg');
+        span.style.setProperty('--fx-duration', (0.75 + Math.random() * 0.5) + 's');
+        span.style.setProperty('--fx-delay', (Math.random() * 0.15) + 's');
+        span.style.fontSize = (13 + Math.random() * 9) + 'px';
+        layer.appendChild(span);
+        (function (el) {
+          setTimeout(function () { if (el && el.parentNode) el.parentNode.removeChild(el); }, 1700);
+        })(span);
+      }
+    }
+
 
     /* ---------- Cuadro de notita (triple toque) ---------- */
     function openNoteBox() {
