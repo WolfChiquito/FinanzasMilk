@@ -2225,6 +2225,89 @@
       text-align: center;
       padding: 10px 0;
     }
+
+    /* ===== PATRÓN DE DESBLOQUEO DE LA BÓVEDA PRIVADA (tipo patrón de celular) ===== */
+    .pattern-lock-wrap {
+      position: relative;
+      width: 220px;
+      max-width: 100%;
+      aspect-ratio: 1 / 1;
+      margin: 4px auto 0;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .pattern-lock-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .pattern-lock-svg line {
+      stroke: #00f0ff;
+      stroke-width: 3;
+      stroke-linecap: round;
+      opacity: 0.85;
+    }
+    .pattern-lock-dots {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      place-items: center;
+    }
+    .pattern-lock-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,240,255,0.35);
+      background: rgba(0,240,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+      pointer-events: none;
+    }
+    .pattern-lock-dot span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0,240,255,0.4);
+      transition: all 0.15s ease;
+    }
+    .pattern-lock-dot.active {
+      border-color: #00f0ff;
+      background: rgba(0,240,255,0.16);
+      transform: scale(1.18);
+    }
+    .pattern-lock-dot.active span {
+      background: #00f0ff;
+      width: 10px;
+      height: 10px;
+      box-shadow: 0 0 8px rgba(0,240,255,0.75);
+    }
+    .pattern-lock-wrap.error .pattern-lock-svg line { stroke: #fb7185; }
+    .pattern-lock-wrap.error .pattern-lock-dot.active { border-color: #fb7185; }
+    .pattern-lock-wrap.error .pattern-lock-dot.active span {
+      background: #fb7185;
+      box-shadow: 0 0 8px rgba(251,113,133,0.75);
+    }
+    .pattern-lock-wrap.success .pattern-lock-svg line { stroke: #4ade80; }
+    .pattern-lock-wrap.success .pattern-lock-dot.active { border-color: #4ade80; }
+    .pattern-lock-wrap.success .pattern-lock-dot.active span {
+      background: #4ade80;
+      box-shadow: 0 0 8px rgba(74,222,128,0.75);
+    }
+    .pattern-lock-wrap.shake { animation: patternLockShake 0.4s ease; }
+    @keyframes patternLockShake {
+      10%, 90% { transform: translateX(-2px); }
+      20%, 80% { transform: translateX(3px); }
+      30%, 50%, 70% { transform: translateX(-5px); }
+      40%, 60% { transform: translateX(5px); }
+    }
   </style>
 </head>
 <body class="min-h-screen selection:bg-[#ff007f]/30 p-4 md:p-8 relative">
@@ -2454,7 +2537,7 @@
             <h2 class="text-xl font-bold text-white flex items-center gap-2">
               <i data-lucide="layout-grid" class="w-5 h-5 text-[#7000ff]"></i> Widgets
             </h2>
-            <button id="btn-open-vault" onclick="window.openVaultPinModal()" class="relative flex items-center gap-1.5 px-3 py-1.5 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg text-xs font-bold transition-colors cursor-pointer shadow-sm print:hidden" title="Bóveda privada (protegida con PIN)">
+            <button id="btn-open-vault" onclick="window.openVaultPinModal()" class="relative flex items-center gap-1.5 px-3 py-1.5 bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 rounded-lg text-xs font-bold transition-colors cursor-pointer shadow-sm print:hidden" title="Bóveda privada (protegida con patrón)">
               <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Bóveda
               <span id="vault-items-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-[#ff007f] text-white text-[9px] font-bold leading-none">0</span>
             </button>
@@ -2591,28 +2674,67 @@
                   </div>
                   <div>
                     <h3 class="text-lg font-bold text-white leading-tight">Bóveda Privada</h3>
-                    <span class="text-xs text-gray-500">Ingresa tu PIN para continuar</span>
+                    <span class="text-xs text-gray-500">Dibuja tu patrón para continuar</span>
                   </div>
                 </div>
                 <button onclick="window.closeVaultPinModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
                   <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
               </div>
-              <form id="vault-pin-form" class="p-6 pt-4 space-y-4" onsubmit="return window.submitVaultPin(event)">
-                <input
-                  type="password"
-                  id="vault-pin-input"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  maxlength="4"
-                  placeholder="••••"
-                  class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-4 text-center text-3xl tracking-[0.6em] focus:border-[#00f0ff] outline-none text-white"
-                />
-                <p id="vault-pin-error" class="hidden text-xs font-semibold text-rose-400 text-center">PIN incorrecto, intenta de nuevo.</p>
-                <button type="submit" class="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[#00f0ff]/20 to-[#7000ff]/20 border border-[#00f0ff]/40 hover:border-[#00f0ff]/70 text-[#00f0ff] rounded-2xl text-sm font-bold transition-colors">
-                  <i data-lucide="shield-check" class="w-4 h-4"></i> Desbloquear
+              <div class="p-6 pt-4 space-y-4">
+                <div class="pattern-lock-wrap" id="vault-pattern-unlock-wrap">
+                  <svg class="pattern-lock-svg"></svg>
+                  <div class="pattern-lock-dots">
+                    <div class="pattern-lock-dot" data-dot="1"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="2"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="3"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="4"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="5"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="6"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="7"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="8"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="9"><span></span></div>
+                  </div>
+                </div>
+                <p id="vault-pin-error" class="hidden text-xs font-semibold text-rose-400 text-center">Patrón incorrecto, intenta de nuevo.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- MODAL: CONFIGURAR / CAMBIAR EL PATRÓN DE LA BÓVEDA PRIVADA (desde Ajustes de Perfil) -->
+          <div id="vault-pattern-setup-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[120] hidden opacity-0 transition-all duration-300">
+            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-cyan w-full max-w-xs overflow-hidden transform scale-95 transition-all duration-300" id="vault-pattern-setup-content">
+              <div class="flex justify-between items-start p-6 pb-2">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
+                    <i data-lucide="grid-3x3" class="w-4.5 h-4.5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold text-white leading-tight">Nuevo Patrón</h3>
+                    <span id="vault-pattern-setup-subtitle" class="text-xs text-gray-500">Dibuja el patrón nuevo</span>
+                  </div>
+                </div>
+                <button onclick="window.closeVaultPatternSetupModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+                  <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
-              </form>
+              </div>
+              <div class="p-6 pt-4 space-y-4">
+                <div class="pattern-lock-wrap" id="vault-pattern-setup-wrap">
+                  <svg class="pattern-lock-svg"></svg>
+                  <div class="pattern-lock-dots">
+                    <div class="pattern-lock-dot" data-dot="1"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="2"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="3"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="4"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="5"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="6"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="7"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="8"><span></span></div>
+                    <div class="pattern-lock-dot" data-dot="9"><span></span></div>
+                  </div>
+                </div>
+                <p id="vault-pattern-setup-msg" class="hidden text-xs font-semibold text-center"></p>
+              </div>
             </div>
           </div>
 
@@ -3813,6 +3935,16 @@
         </button>
         <p class="text-[10px] text-gray-500 text-center">Permite desbloquear tu bóveda de forma instantánea usando Face ID o Touch ID en este dispositivo.</p>
       </div>
+
+      <div id="vault-pattern-settings-section" class="px-6 pb-6 pt-2 space-y-2">
+        <div class="h-px w-full bg-gray-800/80 my-4"></div>
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Patrón de la Bóveda Privada</label>
+        <button type="button" onclick="window.openVaultPatternSetupModal()" class="w-full flex items-center justify-center gap-2 py-3 bg-gray-950 hover:bg-gray-900 text-gray-300 rounded-2xl border border-gray-800 text-xs font-semibold transition-colors shadow-sm">
+          <i data-lucide="grid-3x3" class="w-4 h-4 text-[#00f0ff]"></i>
+          <span>Cambiar Patrón</span>
+        </button>
+        <p class="text-[10px] text-gray-500 text-center">Es el patrón que desbloquea la Bóveda Privada (notas e imágenes guardadas), por separado de tu contraseña.</p>
+      </div>
     </div>
   </div>
 
@@ -4058,7 +4190,15 @@
       dueWarningDays: 3,
       showMiniBanner: true
     };
-    const VAULT_PIN = '2527';
+    // Patrón (tipo celular) que desbloquea la Bóveda Privada. Antes era un PIN fijo
+    // en el código (VAULT_PIN); ahora se guarda como una secuencia de puntos (1-9,
+    // según su posición en la grilla 3x3) y se sincroniza desde Firestore igual que
+    // vaultPassword, para poder cambiarse desde Ajustes de Perfil > Contraseña y Seguridad.
+    let vaultPattern = '1-4-7-8-9';
+    let vaultUnlockPatternLock = null; // instancia del patrón en el modal de desbloqueo
+    let vaultPatternSetupLock = null; // instancia del patrón en el modal de "Cambiar Patrón"
+    let vaultPatternSetupStep = 1; // 1 = dibujar patrón nuevo, 2 = confirmarlo
+    let vaultPatternSetupTemp = null; // patrón dibujado en el paso 1, pendiente de confirmar
     let editingNoteId = null;
     let creatingNewNote = false;
     let stickyNoteZCounter = 0; // Define qué nota queda "encima" al arrastrarla/editarla
@@ -4485,6 +4625,9 @@
           const securityData = docSnap.data();
           if (securityData.password) {
             vaultPassword = securityData.password;
+          }
+          if (securityData.vaultPattern) {
+            vaultPattern = securityData.vaultPattern;
           }
         }
       }, (error) => console.error("Error sincronizando clave:", error));
@@ -10253,8 +10396,8 @@
             type: 'boveda',
             emoji: '🔐',
             title: 'Bóveda Privada',
-            detail: 'Abrir la bóveda (te pediré tu PIN)',
-            save: async () => { window.openVaultPinModal(); return 'Aquí tienes, ingresa tu PIN 🔐'; }
+            detail: 'Abrir la bóveda (te pediré tu patrón)',
+            save: async () => { window.openVaultPinModal(); return 'Aquí tienes, dibuja tu patrón 🔐'; }
           };
         }
         const cleanVaultText = text.replace(/^.*?b[oó]veda\s*:?\s*/i, '').trim() || text;
@@ -10625,19 +10768,137 @@
       }
     }
 
+    // ===== Componente reutilizable: patrón de desbloqueo tipo celular (grilla 3x3) =====
+    // Se usa tanto para desbloquear la Bóveda Privada como para configurar/cambiar el
+    // patrón desde Ajustes de Perfil > Contraseña y Seguridad. wrapId es el contenedor
+    // (.pattern-lock-wrap) y onComplete(patternStr, ctx) se llama cuando el usuario suelta
+    // el dedo/mouse tras dibujar un patrón de al menos minLen puntos (ctx.reset limpia la grilla).
+    function createPatternLock(wrapId, onComplete, opts) {
+      const wrap = document.getElementById(wrapId);
+      if (!wrap) return null;
+      const svg = wrap.querySelector('.pattern-lock-svg');
+      const dotsEls = Array.from(wrap.querySelectorAll('.pattern-lock-dot'));
+      const minLen = (opts && opts.minLen) || 4;
+      let path = [];
+      let dragging = false;
+
+      function dotCenter(el) {
+        const wrapRect = wrap.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        return { x: r.left - wrapRect.left + r.width / 2, y: r.top - wrapRect.top + r.height / 2 };
+      }
+      function reset() {
+        path = [];
+        dragging = false;
+        dotsEls.forEach(el => el.classList.remove('active'));
+        if (svg) svg.innerHTML = '';
+        wrap.classList.remove('error', 'success', 'shake');
+      }
+      function redrawLines(toPoint) {
+        if (!svg) return;
+        const wrapRect = wrap.getBoundingClientRect();
+        svg.setAttribute('viewBox', '0 0 ' + wrapRect.width + ' ' + wrapRect.height);
+        let html = '';
+        for (let i = 0; i < path.length - 1; i++) {
+          const a = dotCenter(dotsEls[path[i] - 1]);
+          const b = dotCenter(dotsEls[path[i + 1] - 1]);
+          html += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" />';
+        }
+        if (toPoint && path.length) {
+          const a = dotCenter(dotsEls[path[path.length - 1] - 1]);
+          html += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + toPoint.x + '" y2="' + toPoint.y + '" />';
+        }
+        svg.innerHTML = html;
+      }
+      function dotAtPoint(x, y) {
+        for (const el of dotsEls) {
+          const c = dotCenter(el);
+          const dx = c.x - x, dy = c.y - y;
+          if (Math.sqrt(dx * dx + dy * dy) < 26) return el;
+        }
+        return null;
+      }
+      function addDot(el) {
+        const n = parseInt(el.dataset.dot, 10);
+        if (path.includes(n)) return;
+        path.push(n);
+        el.classList.add('active');
+      }
+      function pointFromEvent(e) {
+        const r = wrap.getBoundingClientRect();
+        return { x: e.clientX - r.left, y: e.clientY - r.top };
+      }
+      function onDown(e) {
+        reset();
+        dragging = true;
+        try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+        const p = pointFromEvent(e);
+        const el = dotAtPoint(p.x, p.y);
+        if (el) addDot(el);
+        e.preventDefault();
+      }
+      function onMove(e) {
+        if (!dragging) return;
+        const p = pointFromEvent(e);
+        const el = dotAtPoint(p.x, p.y);
+        if (el) addDot(el);
+        redrawLines(p);
+        e.preventDefault();
+      }
+      function onUp(e) {
+        if (!dragging) return;
+        dragging = false;
+        redrawLines(null);
+        const finished = path.slice();
+        if (finished.length >= minLen) {
+          onComplete(finished.join('-'), { reset: reset, wrap: wrap });
+        } else if (finished.length > 0) {
+          wrap.classList.add('error', 'shake');
+          setTimeout(reset, 500);
+        } else {
+          reset();
+        }
+      }
+      wrap.addEventListener('pointerdown', onDown);
+      wrap.addEventListener('pointermove', onMove);
+      wrap.addEventListener('pointerup', onUp);
+      wrap.addEventListener('pointercancel', onUp);
+      return { reset: reset };
+    }
+
+    function initVaultUnlockPatternLock() {
+      if (vaultUnlockPatternLock) { vaultUnlockPatternLock.reset(); return; }
+      vaultUnlockPatternLock = createPatternLock('vault-pattern-unlock-wrap', (patternStr, ctx) => {
+        const err = document.getElementById('vault-pin-error');
+        if (patternStr === vaultPattern) {
+          if (err) err.classList.add('hidden');
+          ctx.wrap.classList.add('success');
+          setTimeout(() => {
+            vaultUnlocked = true;
+            closeVaultPinModal();
+            openVaultModal();
+            ctx.reset();
+          }, 220);
+        } else {
+          if (err) err.classList.remove('hidden');
+          ctx.wrap.classList.add('error', 'shake');
+          setTimeout(ctx.reset, 500);
+        }
+      });
+    }
+
     function openVaultPinModal() {
       const modal = document.getElementById('vault-pin-modal');
       const content = document.getElementById('vault-pin-content');
-      const input = document.getElementById('vault-pin-input');
       const err = document.getElementById('vault-pin-error');
-      if (input) input.value = '';
       if (err) err.classList.add('hidden');
+      initVaultUnlockPatternLock();
+      if (vaultUnlockPatternLock) vaultUnlockPatternLock.reset();
       if (modal && content) {
         modal.classList.remove('hidden');
         setTimeout(() => {
           modal.classList.remove('opacity-0');
           content.classList.remove('scale-95');
-          if (input) input.focus();
         }, 10);
       }
     }
@@ -10652,25 +10913,86 @@
       }
     }
 
-    function submitVaultPin(e) {
-      if (e) e.preventDefault();
-      const input = document.getElementById('vault-pin-input');
-      const err = document.getElementById('vault-pin-error');
-      const val = input ? input.value.trim() : '';
-      if (val === VAULT_PIN) {
-        vaultUnlocked = true;
-        closeVaultPinModal();
-        openVaultModal();
-      } else {
-        if (err) err.classList.remove('hidden');
-        if (input) {
-          input.value = '';
-          input.focus();
-          input.classList.add('animate-pop');
-          setTimeout(() => input.classList.remove('animate-pop'), 300);
+    // ===== Configurar / cambiar el patrón de la Bóveda Privada (Ajustes de Perfil) =====
+    function setVaultPatternSetupMsg(text, isError) {
+      const msg = document.getElementById('vault-pattern-setup-msg');
+      if (!msg) return;
+      if (!text) { msg.classList.add('hidden'); msg.textContent = ''; return; }
+      msg.textContent = text;
+      msg.className = 'text-xs font-semibold text-center ' + (isError ? 'text-rose-400' : 'text-[#00f0ff]');
+    }
+
+    function resetVaultPatternSetupFlow() {
+      vaultPatternSetupStep = 1;
+      vaultPatternSetupTemp = null;
+      const subtitle = document.getElementById('vault-pattern-setup-subtitle');
+      if (subtitle) subtitle.textContent = 'Dibuja el patrón nuevo';
+      setVaultPatternSetupMsg('', false);
+      if (vaultPatternSetupLock) vaultPatternSetupLock.reset();
+    }
+
+    function initVaultPatternSetupLock() {
+      if (vaultPatternSetupLock) return;
+      vaultPatternSetupLock = createPatternLock('vault-pattern-setup-wrap', (patternStr, ctx) => {
+        const subtitle = document.getElementById('vault-pattern-setup-subtitle');
+        if (vaultPatternSetupStep === 1) {
+          vaultPatternSetupTemp = patternStr;
+          vaultPatternSetupStep = 2;
+          ctx.wrap.classList.add('success');
+          if (subtitle) subtitle.textContent = 'Dibújalo de nuevo para confirmar';
+          setVaultPatternSetupMsg('', false);
+          setTimeout(ctx.reset, 250);
+        } else if (patternStr === vaultPatternSetupTemp) {
+          ctx.wrap.classList.add('success');
+          setTimeout(async () => {
+            try {
+              await setDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'settings', 'security'), { vaultPattern: patternStr }, { merge: true });
+              vaultPattern = patternStr;
+              closeVaultPatternSetupModal();
+              showConfirm("Patrón Actualizado", "El patrón de tu Bóveda Privada se cambió correctamente.", null, true);
+            } catch (error) {
+              console.error("Error al actualizar el patrón de la Bóveda:", error);
+              setVaultPatternSetupMsg('No se pudo guardar el patrón. Intenta de nuevo.', true);
+              resetVaultPatternSetupFlow();
+            }
+          }, 250);
+        } else {
+          setVaultPatternSetupMsg('Los patrones no coinciden, empecemos de nuevo.', true);
+          ctx.wrap.classList.add('error', 'shake');
+          setTimeout(() => {
+            vaultPatternSetupStep = 1;
+            vaultPatternSetupTemp = null;
+            if (subtitle) subtitle.textContent = 'Dibuja el patrón nuevo';
+            ctx.reset();
+          }, 700);
         }
+      });
+    }
+
+    function openVaultPatternSetupModal() {
+      const modal = document.getElementById('vault-pattern-setup-modal');
+      const content = document.getElementById('vault-pattern-setup-content');
+      initVaultPatternSetupLock();
+      resetVaultPatternSetupFlow();
+      const profileMenu = document.getElementById('profile-dropdown-menu');
+      if (profileMenu) profileMenu.classList.add('hidden');
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
       }
-      return false;
+    }
+
+    function closeVaultPatternSetupModal() {
+      const modal = document.getElementById('vault-pattern-setup-modal');
+      const content = document.getElementById('vault-pattern-setup-content');
+      if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+      }
     }
 
     function openVaultModal() {
@@ -11055,7 +11377,8 @@
 
     window.openVaultPinModal = openVaultPinModal;
     window.closeVaultPinModal = closeVaultPinModal;
-    window.submitVaultPin = submitVaultPin;
+    window.openVaultPatternSetupModal = openVaultPatternSetupModal;
+    window.closeVaultPatternSetupModal = closeVaultPatternSetupModal;
     window.openVaultModal = openVaultModal;
     window.closeVaultModal = closeVaultModal;
     window.setVaultTab = setVaultTab;
@@ -11235,6 +11558,7 @@
         closeProfileSettingsModal();
         closeTitleSettingsModal();
         closePasswordSettingsModal();
+        closeVaultPatternSetupModal();
         closeAccountDetails();
         closeConfirm();
         closeHoverImagesModal();
@@ -11306,6 +11630,7 @@
       { id: 'calc-widget-modal', closeFunc: closeCalcWidgetModal },
       { id: 'mascot-settings-modal', closeFunc: () => window.closeMascotSettingsModal && window.closeMascotSettingsModal() },
       { id: 'vault-pin-modal', closeFunc: () => window.closeVaultPinModal() },
+      { id: 'vault-pattern-setup-modal', closeFunc: () => window.closeVaultPatternSetupModal() },
       { id: 'vault-modal', closeFunc: () => window.closeVaultModal() },
       { id: 'vault-view-modal', closeFunc: () => window.closeVaultViewModal() }
     ];
@@ -11940,7 +12265,7 @@
         'confirm-modal', 'hover-images-modal', 'diecast-view-modal', 'category-summary-modal',
         'notification-settings-modal', 'task-calendar-modal', 'notes-trash-modal',
         'calc-widget-modal', 'mascot-settings-modal', 'vault-pin-modal', 'vault-modal', 'vault-view-modal',
-        'calendar-settings-modal'];
+        'vault-pattern-setup-modal', 'calendar-settings-modal'];
       for (var i = 0; i < ids.length; i++) {
         var el = document.getElementById(ids[i]);
         if (el && !el.classList.contains('hidden')) return true;
