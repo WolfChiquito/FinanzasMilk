@@ -9783,9 +9783,8 @@
       const items = [];
 
       if (category === 'boveda') {
-        if (!vaultUnlocked) {
-          return { items: [], emptyMessage: 'Tu Bóveda está bloqueada 🔒 Ábrela con tu PIN para poder buscar ahí.' };
-        }
+        // Antes exigía tener la Bóveda desbloqueada (vaultUnlocked) para poder
+        // buscar aquí; ahora Kia responde por voz directamente, sin pedir el PIN.
         const list = vaultItems
           .filter(v => kiaTextMatches(v.type === 'image' ? (v.caption || '') : (v.text || ''), searchText))
           .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
