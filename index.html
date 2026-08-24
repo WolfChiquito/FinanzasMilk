@@ -10863,6 +10863,9 @@
                 <span class="text-[10px] text-gray-500">${dateLabel}</span>
               </div>
             </button>
+            <button onclick="window.editVaultItemFromList('${item.id}')" class="p-1.5 text-gray-500 hover:text-[#00f0ff] transition-colors flex-shrink-0" title="Editar">
+              <i data-lucide="edit-3" class="w-4 h-4"></i>
+            </button>
             <button onclick="window.deleteVaultItem('${item.id}')" class="p-1.5 text-gray-500 hover:text-rose-400 transition-colors flex-shrink-0" title="Eliminar">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
@@ -10936,6 +10939,13 @@
           content.classList.remove('scale-95');
         }, 10);
       }
+    }
+
+    // Acceso rápido desde la lista del historial: abre el visor de un registro
+    // y lo deja directamente en modo edición (evita el paso extra de abrir y luego pulsar "Editar").
+    function editVaultItemFromList(id) {
+      viewVaultItem(id);
+      startEditVaultItem();
     }
 
     // Pasa el visor a modo edición, mostrando textarea (texto) o descripción + opción
@@ -11055,6 +11065,7 @@
     window.saveVaultImageFromForm = saveVaultImageFromForm;
     window.filterVaultSearch = filterVaultSearch;
     window.viewVaultItem = viewVaultItem;
+    window.editVaultItemFromList = editVaultItemFromList;
     window.closeVaultViewModal = closeVaultViewModal;
     window.deleteVaultItem = deleteVaultItem;
     window.saveVaultTextItem = saveVaultTextItem;
