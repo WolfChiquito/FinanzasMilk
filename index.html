@@ -3888,35 +3888,30 @@
       </div>
 
       <!-- SECCIÓN: GUARDAR -->
-      <div id="vault-tab-guardar" class="p-6 space-y-5 overflow-y-auto">
+      <div id="vault-tab-guardar" class="p-6 space-y-4 overflow-y-auto">
         <div>
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Guardar texto
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Nuevo registro
           </h4>
-          <textarea id="vault-text-input" rows="3" placeholder="Escribe el texto que quieres guardar en la bóveda..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm resize-none"></textarea>
-          <button onclick="window.saveVaultTextFromForm()" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-[#00f0ff]/15 hover:bg-[#00f0ff]/25 border border-[#00f0ff]/30 text-[#00f0ff] rounded-xl text-xs font-bold transition-colors">
-            <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar texto
-          </button>
-        </div>
-
-        <div class="h-px bg-gray-800/80"></div>
-
-        <div>
-          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <i data-lucide="image" class="w-3.5 h-3.5 text-[#faff00]"></i> Guardar imagen
-          </h4>
+          <textarea id="vault-text-input" rows="4" maxlength="4000" placeholder="Escribe el texto que quieres guardar en la bóveda..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm resize-none"></textarea>
           <input type="file" id="vault-image-input" accept="image/*" class="hidden" onchange="window.vaultHandleImageSelect(event)">
-          <div id="vault-image-drop" onclick="document.getElementById('vault-image-input').click()" class="w-full aspect-video max-h-48 rounded-2xl border-2 border-dashed border-gray-800 hover:border-[#faff00]/50 flex items-center justify-center cursor-pointer overflow-hidden bg-gray-900/60 transition-colors">
-            <img id="vault-image-preview" src="" class="hidden w-full h-full object-contain" alt="Vista previa">
-            <div id="vault-image-placeholder" class="flex flex-col items-center gap-1.5 text-gray-500">
-              <i data-lucide="upload" class="w-6 h-6"></i>
-              <span class="text-xs font-semibold">Toca para elegir una imagen</span>
-            </div>
+          <div class="mt-2 flex items-center justify-between gap-2">
+            <button type="button" onclick="document.getElementById('vault-image-input').click()" class="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-gray-900 border border-gray-800 hover:border-[#faff00]/50 text-gray-300 hover:text-[#faff00] text-xs font-bold transition-colors">
+              <i data-lucide="image-plus" class="w-4 h-4"></i> Agregar imagen (opcional)
+            </button>
+            <span id="vault-image-status" class="text-[10px] text-gray-500 truncate"></span>
           </div>
-          <input type="text" id="vault-image-caption" maxlength="120" placeholder="Descripción o palabras clave (opcional)..." class="mt-2 w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 focus:border-[#faff00] outline-none text-white text-sm">
-          <button onclick="window.saveVaultImageFromForm()" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-[#faff00]/15 hover:bg-[#faff00]/25 border border-[#faff00]/30 text-[#faff00] rounded-xl text-xs font-bold transition-colors">
-            <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar imagen
+          <div id="vault-image-attachment" class="hidden mt-2 relative rounded-2xl border border-gray-800 bg-gray-900/60 p-2">
+            <img id="vault-image-preview" src="" class="w-full max-h-48 object-contain rounded-xl" alt="Vista previa de la imagen adjunta">
+            <button type="button" onclick="window.removeVaultDraftImage()" class="absolute top-3 right-3 p-1.5 rounded-lg bg-black/75 border border-gray-700 text-gray-300 hover:text-rose-400" title="Quitar imagen">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <input type="text" id="vault-image-caption" maxlength="120" placeholder="Descripción o palabras clave de la imagen (opcional)..." class="mt-2 w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 focus:border-[#faff00] outline-none text-white text-sm">
+          </div>
+          <button onclick="window.saveVaultTextFromForm()" class="mt-3 w-full flex items-center justify-center gap-2 py-2.5 bg-[#00f0ff]/15 hover:bg-[#00f0ff]/25 border border-[#00f0ff]/30 text-[#00f0ff] rounded-xl text-xs font-bold transition-colors">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar registro
           </button>
+          <p class="mt-2 text-[10px] text-gray-500 text-center">El texto es el contenido principal. Puedes guardar el registro solo con texto o añadir una imagen.</p>
         </div>
       </div>
 
@@ -9942,7 +9937,7 @@
         // Antes exigía tener la Bóveda desbloqueada (vaultUnlocked) para poder
         // buscar aquí; ahora Kia responde por voz directamente, sin pedir el PIN.
         const list = vaultItems
-          .filter(v => kiaTextMatches(v.type === 'image' ? (v.caption || '') : (v.text || ''), searchText))
+          .filter(v => kiaTextMatches(((v.text || '') + ' ' + (v.caption || '')).trim(), searchText))
           .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
           .slice(0, 5);
         list.forEach(v => {
@@ -11061,28 +11056,35 @@
       const textInput = document.getElementById('vault-text-input');
       const captionInput = document.getElementById('vault-image-caption');
       const preview = document.getElementById('vault-image-preview');
-      const placeholder = document.getElementById('vault-image-placeholder');
       const fileInput = document.getElementById('vault-image-input');
+      const attachment = document.getElementById('vault-image-attachment');
+      const status = document.getElementById('vault-image-status');
       if (textInput) textInput.value = '';
       if (captionInput) captionInput.value = '';
       if (fileInput) fileInput.value = '';
-      if (preview) { preview.src = ''; preview.classList.add('hidden'); }
-      if (placeholder) placeholder.classList.remove('hidden');
+      if (preview) preview.src = '';
+      if (attachment) attachment.classList.add('hidden');
+      if (status) status.textContent = '';
       vaultDraftImageData = null;
     }
 
-    async function saveVaultTextItem(text, source) {
+    async function saveVaultTextItem(text, source, imageDataUrl, caption) {
       const clean = (text || '').trim();
       if (!clean) return;
       try {
-        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems'), {
+        const data = {
           type: 'text',
           text: clean,
           source: source || 'manual',
           createdAt: new Date().toISOString()
-        });
+        };
+        if (imageDataUrl) {
+          data.image = imageDataUrl;
+          data.caption = (caption || '').trim();
+        }
+        await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems'), data);
       } catch (error) {
-        console.error("Error al guardar texto en la Bóveda:", error);
+        console.error("Error al guardar registro en la Bóveda:", error);
       }
     }
 
@@ -11104,9 +11106,14 @@
     function saveVaultTextFromForm() {
       const input = document.getElementById('vault-text-input');
       const val = input ? input.value.trim() : '';
-      if (!val) return;
-      saveVaultTextItem(val).then(() => {
-        if (input) input.value = '';
+      const captionInput = document.getElementById('vault-image-caption');
+      const caption = captionInput ? captionInput.value : '';
+      if (!val) {
+        window.alert('Escribe el texto del registro antes de guardar.');
+        return;
+      }
+      saveVaultTextItem(val, 'manual', vaultDraftImageData, caption).then(() => {
+        resetVaultForm();
         setVaultTab('historial');
       });
     }
@@ -11135,26 +11142,35 @@
           ctx.drawImage(img, 0, 0, width, height);
           vaultDraftImageData = canvas.toDataURL('image/jpeg', 0.75);
           const preview = document.getElementById('vault-image-preview');
-          const placeholder = document.getElementById('vault-image-placeholder');
-          if (preview && placeholder) {
-            preview.src = vaultDraftImageData;
-            preview.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-          }
+          const attachment = document.getElementById('vault-image-attachment');
+          const status = document.getElementById('vault-image-status');
+          if (preview) preview.src = vaultDraftImageData;
+          if (attachment) attachment.classList.remove('hidden');
+          if (status) status.textContent = file.name || 'Imagen seleccionada';
+          if (window.lucide) lucide.createIcons();
         };
         img.src = event.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    function saveVaultImageFromForm() {
-      if (!vaultDraftImageData) { window.alert('Primero elige una imagen.'); return; }
+    function removeVaultDraftImage() {
+      vaultDraftImageData = null;
+      const fileInput = document.getElementById('vault-image-input');
+      const preview = document.getElementById('vault-image-preview');
+      const attachment = document.getElementById('vault-image-attachment');
       const captionInput = document.getElementById('vault-image-caption');
-      const caption = captionInput ? captionInput.value : '';
-      saveVaultImageItem(vaultDraftImageData, caption).then(() => {
-        resetVaultForm();
-        setVaultTab('historial');
-      });
+      const status = document.getElementById('vault-image-status');
+      if (fileInput) fileInput.value = '';
+      if (preview) preview.src = '';
+      if (attachment) attachment.classList.add('hidden');
+      if (captionInput) captionInput.value = '';
+      if (status) status.textContent = '';
+    }
+
+    // Compatibilidad con el botón antiguo: ahora el registro siempre parte del texto.
+    function saveVaultImageFromForm() {
+      saveVaultTextFromForm();
     }
 
     function filterVaultSearch(value) {
@@ -11184,8 +11200,8 @@
 
       list.innerHTML = filtered.map(item => {
         const dateLabel = item.createdAt ? new Date(item.createdAt).toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-        const preview = item.type === 'image'
-          ? `<img src="${item.image}" class="w-12 h-12 rounded-lg object-cover border border-gray-800 flex-shrink-0" alt="Imagen guardada">`
+        const preview = item.image
+          ? `<img src="${item.image}" class="w-12 h-12 rounded-lg object-cover border border-gray-800 flex-shrink-0" alt="Imagen adjunta">`
           : `<div class="w-12 h-12 rounded-lg bg-[#00f0ff]/10 border border-[#00f0ff]/20 flex items-center justify-center flex-shrink-0"><i data-lucide="file-text" class="w-5 h-5 text-[#00f0ff]"></i></div>`;
         const label = item.type === 'image' ? (item.caption || 'Imagen sin descripción') : item.text;
         return `
@@ -11221,29 +11237,36 @@
       const body = document.getElementById('vault-view-body');
       if (!body) return;
       if (!editing) {
-        body.innerHTML = item.type === 'image'
-          ? `<img src="${item.image}" class="w-full rounded-xl border border-gray-800 mb-3" alt="Imagen guardada">${item.caption ? `<p class="text-sm text-gray-300">${escapeVaultHtml(item.caption)}</p>` : ''}`
-          : `<p class="text-sm text-gray-200 whitespace-pre-wrap">${escapeVaultHtml(item.text)}</p>`;
+        const imageHtml = item.image
+          ? `<img src="${item.image}" class="w-full rounded-xl border border-gray-800 mb-3" alt="Imagen guardada">`
+          : '';
+        const textHtml = item.type === 'image'
+          ? (item.caption ? `<p class="text-sm text-gray-300 whitespace-pre-wrap">${escapeVaultHtml(item.caption)}</p>` : '')
+          : `<p class="text-sm text-gray-200 whitespace-pre-wrap">${escapeVaultHtml(item.text || '')}</p>`;
+        const captionHtml = item.type !== 'image' && item.caption
+          ? `<p class="mt-2 text-xs text-gray-400">${escapeVaultHtml(item.caption)}</p>`
+          : '';
+        body.innerHTML = imageHtml + textHtml + captionHtml;
         return;
       }
       if (item.type === 'image') {
         vaultEditImageData = null;
-        body.innerHTML = `
-          <div class="relative mb-3">
-            <img id="vault-edit-image-preview" src="${item.image}" class="w-full rounded-xl border border-gray-800" alt="Imagen guardada">
-            <label class="absolute bottom-2 right-2 bg-gray-950/85 border border-gray-700 text-xs text-gray-200 px-2.5 py-1.5 rounded-lg cursor-pointer hover:border-[#00f0ff]/50 transition-colors">
-              Cambiar foto
-              <input type="file" accept="image/*" class="hidden" onchange="window.vaultEditHandleImageSelect(event)">
-            </label>
-          </div>
-          <label class="text-xs font-semibold text-gray-400 mb-1 block">Descripción</label>
-          <input type="text" id="vault-edit-caption-input" value="${escapeVaultHtml(item.caption || '')}" placeholder="Descripción (opcional)" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-sm text-white focus:border-[#00f0ff] outline-none">
-        `;
+        body.innerHTML = `<div class="relative mb-3"><img id="vault-edit-image-preview" src="${item.image}" class="w-full rounded-xl border border-gray-800" alt="Imagen guardada"><label class="absolute bottom-2 right-2 bg-gray-950/85 border border-gray-700 text-xs text-gray-200 px-2.5 py-1.5 rounded-lg cursor-pointer">Cambiar foto<input type="file" accept="image/*" class="hidden" onchange="window.vaultEditHandleImageSelect(event)"></label></div><label class="text-xs font-semibold text-gray-400 mb-1 block">Descripción</label><input type="text" id="vault-edit-caption-input" value="${escapeVaultHtml(item.caption || '')}" placeholder="Descripción (opcional)" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-sm text-white focus:border-[#00f0ff] outline-none">`;
       } else {
-        body.innerHTML = `
-          <textarea id="vault-edit-text-input" rows="6" maxlength="2000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-sm text-white focus:border-[#00f0ff] outline-none resize-none">${escapeVaultHtml(item.text)}</textarea>
-        `;
+        vaultEditImageData = null;
+        body.innerHTML = `<textarea id="vault-edit-text-input" rows="6" maxlength="4000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2.5 text-sm text-white focus:border-[#00f0ff] outline-none resize-none">${escapeVaultHtml(item.text || '')}</textarea><div class="mt-3"><input type="file" id="vault-edit-text-image-input" accept="image/*" class="hidden" onchange="window.vaultEditHandleImageSelect(event)"><div class="flex items-center justify-between gap-2"><button type="button" onclick="document.getElementById('vault-edit-text-image-input').click()" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-900 border border-gray-800 hover:border-[#faff00]/50 text-gray-300 hover:text-[#faff00] text-xs font-bold"><i data-lucide="image-plus" class="w-4 h-4"></i> ${item.image ? 'Cambiar imagen' : 'Agregar imagen'}</button><button type="button" onclick="window.removeVaultEditImage()" class="${item.image ? '' : 'hidden'} text-[10px] text-gray-500 hover:text-rose-400">Quitar imagen</button></div><div id="vault-edit-text-image-wrap" class="${item.image ? '' : 'hidden'} mt-2 rounded-xl border border-gray-800 p-2 bg-gray-900/60"><img id="vault-edit-image-preview" src="${item.image || ''}" class="w-full max-h-48 object-contain rounded-lg" alt="Imagen adjunta"><input type="text" id="vault-edit-caption-input" value="${escapeVaultHtml(item.caption || '')}" maxlength="120" placeholder="Descripción de la imagen (opcional)" class="mt-2 w-full bg-gray-950 border border-gray-800 rounded-xl px-3 py-2.5 text-sm text-white focus:border-[#00f0ff] outline-none"></div></div>`;
+        if (window.lucide) lucide.createIcons();
       }
+    }
+
+    function removeVaultEditImage() {
+      vaultEditImageData = '__REMOVE__';
+      const wrap = document.getElementById('vault-edit-text-image-wrap');
+      const preview = document.getElementById('vault-edit-image-preview');
+      const caption = document.getElementById('vault-edit-caption-input');
+      if (wrap) wrap.classList.add('hidden');
+      if (preview) preview.src = '';
+      if (caption) caption.value = '';
     }
 
     function setVaultViewEditingUI(editing) {
@@ -11326,7 +11349,10 @@
           ctx.drawImage(img, 0, 0, width, height);
           vaultEditImageData = canvas.toDataURL('image/jpeg', 0.75);
           const preview = document.getElementById('vault-edit-image-preview');
+          const wrap = document.getElementById('vault-edit-text-image-wrap');
           if (preview) preview.src = vaultEditImageData;
+          if (wrap) wrap.classList.remove('hidden');
+          if (window.lucide) lucide.createIcons();
         };
         img.src = event.target.result;
       };
@@ -11342,12 +11368,22 @@
       if (item.type === 'image') {
         const captionInput = document.getElementById('vault-edit-caption-input');
         updateData.caption = captionInput ? captionInput.value.trim() : (item.caption || '');
-        if (vaultEditImageData) updateData.image = vaultEditImageData;
+        if (vaultEditImageData && vaultEditImageData !== '__REMOVE__') updateData.image = vaultEditImageData;
       } else {
         const textInput = document.getElementById('vault-edit-text-input');
         const newText = textInput ? textInput.value.trim() : '';
         if (!newText) { window.alert('El texto no puede quedar vacío.'); return; }
         updateData.text = newText;
+        const captionInput = document.getElementById('vault-edit-caption-input');
+        if (vaultEditImageData === '__REMOVE__') {
+          updateData.image = null;
+          updateData.caption = '';
+        } else if (vaultEditImageData) {
+          updateData.image = vaultEditImageData;
+          updateData.caption = captionInput ? captionInput.value.trim() : (item.caption || '');
+        } else if (item.image) {
+          updateData.caption = captionInput ? captionInput.value.trim() : (item.caption || '');
+        }
       }
       try {
         await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'vaultItems', item.id), updateData);
@@ -11398,6 +11434,8 @@
     window.saveVaultTextFromForm = saveVaultTextFromForm;
     window.vaultHandleImageSelect = vaultHandleImageSelect;
     window.saveVaultImageFromForm = saveVaultImageFromForm;
+    window.removeVaultDraftImage = removeVaultDraftImage;
+    window.removeVaultEditImage = removeVaultEditImage;
     window.filterVaultSearch = filterVaultSearch;
     window.viewVaultItem = viewVaultItem;
     window.editVaultItemFromList = editVaultItemFromList;
