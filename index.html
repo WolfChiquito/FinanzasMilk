@@ -2086,6 +2086,105 @@
     }
     .kia-mic-query-actions button:active { transform: scale(0.97); }
 
+    /* Tarjetas de la lista de resultados: ahora son tocables por completo (no
+       solo los botones de ✏️/🗑️) para abrir la vista emergente del registro. */
+    .kia-mic-query-item {
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .kia-mic-query-item:active { transform: scale(0.98); background: rgba(255,255,255,0.065); }
+
+    /* ===== Vista emergente de un solo registro (al tocar una tarjeta de la
+       lista): mismo panel de Kia, solo que reemplaza la lista por el detalle
+       completo de ese registro con sus acciones y una flechita de volver. ===== */
+    .kia-mic-query-detail {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+      text-align: left;
+      animation: kiaDetailPop 0.22s cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes kiaDetailPop {
+      0% { opacity: 0; transform: scale(0.96) translateY(4px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .kia-mic-overlay.kia-mic-query-detail-mode .kia-mic-query-detail { display: flex; }
+    .kia-mic-overlay.kia-mic-query-detail-mode .kia-mic-query-results,
+    .kia-mic-overlay.kia-mic-query-detail-mode .kia-mic-query-actions { display: none !important; }
+
+    .kia-mic-query-detail-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .kia-mic-query-detail-back {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.85);
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .kia-mic-query-detail-back:active { transform: scale(0.9); }
+    .kia-mic-query-detail-icon { font-size: 26px; }
+    .kia-mic-query-detail-title { font-size: 15px; font-weight: 700; color: #fff; margin: 0; line-height: 1.4; word-break: break-word; }
+    .kia-mic-query-detail-subtitle { font-size: 12.5px; font-weight: 600; color: #00f0ff; margin: 0; }
+    .kia-mic-query-detail-detail { font-size: 12.5px; font-weight: 400; color: rgba(255,255,255,0.55); margin: 0; line-height: 1.5; }
+
+    .kia-mic-query-detail-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .kia-mic-query-detail-actions button {
+      flex: 1;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 10px;
+      border-radius: 999px;
+      color: rgba(255,255,255,0.82);
+      background: rgba(255,255,255,0.07);
+      transition: transform 0.15s ease;
+    }
+    .kia-mic-query-detail-actions button:active { transform: scale(0.97); }
+    .kia-mic-query-detail-actions button.danger {
+      color: #050409;
+      background: linear-gradient(90deg, #ff5e7e, #ff007f);
+    }
+
+    .kia-mic-query-detail-confirm {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(255,94,126,0.1);
+      border: 1px solid rgba(255,94,126,0.25);
+    }
+    .kia-mic-query-detail-confirm span { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.8); }
+    .kia-mic-query-detail-confirm-btns { display: flex; gap: 8px; }
+    .kia-mic-query-detail-confirm-btns button {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px;
+      border-radius: 999px;
+      color: rgba(255,255,255,0.75);
+      background: rgba(255,255,255,0.08);
+    }
+    .kia-mic-query-detail-confirm-btns button.danger {
+      color: #050409;
+      background: linear-gradient(90deg, #ff5e7e, #ff007f);
+    }
+
     /* ===== Modo error: no se entendió lo que se dijo (habla poco clara, error del
        micrófono, etc.). Reusa la vista simple (icono + título + detalle) con un
        tono rojizo, y dos botones: Cerrar o Reintentar (vuelve a escuchar). ===== */
@@ -11888,6 +11987,32 @@
         <!-- Lista de resultados: se usa cuando el usuario pide VER algo ya guardado
              ("muéstrame...", "busca...") en vez de crear un registro nuevo. -->
         <div id="kia-mic-query-results" class="kia-mic-query-results"></div>
+
+        <!-- Vista emergente de UN registro: aparece al tocar una tarjeta de la
+             lista de arriba. Muestra el registro completo con sus acciones de
+             editar/eliminar, y una flechita para volver a la lista sin perderla. -->
+        <div id="kia-mic-query-detail" class="kia-mic-query-detail">
+          <div class="kia-mic-query-detail-header">
+            <button type="button" class="kia-mic-query-detail-back" onclick="window.closeSmartMicQueryDetail()" aria-label="Volver a los resultados">←</button>
+            <span class="kia-mic-query-detail-icon" id="kia-mic-query-detail-icon">📄</span>
+          </div>
+          <p class="kia-mic-query-detail-title" id="kia-mic-query-detail-title"></p>
+          <p class="kia-mic-query-detail-subtitle" id="kia-mic-query-detail-subtitle"></p>
+          <p class="kia-mic-query-detail-detail" id="kia-mic-query-detail-detail"></p>
+
+          <div class="kia-mic-query-detail-confirm" id="kia-mic-query-detail-confirm">
+            <span>¿Eliminar este registro?</span>
+            <div class="kia-mic-query-detail-confirm-btns">
+              <button type="button" onclick="window.cancelDeleteSmartMicQueryDetail()">No</button>
+              <button type="button" class="danger" onclick="window.confirmDeleteSmartMicQueryDetail()">Sí, borrar</button>
+            </div>
+          </div>
+
+          <div class="kia-mic-query-detail-actions" id="kia-mic-query-detail-actions">
+            <button type="button" id="kia-mic-query-detail-edit-btn" onclick="window.editSmartMicQueryDetail()">✏️ Editar</button>
+            <button type="button" id="kia-mic-query-detail-delete-btn" class="danger" onclick="window.deleteSmartMicQueryDetail()">🗑️ Eliminar</button>
+          </div>
+        </div>
       </div>
       <div id="kia-mic-result-actions" class="kia-mic-result-actions">
         <button type="button" onclick="window.cancelSmartMicResult()">Cancelar</button>
@@ -12582,6 +12707,16 @@
       speakMascotTextForce(text);
     }
 
+    // Corta de inmediato cualquier frase que Kia esté diciendo (o a punto de
+    // decir). Se usa justo cuando el usuario abre o vuelve a activar el
+    // micrófono: si Kia seguía hablando (p. ej. leyendo el resultado de la
+    // consulta anterior), debe callarse en el momento en que le toca al
+    // usuario dar la instrucción, no seguir encimada con "Escuchando...".
+    function stopKiaSpeaking() {
+      if (!('speechSynthesis' in window)) return;
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+
     window.toggleMascotVoice = function () {
       var next = !isMascotVoiceEnabled();
       setMascotVoiceEnabled(next);
@@ -12863,6 +12998,7 @@
         try { micRecognition.stop(); } catch (e) {}
         return;
       }
+      stopKiaSpeaking();
       if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result');
       if (micTranscriptEl) micTranscriptEl.textContent = '';
       micLastFinalProcessed = '';
@@ -13029,16 +13165,19 @@
         if (it._confirmingDelete) {
           actions = '<div class="kia-mic-query-item-confirm">'
             + '<span>¿Eliminar?</span>'
-            + '<button type="button" onclick="window.cancelDeleteSmartMicQueryItem(' + idx + ')">No</button>'
-            + '<button type="button" class="danger" onclick="window.confirmDeleteSmartMicQueryItem(' + idx + ')">Sí, borrar</button>'
+            + '<button type="button" onclick="event.stopPropagation(); window.cancelDeleteSmartMicQueryItem(' + idx + ')">No</button>'
+            + '<button type="button" class="danger" onclick="event.stopPropagation(); window.confirmDeleteSmartMicQueryItem(' + idx + ')">Sí, borrar</button>'
             + '</div>';
         } else if (it.editable || it.deletable) {
           actions = '<div class="kia-mic-query-item-actions">'
-            + (it.editable ? '<button type="button" onclick="window.editSmartMicQueryItem(' + idx + ')" aria-label="Editar">✏️</button>' : '')
-            + (it.deletable ? '<button type="button" onclick="window.deleteSmartMicQueryItem(' + idx + ')" aria-label="Eliminar">🗑️</button>' : '')
+            + (it.editable ? '<button type="button" onclick="event.stopPropagation(); window.editSmartMicQueryItem(' + idx + ')" aria-label="Editar">✏️</button>' : '')
+            + (it.deletable ? '<button type="button" onclick="event.stopPropagation(); window.deleteSmartMicQueryItem(' + idx + ')" aria-label="Eliminar">🗑️</button>' : '')
             + '</div>';
         }
-        return '<div class="kia-mic-query-item">'
+        // Toda la tarjeta es tocable: abre la vista emergente con el registro
+        // completo (ver runKiaQuery arriba, "openSmartMicQueryDetail" abajo).
+        // Los botones internos usan stopPropagation para no abrirla también.
+        return '<div class="kia-mic-query-item" role="button" tabindex="0" onclick="window.openSmartMicQueryDetail(' + idx + ')">'
           + '<span class="kia-mic-query-item-icon">' + (it.icon || '📄') + '</span>'
           + '<div class="kia-mic-query-item-body">'
           + '<p class="kia-mic-query-item-title">' + escapeSmartMicHtml(it.title || '') + '</p>'
@@ -13109,6 +13248,97 @@
       }
     };
 
+    // ---------- Vista emergente de un registro individual ----------
+    // Al tocar una tarjeta de la lista (no los botones de editar/eliminar, que
+    // usan stopPropagation) se abre esta vista con el registro completo y sus
+    // acciones, más una flechita "←" para volver a la lista de resultados sin
+    // perderla ni tener que repetir la búsqueda por voz.
+    var micCurrentDetailIdx = null;
+
+    window.openSmartMicQueryDetail = function (idx) {
+      var it = micCurrentQueryItems[idx];
+      if (!it) return;
+      micCurrentDetailIdx = idx;
+      var iconEl = document.getElementById('kia-mic-query-detail-icon');
+      var titleEl = document.getElementById('kia-mic-query-detail-title');
+      var subtitleEl = document.getElementById('kia-mic-query-detail-subtitle');
+      var detailEl = document.getElementById('kia-mic-query-detail-detail');
+      var actionsEl = document.getElementById('kia-mic-query-detail-actions');
+      var confirmEl = document.getElementById('kia-mic-query-detail-confirm');
+      var editBtn = document.getElementById('kia-mic-query-detail-edit-btn');
+      var delBtn = document.getElementById('kia-mic-query-detail-delete-btn');
+      if (iconEl) iconEl.textContent = it.icon || '📄';
+      if (titleEl) titleEl.textContent = it.title || '';
+      if (subtitleEl) { subtitleEl.textContent = it.subtitle || ''; subtitleEl.style.display = it.subtitle ? 'block' : 'none'; }
+      if (detailEl) { detailEl.textContent = it.detail || ''; detailEl.style.display = it.detail ? 'block' : 'none'; }
+      if (confirmEl) confirmEl.style.display = 'none';
+      if (actionsEl) actionsEl.style.display = (it.editable || it.deletable) ? 'flex' : 'none';
+      if (editBtn) editBtn.style.display = it.editable ? 'flex' : 'none';
+      if (delBtn) delBtn.style.display = it.deletable ? 'flex' : 'none';
+      if (micOverlayEl) micOverlayEl.classList.add('kia-mic-query-detail-mode');
+    };
+
+    // Flechita "←": vuelve a la lista de resultados que ya se había mostrado,
+    // sin cerrar el micrófono ni repetir la consulta.
+    window.closeSmartMicQueryDetail = function () {
+      micCurrentDetailIdx = null;
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-query-detail-mode');
+    };
+
+    // Botón "✏️ Editar" de la vista emergente: pasa al mismo formulario
+    // editable que usa el lápiz de la lista (populateSmartMicEditForm, etc.),
+    // así que corrige monto, cuenta, categoría, texto, fecha, etc. igual.
+    window.editSmartMicQueryDetail = function () {
+      if (micCurrentDetailIdx === null) return;
+      var idx = micCurrentDetailIdx;
+      micCurrentDetailIdx = null;
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-query-detail-mode');
+      window.editSmartMicQueryItem(idx);
+    };
+
+    // Botón "🗑️ Eliminar" de la vista emergente: pide confirmación inline
+    // (mismo patrón que la lista) antes de borrar de verdad.
+    window.deleteSmartMicQueryDetail = function () {
+      var actionsEl = document.getElementById('kia-mic-query-detail-actions');
+      var confirmEl = document.getElementById('kia-mic-query-detail-confirm');
+      if (actionsEl) actionsEl.style.display = 'none';
+      if (confirmEl) confirmEl.style.display = 'flex';
+    };
+
+    window.cancelDeleteSmartMicQueryDetail = function () {
+      if (micCurrentDetailIdx === null) return;
+      var it = micCurrentQueryItems[micCurrentDetailIdx];
+      var actionsEl = document.getElementById('kia-mic-query-detail-actions');
+      var confirmEl = document.getElementById('kia-mic-query-detail-confirm');
+      if (confirmEl) confirmEl.style.display = 'none';
+      if (actionsEl) actionsEl.style.display = (it && (it.editable || it.deletable)) ? 'flex' : 'none';
+    };
+
+    // Al confirmar, borra de verdad en Firestore y regresa a la lista (ya
+    // actualizada, sin el registro eliminado) en vez de cerrar todo el
+    // micrófono, igual que al eliminar desde el botón 🗑️ de la lista.
+    window.confirmDeleteSmartMicQueryDetail = function () {
+      if (micCurrentDetailIdx === null) return;
+      var idx = micCurrentDetailIdx;
+      var it = micCurrentQueryItems[idx];
+      if (!it || !it.id) return;
+      Promise.resolve(window.kiaDeleteQueryItem(it.kind, it.id)).then(function (ok) {
+        if (ok) {
+          micCurrentQueryItems.splice(idx, 1);
+          micCurrentDetailIdx = null;
+          if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-query-detail-mode');
+          renderSmartMicQueryResults({ queryResults: micCurrentQueryItems, queryEmptyMessage: 'Ya no hay más resultados con eso 🤔' });
+          speakMascotText('Listo, lo eliminé.');
+        } else {
+          var actionsEl = document.getElementById('kia-mic-query-detail-actions');
+          var confirmEl = document.getElementById('kia-mic-query-detail-confirm');
+          if (confirmEl) confirmEl.style.display = 'none';
+          if (actionsEl) actionsEl.style.display = 'flex';
+          speakMascotText('No pude eliminarlo, intenta de nuevo.');
+        }
+      });
+    };
+
     // Escapa HTML básico para no romper el marcado con texto que el usuario haya
     // guardado (notas, conceptos, etc. pueden contener < > & " sin querer decir HTML).
     function escapeSmartMicHtml(str) {
@@ -13122,8 +13352,9 @@
     // Cierra el panel de resultados de una consulta (no hay nada que guardar).
     window.closeSmartMicQuery = function () {
       micPendingResult = null;
+      micCurrentDetailIdx = null;
       resetSmartMicEditingExisting();
-      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-query-mode', 'kia-mic-error-mode');
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-query-mode', 'kia-mic-query-detail-mode', 'kia-mic-error-mode');
       if (micStatusEl) micStatusEl.textContent = 'Toca el micrófono y pídeme algo...';
       if (micTranscriptEl) micTranscriptEl.textContent = '';
     };
@@ -13325,14 +13556,16 @@
 
     function openSmartMic() {
       if (!micOverlayEl) return;
+      stopKiaSpeaking();
       closeNoteBox();
       clearTimeout(wanderTimer);
       bubbleEl.classList.remove('mascot-bubble-visible');
       micPendingResult = null;
+      micCurrentDetailIdx = null;
       resetSmartMicEditingExisting();
       if (micTranscriptEl) micTranscriptEl.textContent = '';
       if (micTextInput) micTextInput.value = '';
-      micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-listening', 'kia-mic-query-mode', 'kia-mic-error-mode');
+      micOverlayEl.classList.remove('kia-mic-has-result', 'kia-mic-listening', 'kia-mic-query-mode', 'kia-mic-query-detail-mode', 'kia-mic-error-mode');
       if (micStatusEl) {
         micStatusEl.textContent = micSupportsSpeech
           ? 'Toca el micrófono y pídeme algo...'
@@ -13353,8 +13586,9 @@
       stopMicBarsAnim();
       micListening = false;
       micPendingResult = null;
+      micCurrentDetailIdx = null;
       resetSmartMicEditingExisting();
-      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-visible', 'kia-mic-listening', 'kia-mic-has-result', 'kia-mic-query-mode', 'kia-mic-error-mode');
+      if (micOverlayEl) micOverlayEl.classList.remove('kia-mic-visible', 'kia-mic-listening', 'kia-mic-has-result', 'kia-mic-query-mode', 'kia-mic-query-detail-mode', 'kia-mic-error-mode');
       scheduleWander();
     };
 
