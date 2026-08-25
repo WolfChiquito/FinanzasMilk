@@ -228,6 +228,8 @@
     #sticky-notes-grid {
       position: relative;
       min-height: 90px;
+      height: auto;
+      overflow: visible;
       transition: height 0.15s ease;
     }
 
@@ -620,9 +622,20 @@
     /* ===== TAREAS (Panel Widget estilo nota adhesiva) ===== */
     .tasks-board {
       min-height: 64px;
+      height: auto;
+      overflow: visible;
       background-image:
         radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
       background-size: 12px 12px;
+    }
+
+    /* Las tareas ocupan su altura natural. El listado crece indefinidamente
+       en lugar de compactarse dentro de una ventana con scroll. */
+    #tasks-list {
+      height: auto;
+      max-height: none;
+      overflow: visible;
+      min-height: 0;
     }
 
     .task-card {
@@ -2590,7 +2603,7 @@
                 </div>
               </form>
 
-              <div id="tasks-list" class="space-y-3 max-h-72 overflow-y-auto overflow-x-hidden pt-3 pr-1">
+              <div id="tasks-list" class="space-y-3 pt-3 pr-1">
                 <!-- Renderizado dinámico -->
               </div>
             </div>
