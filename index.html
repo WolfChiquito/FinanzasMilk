@@ -59,7 +59,14 @@
       to { opacity: 1; transform: none; }
     }
     .animate-fade-in {
-      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      /* Sin "forwards": la animación solo dura los 0.6s de la entrada. Con "forwards" el
+         elemento queda con un transform "congelado" (aunque sea idéntico a "ninguno")
+         para siempre, y eso convierte a este elemento en el contenedor de referencia de
+         cualquier position:fixed anidado dentro (por ejemplo, los modales de la Bóveda) —
+         en vez de fijarse a la pantalla, se fijan a este contenedor y su scroll, así que
+         terminan apareciendo fuera de la vista. Sin "forwards" el resultado final se ve
+         igual (opacity:1, sin transform) pero sin dejar ese rastro. */
+      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @keyframes popIn {
