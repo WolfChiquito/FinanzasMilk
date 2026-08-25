@@ -2671,182 +2671,6 @@
             </div>
           </div>
 
-          <!-- MODAL: PIN DE LA BÓVEDA -->
-          <div id="vault-pin-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-all duration-300">
-            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-cyan w-full max-w-xs overflow-hidden transform scale-95 transition-all duration-300" id="vault-pin-content">
-              <div class="flex justify-between items-start p-6 pb-2">
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
-                    <i data-lucide="lock" class="w-4.5 h-4.5"></i>
-                  </div>
-                  <div>
-                    <h3 class="text-lg font-bold text-white leading-tight">Bóveda Privada</h3>
-                    <span class="text-xs text-gray-500">Dibuja tu patrón para continuar</span>
-                  </div>
-                </div>
-                <button onclick="window.closeVaultPinModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
-                  <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-              </div>
-              <div class="p-6 pt-4 space-y-4">
-                <div class="pattern-lock-wrap" id="vault-pattern-unlock-wrap">
-                  <svg class="pattern-lock-svg"></svg>
-                  <div class="pattern-lock-dots">
-                    <div class="pattern-lock-dot" data-dot="1"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="2"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="3"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="4"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="5"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="6"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="7"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="8"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="9"><span></span></div>
-                  </div>
-                </div>
-                <p id="vault-pin-error" class="hidden text-xs font-semibold text-rose-400 text-center">Patrón incorrecto, intenta de nuevo.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- MODAL: CONFIGURAR / CAMBIAR EL PATRÓN DE LA BÓVEDA PRIVADA (desde Ajustes de Perfil) -->
-          <div id="vault-pattern-setup-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[120] hidden opacity-0 transition-all duration-300">
-            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-cyan w-full max-w-xs overflow-hidden transform scale-95 transition-all duration-300" id="vault-pattern-setup-content">
-              <div class="flex justify-between items-start p-6 pb-2">
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
-                    <i data-lucide="grid-3x3" class="w-4.5 h-4.5"></i>
-                  </div>
-                  <div>
-                    <h3 class="text-lg font-bold text-white leading-tight">Nuevo Patrón</h3>
-                    <span id="vault-pattern-setup-subtitle" class="text-xs text-gray-500">Dibuja el patrón nuevo</span>
-                  </div>
-                </div>
-                <button onclick="window.closeVaultPatternSetupModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
-                  <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-              </div>
-              <div class="p-6 pt-4 space-y-4">
-                <div class="pattern-lock-wrap" id="vault-pattern-setup-wrap">
-                  <svg class="pattern-lock-svg"></svg>
-                  <div class="pattern-lock-dots">
-                    <div class="pattern-lock-dot" data-dot="1"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="2"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="3"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="4"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="5"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="6"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="7"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="8"><span></span></div>
-                    <div class="pattern-lock-dot" data-dot="9"><span></span></div>
-                  </div>
-                </div>
-                <p id="vault-pattern-setup-msg" class="hidden text-xs font-semibold text-center"></p>
-              </div>
-            </div>
-          </div>
-
-          <!-- MODAL: CONTENIDO DE LA BÓVEDA -->
-          <div id="vault-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-all duration-300">
-            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-purple w-full max-w-lg overflow-hidden transform scale-95 transition-all duration-300 flex flex-col" id="vault-modal-content" style="max-height:85vh;">
-              <div class="flex justify-between items-start p-6 pb-4 border-b border-gray-800 flex-shrink-0">
-                <div class="flex items-center gap-3">
-                  <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
-                    <i data-lucide="shield-check" class="w-4.5 h-4.5"></i>
-                  </div>
-                  <div>
-                    <h3 class="text-lg font-bold text-white leading-tight">Bóveda Privada</h3>
-                    <span class="text-xs text-gray-500">Guarda imágenes y textos, con historial y búsqueda</span>
-                  </div>
-                </div>
-                <button onclick="window.closeVaultModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
-                  <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-              </div>
-
-              <!-- Pestañas -->
-              <div class="flex items-center gap-2 px-6 pt-4 flex-shrink-0">
-                <button id="vault-tab-btn-guardar" onclick="window.setVaultTab('guardar')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer">
-                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Guardar
-                </button>
-                <button id="vault-tab-btn-historial" onclick="window.setVaultTab('historial')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer">
-                  <i data-lucide="history" class="w-3.5 h-3.5"></i> Historial
-                </button>
-              </div>
-
-              <!-- SECCIÓN: GUARDAR -->
-              <div id="vault-tab-guardar" class="p-6 space-y-5 overflow-y-auto">
-                <div>
-                  <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Guardar texto
-                  </h4>
-                  <textarea id="vault-text-input" rows="3" placeholder="Escribe el texto que quieres guardar en la bóveda..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm resize-none"></textarea>
-                  <button onclick="window.saveVaultTextFromForm()" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-[#00f0ff]/15 hover:bg-[#00f0ff]/25 border border-[#00f0ff]/30 text-[#00f0ff] rounded-xl text-xs font-bold transition-colors">
-                    <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar texto
-                  </button>
-                </div>
-
-                <div class="h-px bg-gray-800/80"></div>
-
-                <div>
-                  <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <i data-lucide="image" class="w-3.5 h-3.5 text-[#faff00]"></i> Guardar imagen
-                  </h4>
-                  <input type="file" id="vault-image-input" accept="image/*" class="hidden" onchange="window.vaultHandleImageSelect(event)">
-                  <div id="vault-image-drop" onclick="document.getElementById('vault-image-input').click()" class="w-full aspect-video max-h-48 rounded-2xl border-2 border-dashed border-gray-800 hover:border-[#faff00]/50 flex items-center justify-center cursor-pointer overflow-hidden bg-gray-900/60 transition-colors">
-                    <img id="vault-image-preview" src="" class="hidden w-full h-full object-contain" alt="Vista previa">
-                    <div id="vault-image-placeholder" class="flex flex-col items-center gap-1.5 text-gray-500">
-                      <i data-lucide="upload" class="w-6 h-6"></i>
-                      <span class="text-xs font-semibold">Toca para elegir una imagen</span>
-                    </div>
-                  </div>
-                  <input type="text" id="vault-image-caption" maxlength="120" placeholder="Descripción o palabras clave (opcional)..." class="mt-2 w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 focus:border-[#faff00] outline-none text-white text-sm">
-                  <button onclick="window.saveVaultImageFromForm()" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-[#faff00]/15 hover:bg-[#faff00]/25 border border-[#faff00]/30 text-[#faff00] rounded-xl text-xs font-bold transition-colors">
-                    <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar imagen
-                  </button>
-                </div>
-              </div>
-
-              <!-- SECCIÓN: HISTORIAL -->
-              <div id="vault-tab-historial" class="hidden flex-col flex-1 min-h-0">
-                <div class="px-6 pt-4 pb-2 flex-shrink-0">
-                  <div class="relative">
-                    <i data-lucide="search" class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                    <input type="text" id="vault-search-input" oninput="window.filterVaultSearch(this.value)" placeholder="Buscar por palabra clave..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-3 py-2.5 focus:border-[#00f0ff] outline-none text-white text-sm">
-                  </div>
-                </div>
-                <div id="vault-history-list" class="px-6 pb-6 space-y-2 overflow-y-auto flex-1 min-h-0">
-                  <!-- Renderizado dinámico -->
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MODAL: VISOR DE UN ELEMENTO DE LA BÓVEDA -->
-          <div id="vault-view-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[115] hidden opacity-0 transition-all duration-300">
-            <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="vault-view-content">
-              <div class="flex justify-between items-start p-5 border-b border-gray-800">
-                <span id="vault-view-date" class="text-xs text-gray-500 font-semibold"></span>
-                <button onclick="window.closeVaultViewModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
-                  <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-              </div>
-              <div id="vault-view-body" class="p-5 max-h-[65vh] overflow-y-auto">
-                <!-- Renderizado dinámico -->
-              </div>
-              <div class="flex gap-2 p-4 border-t border-gray-800">
-                <button type="button" id="vault-view-edit-btn" onclick="window.startEditVaultItem()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 text-sm font-bold transition-colors">
-                  <i data-lucide="pencil" class="w-4 h-4"></i> Editar
-                </button>
-                <button type="button" id="vault-view-cancel-btn" onclick="window.cancelEditVaultItem()" class="hidden flex-1 py-2.5 rounded-xl bg-white/5 border border-gray-700 text-gray-300 text-sm font-bold hover:bg-white/10 transition-colors">
-                  Cancelar
-                </button>
-                <button type="button" id="vault-view-save-btn" onclick="window.saveEditVaultItem()" class="hidden flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-gray-950 text-sm font-bold transition-colors">
-                  Guardar cambios
-                </button>
-              </div>
-            </div>
-          </div>
-
         </section>
 
       </div>
@@ -3951,6 +3775,188 @@
           <span>Cambiar Patrón</span>
         </button>
         <p class="text-[10px] text-gray-500 text-center">Es el patrón que desbloquea la Bóveda Privada (notas e imágenes guardadas), por separado de tu contraseña.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALES DE LA BÓVEDA PRIVADA: se colocan aquí (fuera de cualquier .glass-card,
+       que usa backdrop-filter) y no dentro de la tarjeta de Widgets. backdrop-filter/transform
+       en un ancestro crea un nuevo 'containing block' para position:fixed, así que un modal
+       fixed anidado dentro de esa tarjeta queda atrapado dentro de su caja en vez de cubrir
+       la pantalla completa. Por eso viven junto a password-settings-modal, desde donde se
+       dispara el cambio de patrón. -->
+  <!-- MODAL: PIN DE LA BÓVEDA -->
+  <div id="vault-pin-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-cyan w-full max-w-xs overflow-hidden transform scale-95 transition-all duration-300" id="vault-pin-content">
+      <div class="flex justify-between items-start p-6 pb-2">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
+            <i data-lucide="lock" class="w-4.5 h-4.5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white leading-tight">Bóveda Privada</h3>
+            <span class="text-xs text-gray-500">Dibuja tu patrón para continuar</span>
+          </div>
+        </div>
+        <button onclick="window.closeVaultPinModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 pt-4 space-y-4">
+        <div class="pattern-lock-wrap" id="vault-pattern-unlock-wrap">
+          <svg class="pattern-lock-svg"></svg>
+          <div class="pattern-lock-dots">
+            <div class="pattern-lock-dot" data-dot="1"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="2"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="3"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="4"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="5"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="6"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="7"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="8"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="9"><span></span></div>
+          </div>
+        </div>
+        <p id="vault-pin-error" class="hidden text-xs font-semibold text-rose-400 text-center">Patrón incorrecto, intenta de nuevo.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIGURAR / CAMBIAR EL PATRÓN DE LA BÓVEDA PRIVADA (desde Ajustes de Perfil) -->
+  <div id="vault-pattern-setup-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[120] hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-cyan w-full max-w-xs overflow-hidden transform scale-95 transition-all duration-300" id="vault-pattern-setup-content">
+      <div class="flex justify-between items-start p-6 pb-2">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
+            <i data-lucide="grid-3x3" class="w-4.5 h-4.5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white leading-tight">Nuevo Patrón</h3>
+            <span id="vault-pattern-setup-subtitle" class="text-xs text-gray-500">Dibuja el patrón nuevo</span>
+          </div>
+        </div>
+        <button onclick="window.closeVaultPatternSetupModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 pt-4 space-y-4">
+        <div class="pattern-lock-wrap" id="vault-pattern-setup-wrap">
+          <svg class="pattern-lock-svg"></svg>
+          <div class="pattern-lock-dots">
+            <div class="pattern-lock-dot" data-dot="1"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="2"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="3"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="4"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="5"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="6"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="7"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="8"><span></span></div>
+            <div class="pattern-lock-dot" data-dot="9"><span></span></div>
+          </div>
+        </div>
+        <p id="vault-pattern-setup-msg" class="hidden text-xs font-semibold text-center"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONTENIDO DE LA BÓVEDA -->
+  <div id="vault-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-[110] hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl neon-border-purple w-full max-w-lg overflow-hidden transform scale-95 transition-all duration-300 flex flex-col" id="vault-modal-content" style="max-height:85vh;">
+      <div class="flex justify-between items-start p-6 pb-4 border-b border-gray-800 flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-10 h-10 rounded-2xl bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 flex-shrink-0">
+            <i data-lucide="shield-check" class="w-4.5 h-4.5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white leading-tight">Bóveda Privada</h3>
+            <span class="text-xs text-gray-500">Guarda imágenes y textos, con historial y búsqueda</span>
+          </div>
+        </div>
+        <button onclick="window.closeVaultModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Pestañas -->
+      <div class="flex items-center gap-2 px-6 pt-4 flex-shrink-0">
+        <button id="vault-tab-btn-guardar" onclick="window.setVaultTab('guardar')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer">
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Guardar
+        </button>
+        <button id="vault-tab-btn-historial" onclick="window.setVaultTab('historial')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer">
+          <i data-lucide="history" class="w-3.5 h-3.5"></i> Historial
+        </button>
+      </div>
+
+      <!-- SECCIÓN: GUARDAR -->
+      <div id="vault-tab-guardar" class="p-6 space-y-5 overflow-y-auto">
+        <div>
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-[#00f0ff]"></i> Guardar texto
+          </h4>
+          <textarea id="vault-text-input" rows="3" placeholder="Escribe el texto que quieres guardar en la bóveda..." class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3 focus:border-[#00f0ff] outline-none text-white text-sm resize-none"></textarea>
+          <button onclick="window.saveVaultTextFromForm()" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-[#00f0ff]/15 hover:bg-[#00f0ff]/25 border border-[#00f0ff]/30 text-[#00f0ff] rounded-xl text-xs font-bold transition-colors">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar texto
+          </button>
+        </div>
+
+        <div class="h-px bg-gray-800/80"></div>
+
+        <div>
+          <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i data-lucide="image" class="w-3.5 h-3.5 text-[#faff00]"></i> Guardar imagen
+          </h4>
+          <input type="file" id="vault-image-input" accept="image/*" class="hidden" onchange="window.vaultHandleImageSelect(event)">
+          <div id="vault-image-drop" onclick="document.getElementById('vault-image-input').click()" class="w-full aspect-video max-h-48 rounded-2xl border-2 border-dashed border-gray-800 hover:border-[#faff00]/50 flex items-center justify-center cursor-pointer overflow-hidden bg-gray-900/60 transition-colors">
+            <img id="vault-image-preview" src="" class="hidden w-full h-full object-contain" alt="Vista previa">
+            <div id="vault-image-placeholder" class="flex flex-col items-center gap-1.5 text-gray-500">
+              <i data-lucide="upload" class="w-6 h-6"></i>
+              <span class="text-xs font-semibold">Toca para elegir una imagen</span>
+            </div>
+          </div>
+          <input type="text" id="vault-image-caption" maxlength="120" placeholder="Descripción o palabras clave (opcional)..." class="mt-2 w-full bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 focus:border-[#faff00] outline-none text-white text-sm">
+          <button onclick="window.saveVaultImageFromForm()" class="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-[#faff00]/15 hover:bg-[#faff00]/25 border border-[#faff00]/30 text-[#faff00] rounded-xl text-xs font-bold transition-colors">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i> Guardar imagen
+          </button>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: HISTORIAL -->
+      <div id="vault-tab-historial" class="hidden flex-col flex-1 min-h-0">
+        <div class="px-6 pt-4 pb-2 flex-shrink-0">
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input type="text" id="vault-search-input" oninput="window.filterVaultSearch(this.value)" placeholder="Buscar por palabra clave..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-3 py-2.5 focus:border-[#00f0ff] outline-none text-white text-sm">
+          </div>
+        </div>
+        <div id="vault-history-list" class="px-6 pb-6 space-y-2 overflow-y-auto flex-1 min-h-0">
+          <!-- Renderizado dinámico -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: VISOR DE UN ELEMENTO DE LA BÓVEDA -->
+  <div id="vault-view-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-[115] hidden opacity-0 transition-all duration-300">
+    <div class="bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-800 w-full max-w-md overflow-hidden transform scale-95 transition-all duration-300" id="vault-view-content">
+      <div class="flex justify-between items-start p-5 border-b border-gray-800">
+        <span id="vault-view-date" class="text-xs text-gray-500 font-semibold"></span>
+        <button onclick="window.closeVaultViewModal()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="vault-view-body" class="p-5 max-h-[65vh] overflow-y-auto">
+        <!-- Renderizado dinámico -->
+      </div>
+      <div class="flex gap-2 p-4 border-t border-gray-800">
+        <button type="button" id="vault-view-edit-btn" onclick="window.startEditVaultItem()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#7000ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 hover:bg-[#7000ff]/25 text-sm font-bold transition-colors">
+          <i data-lucide="pencil" class="w-4 h-4"></i> Editar
+        </button>
+        <button type="button" id="vault-view-cancel-btn" onclick="window.cancelEditVaultItem()" class="hidden flex-1 py-2.5 rounded-xl bg-white/5 border border-gray-700 text-gray-300 text-sm font-bold hover:bg-white/10 transition-colors">
+          Cancelar
+        </button>
+        <button type="button" id="vault-view-save-btn" onclick="window.saveEditVaultItem()" class="hidden flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-gray-950 text-sm font-bold transition-colors">
+          Guardar cambios
+        </button>
       </div>
     </div>
   </div>
