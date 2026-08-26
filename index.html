@@ -2427,6 +2427,133 @@
       30%, 50%, 70% { transform: translateX(-5px); }
       40%, 60% { transform: translateX(5px); }
     }
+
+    /* ===== MENÚ DE PERILLA: selector giratorio alterno a la vista clásica
+       (Resumen Mensual / Mis Cuentas y Carteras / DieCasts / Históricos) ===== */
+    .dial-perilla-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      flex-shrink: 0;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    @media (min-width: 640px) {
+      .dial-perilla-container { width: 240px; height: 240px; }
+    }
+    .dial-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background: conic-gradient(from -45deg,
+        rgba(112, 0, 255, 0.34) 0deg 90deg,
+        rgba(0, 240, 255, 0.28) 90deg 180deg,
+        rgba(245, 158, 11, 0.30) 180deg 270deg,
+        rgba(255, 0, 127, 0.30) 270deg 360deg);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 15px 40px rgba(0,0,0,0.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      cursor: grab;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .dial-ring::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: 9999px;
+      background:
+        linear-gradient(90deg, transparent calc(50% - 1px), rgba(5,4,9,0.85) calc(50% - 1px), rgba(5,4,9,0.85) calc(50% + 1px), transparent calc(50% + 1px)),
+        linear-gradient(0deg, transparent calc(50% - 1px), rgba(5,4,9,0.85) calc(50% - 1px), rgba(5,4,9,0.85) calc(50% + 1px), transparent calc(50% + 1px));
+      pointer-events: none;
+    }
+    .dial-ring::after {
+      content: '';
+      position: absolute;
+      top: -3px; left: 50%;
+      width: 46%; height: 46%;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse at top, rgba(255,255,255,0.28), transparent 72%);
+      pointer-events: none;
+    }
+    .dial-perilla-container.dial-dragging .dial-ring { cursor: grabbing; transition: none; }
+    .dial-perilla-container.dial-dragging .dial-icon-btn { transition: none; }
+    .dial-hub {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 42%; height: 42%;
+      transform: translate(-50%, -50%);
+      border-radius: 9999px;
+      background: radial-gradient(circle at 35% 28%, rgba(255,255,255,0.14), rgba(5,4,9,0.92) 72%);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 6px 22px rgba(0,0,0,0.65), inset 0 1px 3px rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 6;
+      pointer-events: none;
+    }
+    .dial-hub-icon { display: flex; align-items: center; justify-content: center; }
+    .dial-hub-icon-hidden { display: none; }
+    .dial-icons-layer { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+    .dial-icon-btn {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 42px; height: 42px;
+      margin: -21px 0 0 -21px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 9999px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      pointer-events: auto;
+      transform: translate(0, 0);
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease;
+    }
+    .dial-icon-btn:hover { background: rgba(255,255,255,0.08); }
+    .dial-icon-btn.dial-icon-active { background: rgba(255,255,255,0.10); }
+    .dial-icon-btn svg { width: 20px; height: 20px; transition: transform 0.3s ease, filter 0.3s ease; }
+    .dial-icon-btn.dial-icon-active svg { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(255,255,255,0.45)); }
+    @media (min-width: 640px) {
+      .dial-icon-btn { width: 48px; height: 48px; margin: -24px 0 0 -24px; }
+      .dial-icon-btn svg { width: 23px; height: 23px; }
+    }
+    .dial-arrow {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 9999px;
+      background: rgba(11, 8, 20, 0.7);
+      border: 1px solid rgba(112, 0, 255, 0.25);
+      color: #9ca3af;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .dial-arrow:hover { color: #fff; border-color: rgba(0,240,255,0.4); background: rgba(11,8,20,0.9); }
+    .dial-mode-hidden { display: none !important; }
+    #btn-toggle-dial-view svg { transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    #btn-toggle-dial-view.dial-toggle-active svg { transform: rotate(180deg); }
+
+    body.light-theme .dial-ring {
+      background:
+        conic-gradient(from -45deg,
+          rgba(112, 0, 255, 0.16) 0deg 90deg,
+          rgba(0, 240, 255, 0.14) 90deg 180deg,
+          rgba(245, 158, 11, 0.16) 180deg 270deg,
+          rgba(255, 0, 127, 0.14) 270deg 360deg),
+        rgba(255, 255, 255, 0.6);
+      box-shadow: inset 0 0 0 1px rgba(112,0,255,0.16), 0 15px 40px rgba(112,0,255,0.12);
+    }
+    body.light-theme .dial-hub {
+      background: radial-gradient(circle at 35% 28%, rgba(255,255,255,0.95), rgba(255,255,255,0.78) 72%);
+      border-color: rgba(112,0,255,0.18);
+      box-shadow: 0 6px 22px rgba(112,0,255,0.15), inset 0 1px 3px rgba(255,255,255,0.5);
+    }
+    body.light-theme .dial-arrow {
+      background: rgba(255,255,255,0.75);
+      border-color: rgba(112,0,255,0.18);
+      color: #6e6183;
+    }
+    body.light-theme .dial-arrow:hover { color: #1a1528; border-color: rgba(112,0,255,0.35); }
+    body.light-theme .dial-icon-btn:hover { background: rgba(112,0,255,0.08); }
+    body.light-theme .dial-icon-btn.dial-icon-active { background: rgba(112,0,255,0.12); }
   </style>
 </head>
 <body class="min-h-screen selection:bg-[#ff007f]/30 p-4 md:p-8 relative">
@@ -2787,8 +2914,56 @@
 
       </div>
 
+      <!-- TOGGLE: VISTA CLÁSICA O MENÚ DE PERILLA (justo antes del Resumen Mensual) -->
+      <div class="flex justify-end print:hidden">
+        <button id="btn-toggle-dial-view" class="flex items-center gap-2 px-3 py-1.5 bg-gray-950/80 hover:bg-gray-900 border border-gray-800 rounded-lg text-xs font-semibold transition-colors cursor-pointer text-gray-300" title="Cambiar entre la vista clásica y el menú de perilla">
+          <i data-lucide="disc-3" class="w-4 h-4 text-[#00f0ff]"></i>
+          <span id="dial-toggle-label">Menú de Perilla</span>
+        </button>
+      </div>
+
+      <!-- MENÚ DE PERILLA: selector giratorio, alterno a la vista clásica de las secciones de abajo -->
+      <div id="dial-view-wrapper" class="hidden flex-col items-center gap-3 py-2 print:hidden">
+        <div class="flex items-center justify-center gap-3 sm:gap-6">
+          <button id="dial-arrow-prev" class="dial-arrow" title="Sección anterior" aria-label="Sección anterior">
+            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+          </button>
+
+          <div id="dial-perilla" class="dial-perilla-container">
+            <div id="dial-ring" class="dial-ring"></div>
+            <div id="dial-icons-layer" class="dial-icons-layer">
+              <button class="dial-icon-btn" data-dial-index="0" title="Resumen Mensual" aria-label="Resumen Mensual">
+                <i data-lucide="chart-pie" class="text-[#7000ff]"></i>
+              </button>
+              <button class="dial-icon-btn" data-dial-index="1" title="Mis Cuentas y Carteras" aria-label="Mis Cuentas y Carteras">
+                <i data-lucide="wallet" class="text-[#00f0ff]"></i>
+              </button>
+              <button class="dial-icon-btn" data-dial-index="2" title="Historial de DieCasts" aria-label="Historial de DieCasts">
+                <i data-lucide="car-front" class="text-amber-500"></i>
+              </button>
+              <button class="dial-icon-btn" data-dial-index="3" title="Consultas y Totales Históricos" aria-label="Consultas y Totales Históricos">
+                <i data-lucide="history" class="text-[#ff007f]"></i>
+              </button>
+            </div>
+            <div id="dial-hub" class="dial-hub">
+              <div class="dial-hub-icon" data-dial-index="0"><i data-lucide="chart-pie" class="w-7 h-7 text-[#7000ff]"></i></div>
+              <div class="dial-hub-icon dial-hub-icon-hidden" data-dial-index="1"><i data-lucide="wallet" class="w-7 h-7 text-[#00f0ff]"></i></div>
+              <div class="dial-hub-icon dial-hub-icon-hidden" data-dial-index="2"><i data-lucide="car-front" class="w-7 h-7 text-amber-500"></i></div>
+              <div class="dial-hub-icon dial-hub-icon-hidden" data-dial-index="3"><i data-lucide="history" class="w-7 h-7 text-[#ff007f]"></i></div>
+            </div>
+          </div>
+
+          <button id="dial-arrow-next" class="dial-arrow" title="Sección siguiente" aria-label="Sección siguiente">
+            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <span id="dial-active-caption" class="text-sm font-bold text-white tracking-wide">Resumen Mensual</span>
+      </div>
+
+      <div id="dial-sections-pool" class="space-y-8">
+
       <!-- RESUMEN MENSUAL Y GRÁFICA (debajo del calendario) -->
-      <section class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl flex flex-col hover:shadow-[0_10px_40px_rgba(112,0,255,0.08)] relative">
+      <section id="resumen-mensual-section" class="glass-card rounded-2xl border border-[#7000ff]/15 p-6 shadow-xl flex flex-col hover:shadow-[0_10px_40px_rgba(112,0,255,0.08)] relative">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-xl font-bold text-white">Resumen Mensual</h2>
           <div class="flex items-center gap-2">
@@ -2981,6 +3156,8 @@
           </div>
         </div>
       </section>
+
+      </div><!-- fin de #dial-sections-pool -->
 
       <!-- MODAL: CALCULADORA INTELIGENTE (AGRANDADA) -->
       <div id="calc-widget-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[105] hidden opacity-0 transition-all duration-300">
@@ -6228,6 +6405,11 @@
 
           renderYearSummary();
           renderTable();
+
+          if (typeof dialViewActive !== 'undefined' && dialViewActive) {
+            const dialHistoricalIdx = dialSections.findIndex(s => s.id === 'historical-section');
+            if (dialHistoricalIdx !== -1) dialSelectIndex(dialHistoricalIdx);
+          }
 
           const targetSection = document.getElementById('historical-section');
           if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth' });
@@ -11877,9 +12059,345 @@
       }
     });
 
+    // ===== MENÚ DE PERILLA: selector giratorio alterno a la vista clásica =====
+    // Permite reemplazar la vista apilada de "Resumen Mensual", "Mis Cuentas y
+    // Carteras", "Historial de DieCasts" y "Consultas y Totales Históricos" por
+    // un menú tipo perilla: se gira (arrastrando, con las flechas o tocando un
+    // ícono) y la sección elegida aparece debajo. El botón de antes del Resumen
+    // Mensual alterna entre esta vista y la vista clásica de siempre.
+    const dialSections = [
+      { id: 'resumen-mensual-section', collapseContentId: null,               collapseChevronId: null,                label: 'Resumen Mensual' },
+      { id: 'accounts-section',        collapseContentId: 'accounts-content', collapseChevronId: 'accounts-chevron',  label: 'Mis Cuentas y Carteras' },
+      { id: 'diecasts-section',        collapseContentId: 'diecasts-content', collapseChevronId: 'diecasts-chevron',  label: 'Historial de DieCasts' },
+      { id: 'historical-section',      collapseContentId: 'history-content',  collapseChevronId: 'history-chevron',   label: 'Consultas y Totales Históricos' },
+    ];
+    const DIAL_VIEW_KEY = 'dialViewActive';
+    const DIAL_INDEX_KEY = 'dialSelectedIndex';
+    let dialViewActive = false;
+    let dialSelectedIndex = 0;
+    let dialRotation = 0;
+    let dialDrag = null;
+    let dialPrevCollapsedSnapshot = null;
+    const DIAL_TICK_STEP = 18; // grados entre cada "clic" mecánico al arrastrar
+    let dialLastTickBoundary = 0;
+
+    // --- Sonido de la perilla (Web Audio API, sintetizado, sin archivos externos) ---
+    let dialAudioCtx = null;
+    function dialGetAudioCtx() {
+      if (!dialAudioCtx) {
+        try { dialAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch (e) { return null; }
+      }
+      if (dialAudioCtx.state === 'suspended') dialAudioCtx.resume().catch(() => {});
+      return dialAudioCtx;
+    }
+
+    // "Tic" corto tipo muesca mecánica, con una pizca de variación aleatoria de
+    // tono para que no suenen todos idénticos (más real y más divertido).
+    function dialPlayTick(strength = 1) {
+      const ctx = dialGetAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const jitter = 1 + (Math.random() * 0.24 - 0.12);
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(1050 * jitter, now);
+      osc.frequency.exponentialRampToValueAtTime(620 * jitter, now + 0.02);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.11 * strength, now + 0.002);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.04);
+
+      // Un toque de textura mecánica con ruido filtrado, encima del tono
+      const bufferSize = Math.floor(ctx.sampleRate * 0.02);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'highpass';
+      noiseFilter.frequency.value = 2800;
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.045 * strength, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noise.start(now);
+    }
+
+    // "Clunk" satisfactorio al encajar en una posición; si la sección elegida
+    // cambió de verdad, se le suma un pequeño destello alegre (el toque "divertido").
+    function dialPlaySnap(isNewSelection) {
+      const ctx = dialGetAudioCtx();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(230, now);
+      osc1.frequency.exponentialRampToValueAtTime(130, now + 0.09);
+      gain1.gain.setValueAtTime(0.0001, now);
+      gain1.gain.exponentialRampToValueAtTime(0.2, now + 0.008);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.14);
+
+      if (isNewSelection) {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(1150, now + 0.02);
+        osc2.frequency.exponentialRampToValueAtTime(1750, now + 0.1);
+        gain2.gain.setValueAtTime(0.0001, now + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.07, now + 0.032);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.02);
+        osc2.stop(now + 0.16);
+      }
+    }
+
+    function dialAngleForIndex(i) { return i * 90; }
+
+    function dialNormalize(deg) {
+      let d = deg % 360;
+      if (d < 0) d += 360;
+      return d;
+    }
+
+    function dialClosestIndexFromRotation(rotation) {
+      let best = 0, bestDiff = Infinity;
+      dialSections.forEach((_, i) => {
+        const a = dialNormalize(dialAngleForIndex(i) + rotation);
+        const diff = Math.min(a, 360 - a);
+        if (diff < bestDiff) { bestDiff = diff; best = i; }
+      });
+      return best;
+    }
+
+    function dialRenderIconsPosition() {
+      const icons = document.querySelectorAll('#dial-icons-layer .dial-icon-btn');
+      const radius = window.innerWidth < 640 ? 78 : 94;
+      icons.forEach(btn => {
+        const i = parseInt(btn.dataset.dialIndex, 10);
+        const angle = dialAngleForIndex(i) + dialRotation;
+        btn.style.transform = `rotate(${angle}deg) translate(${radius}px) rotate(${-angle}deg)`;
+      });
+      const ring = document.getElementById('dial-ring');
+      if (ring) ring.style.transform = `rotate(${dialRotation}deg)`;
+    }
+
+    function dialUpdateDialVisuals(index) {
+      dialSelectedIndex = index;
+      document.querySelectorAll('#dial-icons-layer .dial-icon-btn').forEach(btn => {
+        btn.classList.toggle('dial-icon-active', parseInt(btn.dataset.dialIndex, 10) === index);
+      });
+      document.querySelectorAll('#dial-hub .dial-hub-icon').forEach(wrap => {
+        wrap.classList.toggle('dial-hub-icon-hidden', parseInt(wrap.dataset.dialIndex, 10) !== index);
+      });
+      const captionEl = document.getElementById('dial-active-caption');
+      if (captionEl) captionEl.textContent = dialSections[index].label;
+      try { localStorage.setItem(DIAL_INDEX_KEY, String(index)); } catch (e) {}
+    }
+
+    function dialShowOnlySection(index) {
+      dialSections.forEach((sec, i) => {
+        const el = document.getElementById(sec.id);
+        if (!el) return;
+        if (i === index) {
+          el.classList.remove('dial-mode-hidden');
+          if (sec.collapseContentId) {
+            const content = document.getElementById(sec.collapseContentId);
+            const chevron = document.getElementById(sec.collapseChevronId);
+            if (content && content.classList.contains('hidden')) {
+              content.classList.remove('hidden');
+              if (chevron) chevron.classList.add('rotate-180');
+            }
+          }
+        } else {
+          el.classList.add('dial-mode-hidden');
+        }
+      });
+    }
+
+    function dialApplySelection(index) {
+      dialUpdateDialVisuals(index);
+      if (dialViewActive) dialShowOnlySection(index);
+    }
+
+    function dialAnimateRotationTo(target) {
+      dialRotation = target;
+      dialRenderIconsPosition();
+      const newIndex = dialClosestIndexFromRotation(dialRotation);
+      const changedSection = newIndex !== dialSelectedIndex;
+      setTimeout(() => dialPlaySnap(changedSection), 520);
+      dialApplySelection(newIndex);
+    }
+
+    function dialSelectIndex(targetIndex) {
+      const current = dialNormalize(dialAngleForIndex(targetIndex) + dialRotation);
+      let delta = -current;
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+      dialAnimateRotationTo(dialRotation + delta);
+    }
+
+    function dialStep(direction) {
+      const total = dialSections.length;
+      const nextIndex = (dialSelectedIndex + direction + total) % total;
+      dialSelectIndex(nextIndex);
+    }
+
+    function dialGetPointerAngle(evt, el) {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      return Math.atan2(evt.clientY - cy, evt.clientX - cx) * (180 / Math.PI);
+    }
+
+    function dialOnPointerDown(evt) {
+      const ring = document.getElementById('dial-ring');
+      const container = document.getElementById('dial-perilla');
+      if (!ring || !container) return;
+      evt.preventDefault();
+      dialDrag = {
+        pointerId: evt.pointerId,
+        startAngle: dialGetPointerAngle(evt, ring),
+        startRotation: dialRotation
+      };
+      dialLastTickBoundary = Math.round(dialRotation / DIAL_TICK_STEP);
+      container.classList.add('dial-dragging');
+      try { ring.setPointerCapture(evt.pointerId); } catch (e) {}
+    }
+
+    function dialOnPointerMove(evt) {
+      if (!dialDrag || evt.pointerId !== dialDrag.pointerId) return;
+      const ring = document.getElementById('dial-ring');
+      if (!ring) return;
+      const angleNow = dialGetPointerAngle(evt, ring);
+      let delta = angleNow - dialDrag.startAngle;
+      while (delta > 180) delta -= 360;
+      while (delta < -180) delta += 360;
+      dialRotation = dialDrag.startRotation + delta;
+      const boundaryNow = Math.round(dialRotation / DIAL_TICK_STEP);
+      if (boundaryNow !== dialLastTickBoundary) {
+        dialPlayTick(1);
+        dialLastTickBoundary = boundaryNow;
+      }
+      dialRenderIconsPosition();
+    }
+
+    function dialOnPointerUp(evt) {
+      if (!dialDrag || evt.pointerId !== dialDrag.pointerId) return;
+      const ring = document.getElementById('dial-ring');
+      const container = document.getElementById('dial-perilla');
+      if (container) container.classList.remove('dial-dragging');
+      if (ring) { try { ring.releasePointerCapture(evt.pointerId); } catch (e) {} }
+      dialDrag = null;
+      dialAnimateRotationTo(Math.round(dialRotation / 90) * 90);
+    }
+
+    function dialApplyViewMode() {
+      const wrapper = document.getElementById('dial-view-wrapper');
+      const label = document.getElementById('dial-toggle-label');
+      const toggleBtn = document.getElementById('btn-toggle-dial-view');
+      if (!wrapper) return;
+
+      if (dialViewActive) {
+        dialPrevCollapsedSnapshot = {};
+        dialSections.forEach(sec => {
+          if (sec.collapseContentId) {
+            const content = document.getElementById(sec.collapseContentId);
+            dialPrevCollapsedSnapshot[sec.collapseContentId] = content ? content.classList.contains('hidden') : null;
+          }
+        });
+        wrapper.classList.remove('hidden');
+        wrapper.classList.add('flex');
+        if (label) label.textContent = 'Vista Clásica';
+        dialShowOnlySection(dialSelectedIndex);
+      } else {
+        wrapper.classList.add('hidden');
+        wrapper.classList.remove('flex');
+        if (label) label.textContent = 'Menú de Perilla';
+        dialSections.forEach(sec => {
+          const el = document.getElementById(sec.id);
+          if (el) el.classList.remove('dial-mode-hidden');
+        });
+        if (dialPrevCollapsedSnapshot) {
+          const chevronMap = { 'accounts-content': 'accounts-chevron', 'diecasts-content': 'diecasts-chevron', 'history-content': 'history-chevron' };
+          Object.keys(dialPrevCollapsedSnapshot).forEach(contentId => {
+            const wasHidden = dialPrevCollapsedSnapshot[contentId];
+            if (wasHidden === null) return;
+            const content = document.getElementById(contentId);
+            if (!content) return;
+            content.classList.toggle('hidden', wasHidden);
+            const chevron = document.getElementById(chevronMap[contentId]);
+            if (chevron) chevron.classList.toggle('rotate-180', !wasHidden);
+          });
+        }
+      }
+      if (toggleBtn) {
+        toggleBtn.classList.toggle('dial-toggle-active', dialViewActive);
+        toggleBtn.setAttribute('aria-pressed', dialViewActive ? 'true' : 'false');
+      }
+    }
+
+    function dialToggleView() {
+      dialViewActive = !dialViewActive;
+      try { localStorage.setItem(DIAL_VIEW_KEY, dialViewActive ? '1' : '0'); } catch (e) {}
+      dialApplyViewMode();
+    }
+
+    function dialSetupEvents() {
+      const ring = document.getElementById('dial-ring');
+      if (ring) {
+        ring.addEventListener('pointerdown', dialOnPointerDown);
+        ring.addEventListener('pointermove', dialOnPointerMove);
+        ring.addEventListener('pointerup', dialOnPointerUp);
+        ring.addEventListener('pointercancel', dialOnPointerUp);
+      }
+      document.querySelectorAll('#dial-icons-layer .dial-icon-btn').forEach(btn => {
+        btn.addEventListener('click', () => dialSelectIndex(parseInt(btn.dataset.dialIndex, 10)));
+      });
+      const prevBtn = document.getElementById('dial-arrow-prev');
+      const nextBtn = document.getElementById('dial-arrow-next');
+      if (prevBtn) prevBtn.addEventListener('click', () => dialStep(-1));
+      if (nextBtn) nextBtn.addEventListener('click', () => dialStep(1));
+      const toggleBtn = document.getElementById('btn-toggle-dial-view');
+      if (toggleBtn) toggleBtn.addEventListener('click', dialToggleView);
+      window.addEventListener('resize', dialRenderIconsPosition);
+    }
+
+    function dialInit() {
+      dialSetupEvents();
+      let storedView = null, storedIndex = NaN;
+      try {
+        storedView = localStorage.getItem(DIAL_VIEW_KEY);
+        storedIndex = parseInt(localStorage.getItem(DIAL_INDEX_KEY), 10);
+      } catch (e) {}
+      dialViewActive = storedView === '1';
+      dialSelectedIndex = (Number.isInteger(storedIndex) && storedIndex >= 0 && storedIndex < dialSections.length) ? storedIndex : 0;
+      dialRotation = -dialAngleForIndex(dialSelectedIndex);
+      dialRenderIconsPosition();
+      dialUpdateDialVisuals(dialSelectedIndex);
+      dialApplyViewMode();
+    }
+
     lucide.createIcons();
     renderApp();
     initCalcWidget();
+    dialInit();
 
   </script>
 
