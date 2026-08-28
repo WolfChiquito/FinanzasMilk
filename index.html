@@ -3205,15 +3205,15 @@
 
         <!-- CONTENIDO PLEGABLE -->
         <div id="history-content" class="hidden mt-6 space-y-6 animate-fade-in">
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4">
             
-            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-              <select id="search-year" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full md:w-auto">
+              <select id="search-year" class="col-span-1 sm:col-auto bg-gray-950 border border-gray-800 rounded-lg px-3 sm:px-4 py-2.5 sm:py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
                 <!-- Llenado dinámico -->
               </select>
               
               <!-- Selector de Mes -->
-              <select id="search-month" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
+              <select id="search-month" class="col-span-1 sm:col-auto bg-gray-950 border border-gray-800 rounded-lg px-3 sm:px-4 py-2.5 sm:py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
                 <option value="0">Enero</option>
                 <option value="1">Febrero</option>
                 <option value="2">Marzo</option>
@@ -3229,7 +3229,7 @@
               </select>
               
               <!-- Selector de Cuenta para filtrado -->
-              <select id="search-account" class="bg-gray-950 border border-gray-800 rounded-lg px-4 py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
+              <select id="search-account" class="col-span-2 sm:col-auto bg-gray-950 border border-gray-800 rounded-lg px-3 sm:px-4 py-2.5 sm:py-2 text-sm focus:border-[#7000ff] focus:outline-none text-white cursor-pointer hover:bg-gray-900 transition-colors">
                 <option value="all">Todas las cuentas</option>
                 <!-- Cuentas inyectadas dinámicamente -->
               </select>
@@ -3251,8 +3251,8 @@
             <!-- Totales anuales aquí -->
           </div>
 
-          <!-- Lista de Movimientos Filtrados -->
-          <div class="overflow-x-auto border border-gray-800/60 rounded-xl">
+          <!-- Lista de Movimientos Filtrados: tabla completa en tablet/escritorio (md+ = 768px) -->
+          <div class="hidden md:block overflow-x-auto border border-gray-800/60 rounded-xl">
             <table class="w-full text-left border-collapse">
               <thead class="bg-gray-950/90">
                 <tr class="border-b border-gray-850 text-gray-400 text-xs uppercase tracking-wider">
@@ -3268,6 +3268,11 @@
                 <!-- Movimientos aquí -->
               </tbody>
             </table>
+          </div>
+
+          <!-- Lista de Movimientos Filtrados: tarjetas apiladas en móvil (< md), sin scroll horizontal -->
+          <div id="table-cards" class="md:hidden flex flex-col gap-3">
+            <!-- Tarjetas inyectadas por renderTable() -->
           </div>
         </div>
       </section>
@@ -6104,8 +6109,10 @@
 
     function renderTable() {
       const tbody = document.getElementById('table-body');
-      if (!tbody) return;
+      const cardsWrap = document.getElementById('table-cards');
+      if (!tbody || !cardsWrap) return;
       tbody.innerHTML = '';
+      cardsWrap.innerHTML = '';
 
       const lowerQuery = searchQuery.toLowerCase();
       const filtered = movements.filter(m => {
@@ -6123,6 +6130,7 @@
 
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-gray-500">No hay movimientos registrados con los filtros activos.</td></tr>`;
+        cardsWrap.innerHTML = `<div class="py-10 text-center text-gray-500 text-sm">No hay movimientos registrados con los filtros activos.</div>`;
         return;
       }
 
@@ -6140,7 +6148,10 @@
         }
         
         const isExpense = (m.type === 'gasto' || m.type === 'diecast');
+        const amountLabel = isEvent ? '—' : `${isExpense ? '-' : (isTransfer ? '' : '+')}${formatCurrency(m.amount)}`;
+        const conceptLabel = `${m.concept}${isEvent && m.notificationId ? ' 🔔' : ''}`;
 
+        // ---- Fila de tabla (solo visible en md+) ----
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-800/30 transition-colors border-b border-gray-850 last:border-0';
         tr.innerHTML = `
@@ -6156,9 +6167,9 @@
             </div>
           </td>
           <td class="py-3 px-4 text-gray-300 font-medium whitespace-nowrap">${accountLabel}</td>
-          <td class="py-3 px-4 text-gray-300 max-w-xs truncate">${m.concept}${isEvent && m.notificationId ? ' 🔔' : ''}</td>
+          <td class="py-3 px-4 text-gray-300 max-w-xs truncate">${conceptLabel}</td>
           <td class="py-3 px-4 text-right font-bold ${cat.textClass}">
-            ${isEvent ? '—' : `${isExpense ? '-' : (isTransfer ? '' : '+')}${formatCurrency(m.amount)}`}
+            ${amountLabel}
           </td>
           <td class="py-3 px-4 text-center">
             <div class="flex items-center justify-center gap-2">
@@ -6172,6 +6183,38 @@
           </td>
         `;
         tbody.appendChild(tr);
+
+        // ---- Tarjeta (solo visible en móvil, < md): mismo dato, sin scroll horizontal.
+        // Orden de lectura: categoría+monto arriba, concepto al centro, fecha/subcategoría/cuenta
+        // y acciones abajo, con botones más grandes para el dedo (p-2.5 vs p-1.5 de la tabla). ----
+        const card = document.createElement('div');
+        card.className = 'bg-gray-900/60 border border-gray-800/70 rounded-2xl p-4 flex flex-col gap-2.5';
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-3">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${cat.bgClass} ${cat.textClass} ${cat.borderClass} shrink-0">
+              ${cat.emoji} ${cat.label}
+            </span>
+            <span class="text-base font-extrabold ${cat.textClass} whitespace-nowrap">${amountLabel}</span>
+          </div>
+
+          <p class="text-sm text-gray-100 font-semibold leading-snug break-words">${conceptLabel}</p>
+
+          <div class="flex items-center justify-between gap-3 pt-2.5 border-t border-gray-800/60">
+            <div class="min-w-0 text-xs text-gray-400 leading-relaxed">
+              <div class="whitespace-nowrap">${m.date} &middot; ${m.subcategoryEmoji || '🏷️'} ${m.subcategory || 'General'}</div>
+              <div class="text-gray-500">${accountLabel}</div>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="window.editMovement('${m.id}')" class="p-2.5 text-gray-400 active:text-[#00f0ff] active:bg-[#00f0ff]/10 active:scale-90 rounded-lg transition-all" title="Editar">
+                <i data-lucide="edit-3" class="w-4 h-4 pointer-events-none"></i>
+              </button>
+              <button onclick="window.deleteMovement('${m.id}')" class="p-2.5 text-gray-400 active:text-rose-500 active:bg-rose-500/10 active:scale-90 rounded-lg transition-all" title="Eliminar">
+                <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        cardsWrap.appendChild(card);
       });
     }
 
