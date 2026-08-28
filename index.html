@@ -7126,9 +7126,11 @@
     }
 
     const newAccForm = document.getElementById('new-account-form');
+    let isSubmittingAccount = false; // Evita cuentas duplicadas si el usuario toca "Agregar/Actualizar Cuenta" dos veces seguidas
     if (newAccForm) {
       newAccForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isSubmittingAccount) return; // Ya se está guardando: ignora el segundo toque/submit
         const emojiInput = document.getElementById('new-acc-emoji');
         const nameInput = document.getElementById('new-acc-name');
         const balanceInput = document.getElementById('new-acc-balance');
@@ -7157,6 +7159,13 @@
           ? dueColorInput.value : null;
 
         if (!name) return;
+
+        const saveAccBtn = document.getElementById('btn-save-account');
+        isSubmittingAccount = true;
+        if (saveAccBtn) {
+          saveAccBtn.disabled = true;
+          saveAccBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        }
 
         try {
           let newDocRef = null;
@@ -7243,6 +7252,12 @@
           });
         } catch (error) {
           console.error("Error al procesar cuenta:", error);
+        } finally {
+          isSubmittingAccount = false;
+          if (saveAccBtn) {
+            saveAccBtn.disabled = false;
+            saveAccBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
         }
       });
     }
