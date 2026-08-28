@@ -2503,59 +2503,105 @@
       top: 50%; left: 50%;
       width: 56px; height: 56px;
       margin: -28px 0 0 -28px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      pointer-events: auto;
+      transform: translate(0, 0);
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @media (min-width: 640px) {
+      .dial-icon-btn { width: 66px; height: 66px; margin: -33px 0 0 -33px; }
+    }
+    .dial-orb-visual {
+      width: 100%; height: 100%;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 2px;
       border-radius: 9999px;
       border: 2px solid rgba(255,255,255,0.16);
       background: radial-gradient(circle at 36% 28%, rgba(255,255,255,0.16), rgba(18,13,26,0.35) 45%, rgba(14,10,20,0.75) 80%);
       box-shadow: 0 8px 16px rgba(0,0,0,0.42), inset 0 1px 2px rgba(255,255,255,0.14);
-      padding: 0;
-      cursor: pointer;
-      pointer-events: auto;
-      transform: translate(0, 0);
-      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
     }
+    .dial-icon-btn:hover .dial-orb-visual { border-color: rgba(255,255,255,0.4); }
+    /* La burbuja seleccionada crece de verdad (no solo el ícono) y pulsa con
+       su propio color, para que sea imposible no notar cuál es la elegida. */
+    .dial-icon-btn.dial-icon-active .dial-orb-visual {
+      border-width: 3px;
+      transform: scale(1.22);
+      animation: dialActivePulse 1.9s ease-in-out infinite;
+    }
+    .dial-orb-visual svg { width: 16px; height: 16px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
     @media (min-width: 640px) {
-      .dial-icon-btn { width: 66px; height: 66px; margin: -33px 0 0 -33px; }
+      .dial-orb-visual svg { width: 18px; height: 18px; }
     }
-    .dial-icon-btn:hover { border-color: rgba(255,255,255,0.35); }
-    .dial-icon-btn.dial-icon-active { border-width: 3px; }
-    .dial-icon-btn svg { width: 16px; height: 16px; transition: transform 0.3s ease; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
-    @media (min-width: 640px) {
-      .dial-icon-btn svg { width: 18px; height: 18px; }
-    }
-    .dial-icon-btn.dial-icon-active svg { transform: scale(1.15); }
     .dial-icon-btn.dial-icon-active .dial-orb-label { color: #fff; }
 
-    .dial-orb-resumen { border-color: rgba(112,0,255,0.42); }
+    @keyframes dialActivePulse {
+      0%, 100% { box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.22), 0 0 12px var(--dial-glow, rgba(255,255,255,0.4)); }
+      50% { box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.22), 0 0 26px var(--dial-glow, rgba(255,255,255,0.4)); }
+    }
+
+    /* Flecha fija que señala la "ranura" de selección (siempre arriba de la
+       perilla): así queda claro cuál posición es la elegida sin importar cuál
+       burbuja haya girado hasta ahí. */
+    .dial-selector-pointer {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 8;
+      pointer-events: none;
+      animation: dialPointerBounce 1.6s ease-in-out infinite;
+    }
+    .dial-selector-pointer svg {
+      width: 20px; height: 20px;
+      color: #fff;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+    }
+    @media (min-width: 640px) {
+      .dial-selector-pointer { top: -8px; }
+      .dial-selector-pointer svg { width: 24px; height: 24px; }
+    }
+    @keyframes dialPointerBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(3px); }
+    }
+
+    .dial-orb-resumen .dial-orb-visual { border-color: rgba(112,0,255,0.42); }
     .dial-orb-resumen svg { color: #a855f7; }
-    .dial-orb-resumen.dial-icon-active,
+    .dial-orb-resumen.dial-icon-active .dial-orb-visual,
     .dial-hub.dial-orb-resumen {
-      border-color: rgba(112,0,255,0.7);
+      border-color: rgba(112,0,255,0.8);
+      --dial-glow: rgba(112,0,255,0.55);
       box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2), 0 0 18px rgba(112,0,255,0.45);
     }
 
-    .dial-orb-cuentas { border-color: rgba(0,240,255,0.42); }
+    .dial-orb-cuentas .dial-orb-visual { border-color: rgba(0,240,255,0.42); }
     .dial-orb-cuentas svg { color: #00f0ff; }
-    .dial-orb-cuentas.dial-icon-active,
+    .dial-orb-cuentas.dial-icon-active .dial-orb-visual,
     .dial-hub.dial-orb-cuentas {
-      border-color: rgba(0,240,255,0.7);
+      border-color: rgba(0,240,255,0.8);
+      --dial-glow: rgba(0,240,255,0.5);
       box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2), 0 0 18px rgba(0,240,255,0.4);
     }
 
-    .dial-orb-diecasts { border-color: rgba(245,158,11,0.48); }
+    .dial-orb-diecasts .dial-orb-visual { border-color: rgba(245,158,11,0.48); }
     .dial-orb-diecasts svg { color: #f59e0b; }
-    .dial-orb-diecasts.dial-icon-active,
+    .dial-orb-diecasts.dial-icon-active .dial-orb-visual,
     .dial-hub.dial-orb-diecasts {
-      border-color: rgba(245,158,11,0.75);
+      border-color: rgba(245,158,11,0.85);
+      --dial-glow: rgba(245,158,11,0.55);
       box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2), 0 0 18px rgba(245,158,11,0.45);
     }
 
-    .dial-orb-historial { border-color: rgba(255,0,127,0.42); }
+    .dial-orb-historial .dial-orb-visual { border-color: rgba(255,0,127,0.42); }
     .dial-orb-historial svg { color: #ff4fa3; }
-    .dial-orb-historial.dial-icon-active,
+    .dial-orb-historial.dial-icon-active .dial-orb-visual,
     .dial-hub.dial-orb-historial {
-      border-color: rgba(255,0,127,0.7);
+      border-color: rgba(255,0,127,0.8);
+      --dial-glow: rgba(255,0,127,0.5);
       box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2), 0 0 18px rgba(255,0,127,0.4);
     }
 
@@ -2584,6 +2630,7 @@
     body.light-theme .dial-hub { box-shadow: 0 10px 22px rgba(112,0,255,0.18), inset 0 1px 3px rgba(255,255,255,0.6); }
     body.light-theme .dial-icon-btn { box-shadow: 0 8px 16px rgba(112,0,255,0.14), inset 0 1px 2px rgba(255,255,255,0.55); }
     body.light-theme .dial-orb-label { color: #4b3f5e; text-shadow: 0 1px 1px rgba(255,255,255,0.6); }
+    body.light-theme .dial-selector-pointer svg { color: #4b3f5e; filter: drop-shadow(0 2px 4px rgba(112,0,255,0.25)); }
     body.light-theme .dial-icon-btn.dial-icon-active .dial-orb-label { color: #1a1528; }
     body.light-theme .dial-arrow {
       background: rgba(255,255,255,0.6);
@@ -2983,22 +3030,33 @@
 
           <div id="dial-perilla" class="dial-perilla-container">
             <div id="dial-ring" class="dial-ring"></div>
+            <div class="dial-selector-pointer" aria-hidden="true">
+              <i data-lucide="chevron-down"></i>
+            </div>
             <div id="dial-icons-layer" class="dial-icons-layer">
               <button class="dial-icon-btn dial-orb-resumen" data-dial-index="0" title="Resumen Mensual" aria-label="Resumen Mensual">
-                <i data-lucide="chart-pie"></i>
-                <span class="dial-orb-label">Resumen</span>
+                <div class="dial-orb-visual">
+                  <i data-lucide="chart-pie"></i>
+                  <span class="dial-orb-label">Resumen</span>
+                </div>
               </button>
               <button class="dial-icon-btn dial-orb-cuentas" data-dial-index="1" title="Mis Cuentas y Carteras" aria-label="Mis Cuentas y Carteras">
-                <i data-lucide="wallet"></i>
-                <span class="dial-orb-label">Cuentas</span>
+                <div class="dial-orb-visual">
+                  <i data-lucide="wallet"></i>
+                  <span class="dial-orb-label">Cuentas</span>
+                </div>
               </button>
               <button class="dial-icon-btn dial-orb-diecasts" data-dial-index="2" title="Historial de DieCasts" aria-label="Historial de DieCasts">
-                <i data-lucide="car-front"></i>
-                <span class="dial-orb-label">DieCasts</span>
+                <div class="dial-orb-visual">
+                  <i data-lucide="car-front"></i>
+                  <span class="dial-orb-label">DieCasts</span>
+                </div>
               </button>
               <button class="dial-icon-btn dial-orb-historial" data-dial-index="3" title="Consultas y Totales Históricos" aria-label="Consultas y Totales Históricos">
-                <i data-lucide="history"></i>
-                <span class="dial-orb-label">Históricos</span>
+                <div class="dial-orb-visual">
+                  <i data-lucide="history"></i>
+                  <span class="dial-orb-label">Históricos</span>
+                </div>
               </button>
             </div>
             <div id="dial-hub" class="dial-hub dial-orb-resumen">
