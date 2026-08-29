@@ -3461,17 +3461,25 @@
         <!-- Selector de Cuenta Origen -->
         <div id="container-account" class="space-y-1.5">
           <label id="label-account" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Cuenta / Cartera</label>
-          <select id="form-account" required class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
+          <select id="form-account" required onchange="window.updateFormAccountBalances()" class="w-full bg-gray-900 border border-gray-800 rounded-2xl px-4 py-3.5 focus:border-[#7000ff] focus:ring-1 focus:ring-[#7000ff] outline-none text-white text-sm transition-colors cursor-pointer">
             <!-- Cuentas inyectadas dinámicamente -->
           </select>
+          <p class="flex items-center justify-between px-1 pt-0.5">
+            <span class="text-[11px] text-gray-500">Saldo disponible</span>
+            <span id="form-account-balance-amount" class="text-xs font-bold text-white">$0.00</span>
+          </p>
         </div>
 
         <!-- Selector de Cuenta Destino (Visible para Pago TC y Ahorro) -->
         <div id="container-transfer" class="space-y-1.5 hidden">
           <label id="label-transfer" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider text-emerald-400">Cuenta Destino (A Pagar)</label>
-          <select id="form-to-account" class="w-full bg-gray-900 border border-emerald-500/50 rounded-2xl px-4 py-3.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 outline-none text-white text-sm transition-colors cursor-pointer">
+          <select id="form-to-account" onchange="window.updateFormAccountBalances()" class="w-full bg-gray-900 border border-emerald-500/50 rounded-2xl px-4 py-3.5 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 outline-none text-white text-sm transition-colors cursor-pointer">
             <!-- Cuentas inyectadas dinámicamente -->
           </select>
+          <p class="flex items-center justify-between px-1 pt-0.5">
+            <span class="text-[11px] text-gray-500">Saldo disponible</span>
+            <span id="form-to-account-balance-amount" class="text-xs font-bold text-white">$0.00</span>
+          </p>
         </div>
 
         <!-- Cantidad -->
@@ -6510,6 +6518,94 @@
       formToAccSelect.value = toVal && accounts.some(a => a.id === toVal) ? toVal : (accounts[0]?.id || '');
     }
 
+    // ===== Saldo de cuentas dentro del formulario de Añadir/Editar Registro =====
+    // Calcula el saldo de una cuenta a partir de una lista de movimientos dada, con el
+    // mismo criterio que usa renderAccountsSection para el resto de la app (saldo inicial
+    // +/- cada movimiento según el tipo de cuenta y si es o no una transferencia interna).
+    function computeBalanceFromMovements(accountId, movementsList) {
+      const acc = accounts.find(a => a.id === accountId);
+      if (!acc) return 0;
+      let balance = parseFloat(acc.initialBalance || 0);
+      movementsList.forEach(m => {
+        if (acc.accountType === 'credito') {
+          if (isTransferMovement(m)) {
+            if (m.toAccountId === acc.id) balance -= m.amount;
+            if (m.accountId === acc.id) balance += m.amount;
+          } else if (m.accountId === acc.id || m.account === acc.name) {
+            if (m.type === 'ingreso' || m.type === 'ahorro') balance -= m.amount;
+            else if (m.type === 'gasto' || m.type === 'diecast') balance += m.amount;
+          }
+        } else {
+          if (isTransferMovement(m)) {
+            if (m.accountId === acc.id) balance -= m.amount;
+            if (m.toAccountId === acc.id) balance += m.amount;
+          } else if (m.accountId === acc.id || m.account === acc.name) {
+            if (m.type === 'ingreso' || m.type === 'ahorro') balance += m.amount;
+            else if (m.type === 'gasto' || m.type === 'diecast') balance -= m.amount;
+          }
+        }
+      });
+      return balance;
+    }
+
+    function getAccountBalance(accountId) {
+      return computeBalanceFromMovements(accountId, movements);
+    }
+
+    // Da formato al saldo respetando la convención ya usada en "Cuentas y Carteras": las
+    // cuentas de crédito muestran su deuda en negativo.
+    function balanceLabelFor(acc, balance) {
+      return acc.accountType === 'credito'
+        ? `-${formatCurrency(Math.abs(balance))}`
+        : formatCurrency(balance);
+    }
+
+    function renderSingleAccountBalance(selectId, targetId) {
+      const selectEl = document.getElementById(selectId);
+      const targetEl = document.getElementById(targetId);
+      if (!selectEl || !targetEl) return;
+      const acc = accounts.find(a => a.id === selectEl.value);
+      targetEl.textContent = acc ? balanceLabelFor(acc, getAccountBalance(acc.id)) : formatCurrency(0);
+    }
+
+    // Refleja en el formulario el saldo actual de la cuenta origen y, si aplica (ahorro o
+    // pago de tarjeta), de la cuenta destino, para saber cuánto dinero hay antes de guardar.
+    function updateFormAccountBalances() {
+      renderSingleAccountBalance('form-account', 'form-account-balance-amount');
+      renderSingleAccountBalance('form-to-account', 'form-to-account-balance-amount');
+    }
+
+    // Arma el título y texto para avisar, justo después de guardar, con cuánto quedó cada
+    // cuenta usada (origen y, si aplica, destino) en el movimiento recién registrado o
+    // actualizado. Simula el movimiento sobre una copia local para no depender de que
+    // Firestore ya haya propagado el cambio.
+    function buildMovementSavedSummary(newMovementData, oldMovementId) {
+      if (!newMovementData.accountId) return null; // Eventos u otros movimientos sin cuenta
+
+      const projected = oldMovementId
+        ? movements.map(m => m.id === oldMovementId ? { ...m, ...newMovementData } : m)
+        : movements.concat([newMovementData]);
+
+      const originAcc = accounts.find(a => a.id === newMovementData.accountId);
+      if (!originAcc) return null;
+
+      const title = oldMovementId ? '✅ ¡Actualizado!' : '✅ ¡Registrado!';
+      const originLabel = balanceLabelFor(originAcc, computeBalanceFromMovements(originAcc.id, projected));
+
+      if (newMovementData.toAccountId) {
+        const destAcc = accounts.find(a => a.id === newMovementData.toAccountId);
+        if (destAcc) {
+          const destLabel = balanceLabelFor(destAcc, computeBalanceFromMovements(destAcc.id, projected));
+          return {
+            title,
+            text: `${originAcc.emoji} ${originAcc.name} quedó con ${originLabel}  ·  ${destAcc.emoji} ${destAcc.name} quedó con ${destLabel}`
+          };
+        }
+      }
+
+      return { title, text: `${originAcc.emoji} ${originAcc.name} quedó con ${originLabel}` };
+    }
+
     function updateSubcategorySelectors() {
       const subcatSelect = document.getElementById('form-subcategory');
       if (!subcatSelect) return;
@@ -8696,6 +8792,8 @@
         if (labelAccount) labelAccount.textContent = "Cuenta / Cartera";
         updateSubcategorySelectors();
       }
+
+      updateFormAccountBalances();
     }
 
     // Mostrar/ocultar la hora del recordatorio de evento según el checkbox
@@ -8857,7 +8955,9 @@
           accountSelector.value = accounts[0].id;
         }
       }
-      
+
+      updateFormAccountBalances();
+
       const modalElement = document.getElementById('modal');
       const content = document.getElementById('modal-content');
       if (modalElement && content) {
@@ -9013,6 +9113,8 @@
           movementData.subcategoryEmoji = subcatObj ? subcatObj.emoji : '🏷️';
         }
 
+        const savedBalanceSummary = buildMovementSavedSummary(movementData, editingId);
+
         try {
           if (editingId) {
             await updateDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'movements', editingId), movementData);
@@ -9020,6 +9122,9 @@
             await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
           }
           closeModal();
+          if (savedBalanceSummary) {
+            showConfirm(savedBalanceSummary.title, savedBalanceSummary.text, null, true);
+          }
         } catch (error) {
           console.error("Error al guardar/actualizar:", error);
           window.alert('No se pudo guardar el registro. Si subiste una foto, prueba con una imagen más pequeña o de menor calidad e inténtalo de nuevo.');
@@ -12570,6 +12675,7 @@
     window.closeModal = closeModal; 
     window.openModal = openModal;
     window.selectType = selectType;
+    window.updateFormAccountBalances = updateFormAccountBalances;
     window.openProfileSettingsModal = openProfileSettingsModal;
     window.closeProfileSettingsModal = closeProfileSettingsModal;
     window.openTitleSettingsModal = openTitleSettingsModal;
