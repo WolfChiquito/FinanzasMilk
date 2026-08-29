@@ -4565,7 +4565,7 @@
 
         <div>
           <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <i data-lucide="list" class="w-3.5 h-3.5"></i> Movimientos del Mes
+            <i data-lucide="list" class="w-3.5 h-3.5"></i> <span id="category-summary-movements-label">Movimientos del Mes</span>
           </h4>
           <div id="category-summary-movements" class="space-y-1"></div>
         </div>
@@ -5989,6 +5989,8 @@
       if (titleEl) titleEl.textContent = PLURAL_LABELS[type] || cat.label;
       const periodEl = document.getElementById('category-summary-period');
       if (periodEl) periodEl.textContent = `${monthName} ${year}`;
+      const movementsLabelEl = document.getElementById('category-summary-movements-label');
+      if (movementsLabelEl) movementsLabelEl.textContent = 'Movimientos del Mes';
 
       const content = document.getElementById('category-summary-content');
       if (content) content.className = `bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border ${cat.borderClass} w-full max-w-lg overflow-hidden transform scale-95 transition-all duration-300`;
@@ -6141,11 +6143,18 @@
         if(type === 'pago_tc' || type === 'evento') return; 
         const cat = CATEGORIES[type];
         gridContainer.innerHTML += `
-          <div class="bg-gray-900/50 rounded-xl p-4 border border-gray-800 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:border-[#7000ff]/30">
+          <div class="year-summary-item relative bg-gray-900/50 rounded-xl p-4 border border-gray-800 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:border-[#7000ff]/30 cursor-pointer active:scale-95" data-type="${type}" title="Toca para ver el detalle">
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-600 absolute top-2.5 right-2.5 pointer-events-none"></i>
             <span class="text-sm text-gray-400 mb-1">${cat.emoji} ${cat.label} ${labelTime}</span>
             <span class="text-xl font-bold ${cat.textClass}">${formatCurrency(totals[type])}</span>
           </div>
         `;
+      });
+
+      gridContainer.querySelectorAll('.year-summary-item').forEach(item => {
+        item.addEventListener('click', () => {
+          openHistoricalCategorySummary(item.getAttribute('data-type'));
+        });
       });
 
       if (initialAssets > 0) {
@@ -6153,6 +6162,157 @@
         assetPill.className = "col-span-1 md:col-span-4 bg-[#7000ff]/10 p-3 rounded-xl border border-[#7000ff]/20 text-center text-xs text-[#00f0ff] font-semibold transition-transform hover:scale-[1.01]";
         assetPill.innerHTML = `💼 Patrimonio Inicial Preexistente registrado en este período: <span class="font-extrabold text-white text-sm ml-1">${formatCurrency(initialAssets)}</span>`;
         gridContainer.appendChild(assetPill);
+      }
+    }
+
+    // Abre el modal de detalle (mismo modal que el Resumen Mensual) pero respetando
+    // los filtros de Año/Mes/Cuenta de la sección "Consultas y Totales Históricos".
+    function openHistoricalCategorySummary(type) {
+      const cat = CATEGORIES[type];
+      if (!cat) return;
+
+      const periodMovements = movements.filter(m => {
+        const d = new Date(m.date + 'T00:00:00');
+        const matchYear = d.getFullYear() === searchYear;
+        const matchMonth = searchMonth === 'all' || d.getMonth() === parseInt(searchMonth);
+        const matchAcc = searchAccount === 'all' || m.accountId === searchAccount || m.toAccountId === searchAccount;
+        return matchYear && matchMonth && matchAcc;
+      });
+
+      const catMovements = periodMovements.filter(m => m.type === type);
+      catMovements.sort((a, b) => {
+        if (a.date !== b.date) return new Date(b.date) - new Date(a.date);
+        return (b.timestamp || '').localeCompare(a.timestamp || '');
+      });
+
+      const periodTotalAll = periodMovements.reduce((sum, m) => {
+        return (m.type === 'ingreso' || m.type === 'gasto' || m.type === 'ahorro' || m.type === 'diecast') ? sum + (m.amount || 0) : sum;
+      }, 0);
+      const catTotal = catMovements.reduce((sum, m) => sum + (m.amount || 0), 0);
+      const count = catMovements.length;
+      const average = count > 0 ? catTotal / count : 0;
+      const max = count > 0 ? Math.max(...catMovements.map(m => m.amount || 0)) : 0;
+      const percentOfPeriod = periodTotalAll > 0 ? ((catTotal / periodTotalAll) * 100).toFixed(1) : '0.0';
+
+      const PLURAL_LABELS = { ingreso: 'Ingresos', gasto: 'Gastos', ahorro: 'Ahorros', diecast: 'DieCasts' };
+      const isAnnual = searchMonth === 'all';
+      const monthName = document.getElementById('search-month')?.options[parseInt(searchMonth)]?.text || '';
+      let periodLabel = isAnnual ? `Año ${searchYear}` : `${monthName} ${searchYear}`;
+      if (searchAccount !== 'all') {
+        const accObj = accounts.find(a => a.id === searchAccount);
+        if (accObj) periodLabel += ` · ${accObj.emoji ? accObj.emoji + ' ' : ''}${accObj.name}`;
+      }
+
+      const badge = document.getElementById('category-summary-badge');
+      if (badge) badge.className = `flex items-center justify-center w-12 h-12 rounded-2xl text-2xl flex-shrink-0 border ${cat.bgClass} ${cat.borderClass}`;
+      const emojiEl = document.getElementById('category-summary-emoji');
+      if (emojiEl) emojiEl.textContent = cat.emoji;
+      const titleEl = document.getElementById('category-summary-title');
+      if (titleEl) titleEl.textContent = PLURAL_LABELS[type] || cat.label;
+      const periodEl = document.getElementById('category-summary-period');
+      if (periodEl) periodEl.textContent = periodLabel;
+
+      const content = document.getElementById('category-summary-content');
+      if (content) content.className = `bg-gray-950/95 backdrop-blur-xl rounded-3xl shadow-2xl border ${cat.borderClass} w-full max-w-lg overflow-hidden transform scale-95 transition-all duration-300`;
+
+      const totalEl = document.getElementById('category-summary-total');
+      if (totalEl) {
+        totalEl.textContent = formatCurrency(catTotal);
+        totalEl.className = `block text-3xl md:text-4xl font-black tracking-tight ${cat.textClass}`;
+      }
+      const percentEl = document.getElementById('category-summary-percent');
+      if (percentEl) percentEl.textContent = count > 0 ? `${percentOfPeriod}% del movimiento total del periodo` : 'Sin actividad registrada en este periodo';
+
+      const countEl = document.getElementById('category-summary-count');
+      if (countEl) countEl.textContent = count;
+      const avgEl = document.getElementById('category-summary-average');
+      if (avgEl) avgEl.textContent = formatCurrency(average);
+      const maxEl = document.getElementById('category-summary-max');
+      if (maxEl) maxEl.textContent = formatCurrency(max);
+
+      const subcatsWrap = document.getElementById('category-summary-subcats-wrap');
+      const subcatsEl = document.getElementById('category-summary-subcats');
+      if (subcatsEl) {
+        const groups = {};
+        catMovements.forEach(m => {
+          const key = m.subcategory || 'General';
+          if (!groups[key]) groups[key] = { emoji: m.subcategoryEmoji || '🏷️', total: 0, count: 0 };
+          groups[key].total += (m.amount || 0);
+          groups[key].count += 1;
+        });
+        const sortedGroups = Object.entries(groups).sort((a, b) => b[1].total - a[1].total);
+
+        if (sortedGroups.length === 0) {
+          if (subcatsWrap) subcatsWrap.classList.add('hidden');
+          subcatsEl.innerHTML = '';
+        } else {
+          if (subcatsWrap) subcatsWrap.classList.remove('hidden');
+          subcatsEl.innerHTML = sortedGroups.map(([name, g]) => {
+            const pct = catTotal > 0 ? ((g.total / catTotal) * 100).toFixed(0) : 0;
+            return `
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5 gap-2">
+                  <span class="font-medium text-gray-300 flex items-center gap-1.5 truncate">
+                    <span>${g.emoji}</span> <span class="truncate">${name}</span> <span class="text-gray-600 font-normal flex-shrink-0">(${g.count})</span>
+                  </span>
+                  <span class="font-bold ${cat.textClass} flex-shrink-0">${formatCurrency(g.total)}</span>
+                </div>
+                <div class="w-full h-1.5 bg-gray-900 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-500" style="width:${pct}%; background-color:${cat.color};"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      const movementsLabelEl = document.getElementById('category-summary-movements-label');
+      if (movementsLabelEl) movementsLabelEl.textContent = `Movimientos ${isAnnual ? 'del Año' : 'del Mes'}`;
+
+      const listEl = document.getElementById('category-summary-movements');
+      if (listEl) {
+        if (catMovements.length === 0) {
+          listEl.innerHTML = `<p class="text-center text-gray-500 py-6 text-sm">No hay ${(PLURAL_LABELS[type] || cat.label).toLowerCase()} registrados en el periodo seleccionado.</p>`;
+        } else {
+          listEl.innerHTML = catMovements.map(m => {
+            const accLabel = m.account || 'Efectivo';
+            const isTransfer = type === 'ahorro' && !!m.toAccountId;
+            const destAccObj = isTransfer ? accounts.find(a => a.id === m.toAccountId) : null;
+            const destLabel = isTransfer ? (destAccObj ? destAccObj.name : (m.toAccount || '')) : '';
+            const dateObj = new Date(m.date + 'T00:00:00');
+            const dateLabel = dateObj.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: isAnnual ? 'numeric' : undefined });
+            const thumb = (type === 'diecast' && m.photo)
+              ? `<img src="${m.photo}" class="w-10 h-10 rounded-lg object-cover border ${cat.borderClass} flex-shrink-0">`
+              : `<div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0 ${cat.bgClass} border ${cat.borderClass}">${m.subcategoryEmoji || cat.emoji}</div>`;
+
+            return `
+              <div class="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-900/60 transition-colors">
+                ${thumb}
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="font-medium text-gray-200 text-sm truncate" title="${m.concept || ''}">${m.concept || 'Sin concepto'}</span>
+                    <span class="font-bold ${cat.textClass} text-sm flex-shrink-0">${formatCurrency(m.amount || 0)}</span>
+                  </div>
+                  <div class="flex items-center justify-between gap-2 mt-0.5">
+                    <span class="text-[10px] text-gray-500 truncate">${m.subcategory || 'General'} · ${accLabel}${isTransfer && destLabel ? ` → ${destLabel}` : ''}</span>
+                    <span class="text-[10px] text-gray-500 uppercase font-semibold flex-shrink-0">${dateLabel}</span>
+                  </div>
+                </div>
+                ${type === 'diecast' ? `<button onclick="window.viewDiecast('${m.id}')" class="p-1.5 text-gray-500 hover:text-amber-400 rounded-lg hover:bg-amber-500/10 transition-colors flex-shrink-0" title="Ver modelo"><i data-lucide="eye" class="w-4 h-4 pointer-events-none"></i></button>` : ''}
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      const modal = document.getElementById('category-summary-modal');
+      if (modal && content) {
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+        setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          content.classList.remove('scale-95');
+        }, 10);
       }
     }
 
