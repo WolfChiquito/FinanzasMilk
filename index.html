@@ -509,10 +509,12 @@
     .task-list-item {
       display: flex;
       align-items: flex-start;
-      gap: 7px;
+      gap: 6px;
       padding: 3px 2px;
       border-radius: 6px;
+      transition: box-shadow 0.15s ease, opacity 0.15s ease;
     }
+    .task-list-item.task-list-item-editing { align-items: center; }
     .task-list-item-check {
       -webkit-appearance: none;
       appearance: none;
@@ -562,7 +564,30 @@
       flex: 1;
     }
     .task-list-item.completed .task-list-item-text { opacity: 0.6; }
-    .task-list-item-remove {
+    .task-list-item-drag {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      padding: 2px 1px;
+      opacity: 0.45;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      transition: opacity 0.15s ease;
+    }
+    .task-list-item-drag:hover { opacity: 0.85; }
+    .task-list-item-drag:active { cursor: grabbing; }
+    .task-list-item-drop-before { box-shadow: inset 0 2px 0 0 currentColor; }
+    .task-list-item-drop-after { box-shadow: inset 0 -2px 0 0 currentColor; }
+    .task-list-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .task-list-item-action-btn {
       flex-shrink: 0;
       opacity: 0.5;
       padding: 2px;
@@ -570,7 +595,19 @@
       cursor: pointer;
       transition: opacity 0.15s ease;
     }
-    .task-list-item-remove:hover { opacity: 1; }
+    .task-list-item-action-btn:hover { opacity: 1; }
+    .task-list-item-edit-input {
+      flex: 1;
+      min-width: 0;
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(0,0,0,0.25);
+      border-radius: 5px;
+      outline: none;
+      font-family: var(--item-font, 'Comic Sans MS', 'Segoe Print', cursive, ui-sans-serif, sans-serif);
+      font-size: 12.5px;
+      color: inherit;
+      padding: 2px 5px;
+    }
     .task-list-empty {
       font-size: 10.5px;
       opacity: 0.6;
@@ -9606,6 +9643,8 @@
     // Borrador de color/transparencia en uso mientras se crea o edita una nota o tarea
     let noteDraft = { ...DEFAULT_ITEM_STYLE, lineOpacity: DEFAULT_NOTE_LINE_OPACITY };
     let taskDraft = { ...DEFAULT_ITEM_STYLE };
+    // Id del elemento de una tarea-lista que se está editando (ícono de lápiz) en el borrador actual
+    let editingSubitemId = null;
 
     // Construye el estilo inline (fondo + transparencia + texto + resplandor neón + tipografía) para una nota o tarea
     // lineOpacity solo aplica a notas: controla qué tanto se ven las líneas de cuaderno de fondo
@@ -9745,14 +9784,39 @@
     function taskListItemsInnerHtml(draft) {
       const items = (draft && draft.subitems) || [];
       if (!items.length) return '<p class="task-list-empty">Sin elementos aún.</p>';
-      return items.map(si => `
-        <div class="task-list-item ${si.completed ? 'completed' : ''}">
+      return items.map(si => {
+        if (si.id === editingSubitemId) {
+          return `
+        <div class="task-list-item task-list-item-editing" data-subitem-id="${si.id}">
+          <input type="text" id="task-subitem-edit-input-${si.id}" maxlength="200" value="${escapeHtml(si.text)}" class="task-list-item-edit-input"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();window.saveDraftSubitemEdit('${si.id}');}else if(event.key==='Escape'){event.preventDefault();window.cancelDraftSubitemEdit();}" />
+          <div class="task-list-item-actions">
+            <button type="button" onclick="window.saveDraftSubitemEdit('${si.id}')" class="task-list-item-action-btn" title="Guardar">
+              <i data-lucide="check" class="w-3 h-3"></i>
+            </button>
+            <button type="button" onclick="window.cancelDraftSubitemEdit()" class="task-list-item-action-btn" title="Cancelar">
+              <i data-lucide="x" class="w-3 h-3"></i>
+            </button>
+          </div>
+        </div>`;
+        }
+        return `
+        <div class="task-list-item ${si.completed ? 'completed' : ''}" data-subitem-id="${si.id}">
+          <span class="task-list-item-drag" data-drag-handle title="Arrastra para reordenar">
+            <i data-lucide="grip-vertical" class="w-3.5 h-3.5 pointer-events-none"></i>
+          </span>
           <input type="checkbox" ${si.completed ? 'checked' : ''} onchange="window.toggleDraftSubitem('${si.id}')" class="task-list-item-check" title="Marcar como completado" />
           <span class="task-list-item-text ${si.completed ? 'line-through' : ''}">${escapeHtml(si.text)}</span>
-          <button type="button" onclick="window.removeDraftSubitem('${si.id}')" class="task-list-item-remove" title="Eliminar">
-            <i data-lucide="x" class="w-3 h-3"></i>
-          </button>
-        </div>`).join('');
+          <div class="task-list-item-actions">
+            <button type="button" onclick="window.startDraftSubitemEdit('${si.id}')" class="task-list-item-action-btn" title="Editar">
+              <i data-lucide="pencil" class="w-3 h-3"></i>
+            </button>
+            <button type="button" onclick="window.removeDraftSubitem('${si.id}')" class="task-list-item-action-btn" title="Eliminar">
+              <i data-lucide="x" class="w-3 h-3"></i>
+            </button>
+          </div>
+        </div>`;
+      }).join('');
     }
 
     // Reconstruye únicamente la lista de casillas del borrador (sin perder el foco de otros campos)
@@ -9760,6 +9824,7 @@
       const container = document.getElementById(`task-list-items-${suffix}`);
       if (container) container.innerHTML = taskListItemsInnerHtml(taskDraft);
       lucide.createIcons();
+      attachDraftSubitemsDragEvents(suffix);
     }
 
     // Reconstruye todo el cuerpo (input/título + lista) de la tarea que se está creando o editando
@@ -9773,6 +9838,7 @@
       const placeholder = 'Escribe una tarea...';
       container.innerHTML = taskFormBodyHtml(suffix, taskDraft, placeholder, currentText || (t ? t.text : ''));
       lucide.createIcons();
+      attachDraftSubitemsDragEvents(suffix);
       const newInput = document.getElementById(`task-input-${suffix}`);
       if (newInput) newInput.focus();
     }
@@ -9812,6 +9878,115 @@
       refreshTaskListItems(suffix);
     }
     window.toggleDraftSubitem = toggleDraftSubitem;
+
+    // Activa el modo edición de texto (ícono de lápiz) para un elemento del borrador de la lista
+    function startDraftSubitemEdit(itemId) {
+      editingSubitemId = itemId;
+      const suffix = editingTaskId ? `edit-${editingTaskId}` : 'new-form';
+      refreshTaskListItems(suffix);
+      const input = document.getElementById(`task-subitem-edit-input-${itemId}`);
+      if (input) { input.focus(); input.select(); }
+    }
+    window.startDraftSubitemEdit = startDraftSubitemEdit;
+
+    // Guarda el nuevo texto de un elemento del borrador (botón de check o tecla Enter)
+    function saveDraftSubitemEdit(itemId) {
+      const suffix = editingTaskId ? `edit-${editingTaskId}` : 'new-form';
+      const input = document.getElementById(`task-subitem-edit-input-${itemId}`);
+      const text = input ? input.value.trim() : '';
+      if (text) {
+        const si = (taskDraft.subitems || []).find(s => s.id === itemId);
+        if (si) si.text = text;
+      }
+      editingSubitemId = null;
+      refreshTaskListItems(suffix);
+    }
+    window.saveDraftSubitemEdit = saveDraftSubitemEdit;
+
+    // Cancela la edición de texto de un elemento del borrador (botón de x o tecla Escape) sin guardar cambios
+    function cancelDraftSubitemEdit() {
+      editingSubitemId = null;
+      const suffix = editingTaskId ? `edit-${editingTaskId}` : 'new-form';
+      refreshTaskListItems(suffix);
+    }
+    window.cancelDraftSubitemEdit = cancelDraftSubitemEdit;
+
+    // Habilita reordenar (arrastrando desde el ícono de agarre) los elementos del borrador de la
+    // lista, con Pointer Events para que funcione igual con mouse y con el dedo en móvil
+    function attachDraftSubitemsDragEvents(suffix) {
+      const container = document.getElementById(`task-list-items-${suffix}`);
+      if (!container) return;
+      let dragState = null;
+
+      const clearDropIndicators = () => {
+        container.querySelectorAll('[data-subitem-id]').forEach(r => {
+          r.classList.remove('task-list-item-drop-before', 'task-list-item-drop-after');
+          delete r.dataset.dropPosition;
+        });
+      };
+
+      container.querySelectorAll('[data-subitem-id]').forEach(row => {
+        const handle = row.querySelector('[data-drag-handle]');
+        if (!handle) return;
+
+        handle.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          dragState = { draggedId: row.getAttribute('data-subitem-id'), pointerId: e.pointerId };
+          row.classList.add('opacity-50');
+          handle.setPointerCapture(e.pointerId);
+        });
+
+        handle.addEventListener('pointermove', (e) => {
+          if (!dragState || dragState.pointerId !== e.pointerId) return;
+          clearDropIndicators();
+          const overEl = document.elementFromPoint(e.clientX, e.clientY);
+          const target = overEl ? overEl.closest('[data-subitem-id]') : null;
+          if (target && target !== row) {
+            const rect = target.getBoundingClientRect();
+            const isTopHalf = e.clientY < rect.top + rect.height / 2;
+            target.classList.add(isTopHalf ? 'task-list-item-drop-before' : 'task-list-item-drop-after');
+            target.dataset.dropPosition = isTopHalf ? 'before' : 'after';
+          }
+        });
+
+        const finishDrag = (e) => {
+          if (!dragState || dragState.pointerId !== e.pointerId) return;
+          row.classList.remove('opacity-50');
+          const overEl = document.elementFromPoint(e.clientX, e.clientY);
+          const target = overEl ? overEl.closest('[data-subitem-id]') : null;
+          const draggedId = dragState.draggedId;
+          const dropPosition = target ? target.dataset.dropPosition : null;
+          dragState = null;
+          clearDropIndicators();
+
+          if (target && target.getAttribute('data-subitem-id') !== draggedId) {
+            reorderDraftSubitem(draggedId, target.getAttribute('data-subitem-id'), dropPosition || 'before', suffix);
+          }
+        };
+
+        handle.addEventListener('pointerup', finishDrag);
+        handle.addEventListener('pointercancel', () => {
+          row.classList.remove('opacity-50');
+          dragState = null;
+          clearDropIndicators();
+        });
+      });
+    }
+
+    // Reordena en memoria los elementos del borrador de la tarea-lista; el nuevo orden se guarda
+    // en Firebase junto con el resto de la tarea hasta que se pulse "Guardar"
+    function reorderDraftSubitem(draggedId, targetId, position, suffix) {
+      const list = [...(taskDraft.subitems || [])];
+      const fromIndex = list.findIndex(si => si.id === draggedId);
+      if (fromIndex === -1) return;
+      const [moved] = list.splice(fromIndex, 1);
+      let toIndex = list.findIndex(si => si.id === targetId);
+      if (toIndex === -1) toIndex = list.length;
+      if (position === 'after') toIndex += 1;
+      list.splice(toIndex, 0, moved);
+      taskDraft.subitems = list;
+      refreshTaskListItems(suffix);
+    }
 
     // Marca/desmarca un elemento de una tarea-lista ya guardada, directamente en la tarjeta
     async function toggleTaskSubitemCompleted(taskId, subitemId) {
@@ -9960,6 +10135,7 @@
       lucide.createIcons();
 
       if (editingTaskId) {
+        attachDraftSubitemsDragEvents(`edit-${editingTaskId}`);
         const input = document.getElementById(`task-input-edit-${editingTaskId}`);
         if (input) {
           input.focus();
@@ -9975,6 +10151,7 @@
     function showAddTaskInput() {
       const form = document.getElementById('add-task-form');
       taskDraft = { ...DEFAULT_ITEM_STYLE, isList: false, subitems: [] };
+      editingSubitemId = null;
       if (form) form.classList.remove('hidden');
       refreshTaskFormBody();
       applyTaskDraftUI(true);
@@ -9984,6 +10161,7 @@
     function hideAddTaskInput() {
       const form = document.getElementById('add-task-form');
       if (form) form.classList.add('hidden');
+      editingSubitemId = null;
     }
     window.hideAddTaskInput = hideAddTaskInput;
 
@@ -10061,11 +10239,13 @@
         subitems: (t && Array.isArray(t.subitems)) ? t.subitems.map(si => ({ ...si })) : []
       };
       editingTaskId = id;
+      editingSubitemId = null;
       renderTasks();
     }
 
     function cancelEditTask() {
       editingTaskId = null;
+      editingSubitemId = null;
       renderTasks();
     }
 
@@ -10086,6 +10266,7 @@
           subitems: subitems
         });
         editingTaskId = null;
+        editingSubitemId = null;
       } catch (error) {
         console.error("Error al actualizar la tarea:", error);
       }
