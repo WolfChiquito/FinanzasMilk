@@ -1992,6 +1992,60 @@
     .kia-mic-overlay.kia-mic-query-mode .kia-mic-result { flex-direction: column; align-items: stretch; }
     .kia-mic-overlay.kia-mic-query-mode .kia-mic-result-actions { display: none !important; }
 
+    /* Tarjeta del TOTAL de una consulta de cálculo ("cuánto gasté este mes", "cuánto
+       he ahorrado esta semana"), arriba de la lista de resultados. El color de acento
+       (borde/fondo/sombra/monto) se fija en JS por categoría vía kia-mic-query-total-amount
+       en línea — ver renderSmartMicQueryTotalBanner. Oculta por defecto: solo se
+       muestra (clase -visible) cuando la consulta es financiera y tiene un total real. */
+    .kia-mic-query-total {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+      border: 1px solid rgba(0, 240, 255, 0.35);
+    }
+    .kia-mic-overlay.kia-mic-query-mode .kia-mic-query-total.kia-mic-query-total-visible { display: flex; }
+    .kia-mic-query-total-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0;
+    }
+    .kia-mic-query-total-amount {
+      font-size: 25px;
+      font-weight: 800;
+      color: #fff;
+      margin: 1px 0 0;
+      line-height: 1.2;
+    }
+    .kia-mic-query-total-sub {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+    .kia-mic-query-total-breakdown {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .kia-mic-query-total-chip {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.8);
+      white-space: nowrap;
+    }
+
     .kia-mic-query-results {
       display: none;
       flex-direction: column;
@@ -10881,6 +10935,62 @@
       return stripAccentsKia((haystack || '').toLowerCase()).includes(stripAccentsKia(searchText.toLowerCase()));
     }
 
+    // ==================== TOTALES Y CÁLCULOS DE KIA POR VOZ ====================
+    // Antes, preguntas de cálculo ("¿cuánto gasté este mes?", "¿cuánto he ahorrado
+    // esta semana?") se trataban igual que cualquier otra consulta: se armaba una
+    // lista de hasta 5 registros y Kia solo decía "encontré 3 resultados, revisa la
+    // lista" — nunca sumaba nada de verdad. Estos helpers arman la parte de fecha y
+    // de mensajes de una respuesta de cálculo; runKiaQuery los usa para devolver,
+    // además de la lista de siempre, el total real sobre TODOS los movimientos que
+    // califican (no solo los 5 que se alcanzan a mostrar).
+
+    // Frase corta y natural para el filtro de fecha usado en una consulta, para
+    // anteponerla a la respuesta hablada ("Este mes", "Esta semana", "En marzo de
+    // 2026", o "En total" si no se dijo ningún periodo).
+    function kiaDateFilterLabel(dateFilter) {
+      if (!dateFilter) return 'En total';
+      if (typeof dateFilter === 'object') {
+        const now = new Date();
+        const yearSuffix = dateFilter.year !== now.getFullYear() ? ' de ' + dateFilter.year : '';
+        return 'En ' + kiaMonthLabel(dateFilter.month) + yearSuffix;
+      }
+      if (dateFilter === 'today') return 'Hoy';
+      if (dateFilter === 'yesterday') return 'Ayer';
+      if (dateFilter === 'week') return 'Esta semana';
+      if (dateFilter === 'month') return 'Este mes';
+      return 'En total';
+    }
+
+    // Misma idea que kiaDateFilterLabel pero en minúsculas y lista para insertarse a
+    // media frase (ej. "no tienes gastos registrados" + kiaDateFilterLabelLower(...)).
+    function kiaDateFilterLabelLower(dateFilter) {
+      if (!dateFilter) return '';
+      if (typeof dateFilter === 'object') {
+        const now = new Date();
+        const yearSuffix = dateFilter.year !== now.getFullYear() ? ' de ' + dateFilter.year : '';
+        return ' en ' + kiaMonthLabel(dateFilter.month) + yearSuffix;
+      }
+      if (dateFilter === 'today') return ' hoy';
+      if (dateFilter === 'yesterday') return ' ayer';
+      if (dateFilter === 'week') return ' esta semana';
+      if (dateFilter === 'month') return ' este mes';
+      return '';
+    }
+
+    // Mensaje de "no encontré nada" a la medida de la categoría financiera y el
+    // filtro de fecha/texto usados, en vez del genérico "no encontré ningún registro
+    // con eso" — así queda claro qué buscó Kia exactamente aunque no haya nada.
+    function kiaMovementEmptyMessage(category, dateFilter, searchText) {
+      const NOUNS = {
+        gasto: 'gastos', ingreso: 'ingresos', ahorro: 'ahorros',
+        diecast: 'piezas en tu colección DieCast', pago_tc: 'pagos de tarjeta',
+        movimiento: 'movimientos'
+      };
+      const noun = NOUNS[category] || 'registros';
+      const searchLabel = searchText ? ' en "' + searchText + '"' : '';
+      return 'No tienes ' + noun + searchLabel + kiaDateFilterLabelLower(dateFilter) + ' 🤔';
+    }
+
     // Busca en la base de datos real (notas, tareas, eventos, movimientos financieros,
     // cuentas o Bóveda) según la categoría detectada y, si el usuario dio pistas, por
     // texto y por fecha. Regresa hasta 5 resultados (del más reciente al más viejo)
@@ -11028,14 +11138,37 @@
 
       // Categoría "movimiento": gasto, ingreso, ahorro, pago de TDC, DieCast, o
       // cualquier registro financiero si no se especificó un tipo (p. ej. "registro").
-      const list = movements
-        .filter(m => {
-          if (category !== 'movimiento' && MOVEMENT_TYPES.includes(category) && m.type !== category) return false;
-          if (category === 'movimiento' && !MOVEMENT_TYPES.includes(m.type)) return false;
-          if (!kiaDateInRange(m.date, dateFilter)) return false;
-          const hay = (m.concept || '') + ' ' + (m.subcategory || '') + ' ' + (m.account || '');
-          return kiaTextMatches(hay, searchText);
-        })
+      // Antes solo se armaba la lista de los últimos 5 y una pregunta como "cuánto
+      // gasté este mes" nunca sumaba de verdad — Kia solo decía cuántos resultados
+      // había. Ahora se filtra sobre TODOS los movimientos que califican (sin el
+      // límite de 5) para calcular un total real; la lista de hasta 5 más recientes
+      // se arma aparte, solo para mostrarse como detalle debajo del total.
+      const filteredMovements = movements.filter(m => {
+        if (category !== 'movimiento' && MOVEMENT_TYPES.includes(category) && m.type !== category) return false;
+        if (category === 'movimiento' && !MOVEMENT_TYPES.includes(m.type)) return false;
+        if (!kiaDateInRange(m.date, dateFilter)) return false;
+        const hay = (m.concept || '') + ' ' + (m.subcategory || '') + ' ' + (m.account || '');
+        return kiaTextMatches(hay, searchText);
+      });
+
+      const total = filteredMovements.reduce((sum, m) => sum + (parseFloat(m.amount) || 0), 0);
+      const count = filteredMovements.length;
+
+      // Desglose por subcategoría: solo aplica a gasto/ingreso/ahorro (diecast y pago
+      // de TDC siempre caen en una única subcategoría fija) y solo si hay más de una
+      // subcategoría distinta en el resultado — si no, repetiría el mismo total.
+      let breakdown = [];
+      if (['gasto', 'ingreso', 'ahorro'].includes(category)) {
+        const bySubcat = {};
+        filteredMovements.forEach(m => {
+          const key = m.subcategory || 'General';
+          bySubcat[key] = (bySubcat[key] || 0) + (parseFloat(m.amount) || 0);
+        });
+        breakdown = Object.keys(bySubcat).map(name => ({ name, total: bySubcat[name] })).sort((a, b) => b.total - a.total);
+        if (breakdown.length <= 1) breakdown = [];
+      }
+
+      const list = filteredMovements
         .sort((a, b) => new Date(b.date || b.timestamp || 0) - new Date(a.date || a.timestamp || 0))
         .slice(0, 5);
       list.forEach(m => {
@@ -11060,7 +11193,14 @@
           }
         });
       });
-      return { items, emptyMessage: 'No encontré ningún registro con eso 🤔' };
+      return {
+        items,
+        emptyMessage: kiaMovementEmptyMessage(category, dateFilter, searchText),
+        total,
+        count,
+        breakdown,
+        dateFilterLabel: kiaDateFilterLabel(dateFilter)
+      };
     }
 
     // Punto de entrada que usa el micrófono inteligente de la mascota (ver <script> de Kia al final del archivo).
@@ -11193,7 +11333,12 @@
     window.mascotHandleVoiceCommand = function (rawText) {
       const text = (rawText || '').trim();
       if (!text) return null;
-      const t = stripAccentsKia(text).toLowerCase();
+      // Se quitan ¿¿¡! (típicos si el usuario escribe la pregunta en vez de dictarla,
+      // ej. "¿cuánto gasté en gasolina?"): antes se colaban en "t" y de ahí al texto
+      // de búsqueda de una consulta (quedaba "¿ gasolina?" en vez de "gasolina"), lo
+      // que rompía la coincidencia contra el concepto/subcategoría guardados. No se
+      // tocan otros signos como "," o "." porque sí pueden formar parte de un monto.
+      const t = stripAccentsKia(text).toLowerCase().replace(/[¿?¡!]/g, '');
       const has = (arr) => arr.some(k => t.includes(k));
 
       // ---- Navegar el calendario: "llévame a marzo", "ve al mes de agosto",
@@ -11339,14 +11484,22 @@
           .replace(/\s{2,}/g, ' ')
           .trim();
 
-        const { items, emptyMessage } = runKiaQuery(queryCategory, searchText, dateFilter);
+        const queryResult = runKiaQuery(queryCategory, searchText, dateFilter);
         return {
           type: 'query',
           emoji: '🔎',
           title: 'Resultados',
           queryCategory: queryCategory,
-          queryResults: items,
-          queryEmptyMessage: emptyMessage
+          queryResults: queryResult.items,
+          queryEmptyMessage: queryResult.emptyMessage,
+          // Datos de cálculo (suma real sobre TODOS los movimientos que califican,
+          // no solo los que se muestran) para que Kia responda con un total exacto
+          // en vez de solo listar registros — ver buildKiaQuerySpeech más abajo.
+          queryTotal: queryResult.total,
+          queryCount: queryResult.count,
+          queryBreakdown: queryResult.breakdown,
+          queryDateFilterLabel: queryResult.dateFilterLabel,
+          querySearchText: searchText
         };
       }
 
@@ -13180,6 +13333,11 @@
           </div>
         </div>
 
+        <!-- Total de la consulta (solo para gasto/ingreso/ahorro/diecast/pago_tc con
+             filtro de cálculo, ej. "cuánto gasté este mes"): lo llena en JS
+             renderSmartMicQueryTotalBanner(), con el color de la categoría. -->
+        <div id="kia-mic-query-total" class="kia-mic-query-total"></div>
+
         <!-- Lista de resultados: se usa cuando el usuario pide VER algo ya guardado
              ("muéstrame...", "busca...") en vez de crear un registro nuevo. -->
         <div id="kia-mic-query-results" class="kia-mic-query-results"></div>
@@ -14227,11 +14385,51 @@
     var KIA_AMOUNT_TYPES = ['gasto', 'ingreso', 'ahorro', 'pago_tc', 'diecast'];
     var KIA_SUBCATEGORY_TYPES = ['gasto', 'ingreso', 'ahorro'];
 
+    // Mismo color por categoría que CATEGORIES en el módulo principal (ver arriba en
+    // el archivo) — se repite aquí porque este <script> normal no puede ver variables
+    // declaradas dentro de un <script type="module">. Se usa para acentuar la
+    // tarjeta del total con el mismo color que ya identifica a cada categoría en el
+    // resto de la app.
+    var KIA_CATEGORY_COLORS = { ingreso: '#00f0ff', gasto: '#ff007f', ahorro: '#7000ff', diecast: '#f59e0b', pago_tc: '#10b981' };
+
+    // Convierte un color hex ("#00f0ff") a "rgba(...)" con la opacidad indicada, para
+    // poder construir fondos/bordes translúcidos por categoría con JS simple.
+    function kiaHexToRgba(hex, alpha) {
+      var h = (hex || '#00f0ff').replace('#', '');
+      var r = parseInt(h.substring(0, 2), 16), g = parseInt(h.substring(2, 4), 16), b = parseInt(h.substring(4, 6), 16);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+
+    // Igual que "formatCurrency" del módulo principal (misma llamada a Intl, mismo
+    // resultado) — se repite aquí por la misma razón que KIA_CATEGORY_COLORS arriba:
+    // este <script> normal no puede ver el "const formatCurrency" de dentro del módulo.
+    function kiaFormatCurrency(amount) {
+      return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount || 0);
+    }
+
+    // "3 gastos" / "1 gasto", con la forma correcta según la categoría financiera
+    // (diecast se cuenta en "piezas", pago_tc en "pagos", etc.).
+    function kiaMovementNounPhrase(category, count) {
+      var forms = {
+        gasto: ['gasto', 'gastos'], ingreso: ['ingreso', 'ingresos'], ahorro: ['ahorro', 'ahorros'],
+        diecast: ['pieza', 'piezas'], pago_tc: ['pago', 'pagos'], movimiento: ['movimiento', 'movimientos']
+      };
+      var f = forms[category] || ['registro', 'registros'];
+      var n = typeof count === 'number' ? count : 0;
+      return n + ' ' + (n === 1 ? f[0] : f[1]);
+    }
+
     // Arma la frase que Kia DICE en voz alta cuando una consulta ("muéstrame...",
-    // "cuánto tengo...") sí tiene resultados. Antes, con resultados encontrados,
-    // Kia se quedaba callada y el saldo solo se veía escrito en la tarjeta; ahora
-    // también lo dice, sobre todo para cuentas, que es donde más importa el monto.
-    function buildKiaQuerySpeech(items, category) {
+    // "cuánto tengo...", "cuánto gasté...") sí tiene resultados. Para las categorías
+    // financieras con monto (gasto/ingreso/ahorro/diecast/pago_tc), responde con el
+    // TOTAL real: "queryTotal" viene de runKiaQuery ya sumado sobre TODOS los
+    // movimientos que califican con el filtro de fecha/texto, no solo los que se
+    // alcanzan a mostrar en pantalla — antes Kia solo decía "encontré 3 resultados,
+    // revisa la lista" sin sumar nada, así que "¿cuánto gasté este mes?" nunca se
+    // respondía con una cifra concreta.
+    function buildKiaQuerySpeech(result) {
+      var items = result.queryResults;
+      var category = result.queryCategory;
       if (!items || !items.length) return '';
       if (category === 'patrimonio') {
         const total = items[0];
@@ -14267,6 +14465,44 @@
         }
         return sentence;
       }
+
+      // Categorías financieras con monto: respuesta de CÁLCULO (total real), no de
+      // lista de resultados.
+      var MOVEMENT_VERBS = {
+        gasto: 'llevas gastado', ingreso: 'llevas recibido', ahorro: 'llevas ahorrado',
+        diecast: 'llevas gastado', pago_tc: 'llevas pagado'
+      };
+      if (MOVEMENT_VERBS[category] && typeof result.queryTotal === 'number') {
+        var dateLabel = result.queryDateFilterLabel || 'En total';
+        var count = typeof result.queryCount === 'number' ? result.queryCount : items.length;
+        var totalFormatted = kiaFormatCurrency(result.queryTotal);
+        var searchLabel;
+        if (category === 'diecast') {
+          searchLabel = result.querySearchText ? ' en tu colección DieCast (' + result.querySearchText + ')' : ' en tu colección DieCast';
+        } else {
+          searchLabel = result.querySearchText ? ' en ' + result.querySearchText : '';
+        }
+        var sentence = dateLabel + ', ' + MOVEMENT_VERBS[category] + ' ' + totalFormatted + searchLabel + ' (' + kiaMovementNounPhrase(category, count) + ').';
+        // Desglose (top 2) solo cuando no se pidió ya una subcategoría/búsqueda
+        // específica — si no, repetiría lo mismo que ya dice la frase principal.
+        if (result.queryBreakdown && result.queryBreakdown.length > 1 && !result.querySearchText) {
+          var top = result.queryBreakdown.slice(0, 2);
+          var breakdownText = top.map(function (b) { return b.name + ' (' + kiaFormatCurrency(b.total) + ')'; }).join(' y ');
+          sentence += ' Sobre todo en ' + breakdownText + '.';
+        }
+        return sentence;
+      }
+
+      // Categoría "movimiento" mixta (gasto+ingreso+ahorro+diecast+pago_tc juntos,
+      // cuando no se especificó un tipo): sumar montos de signos distintos no da un
+      // número útil, así que aquí solo se confirma cuántos se encontraron, con el
+      // periodo de fecha si se dijo uno.
+      if (category === 'movimiento' && typeof result.queryCount === 'number' && result.queryCount > 0) {
+        var dateLabel2 = result.queryDateFilterLabel;
+        var noun2 = kiaMovementNounPhrase('movimiento', result.queryCount);
+        return (dateLabel2 && dateLabel2 !== 'En total' ? dateLabel2 + ', encontré ' : 'Encontré ') + noun2 + '. Revisa la lista.';
+      }
+
       if (items.length === 1) {
         return 'Encontré ' + (items[0].title || 'un resultado') + (items[0].detail ? ', ' + items[0].detail : '') + '.';
       }
@@ -14298,7 +14534,7 @@
       } else if (isQuery) {
         renderSmartMicQueryResults(result);
         if (result.queryResults && result.queryResults.length) {
-          speakMascotText(buildKiaQuerySpeech(result.queryResults, result.queryCategory));
+          speakMascotText(buildKiaQuerySpeech(result));
         } else if (result.queryEmptyMessage) {
           speakMascotText(result.queryEmptyMessage);
         }
@@ -14332,6 +14568,13 @@
     // Guarda los resultados de la última consulta mostrada, para que los botones de
     // editar/eliminar de cada tarjeta sepan a qué elemento exacto se refieren.
     var micCurrentQueryItems = [];
+    // Metadatos del TOTAL de la última consulta financiera (gasto/ingreso/ahorro/
+    // diecast/pago_tc) mostrada, para pintar el banner de arriba de la lista. Se
+    // guarda aparte de micCurrentQueryItems porque los re-renders internos (al
+    // confirmar/cancelar un borrado dentro de la lista) solo pasan los items, sin
+    // volver a traer el total recalculado — así el banner no desaparece ni parpadea
+    // en esos casos, solo se reemplaza de verdad cuando llega una consulta nueva.
+    var micCurrentQueryMeta = null;
     // Cuando se está editando un elemento YA EXISTENTE (desde una consulta), estos
     // guardan su id y tipo para que "Guardar" actualice en vez de crear uno nuevo.
     var micEditingExistingId = null;
@@ -14348,10 +14591,66 @@
       if (warningEl) warningEl.style.display = 'none';
     }
 
+    // Pinta (o esconde) la tarjeta del total arriba de la lista de resultados, a
+    // partir de micCurrentQueryMeta. Solo se muestra para las categorías con monto
+    // real (gasto/ingreso/ahorro/diecast/pago_tc) — "movimiento" mixto se deja fuera
+    // porque sumar gastos e ingresos juntos no da una cifra útil (ver
+    // buildKiaQuerySpeech), y el resto de categorías (nota/tarea/evento/cuenta/
+    // patrimonio/bóveda) no pasan por aquí para empezar.
+    function renderSmartMicQueryTotalBanner() {
+      var el = document.getElementById('kia-mic-query-total');
+      if (!el) return;
+      var meta = micCurrentQueryMeta;
+      if (!meta || !micCurrentQueryItems.length) {
+        el.classList.remove('kia-mic-query-total-visible');
+        el.removeAttribute('style');
+        el.innerHTML = '';
+        return;
+      }
+      var color = KIA_CATEGORY_COLORS[meta.category] || '#00f0ff';
+      var cardStyle = 'border-color:' + kiaHexToRgba(color, 0.35) + ';'
+        + 'background:linear-gradient(135deg,' + kiaHexToRgba(color, 0.14) + ',' + kiaHexToRgba(color, 0.04) + ');'
+        + 'box-shadow:0 0 16px ' + kiaHexToRgba(color, 0.12) + ', inset 0 0 10px ' + kiaHexToRgba(color, 0.05) + ';';
+      var label = (meta.dateFilterLabel || 'En total') + (meta.searchText ? ' · ' + meta.searchText : '');
+      var sub = kiaMovementNounPhrase(meta.category, meta.count);
+      var breakdownHtml = '';
+      if (meta.breakdown && meta.breakdown.length > 1 && !meta.searchText) {
+        breakdownHtml = '<div class="kia-mic-query-total-breakdown">' + meta.breakdown.slice(0, 4).map(function (b) {
+          return '<span class="kia-mic-query-total-chip">' + escapeSmartMicHtml(b.name) + ' · ' + kiaFormatCurrency(b.total) + '</span>';
+        }).join('') + '</div>';
+      }
+      el.setAttribute('style', cardStyle);
+      el.innerHTML = '<p class="kia-mic-query-total-label">' + escapeSmartMicHtml(label) + '</p>'
+        + '<p class="kia-mic-query-total-amount" style="color:' + color + ';text-shadow:0 0 12px ' + kiaHexToRgba(color, 0.4) + ';">' + kiaFormatCurrency(meta.total) + '</p>'
+        + '<p class="kia-mic-query-total-sub">' + escapeSmartMicHtml(sub) + '</p>'
+        + breakdownHtml;
+      el.classList.add('kia-mic-query-total-visible');
+    }
+
     function renderSmartMicQueryResults(result) {
       var container = document.getElementById('kia-mic-query-results');
       if (!container) return;
       micCurrentQueryItems = result.queryResults || [];
+      // "queryCategory" solo viene en un resultado FRESCO de mascotHandleVoiceCommand
+      // (vía showSmartMicResult, ver arriba); los re-renders internos de aquí abajo
+      // (al tocar 🗑️, cancelar, o confirmar un borrado) pasan un objeto parcial sin
+      // ese campo, justo para no pisar por accidente el total ya calculado con datos
+      // a medio actualizar — solo se reemplaza si de verdad llegó una consulta nueva.
+      if (result.queryCategory !== undefined) {
+        var isMovementCalc = ['gasto', 'ingreso', 'ahorro', 'diecast', 'pago_tc'].indexOf(result.queryCategory) !== -1
+          && typeof result.queryTotal === 'number';
+        micCurrentQueryMeta = isMovementCalc ? {
+          category: result.queryCategory,
+          total: result.queryTotal,
+          count: typeof result.queryCount === 'number' ? result.queryCount : micCurrentQueryItems.length,
+          breakdown: result.queryBreakdown || [],
+          dateFilterLabel: result.queryDateFilterLabel || '',
+          searchText: result.querySearchText || ''
+        } : null;
+      } else if (!micCurrentQueryItems.length) {
+        micCurrentQueryMeta = null;
+      }
+      renderSmartMicQueryTotalBanner();
       if (!micCurrentQueryItems.length) {
         container.innerHTML = '<p class="kia-mic-query-empty">' + (result.queryEmptyMessage || 'No encontré nada con eso 🤔') + '</p>';
         return;
@@ -14407,6 +14706,18 @@
       Promise.resolve(window.kiaDeleteQueryItem(it.kind, it.id)).then(function (ok) {
         if (ok) {
           micCurrentQueryItems.splice(idx, 1);
+          // Descuenta lo borrado del total/desglose ya mostrados, para que el banner
+          // no se quede desactualizado hasta la próxima pregunta por voz.
+          if (micCurrentQueryMeta && it.fields && typeof it.fields.amount === 'number' && it.fields.amount) {
+            micCurrentQueryMeta.total = Math.max(0, micCurrentQueryMeta.total - it.fields.amount);
+            micCurrentQueryMeta.count = Math.max(0, micCurrentQueryMeta.count - 1);
+            if (micCurrentQueryMeta.breakdown && micCurrentQueryMeta.breakdown.length) {
+              var subKey = it.fields.subcategoryName || 'General';
+              micCurrentQueryMeta.breakdown = micCurrentQueryMeta.breakdown
+                .map(function (b) { return b.name === subKey ? { name: b.name, total: Math.max(0, b.total - it.fields.amount) } : b; })
+                .filter(function (b) { return b.total > 0; });
+            }
+          }
           renderSmartMicQueryResults({ queryResults: micCurrentQueryItems, queryEmptyMessage: 'Ya no hay más resultados con eso 🤔' });
           speakMascotText('Listo, lo eliminé.');
         } else {
