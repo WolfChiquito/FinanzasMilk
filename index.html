@@ -2599,6 +2599,7 @@
       background: transparent;
       cursor: pointer;
       pointer-events: auto;
+      touch-action: none;
       transform: translate(0, 0);
       transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -13267,20 +13268,24 @@
     }
 
     function dialOnPointerDown(evt) {
-      const ring = document.getElementById('dial-ring');
       const container = document.getElementById('dial-perilla');
-      if (!ring || !container) return;
+      if (!container) return;
       evt.preventDefault();
+      // Si el dedo bajó justo sobre una burbuja, lo recordamos: si al soltar
+      // casi no hubo arrastre, saltamos directo a esa sección (toque limpio),
+      // sin depender de que el navegador dispare además su propio "click".
+      const iconBtn = evt.target && evt.target.closest ? evt.target.closest('.dial-icon-btn') : null;
       dialDrag = {
         pointerId: evt.pointerId,
         startX: evt.clientX,
         startY: evt.clientY,
         startRotation: dialRotation,
-        startTime: Date.now()
+        startTime: Date.now(),
+        startIconIndex: iconBtn ? parseInt(iconBtn.dataset.dialIndex, 10) : null
       };
       dialLastTickBoundary = Math.round(dialRotation / DIAL_TICK_STEP);
       container.classList.add('dial-dragging');
-      try { ring.setPointerCapture(evt.pointerId); } catch (e) {}
+      try { container.setPointerCapture(evt.pointerId); } catch (e) {}
     }
 
     function dialOnPointerMove(evt) {
@@ -13300,17 +13305,29 @@
 
     function dialOnPointerUp(evt) {
       if (!dialDrag || evt.pointerId !== dialDrag.pointerId) return;
-      const ring = document.getElementById('dial-ring');
       const container = document.getElementById('dial-perilla');
       const dx = evt.clientX - dialDrag.startX;
+      const dy = evt.clientY - dialDrag.startY;
       const elapsed = Date.now() - dialDrag.startTime;
       const startRotation = dialDrag.startRotation;
-      if (container) container.classList.remove('dial-dragging');
-      if (ring) { try { ring.releasePointerCapture(evt.pointerId); } catch (e) {} }
+      const startIconIndex = dialDrag.startIconIndex;
+      if (container) {
+        container.classList.remove('dial-dragging');
+        try { container.releasePointerCapture(evt.pointerId); } catch (e) {}
+      }
       dialDrag = null;
 
-      let target;
       const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+
+      // Toque limpio sobre una burbuja concreta (prácticamente sin arrastre):
+      // va directo a esa sección, igual que si se hiciera clic sobre ella.
+      if (startIconIndex !== null && absDx < 8 && absDy < 8) {
+        dialSelectIndex(startIconIndex);
+        return;
+      }
+
+      let target;
       if (elapsed < DIAL_FLICK_MAX_MS && absDx >= DIAL_FLICK_MIN_PX && absDx <= DIAL_FLICK_MAX_PX) {
         // Toque corto y rápido ("flick"): avanza un paso completo aunque no se
         // haya arrastrado la distancia entera. Mucho más perdonavidas al tacto.
@@ -13373,12 +13390,17 @@
     }
 
     function dialSetupEvents() {
-      const ring = document.getElementById('dial-ring');
-      if (ring) {
-        ring.addEventListener('pointerdown', dialOnPointerDown);
-        ring.addEventListener('pointermove', dialOnPointerMove);
-        ring.addEventListener('pointerup', dialOnPointerUp);
-        ring.addEventListener('pointercancel', dialOnPointerUp);
+      // El arrastre se escucha en TODO el contenedor de la perilla, no solo en
+      // el aro invisible: las burbujas (que están encima del aro y tienen su
+      // propio "pointer-events") antes se comían el toque y nunca dejaban
+      // empezar el giro. Así, tocar y mover el dedo directamente sobre una
+      // burbuja —el gesto que la gente intenta primero— también gira la perilla.
+      const container = document.getElementById('dial-perilla');
+      if (container) {
+        container.addEventListener('pointerdown', dialOnPointerDown);
+        container.addEventListener('pointermove', dialOnPointerMove);
+        container.addEventListener('pointerup', dialOnPointerUp);
+        container.addEventListener('pointercancel', dialOnPointerUp);
       }
       document.querySelectorAll('#dial-icons-layer .dial-icon-btn').forEach(btn => {
         btn.addEventListener('click', () => dialSelectIndex(parseInt(btn.dataset.dialIndex, 10)));
