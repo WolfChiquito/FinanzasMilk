@@ -15517,7 +15517,11 @@
       scheduleIdleGesture();
       scheduleTailWag();
 
-      setTimeout(function () { sayRandomPhrase(); }, 1500);
+      // Si Kia está apagada (interruptor desactivado), no debe lanzar la
+      // frase de bienvenida al abrir la app: ni burbuja ni voz.
+      setTimeout(function () {
+        if (isMascotEnabled()) sayRandomPhrase();
+      }, 1500);
     }
 
     if (document.readyState === 'loading') {
