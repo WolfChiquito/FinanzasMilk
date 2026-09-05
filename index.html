@@ -14258,17 +14258,26 @@
     }
 
     // Convierte cualquier monto en formato moneda ("$1,234.56", "-$50.00") a texto
-    // explícito en pesos ("1,234.56 pesos", "menos 50.00 pesos") ANTES de mandarlo a
-    // la síntesis de voz. El signo "$" por sí solo hace que varias voces (incluso en
-    // español) lo lean como dólares; al quitar el símbolo y decir "pesos" a propósito,
-    // Kia siempre dice la moneda correcta sin importar la voz que use el dispositivo.
-    // Solo afecta lo que se ESCUCHA: la burbuja de texto sigue mostrando "$1,234.56".
+    // explícito en pesos ANTES de mandarlo a la síntesis de voz. El signo "$" por sí
+    // solo hace que varias voces (incluso en español) lo lean como dólares, así que
+    // se dice "pesos" a propósito. Además se QUITA la coma de separador de miles del
+    // número (ej. "9,000" -> "9000"): dejarla causaba que varias voces leyeran mal la
+    // cifra completa (p. ej. "9,000" se llegaba a escuchar como "novecientos" en vez
+    // de "nueve mil"). Los centavos solo se mencionan cuando son distintos de cero
+    // ("1,234.56" -> "1234 pesos con 56 centavos"), para no decir "punto cero cero"
+    // en los montos exactos. Solo afecta lo que se ESCUCHA: la burbuja de texto sigue
+    // mostrando "$1,234.56" tal cual.
     function moneyToSpeechText(text) {
       try {
         return String(text).replace(/-?\$\s?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?/g, function (match) {
           var negative = match.trim().charAt(0) === '-';
-          var digits = match.replace(/[-$\s]/g, '');
-          return (negative ? 'menos ' : '') + digits + ' pesos';
+          var raw = match.replace(/[-$\s]/g, '');
+          var parts = raw.split('.');
+          var integerPart = parts[0].replace(/,/g, '');
+          var cents = parts[1] || '00';
+          var centsNum = parseInt(cents, 10) || 0;
+          var spoken = integerPart + (centsNum > 0 ? ' pesos con ' + cents + ' centavos' : ' pesos');
+          return (negative ? 'menos ' : '') + spoken;
         });
       } catch (e) {
         return String(text);
