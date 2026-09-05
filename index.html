@@ -14257,9 +14257,27 @@
       }
     }
 
+    // Convierte cualquier monto en formato moneda ("$1,234.56", "-$50.00") a texto
+    // explícito en pesos ("1,234.56 pesos", "menos 50.00 pesos") ANTES de mandarlo a
+    // la síntesis de voz. El signo "$" por sí solo hace que varias voces (incluso en
+    // español) lo lean como dólares; al quitar el símbolo y decir "pesos" a propósito,
+    // Kia siempre dice la moneda correcta sin importar la voz que use el dispositivo.
+    // Solo afecta lo que se ESCUCHA: la burbuja de texto sigue mostrando "$1,234.56".
+    function moneyToSpeechText(text) {
+      try {
+        return String(text).replace(/-?\$\s?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?/g, function (match) {
+          var negative = match.trim().charAt(0) === '-';
+          var digits = match.replace(/[-$\s]/g, '');
+          return (negative ? 'menos ' : '') + digits + ' pesos';
+        });
+      } catch (e) {
+        return String(text);
+      }
+    }
+
     function speakMascotTextForce(text) {
       if (!('speechSynthesis' in window)) return;
-      var clean = stripEmojiForSpeech(text);
+      var clean = stripEmojiForSpeech(moneyToSpeechText(text));
       if (!clean) return;
       try {
         var synth = window.speechSynthesis;
