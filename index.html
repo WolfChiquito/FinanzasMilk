@@ -6644,6 +6644,18 @@
       return computeBalanceFromMovements(accountId, movements);
     }
 
+    // Suma el saldo de TODAS las carteras/cuentas que no sean de crédito (mismo
+    // criterio que usa renderAccountsSection para el total de "Cuentas y Carteras"),
+    // proyectando la lista de movimientos que se le pase. Se usa para avisar, justo
+    // después de registrar un movimiento (desde el calendario o desde la voz de
+    // Kia), con cuánto dinero total le queda al usuario entre todas sus carteras.
+    function computeTotalWalletsFromMovements(movementsList) {
+      return accounts.reduce((sum, acc) => {
+        if (acc.accountType === 'credito') return sum;
+        return sum + computeBalanceFromMovements(acc.id, movementsList);
+      }, 0);
+    }
+
     // Da formato al saldo respetando la convención ya usada en "Cuentas y Carteras": las
     // cuentas de crédito muestran su deuda en negativo.
     function balanceLabelFor(acc, balance) {
@@ -6683,6 +6695,8 @@
 
       const title = oldMovementId ? '✅ ¡Actualizado!' : '✅ ¡Registrado!';
       const originLabel = balanceLabelFor(originAcc, computeBalanceFromMovements(originAcc.id, projected));
+      const totalLabel = formatCurrency(computeTotalWalletsFromMovements(projected));
+      const totalLine = `💰 Total en tus carteras: ${totalLabel}`;
 
       if (newMovementData.toAccountId) {
         const destAcc = accounts.find(a => a.id === newMovementData.toAccountId);
@@ -6690,12 +6704,12 @@
           const destLabel = balanceLabelFor(destAcc, computeBalanceFromMovements(destAcc.id, projected));
           return {
             title,
-            text: `${originAcc.emoji} ${originAcc.name} quedó con ${originLabel}  ·  ${destAcc.emoji} ${destAcc.name} quedó con ${destLabel}`
+            text: `${originAcc.emoji} ${originAcc.name} quedó con ${originLabel}  ·  ${destAcc.emoji} ${destAcc.name} quedó con ${destLabel}  ·  ${totalLine}`
           };
         }
       }
 
-      return { title, text: `${originAcc.emoji} ${originAcc.name} quedó con ${originLabel}` };
+      return { title, text: `${originAcc.emoji} ${originAcc.name} quedó con ${originLabel}  ·  ${totalLine}` };
     }
 
     function updateSubcategorySelectors() {
@@ -10911,7 +10925,12 @@
         subcategoryEmoji: subObj ? subObj.emoji : (CATEGORIES[type] ? CATEGORIES[type].emoji : '🏷️'),
         timestamp: new Date().toISOString()
       };
+      // Se calcula ANTES de guardar (igual que en el formulario manual) para avisar,
+      // en la misma frase que dice Kia, con cuánto quedó la cuenta usada y el total
+      // entre todas las carteras.
+      const balanceSummary = buildMovementSavedSummary(movementData, null);
       await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+      return balanceSummary;
     }
 
     // Registra una compra de la colección DieCast (mismo formato que usa el formulario manual,
@@ -10929,7 +10948,9 @@
         photo: '',
         timestamp: new Date().toISOString()
       };
+      const balanceSummary = buildMovementSavedSummary(movementData, null);
       await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+      return balanceSummary;
     }
 
     // Registra un pago de tarjeta de crédito (mismo formato que usa el formulario manual
@@ -10949,7 +10970,9 @@
         toAccount: toAccount ? toAccount.name : '',
         timestamp: new Date().toISOString()
       };
+      const balanceSummary = buildMovementSavedSummary(movementData, null);
       await addDoc(collection(db, 'artifacts', APP_ID, 'public', 'data', 'movements'), movementData);
+      return balanceSummary;
     }
 
     async function createKiaTask(text, dateStr, timeStr) {
@@ -11418,19 +11441,22 @@
         case 'ingreso':
         case 'ahorro': {
           const acc = accounts.find(a => a.id === fields.accountId) || null;
-          await createKiaFinancialMovement(type, fields.amount || 0, text, fields.subcategoryName || 'General', acc);
-          return '¡Anotado! ' + CATEGORIES[type].emoji + ' se guardó tu ' + CATEGORIES[type].label.toLowerCase();
+          const balanceSummary = await createKiaFinancialMovement(type, fields.amount || 0, text, fields.subcategoryName || 'General', acc);
+          const baseMsg = '¡Anotado! ' + CATEGORIES[type].emoji + ' se guardó tu ' + CATEGORIES[type].label.toLowerCase();
+          return balanceSummary ? baseMsg + '. ' + balanceSummary.text : baseMsg;
         }
         case 'pago_tc': {
           const accFrom = accounts.find(a => a.id === fields.accountId) || null;
           const accTo = accounts.find(a => a.id === fields.toAccountId) || null;
-          await createKiaPagoTC(fields.amount || 0, text, accFrom, accTo);
-          return '¡Anotado! 💳 se guardó tu pago de tarjeta';
+          const balanceSummary = await createKiaPagoTC(fields.amount || 0, text, accFrom, accTo);
+          const baseMsg = '¡Anotado! 💳 se guardó tu pago de tarjeta';
+          return balanceSummary ? baseMsg + '. ' + balanceSummary.text : baseMsg;
         }
         case 'diecast': {
           const accDie = accounts.find(a => a.id === fields.accountId) || null;
-          await createKiaDiecast(fields.amount || 0, text, accDie);
-          return '¡Agregado a tu colección DieCast! 🚗';
+          const balanceSummary = await createKiaDiecast(fields.amount || 0, text, accDie);
+          const baseMsg = '¡Agregado a tu colección DieCast! 🚗';
+          return balanceSummary ? baseMsg + '. ' + balanceSummary.text : baseMsg;
         }
         default:
           await saveMascotNote(text);
@@ -14316,9 +14342,13 @@
       bubbleEl.textContent = text;
       bubbleEl.classList.add('mascot-bubble-visible');
       clearTimeout(bubbleTimer);
+      // Duración mínima de 3.2s (igual que antes), pero se alarga con textos más
+      // largos -como los avisos de saldo/total de carteras- para que a Kia le dé
+      // tiempo de decirlos completos antes de que la burbuja desaparezca.
+      var visibleMs = Math.max(3200, 1200 + text.length * 60);
       bubbleTimer = setTimeout(function () {
         bubbleEl.classList.remove('mascot-bubble-visible');
-      }, 3200);
+      }, visibleMs);
       speakMascotText(text);
     }
 
